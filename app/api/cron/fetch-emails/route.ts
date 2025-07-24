@@ -1,3 +1,5 @@
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0"; //for local dev
+
 import { NextResponse } from "next/server";
 import { readEmails } from "@/lib/emailReader";
 
