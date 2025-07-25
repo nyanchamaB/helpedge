@@ -1,7 +1,7 @@
 import Imap from "imap";
 import { simpleParser } from "mailparser";
 import { connectToDB } from "./db";
-import Ticket from "@/models/ticket";
+import Ticket from "@/models/Ticket";
 
 export async function readEmails() {
   const imap = new Imap({
