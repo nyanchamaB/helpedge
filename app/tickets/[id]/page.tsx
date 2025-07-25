@@ -23,18 +23,18 @@ async function getTicket(id: string): Promise<Ticket | null> {
   const res = await fetch(`http://localhost:3000/api/tickets/${id}`, {
     next: { revalidate: 1 },
   });
-
   if (!res.ok) return null;
-
   return res.json();
 }
 
 export default async function TicketDetailPage({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>; // params is now a Promise
 }) {
-  const ticket = await getTicket(params.id);
+  const { id } = await params; // Await params before accessing properties
+  const ticket = await getTicket(id);
+  
   if (!ticket) return notFound();
 
   return (
@@ -68,7 +68,6 @@ export default async function TicketDetailPage({
           <div className="whitespace-pre-wrap text-sm leading-relaxed border rounded-md p-4 bg-muted">
             {ticket.body}
           </div>
-
           <div className="flex gap-2 mt-6">
             <Button variant="secondary">Mark as Pending</Button>
             <Button variant="destructive">Close Ticket</Button>
