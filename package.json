@@ -16,6 +16,7 @@
     "date-fns": "^4.1.0",
     "dotenv": "^17.2.0",
     "imap": "^0.8.19",
+    "jsonwebtoken": "^9.0.2",
     "lucide-react": "^0.525.0",
     "mailparser": "^3.7.4",
     "mongoose": "^8.16.4",
