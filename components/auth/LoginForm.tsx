@@ -1,4 +1,3 @@
-// components/auth/LoginForm.tsx
 "use client";
 
 import { useState } from "react";
@@ -37,9 +36,10 @@ export default function LoginForm() {
 
       if (response.ok) {
         console.log("Redirecting to /dashboard...");
-        setTimeout(() => {
-          router.push("/dashboard");
-        }, 100);
+        window.location.href = "/dashboard";
+        // setTimeout(() => {
+        //   router.push("/dashboard");
+        // }, 100);
       } else {
         console.error("Login failed:", data.error);
         setErrors({ general: data.error });
@@ -52,6 +52,12 @@ export default function LoginForm() {
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        // Clear errors when user starts typing
+    if (errors.general) {
+      setErrors({});
+    }
+
+    
     setFormData({
       ...formData,
       [e.target.name]: e.target.value,
