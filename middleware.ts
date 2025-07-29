@@ -4,6 +4,7 @@ import type { NextRequest } from 'next/server';
 import { verifyToken } from './lib/auth';
 
 export function middleware(request: NextRequest) {
+  console.log("ENV:", process.env.NODE_ENV); //remove this when done logging
   const token = request.cookies.get('auth-token')?.value;
   const { pathname } = request.nextUrl;
 
