@@ -35,7 +35,7 @@ import Category from '@/models/Category';
 export async function GET(req: NextRequest) {
   try {
     await dbConnect();
-    
+
     const userRole = req.headers.get('x-user-role');
     const currentUserId = req.headers.get('x-user-id');
 
@@ -52,7 +52,7 @@ export async function GET(req: NextRequest) {
 
     // Build query based on user role
     let query: any = {};
-    
+
     if (userRole === 'end_user') {
       // End users can only see their own tickets
       query.requester = currentUserId;
@@ -85,7 +85,7 @@ export async function GET(req: NextRequest) {
 
     const [tickets, total] = await Promise.all([
       Ticket.find(query)
-        .populate('requester', 'name email')
+        .populate('createdBy', 'name email')
         .populate('assignedTo', 'name email')
         .populate('category', 'name color')
         .sort({ createdAt: -1 })
@@ -94,8 +94,17 @@ export async function GET(req: NextRequest) {
       Ticket.countDocuments(query)
     ]);
 
+    // Normalize tickets: ensure all have a valid `createdAt` value
+    const normalizedTickets = tickets.map((ticket) => {
+      const obj = ticket.toObject();
+      return {
+        ...obj,
+        createdAt: obj.createdAt || obj.date || new Date()
+      };
+    });
+
     return NextResponse.json({
-      tickets,
+      tickets: normalizedTickets,
       pagination: {
         page,
         limit,
@@ -115,10 +124,10 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   try {
     await dbConnect();
-    
+
     const currentUserId = req.headers.get('x-user-id');
     const userRole = req.headers.get('x-user-role');
-    
+
     const body = await req.json();
     const { subject, description, priority, category, assignedTo } = body;
 
@@ -140,14 +149,14 @@ export async function POST(req: NextRequest) {
     };
 
     if (category) ticketData.category = category;
-    
+
     // Only agents and admins can assign tickets during creation
     if ((userRole === 'agent' || userRole === 'admin') && assignedTo) {
       ticketData.assignedTo = assignedTo;
     }
 
     const ticket = await Ticket.create(ticketData);
-    
+
     // Populate the created ticket
     const populatedTicket = await Ticket.findById(ticket._id)
       .populate('requester', 'name email')
