@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { notFound } from "next/navigation";
 import { format } from "date-fns";
+import { cookies } from "next/headers";
 
 interface Ticket {
   _id: string;
@@ -20,10 +21,19 @@ interface Ticket {
 }
 
 async function getTicket(id: string): Promise<Ticket | null> {
+  const cookieStore = cookies();
   const res = await fetch(`http://localhost:3000/api/tickets/${id}`, {
+    cache: "no-store",
+    headers: {
+      Cookie: cookieStore.toString(),
+    },
     next: { revalidate: 1 },
   });
-  if (!res.ok) return null;
+  if (!res.ok) {
+    console.error("Failed to fetch ticket:", await res.text());
+    return null;
+  }
+
   return res.json();
 }
 
@@ -34,7 +44,7 @@ export default async function TicketDetailPage({
 }) {
   const { id } = await params; // Await params before accessing properties
   const ticket = await getTicket(id);
-  
+
   if (!ticket) return notFound();
 
   return (
