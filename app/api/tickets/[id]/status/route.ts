@@ -72,7 +72,7 @@ export async function PUT(
       id,
       updateData,
       { new: true }
-    ).populate('requester', 'name email')
+    ).populate('createdBy', 'name email')
      .populate('assignedTo', 'name email')
      .populate('category', 'name color');
 
