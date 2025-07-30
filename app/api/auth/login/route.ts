@@ -1,4 +1,3 @@
-// app/api/auth/login/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import dbConnect from '@/lib/mongodb';
 import User from '@/models/User';
@@ -9,60 +8,80 @@ export async function POST(req: NextRequest) {
   try {
     await dbConnect();
     const body = await req.json();
-
+    console.log('Login attempt for:', body.email);
+    
     // Validate input
-    const validatedData = loginSchema.parse(body);
-
-    // Find user
-    const user = await User.findOne({ email: validatedData.email });
-    if (!user) {
+    const validation = loginSchema.safeParse(body);
+    if (!validation.success) {
       return NextResponse.json(
-        { error: 'Invalid credentials' },
+        { error: 'Invalid input data', details: validation.error.errors },
+        { status: 400 }
+      );
+    }
+    
+      const { email, password } = validation.data;
+
+    // Find user by email
+    const user = await User.findOne({ email, isActive: true }).select('+password');
+    if (!user) {
+      console.log('User not found:', email);
+      return NextResponse.json(
+        { error: 'Invalid email or password' },
         { status: 401 }
       );
     }
 
     // Verify password
-    const isValidPassword = await verifyPassword(validatedData.password, user.password);
+    const isValidPassword = await verifyPassword(password, user.password);
     if (!isValidPassword) {
+      console.log('Invalid password for user:', email);
       return NextResponse.json(
-        { error: 'Invalid credentials' },
+        { error: 'Invalid email or password' },
         { status: 401 }
       );
     }
 
     // Update last login
-    await User.findByIdAndUpdate(user._id, { lastLogin: new Date() });
+      user.lastLoginAt = new Date();
+    await user.save();
 
     // Generate token
-    const token = generateToken(user._id.toString(), user.email, user.role);
+    const token = generateToken({
+      userId: user._id.toString(),
+      email: user.email,
+      role: user.role,
+    });
 
-    // Create response
+        console.log('Token generated, setting cookie...');
+
+    // Create response with user data (password excluded by model)
     const response = NextResponse.json({
       message: 'Login successful',
       user: {
         id: user._id,
         name: user.name,
         email: user.email,
-        role: user.role
-      }
+        role: user.role,
+      },
     });
 
-    // Set cookie
-    response.cookies.set('auth-token', token, {
+    // Set HTTP-only cookie with more explicit settings
+    response.cookies.set({
+      name: 'token',
+      value: token,
       httpOnly: true,
-      // secure: process.env.NODE_ENV === 'production',
-      secure: false,
+      secure: false, // Set to false for development (localhost)
       sameSite: 'lax',
+      maxAge: 60 * 60 * 24 * 7, // 7 days
       path: '/',
-      maxAge: 60 * 60 * 24 * 7 // 7 days
     });
 
+    console.log('Cookie set successfully');
     return response;
-  } catch (error: any) {
+  } catch (error) {
     console.error('Login error:', error);
     return NextResponse.json(
-      { error: error.message || 'Internal server error' },
+      { error: 'Internal server error' },
       { status: 500 }
     );
   }
