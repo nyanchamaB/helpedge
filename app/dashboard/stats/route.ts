@@ -48,7 +48,7 @@ export async function GET(req: NextRequest) {
       }),
       Ticket.countDocuments({ ...baseQuery, slaBreached: true }),
       Ticket.find(baseQuery)
-        .populate('requester', 'name email')
+        .populate('createdBy', 'name email')
         .populate('assignedTo', 'name email')
         .populate('category', 'name color')
         .sort({ createdAt: -1 })
@@ -64,7 +64,7 @@ export async function GET(req: NextRequest) {
       status: { $in: ['open', 'in_progress'] },
       dueDate: { $lte: new Date(Date.now() + 4 * 60 * 60 * 1000) } // Next 4 hours
     })
-    .populate('requester', 'name email')
+    .populate('createdBy', 'name email')
     .sort({ dueDate: 1 })
     .limit(10);
 
