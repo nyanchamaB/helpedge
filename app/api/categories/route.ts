@@ -13,7 +13,7 @@ export async function GET(req: NextRequest) {
     const query = includeInactive ? {} : { isActive: true };
     
     const categories = await Category.find(query)
-      .populate('assignedTo', 'name email')
+      .populate('createdBy', 'name email')
       .sort({ name: 1 });
 
     return NextResponse.json({ categories });
@@ -52,7 +52,7 @@ export async function POST(req: NextRequest) {
     });
 
     const populatedCategory = await Category.findById(category._id)
-      .populate('assignedTo', 'name email')
+      .populate('createdBy', 'name email')
       .populate('parent', 'name');
 
     return NextResponse.json({
