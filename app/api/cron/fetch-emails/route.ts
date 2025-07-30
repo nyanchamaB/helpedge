@@ -1,4 +1,17 @@
-process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0"; //for local dev
+// process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0"; //for local dev
+
+// import { NextResponse } from "next/server";
+// import { readEmails } from "@/lib/emailReader";
+
+// export async function GET() {
+//   try {
+//     await readEmails();
+//     return NextResponse.json({ message: "Fetched emails." });
+//   } catch (error) {
+//     return NextResponse.json({ error: "Error fetching emails" }, { status: 500 });
+//   }
+// }
+
 
 import { NextResponse } from "next/server";
 import { readEmails } from "@/lib/emailReader";
@@ -6,8 +19,9 @@ import { readEmails } from "@/lib/emailReader";
 export async function GET() {
   try {
     await readEmails();
-    return NextResponse.json({ message: "Fetched emails." });
+    return NextResponse.json({ success: true, message: "Emails processed." });
   } catch (error) {
-    return NextResponse.json({ error: "Error fetching emails" }, { status: 500 });
+    console.error("Error processing emails:", error);
+    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }
 }
