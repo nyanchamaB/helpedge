@@ -1,3 +1,4 @@
+//C:\Users\gideon.kaiyian\Documents\Projects\helpedge\lib\emailReader.ts
 import Imap from "imap";
 import { simpleParser } from "mailparser";
 import dbConnect from "./mongodb";
@@ -15,7 +16,11 @@ export async function readEmails() {
       tlsOptions: { rejectUnauthorized: false }, //!disables TLS certificate validation unsafe for production
     });
 
-    const openInbox = (cb: (err: any, box: Imap.Box) => void) => {
+    // const openInbox = (cb: (err: any, box: Imap.Box) => void) => {
+    //   imap.openBox("INBOX", false, cb);
+    // };
+
+    const openInbox = (cb: any) => {
       imap.openBox("INBOX", false, cb);
     };
 
@@ -70,14 +75,28 @@ export async function readEmails() {
               try {
                 const parsed = await simpleParser(stream);
                 await dbConnect();
+                // await Ticket.create({
+                //   subject: parsed.subject || "(No Subject)",
+                //   body: parsed.text || "",
+                //   sender: parsed.from?.text || "Unknown Sender",
+                //   source: "email",
+                //   status: "open",
+                //   priority: "normal",
+                //   createdAt: parsed.date || new Date(),
+                // });
                 await Ticket.create({
-                  subject: parsed.subject || "(No Subject)",
-                  body: parsed.text || "",
-                  sender: parsed.from?.text || "Unknown Sender",
+                  title: parsed.subject || "(No Subject)",
+                  description: parsed.text || "",
+
+                  customerEmail: parsed.from?.value?.[0]?.address || "unknown@example.com",
+                  customerName: parsed.from?.value?.[0]?.name || undefined,
+                  createdBy: "system", // Replace with actual system user _id if possible
+
                   source: "email",
                   status: "open",
-                  priority: "normal",
-                  createdAt: parsed.date || new Date(),
+                  priority: "medium", // ✅ valid enum value
+
+                  category: process.env.DEFAULT_CATEGORY_ID, // You must set this in `.env.local`
                 });
                 console.log(`✅ Ticket created for: ${parsed.subject}`);
               } catch (error) {
