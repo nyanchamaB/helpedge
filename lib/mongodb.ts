@@ -50,7 +50,7 @@ async function dbConnect() {
       await Promise.all([
         import('@/models/User'),
         import('@/models/Category'),
-        import('@/models/Ticket'),
+        import('@/models/ticket'),
       ]);
       return mongoose;
     });
