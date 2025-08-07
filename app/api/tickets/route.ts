@@ -28,7 +28,7 @@
 // app/api/tickets/route.ts (Enhanced)
 import { NextRequest, NextResponse } from 'next/server';
 import dbConnect from '@/lib/mongodb';
-import Ticket from '@/models/Ticket';
+import Ticket from '@/models/ticket';
 import User from '@/models/User';
 import Category from '@/models/Category';
 
