@@ -1,11 +1,12 @@
-import mongoose, { Document, Schema } from 'mongoose';
+import mongoose, { Document, Schema, Types } from 'mongoose';
+import { Model } from 'mongoose';
 
 export interface IUser extends Document {
-  _id: string;
+  _id: Types.ObjectId;
   name: string;
   email: string;
-  password: string;
-  role: 'admin' | 'agent' | 'user'; //!we will ad more here
+  password?: string;
+  role: 'admin' | 'agent' | 'user';
   isActive: boolean;
   createdAt: Date;
   updatedAt: Date;
@@ -70,7 +71,7 @@ const UserSchema = new Schema<IUser>({
 }, {
   timestamps: true,
   toJSON: {
-    transform: function(doc, ret) {
+    transform: function (doc, ret) {
       // Remove password from JSON output
       delete ret.password;
       return ret;
@@ -85,6 +86,7 @@ UserSchema.index({ isActive: 1 });
 UserSchema.index({ createdAt: -1 });
 
 // Prevent duplicate model compilation in development
-const User = mongoose.models.User || mongoose.model<IUser>('User', UserSchema);
+const User: Model<IUser> =
+  mongoose.models.User || mongoose.model<IUser>('User', UserSchema);
 
 export default User;
