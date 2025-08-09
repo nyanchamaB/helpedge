@@ -33,16 +33,16 @@ app.get("/", (_req, res) => {
   res.json({ message: "HelpEdge API running" });
 });
 
-// // Cron job: runs every 5 minutes
-// cron.schedule("*/5 * * * *", async () => {
-//   console.log("📧 Cron job started: Checking emails...");
-//   try {
-//     await readEmails();
-//     console.log("✅ Email check completed");
-//   } catch (error) {
-//     console.error("❌ Email check failed:", error);
-//   }
-// });
+// Cron job: runs every 5 minutes
+cron.schedule("*/5 * * * *", async () => {
+  console.log("📧 Cron job started: Checking emails...");
+  try {
+    await readEmails();
+    console.log("✅ Email check completed");
+  } catch (error) {
+    console.error("❌ Email check failed:", error);
+  }
+});
 
 //Auth
 app.use("/api/auth/register", registerRoute);
