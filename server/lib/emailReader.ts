@@ -55,7 +55,7 @@ export async function readEmails() {
             msg.on("body", async (stream: Readable) => {
               try {
                 const parsed: ParsedMail = await simpleParser(stream);
-                await dbConnect();
+                // await dbConnect(); // Hold on this for now (Still reading on the docs) its being called twic 1. from the index.ts and here
 
                 // ✅ Ensure "General" category exists or create it
                 let defaultCategory = await Category.findOne({ name: "General" });
