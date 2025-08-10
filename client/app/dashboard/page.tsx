@@ -19,7 +19,7 @@ interface Ticket {
 async function fetchTickets(): Promise<Ticket[]> {
   const cookieStore = cookies();
 
-  const res = await fetch("http://localhost:5000/api/tickets", {
+  const res = await fetch("http://localhost:8000/api/tickets", {
     cache: "no-store",
     headers: {
       Cookie: (await cookieStore).toString(),
