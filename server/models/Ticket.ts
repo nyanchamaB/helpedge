@@ -132,7 +132,7 @@ const TicketSchema = new Schema<ITicket>(
   { timestamps: true }
 );
 
-TicketSchema.index({ ticketNumber: 1 });
+// TicketSchema.index({ ticketNumber: 1 });
 TicketSchema.index({ status: 1 });
 TicketSchema.index({ priority: 1 });
 TicketSchema.index({ category: 1 });
@@ -147,13 +147,23 @@ TicketSchema.index({ status: 1, priority: 1 });
 TicketSchema.index({ assignedTo: 1, status: 1 });
 TicketSchema.index({ category: 1, status: 1 });
 
-TicketSchema.pre("save", async function (next) {
+
+TicketSchema.pre("validate", async function (next) {
   if (this.isNew && !this.ticketNumber) {
     const count = await mongoose.model<ITicket>("Ticket").countDocuments();
     this.ticketNumber = `TKT-${String(count + 1).padStart(6, "0")}`;
   }
   next();
 });
+
+
+// TicketSchema.pre("save", async function (next) {
+//   if (this.isNew && !this.ticketNumber) {
+//     const count = await mongoose.model<ITicket>("Ticket").countDocuments();
+//     this.ticketNumber = `TKT-${String(count + 1).padStart(6, "0")}`;
+//   }
+//   next();
+// });
 
 TicketSchema.pre("save", function (next) {
   if (this.isModified("status")) {
