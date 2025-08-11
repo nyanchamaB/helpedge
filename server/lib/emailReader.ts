@@ -57,7 +57,7 @@ export async function readEmails() {
                 const parsed: ParsedMail = await simpleParser(stream);
                 // await dbConnect(); // Hold on this for now (Still reading on the docs) its being called twic 1. from the index.ts and here
 
-                // ✅ Ensure "General" category exists or create it
+                // Ensure "General" category exists or create it
                 let defaultCategory = await Category.findOne({ name: "General" });
                 if (!defaultCategory) {
                   defaultCategory = await Category.create({
@@ -69,9 +69,24 @@ export async function readEmails() {
                   });
                 }
 
-                const ticketNumber = `T-${Date.now()}-${Math.floor(Math.random() * 10000)}`;
+                // const ticketNumber = `T-${Date.now()}-${Math.floor(Math.random() * 10000)}`;
 
-                await Ticket.create({
+                // await Ticket.create({
+                //   title: parsed.subject || "(No Subject)",
+                //   description: (parsed.text || "").slice(0, 5000),
+                //   customerEmail: parsed.from?.value?.[0]?.address || "unknown@example.com",
+                //   customerName: parsed.from?.value?.[0]?.name || undefined,
+                //   createdBy: SYSTEM_USER_ID,
+                //   source: "email",
+                //   status: "open",
+                //   priority: "medium",
+                //   category: defaultCategory._id,
+                //   // ticketNumber,
+                // });
+
+                
+                // Create ticket using .save() so pre("save") generates ticketNumber
+                const ticket = new Ticket({
                   title: parsed.subject || "(No Subject)",
                   description: (parsed.text || "").slice(0, 5000),
                   customerEmail: parsed.from?.value?.[0]?.address || "unknown@example.com",
@@ -81,8 +96,9 @@ export async function readEmails() {
                   status: "open",
                   priority: "medium",
                   category: defaultCategory._id,
-                  ticketNumber,
                 });
+
+                await ticket.save();
 
                 console.log(`Ticket created for ${parsed.subject}`);
               } catch (error) {
