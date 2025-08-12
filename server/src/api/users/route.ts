@@ -1,7 +1,7 @@
 import express from "express";
 import User from "../../../models/User";
 import { hashPassword } from "../../../lib/auth";
-import dbConnect from "../../../lib/mongodb";
+// import dbConnect from "../../../lib/mongodb";
 
 const router = express.Router();
 
