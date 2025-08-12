@@ -70,7 +70,7 @@ router.put("/:id", async (req, res) => {
 // DELETE user
 router.delete("/:id", async (req, res) => {
   try {
-    await dbConnect();
+    // await dbConnect();
     const { id } = req.params;
 
     const userRole = req.header("x-user-role");
