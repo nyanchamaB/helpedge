@@ -8,7 +8,7 @@ const router = express.Router();
 // GET user by ID
 router.get("/:id", async (req, res) => {
   try {
-    await dbConnect();
+    // await dbConnect();
     const { id } = req.params;
 
     const userRole = req.header("x-user-role");
