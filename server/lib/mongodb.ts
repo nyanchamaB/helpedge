@@ -1,29 +1,42 @@
-import mongoose from 'mongoose';
+import mongoose from "mongoose";
 
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/helpedge';
+let isConnected = false;
+
+const MONGODB_URI =
+  process.env.MONGODB_URI || "mongodb://localhost:27017/helpedge";
 
 if (!MONGODB_URI) {
-  throw new Error('Please define the MONGODB_URI environment variable');
+  throw new Error("Please define the MONGODB_URI environment variable");
 }
 
-// Global cache to avoid multiple connections in development
 let cached = (global as any).mongoose || { conn: null, promise: null };
 
 async function dbConnect() {
-  if (cached.conn) return cached.conn;
+  if (isConnected && cached.conn) return cached.conn;
+
+  if (cached.conn) {
+    isConnected = true;
+    return cached.conn;
+  }
 
   if (!cached.promise) {
-    cached.promise = mongoose.connect(MONGODB_URI, {
-      bufferCommands: false,
-    }).then(async (mongoose) => {
-      // ✅ Register all models in correct order
-      await Promise.all([
-        import('../models/User'),
-        import('../models/Category'),
-        import('../models/Ticket'),
-      ]);
-      return mongoose;
-    });
+    cached.promise = mongoose
+      .connect(MONGODB_URI, {
+        bufferCommands: false,
+      })
+      .then(async (mongooseInstance) => {
+        await Promise.all([
+          import("../models/User"),
+          import("../models/Category"),
+          import("../models/Ticket"),
+        ]);
+
+        // ✅ Safe check
+        const conn = mongooseInstance.connections[0];
+        isConnected = !!conn && conn.readyState === 1;
+
+        return mongooseInstance;
+      });
   }
 
   cached.conn = await cached.promise;

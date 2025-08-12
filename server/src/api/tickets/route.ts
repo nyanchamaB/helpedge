@@ -7,7 +7,7 @@ const router = express.Router();
 // GET all tickets (with filters + pagination)
 router.get("/", async (req: Request, res: Response) => {
   try {
-    await dbConnect();
+    // await dbConnect();
 
     const userRole = req.headers["x-user-role"] as string;
     const currentUserId = req.headers["x-user-id"] as string;
@@ -79,7 +79,7 @@ router.get("/", async (req: Request, res: Response) => {
 // POST create ticket
 router.post("/", async (req: Request, res: Response) => {
   try {
-    await dbConnect();
+    // await dbConnect();
 
     const currentUserId = req.headers["x-user-id"] as string;
     const userRole = req.headers["x-user-role"] as string;

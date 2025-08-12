@@ -1,7 +1,6 @@
 import Imap from "imap";
 import { simpleParser, ParsedMail } from "mailparser";
 import { Readable } from "stream";
-import dbConnect from "./mongodb";
 import Ticket from "../models/Ticket";
 import Category from "../models/Category";
 import mongoose from "mongoose";
@@ -9,8 +8,6 @@ import mongoose from "mongoose";
 // System user ID: Replace with actual ObjectID of the system/bot user
 // const SYSTEM_USER_ID = new mongoose.Types.ObjectId("");
 const SYSTEM_USER_ID = new mongoose.Types.ObjectId("66b50f441776f53e0a2d234a"); //!verify this
-
-
 
 // Wrap everything in a Promise to await when using
 export async function readEmails() {
@@ -31,8 +28,6 @@ export async function readEmails() {
     const openInbox = (cb: (err: Error | null, box: Imap.Box) => void) => {
       imap.openBox("INBOX", false, cb);
     };
-
-
 
     imap.once("ready", () => {
       openInbox((err: Error | null, box: Imap.Box) => {
@@ -55,7 +50,7 @@ export async function readEmails() {
             msg.on("body", async (stream: Readable) => {
               try {
                 const parsed: ParsedMail = await simpleParser(stream);
-                // await dbConnect(); // Hold on this for now (Still reading on the docs) its being called twic 1. from the index.ts and here
+                // await dbConnect(); // Hold on this for now (Still reading on the docs) its being called twice...from the index.ts and here
 
                 // Ensure "General" category exists or create it
                 let defaultCategory = await Category.findOne({ name: "General" });
@@ -68,22 +63,6 @@ export async function readEmails() {
                     createdBy: SYSTEM_USER_ID, // make sure this is a valid user ID in DB
                   });
                 }
-
-                // const ticketNumber = `T-${Date.now()}-${Math.floor(Math.random() * 10000)}`;
-
-                // await Ticket.create({
-                //   title: parsed.subject || "(No Subject)",
-                //   description: (parsed.text || "").slice(0, 5000),
-                //   customerEmail: parsed.from?.value?.[0]?.address || "unknown@example.com",
-                //   customerName: parsed.from?.value?.[0]?.name || undefined,
-                //   createdBy: SYSTEM_USER_ID,
-                //   source: "email",
-                //   status: "open",
-                //   priority: "medium",
-                //   category: defaultCategory._id,
-                //   // ticketNumber,
-                // });
-
                 
                 // Create ticket using .save() so pre("save") generates ticketNumber
                 const ticket = new Ticket({

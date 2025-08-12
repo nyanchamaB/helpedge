@@ -8,7 +8,7 @@ const router = express.Router();
 // GET user by ID
 router.get("/:id", async (req, res) => {
   try {
-    await dbConnect();
+    // await dbConnect();
     const { id } = req.params;
 
     const userRole = req.header("x-user-role");
@@ -31,7 +31,7 @@ router.get("/:id", async (req, res) => {
 // PUT update user
 router.put("/:id", async (req, res) => {
   try {
-    await dbConnect();
+    // await dbConnect();
     const { id } = req.params;
 
     const userRole = req.header("x-user-role");
@@ -70,7 +70,7 @@ router.put("/:id", async (req, res) => {
 // DELETE user
 router.delete("/:id", async (req, res) => {
   try {
-    await dbConnect();
+    // await dbConnect();
     const { id } = req.params;
 
     const userRole = req.header("x-user-role");
