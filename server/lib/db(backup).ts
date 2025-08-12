@@ -1,3 +1,4 @@
+// This will be used as a backup/dummy for the DB in production
 import mongoose from "mongoose";
 
 const MONGODB_URI = process.env.MONGODB_URI!;
