@@ -8,7 +8,7 @@ const router = express.Router();
 // GET all users
 router.get("/", async (req, res) => {
   try {
-    await dbConnect();
+    // await dbConnect();
 
     const userRole = req.header("x-user-role");
     if (userRole !== "admin" && userRole !== "agent") {
