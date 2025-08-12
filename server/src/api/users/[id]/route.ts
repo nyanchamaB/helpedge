@@ -31,7 +31,7 @@ router.get("/:id", async (req, res) => {
 // PUT update user
 router.put("/:id", async (req, res) => {
   try {
-    await dbConnect();
+    // await dbConnect();
     const { id } = req.params;
 
     const userRole = req.header("x-user-role");
