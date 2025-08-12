@@ -55,7 +55,7 @@ router.get("/", async (req, res) => {
 // POST create user
 router.post("/", async (req, res) => {
   try {
-    await dbConnect();
+    // await dbConnect();
 
     const userRole = req.header("x-user-role");
     if (userRole !== "admin") {
