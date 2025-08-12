@@ -79,7 +79,7 @@ router.get("/", async (req: Request, res: Response) => {
 // POST create ticket
 router.post("/", async (req: Request, res: Response) => {
   try {
-    await dbConnect();
+    // await dbConnect();
 
     const currentUserId = req.headers["x-user-id"] as string;
     const userRole = req.headers["x-user-role"] as string;
