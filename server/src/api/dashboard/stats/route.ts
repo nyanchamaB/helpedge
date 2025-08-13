@@ -7,7 +7,7 @@ const router = express.Router();
 
 router.get("/", async (req, res) => {
   try {
-    await dbConnect();
+    // await dbConnect();
 
     const userRole = req.header("x-user-role");
     const currentUserId = req.header("x-user-id");
