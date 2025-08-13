@@ -6,7 +6,7 @@ const router = express.Router();
 
 router.put("/:id/status", async (req: Request, res: Response) => {
   try {
-    await dbConnect();
+    // await dbConnect();
     const { id } = req.params;
 
     const userRole = req.headers["x-user-role"] as string;
