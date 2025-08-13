@@ -7,7 +7,7 @@ const router = express.Router();
 // GET ticket by ID
 router.get("/:id", async (req: Request, res: Response) => {
   try {
-    await dbConnect();
+    // await dbConnect();
     const ticket = await Ticket.findById(req.params.id);
 
     if (!ticket) {
