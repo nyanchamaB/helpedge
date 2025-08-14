@@ -8,7 +8,7 @@ const router = express.Router();
 
 router.post("/", async (req, res) => {
   try {
-    await dbConnect();
+    // await dbConnect();
     const body = req.body;
     console.log("Login attempt for:", body.email);
 
