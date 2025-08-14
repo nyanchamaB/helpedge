@@ -26,7 +26,7 @@ router.get("/", async (req, res) => {
 // POST /api/categories
 router.post("/", async (req, res) => {
   try {
-    await dbConnect();
+    // await dbConnect();
 
     const userRole = req.headers["x-user-role"];
 
