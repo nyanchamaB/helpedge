@@ -7,7 +7,7 @@ const router = express.Router();
 // GET /api/categories
 router.get("/", async (req, res) => {
   try {
-    await dbConnect();
+    // await dbConnect();
 
     const includeInactive = req.query.includeInactive === "true";
     const query = includeInactive ? {} : { isActive: true };
@@ -26,7 +26,7 @@ router.get("/", async (req, res) => {
 // POST /api/categories
 router.post("/", async (req, res) => {
   try {
-    await dbConnect();
+    // await dbConnect();
 
     const userRole = req.headers["x-user-role"];
 
