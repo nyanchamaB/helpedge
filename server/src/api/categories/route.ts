@@ -7,7 +7,7 @@ const router = express.Router();
 // GET /api/categories
 router.get("/", async (req, res) => {
   try {
-    await dbConnect();
+    // await dbConnect();
 
     const includeInactive = req.query.includeInactive === "true";
     const query = includeInactive ? {} : { isActive: true };
