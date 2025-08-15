@@ -19,6 +19,8 @@ import categoriesRoute from "./api/categories/route";
 
 import fetchEmailsRoute from "./api/cron/fetch-emails/route";
 
+import dashboardStatsRoute from "./api/dashboard/stats/route";
+
 import usersRoute from "./api/users/route";
 import userByIdRoute from "./api/users/[id]/route";
 
@@ -64,6 +66,9 @@ app.use("/api/categories", categoriesRoute);
 
 // Cron / Email
 app.use("/api/cron/fetch-emails", fetchEmailsRoute);
+
+//Dashboard Stats
+app.use("/api/dashboard/stats", dashboardStatsRoute);
 
 const PORT = process.env.PORT || 5000;
 const MONGODB_URI = process.env.MONGODB_URI;
