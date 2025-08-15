@@ -33,6 +33,7 @@ export interface ITicket extends Document {
   resolvedAt?: Date;
   closedAt?: Date;
   date?: Date;
+  dueDate?: Date;
 }
 
 const TicketSchema = new Schema<ITicket>(
@@ -128,6 +129,7 @@ const TicketSchema = new Schema<ITicket>(
     firstResponseTime: { type: Number, min: 0 },
     resolvedAt: { type: Date },
     closedAt: { type: Date },
+    dueDate: { type: Date },
   },
   { timestamps: true }
 );
