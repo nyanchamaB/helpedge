@@ -50,7 +50,6 @@ export async function readEmails() {
             msg.on("body", async (stream: Readable) => {
               try {
                 const parsed: ParsedMail = await simpleParser(stream);
-                // await dbConnect(); // Hold on this for now (Still reading on the docs) its being called twice...from the index.ts and here
 
                 // Ensure "General" category exists or create it
                 let defaultCategory = await Category.findOne({ name: "General" });
@@ -63,7 +62,7 @@ export async function readEmails() {
                     createdBy: SYSTEM_USER_ID, // make sure this is a valid user ID in DB
                   });
                 }
-                
+
                 // Create ticket using .save() so pre("save") generates ticketNumber
                 const ticket = new Ticket({
                   title: parsed.subject || "(No Subject)",
@@ -80,6 +79,11 @@ export async function readEmails() {
                 await ticket.save();
 
                 console.log(`Ticket created for ${parsed.subject}`);
+
+                // ✅ Mark this message as read so it won't be processed again
+                imap.addFlags(seqno, "\\Seen", (err) => {
+                  if (err) console.error(`❌ Failed to mark message ${seqno} as read:`, err);
+                });
               } catch (error) {
                 console.error(`Failed to create ticket, ${error}`);
               }
