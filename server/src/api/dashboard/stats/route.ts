@@ -1,7 +1,7 @@
 import express from "express";
 import dbConnect from "../../../../lib/mongodb";
-import Ticket from "../../../../models/Ticket.js";
-import User from "../../../../models/User.js";
+import Ticket from "../../../../models/Ticket";
+import User from "../../../../models/User";
 
 const router = express.Router();
 
@@ -76,7 +76,7 @@ router.get("/", async (req, res) => {
       recentTickets,
       slaAlerts: slaAlerts.map(ticket => ({
         ticketNumber: ticket.ticketNumber,
-        subject: ticket.subject,
+        subject: ticket.title,
         priority: ticket.priority,
         timeRemaining: ticket.dueDate
           ? Math.max(0, Math.floor((ticket.dueDate.getTime() - Date.now()) / (1000 * 60))) + " minutes"
