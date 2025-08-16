@@ -1,4 +1,5 @@
 import mongoose, { Document, Schema, Model, Types } from "mongoose";
+import { getNextTicketNumber } from "../utils/getNextTicketNumber";
 
 export interface ITicket extends Document {
   _id: Types.ObjectId;
@@ -152,11 +153,19 @@ TicketSchema.index({ category: 1, status: 1 });
 
 TicketSchema.pre("validate", async function (next) {
   if (this.isNew && !this.ticketNumber) {
-    const count = await mongoose.model<ITicket>("Ticket").countDocuments();
-    this.ticketNumber = `TKT-${String(count + 1).padStart(6, "0")}`;
+    this.ticketNumber = await getNextTicketNumber();
   }
   next();
 });
+
+
+// TicketSchema.pre("validate", async function (next) {
+//   if (this.isNew && !this.ticketNumber) {
+//     const count = await mongoose.model<ITicket>("Ticket").countDocuments();
+//     this.ticketNumber = `TKT-${String(count + 1).padStart(6, "0")}`;
+//   }
+//   next();
+// });
 
 
 // TicketSchema.pre("save", async function (next) {
