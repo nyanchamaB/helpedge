@@ -1,5 +1,7 @@
 // for site-specific configuration
 
+import { title } from "process";
+
 export const siteConfig = {
     name: "HelpEdge Ticketing System",
     description: "A comprehensive ticketing system for efficient issue tracking and management.",
@@ -26,9 +28,17 @@ export const siteConfig = {
         },
     ],
     links: {
-        github: "https://github.com/yourrepo",
-        docs: "https://docs.yoursite.com",
+        twitter: "https://twitter.com/itsmplatform",
+        github: "https://github.com/itsmplatform",
+        docs: "https://docs.itsmplatform.com",
     },
+
+    navlinks: [
+        { title: "Home", href: "/" },
+        { title: "Features", href: "/features" },
+        { title: "Resources", href: "/resources" },
+        { title: "Support", href: "/support" },
+    ],
     footerNav: [
         { title: "Privacy", href: "/privacy" },
         { title: "Terms", href: "/terms" },
@@ -72,6 +82,13 @@ export const siteConfig = {
       },
     ],
     },
+
+    resources: [
+        { title: "Knowledge Base", description: "Access guides, troubleshooting steps, and best practices.", link: "/knowledge-base" },
+        { title: "Documentation", description: "Read detailed technical documentation for the platform.", link: "/docs" },
+        { title: "Video Tutorials", description: "Watch step-by-step tutorials to get started quickly.", link: "/videos" },
+        { title: "Community Forum", description: "Engage with other users and our support team.", link: "/community" },
+    ],
 
     footerLinks: [
         { title: "About", href: "/about" },

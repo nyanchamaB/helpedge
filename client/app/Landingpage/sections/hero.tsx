@@ -22,7 +22,7 @@ export default function HeroSection() {
         </motion.h1>
 
         <motion.p
-          className="text-base sm:text-lg md:text-xl text-gray-200 mb-6"
+          className="text-base sm:text-lg md:text-xl text-gray-200 mb-6 "
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1, delay: 0.2 }}

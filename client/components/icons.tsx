@@ -3,7 +3,7 @@ import { LucideIcon, Loader2, MoonIcon, SunIcon, ArrowRight,ArrowLeft,ArrowUp, M
 import { cn } from "@/lib/utils";
 import React from "react";
 import { siteConfig } from "@/config/site";
-import LogoImage from "@/assets/logo.png";
+import LogoImage  from "./public/globe.svg"; //LogoImage from "@/public/globe.svg";
 import Image from "next/image";
 import { IconType } from "react-icons";
 import { SiOpenai } from "react-icons/si";
