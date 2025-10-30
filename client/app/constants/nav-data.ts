@@ -1,19 +1,12 @@
 import {
-  Bell,
   BookOpen,
   Calendar,
   CreditCard,
-  FileText,
-  Home,
-  LayoutDashboard,
-  LifeBuoy,
   MessageCircle,
   Settings,
   Users,
-  BadgeCheck,
+  LayoutDashboard,
   HelpCircle,
-  LogOut,
-  Settings2,
 } from "lucide-react";
 import { siteConfig } from "@/config/site";
 
@@ -23,32 +16,70 @@ export const navData = {
     email: "use@gmail.com",
     image: "/default-avatar.png",
   },
+
+  // Role-based navigation
   navMain: [
-    { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
+    {
+      title: "Dashboard",
+      url: "/dashboard",
+      icon: LayoutDashboard,
+      roles: ["admin", "agent", "enduser"], // visible to everyone
+    },
     {
       title: "Tickets",
       url: "/tickets",
       icon: MessageCircle,
+      roles: ["admin", "agent", "enduser"], // all have access, but child items differ
       items: [
-        { title: "All Tickets", url: "/tickets" },
-        { title: "My Tickets", url: "/tickets/my-tickets" },
-        { title: "Create Ticket", url: "/tickets/create" },
+        { title: "All Tickets", url: "/tickets", roles: ["admin"] },
+        { title: "Assigned Tickets", url: "/tickets/assigned", roles: ["agent"] },
+        { title: "My Tickets", url: "/tickets/my-tickets", roles: ["enduser"] },
+        { title: "Create Ticket", url: "/tickets/create", roles: ["enduser"] },
       ],
     },
-    { title: "Knowledge Base", url: "/knowledge-base", icon: BookOpen },
-    { title: "Customers", url: "/customers", icon: Users },
-    { title: "Reports", url: "/reports", icon: Calendar },
-    { title: "Billing", url: "/billing", icon: CreditCard },
+    {
+      title: "Knowledge Base",
+      url: "/knowledge-base",
+      icon: BookOpen,
+      roles: ["admin", "agent", "enduser"],
+    },
+    {/*{
+      title: "Customers",
+      url: "/customers",
+      icon: Users,
+      roles: ["admin"], // only admins
+    },
+    */},
+    {
+      title: "Reports",
+      url: "/reports",
+      icon: Calendar,
+      roles: ["admin", "agent"], // admins & agents
+    },
+    {/*
+    {
+      title: "Billing",
+      url: "/billing",
+      icon: CreditCard,
+      roles: ["admin"], // only admins
+    },
+    */},
     {
       title: "Settings",
       url: "/settings",
       icon: Settings,
+      roles: ["admin", "agent", "enduser"],
       items: [
-        { title: "Profile", url: "/settings/profile" },
-        { title: "Team", url: "/settings/team" },
-        { title: "Preferences", url: "/settings/preferences" },
+        { title: "Profile", url: "/settings/profile", roles: ["admin", "agent", "enduser"] },
+        { title: "Team", url: "/settings/team", roles: ["admin"] },
+        { title: "Preferences", url: "/settings/preferences", roles: ["admin", "agent", "enduser"] },
       ],
     },
-    { title: "Help", url: siteConfig.links.docs, icon: HelpCircle },
+    {
+      title: "Help",
+      url: siteConfig.links.docs,
+      icon: HelpCircle,
+      roles: ["admin", "agent", "enduser"],
+    },
   ],
 };

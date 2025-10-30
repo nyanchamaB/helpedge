@@ -13,37 +13,51 @@ import {
 } from "@/components/ui/sidebar";
 import { ChevronDown, ChevronRight } from "lucide-react";
 
+interface NavItem {
+  title: string;
+  url: string;
+  icon: React.ElementType;
+  roles?: string[];
+  items?: { title: string; url: string; roles?: string[] }[];
+}
+
 interface NavMainProps {
-  items: {
-    title: string;
-    url: string;
-    icon: React.ElementType;
-    items?: { title: string; url: string }[];
-  }[];
+  items: NavItem[];
+  userRole: string;
   onItemClick?: () => void;
 }
 
-export function NavMain({ items, onItemClick }: NavMainProps) {
+export function NavMain({ items, userRole, onItemClick }: NavMainProps) {
   const pathname = usePathname();
   const [openMenus, setOpenMenus] = React.useState<string[]>([]);
 
+  // Filter items based on role
+  const filteredItems = items
+    .filter(item => !item.roles || item.roles.includes(userRole))
+    .map(item => ({
+      ...item,
+      items: item.items
+        ? item.items.filter(sub => !sub.roles || sub.roles.includes(userRole))
+        : [],
+    }));
+
   const toggleMenu = (title: string) => {
-    setOpenMenus((prev) =>
+    setOpenMenus(prev =>
       prev.includes(title)
-        ? prev.filter((item) => item !== title)
+        ? prev.filter(item => item !== title)
         : [...prev, title]
     );
   };
 
   return (
     <SidebarMenu>
-      {items.map((item) => {
+      {filteredItems.map(item => {
         const isActive =
           pathname === item.url || pathname.startsWith(item.url + "/");
         const isOpen = openMenus.includes(item.title);
 
         return (
-          <SidebarMenuItem key={item.title}>
+          <SidebarMenuItem key={`main-${item.title}`}>
             {/* Parent item */}
             <SidebarMenuButton
               asChild
@@ -51,7 +65,7 @@ export function NavMain({ items, onItemClick }: NavMainProps) {
                 isActive ? "bg-gray-100 font-semibold" : ""
               }`}
               onClick={() => {
-                if (item.items) {
+                if (item.items && item.items.length > 0) {
                   toggleMenu(item.title);
                 } else {
                   onItemClick?.();
@@ -59,11 +73,14 @@ export function NavMain({ items, onItemClick }: NavMainProps) {
               }}
             >
               <div className="flex items-center justify-between w-full">
-                <Link href={item.url} className="flex items-center gap-2 w-full">
+                <Link
+                  href={item.url}
+                  className="flex items-center gap-2 w-full"
+                >
                   <item.icon className="h-5 w-5" />
                   <span>{item.title}</span>
                 </Link>
-                {item.items && (
+                {item.items && item.items.length > 0 && (
                   <span>
                     {isOpen ? (
                       <ChevronDown className="h-4 w-4 opacity-70" />
@@ -75,13 +92,15 @@ export function NavMain({ items, onItemClick }: NavMainProps) {
               </div>
             </SidebarMenuButton>
 
-            {/* Submenu items */}
+            {/* Submenu */}
             {item.items && isOpen && (
-              <SidebarMenuSub>
-                {item.items.map((subItem) => {
+              <SidebarMenuSub key={`sub-${item.title}`}>
+                {item.items.map(subItem => {
                   const subActive = pathname === subItem.url;
                   return (
-                    <SidebarMenuSubItem key={subItem.title}>
+                    <SidebarMenuSubItem
+                      key={`sub-${item.title}-${subItem.title}`}
+                    >
                       <SidebarMenuSubButton asChild>
                         <Link
                           href={subItem.url}
