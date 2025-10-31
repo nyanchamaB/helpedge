@@ -17,8 +17,8 @@ interface NavItem {
   title: string;
   url: string;
   icon: React.ElementType;
-  roles?: string[];
-  items?: { title: string; url: string; roles?: string[] }[];
+  role?: string[];
+  items?: { title: string; url: string; role?: string[] }[];
 }
 
 interface NavMainProps {
@@ -33,11 +33,11 @@ export function NavMain({ items, userRole, onItemClick }: NavMainProps) {
 
   // Filter items based on role
   const filteredItems = items
-    .filter(item => !item.roles || item.roles.includes(userRole))
+    .filter(item => !item.role || item.role.includes(userRole))
     .map(item => ({
       ...item,
       items: item.items
-        ? item.items.filter(sub => !sub.roles || sub.roles.includes(userRole))
+        ? item.items.filter(sub => !sub.role || sub.role.includes(userRole))
         : [],
     }));
 

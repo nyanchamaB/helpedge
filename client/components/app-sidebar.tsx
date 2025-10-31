@@ -35,9 +35,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                   <span className="truncate font-semibold">
                     {siteConfig.name}
                   </span>
-                  <span className="truncate text-xs">
-                    Help Desk
-                  </span>
+                  <span className="truncate text-xs">Help Desk</span>
                 </div>
               </Link>
             </SidebarMenuButton>
@@ -46,9 +44,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       </SidebarHeader>
 
       <SidebarContent>
-        {!isLoading && (
-          <NavMain items={navData.navMain} userRole={userRole} />
-        )}
+        {!isLoading && <NavMain items={navData.navMain} userRole={userRole} />}
       </SidebarContent>
 
       <SidebarFooter>

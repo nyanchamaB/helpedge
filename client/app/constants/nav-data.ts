@@ -23,13 +23,13 @@ export const navData = {
       title: "Dashboard",
       url: "/dashboard",
       icon: LayoutDashboard,
-      roles: ["admin", "agent", "enduser"], // visible to everyone
+      role: ["admin", "agent", "enduser"], // visible to everyone
     },
     {
       title: "Tickets",
       url: "/tickets",
       icon: MessageCircle,
-      roles: ["admin", "agent", "enduser"], // all have access, but child items differ
+      role: ["admin", "agent", "enduser"], // all have access, but child items differ
       items: [
         { title: "All Tickets", url: "/tickets", roles: ["admin"] },
         { title: "Assigned Tickets", url: "/tickets/assigned", roles: ["agent"] },
@@ -41,7 +41,7 @@ export const navData = {
       title: "Knowledge Base",
       url: "/knowledge-base",
       icon: BookOpen,
-      roles: ["admin", "agent", "enduser"],
+      role: ["admin", "agent", "enduser"],
     },
     {/*{
       title: "Customers",
@@ -54,7 +54,7 @@ export const navData = {
       title: "Reports",
       url: "/reports",
       icon: Calendar,
-      roles: ["admin", "agent"], // admins & agents
+      role: ["admin", "agent"], // admins & agents
     },
     {/*
     {
@@ -68,7 +68,7 @@ export const navData = {
       title: "Settings",
       url: "/settings",
       icon: Settings,
-      roles: ["admin", "agent", "enduser"],
+      role: ["admin", "agent", "enduser"],
       items: [
         { title: "Profile", url: "/settings/profile", roles: ["admin", "agent", "enduser"] },
         { title: "Team", url: "/settings/team", roles: ["admin"] },
@@ -79,7 +79,7 @@ export const navData = {
       title: "Help",
       url: siteConfig.links.docs,
       icon: HelpCircle,
-      roles: ["admin", "agent", "enduser"],
+      role: ["admin", "agent", "enduser"],
     },
   ],
 };
