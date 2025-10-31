@@ -1,12 +1,13 @@
-
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useAuth } from "@/contexts/AuthContext";
+import { getRedirectUrl } from "@/lib/utils/redirect";
 
 export default function LoginForm() {
   const [formData, setFormData] = useState({
@@ -16,6 +17,8 @@ export default function LoginForm() {
   const [errors, setErrors] = useState<any>({});
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const { login } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -23,44 +26,34 @@ export default function LoginForm() {
     setErrors({});
 
     try {
-      console.log("Attempting login with:", { email: formData.email });
-      
-      const response = await fetch("http://localhost:5000/api/auth/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        credentials: "include",
-        body: JSON.stringify(formData),
-      });
+      console.log('LoginForm: Submitting login...');
+      const result = await login(formData);
+      console.log('LoginForm: Login result:', result);
 
-      const data = await response.json();
-      console.log("Login response:", {
-        status: response.status,
-        ok: response.ok,
-        data
-      });
+      if (result.success) {
+        // Redirect to intended page or dashboard
+        const redirectUrl = getRedirectUrl(searchParams);
+        console.log('LoginForm: Redirecting to:', redirectUrl);
 
-      if (response.ok) {
-        console.log("Login successful, cookie should be set");
-        
-        // Wait a moment for the cookie to be processed
-        await new Promise(resolve => setTimeout(resolve, 100));
-        
-        // Use window.location for a full page reload to ensure middleware runs
-        console.log("Redirecting to dashboard...");
-        window.location.href = "/dashboard";
+        // Use router.push for client-side navigation
+        // Small delay to ensure state updates are processed
+        setTimeout(() => {
+          router.push(redirectUrl);
+        }, 100);
       } else {
-        console.error("Login failed:", data);
-        setErrors({ 
-          general: data.error || data.message || "Login failed. Please try again." 
+        console.error('LoginForm: Login failed:', result.error);
+        setErrors({
+          general: result.error || "Login failed. Please check your credentials.",
         });
       }
     } catch (error) {
-      console.error("Network error during login:", error);
-      setErrors({ general: "Network error. Please check your connection and try again." });
+      console.error("LoginForm: Login error:", error);
+      setErrors({
+        general: "An unexpected error occurred. Please try again.",
+      });
     } finally {
       setIsLoading(false);
+      console.log('LoginForm: Loading set to false');
     }
   };
 
@@ -69,7 +62,7 @@ export default function LoginForm() {
     if (errors.general) {
       setErrors({});
     }
-    
+
     setFormData({
       ...formData,
       [e.target.name]: e.target.value,
