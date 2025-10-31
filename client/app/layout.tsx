@@ -3,7 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import ScrollTop from "@/components/scrolltop";
 import Footer from "./onboarding/footer";
-import { SessionWrapper } from "@/components/SessionWrapper"; 
+import { AuthProvider } from "@/contexts/AuthContext"; 
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -30,12 +30,11 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        {/* ✅ Wrap everything in SessionWrapper */}
-        <SessionWrapper>
+        <AuthProvider>
           {children}
           <ScrollTop />
           <Footer />
-        </SessionWrapper>
+        </AuthProvider>
       </body>
     </html>
   );
