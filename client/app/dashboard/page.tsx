@@ -13,7 +13,9 @@ interface Ticket {
 }
 
 async function fetchTickets(): Promise<Ticket[]> {
-  const res = await fetch("http://localhost:5000/api/tickets", { cache: "no-store" });
+  const res = await fetch("https://helpedge-api.onrender.com//api/Tickets", {
+    cache: "no-store",
+  });
   if (!res.ok) return [];
   const data = await res.json();
   return data.tickets;
@@ -56,7 +58,9 @@ export default async function AdminDashboard() {
             <CardTitle>Resolved</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-3xl font-bold text-green-600">{resolvedTickets}</p>
+            <p className="text-3xl font-bold text-green-600">
+              {resolvedTickets}
+            </p>
           </CardContent>
         </Card>
 
@@ -80,7 +84,9 @@ export default async function AdminDashboard() {
             return (
               <Card key={ticket._id} className="hover:shadow-lg transition">
                 <CardContent className="p-4 space-y-2">
-                  <h3 className="text-lg font-semibold truncate">{ticket.title}</h3>
+                  <h3 className="text-lg font-semibold truncate">
+                    {ticket.title}
+                  </h3>
                   <p className="text-sm text-gray-600 truncate">
                     {ticket.customerName
                       ? `${ticket.customerName} (${ticket.customerEmail})`
@@ -88,7 +94,9 @@ export default async function AdminDashboard() {
                   </p>
                   <p className="text-xs text-gray-500">{formattedDate}</p>
                   <div className="flex gap-2 mt-2 flex-wrap">
-                    <Badge variant="outline">{ticket.status.toUpperCase()}</Badge>
+                    <Badge variant="outline">
+                      {ticket.status.toUpperCase()}
+                    </Badge>
                     <Badge>{ticket.priority.toUpperCase()}</Badge>
                   </div>
                 </CardContent>
