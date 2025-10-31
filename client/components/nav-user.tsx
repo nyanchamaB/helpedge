@@ -6,9 +6,8 @@ import {
   SidebarMenuItem,
   SidebarMenuButton,
 } from "@/components/ui/sidebar";
-import { useUser } from "@/hooks/useUser";
+import { useAuth } from "@/contexts/AuthContext";
 import { usePathname, useRouter } from "next/navigation";
-import Avatar from "@mui/material/Avatar";
 import {
   BadgeCheck,
   Bell,
@@ -27,18 +26,15 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { signOut } from "next-auth/react";
-import { getLastReturnPath } from "@/lib/path-storage";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 export function NavUser() {
-  const { user, isLoading } = useUser();
+  const { user, isLoading, logout } = useAuth();
   const pathname = usePathname();
   const router = useRouter();
   const [selectedKey, setSelectedKey] = useState(pathname);
 
   const isMobile = typeof window !== "undefined" && window.innerWidth < 768;
-  const selectedRole = user?.decodedToken?.role || null;
 
   if (isLoading) return null;
   if (!user) return null;
@@ -54,22 +50,16 @@ export function NavUser() {
               className="data-[state=open]:bg-secondary w-full justify-start"
             >
               <Avatar className="h-8 w-8 mr-2">
-                <AvatarImage
-                  src={user.decodedToken?.avatarUrl || "/default-avatar.png"}
-                  alt={user.session.user?.name || "User Avatar"}
-                />
                 <AvatarFallback>
-                  {user.session.user?.name
-                    ? user.session.user.name.charAt(0)
-                    : "U"}
+                  {user.name ? user.name.charAt(0).toUpperCase() : "U"}
                 </AvatarFallback>
               </Avatar>
               <div className="grid flex-1 text-left text-sm leading-tight">
                 <span className="font-medium">
-                  {user.session.user?.name || "User"}
+                  {user.name || "User"}
                 </span>
                 <span className="text-xs text-muted-foreground">
-                  {user.session.user?.email}
+                  {user.email}
                 </span>
               </div>
               <ChevronsUpDown className="ml-auto h-4 w-4 shrink-0 opacity-50" />
@@ -85,28 +75,20 @@ export function NavUser() {
             <DropdownMenuLabel className="font-normal">
               <div className="flex items-center">
                 <Avatar className="h-8 w-8 mr-2">
-                  <AvatarImage
-                    src={user.decodedToken?.avatarUrl || "/default-avatar.png"}
-                    alt={user.session.user?.name || "User Avatar"}
-                  />
                   <AvatarFallback>
-                    {user.session.user?.name
-                      ? user.session.user.name.charAt(0)
-                      : "U"}
+                    {user.name ? user.name.charAt(0).toUpperCase() : "U"}
                   </AvatarFallback>
                 </Avatar>
                 <div className="grid flex-1 text-left text-sm leading-tight">
                   <span className="font-medium">
-                    {user.session.user?.name || "User"}
+                    {user.name || "User"}
                   </span>
                   <span className="text-xs text-muted-foreground">
-                    {user.session.user?.email}
+                    {user.email}
                   </span>
-                  {selectedRole && (
-                    <span className="text-xs text-muted-foreground capitalize">
-                      Role: {selectedRole.replace("_", " ")}
-                    </span>
-                  )}
+                  <span className="text-xs text-muted-foreground capitalize">
+                    Role: {user.role.replace("_", " ")}
+                  </span>
                 </div>
               </div>
             </DropdownMenuLabel>
@@ -140,10 +122,7 @@ export function NavUser() {
 
             <DropdownMenuItem
               onClick={() => {
-                const currentPath = typeof window !== "undefined" ? window.location.pathname : "/";
-                const returnPath = getLastReturnPath() || currentPath;
-                signOut({ callbackUrl: `${window.location.origin}/login?returnPath=${encodeURIComponent(returnPath)}` });
-                // router.push('/login'); // Redirect to login after sign out 
+                logout();
               }}
             >
               <LogOut />
