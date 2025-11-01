@@ -78,6 +78,7 @@ export async function apiRequest<T = any>(
     console.log('API Response Data:', data);
 
     if (!response.ok) {
+<<<<<<< HEAD
       // Parse error message from different response formats
       let errorMessage = 'Request failed';
 
@@ -114,6 +115,13 @@ export async function apiRequest<T = any>(
         status: response.status,
         error: errorMessage,
         data: data, // Include original data for debugging
+=======
+      return {
+        success: false,
+        status: response.status,
+        error: data?.error || data?.message || data || 'Request failed',
+        data: undefined,
+>>>>>>> eb2d3f000ab4a50872c92ad3659fe7aeedbd036b
       };
     }
 

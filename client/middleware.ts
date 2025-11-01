@@ -17,6 +17,7 @@ const protectedRoutes = [
 // Routes that should redirect to dashboard if user is authenticated
 const authRoutes = ['/auth/login', '/auth/register'];
 
+<<<<<<< HEAD
 /**
  * Validates JWT token structure and expiry
  * Note: This is basic validation - signature verification happens on the backend
@@ -119,6 +120,18 @@ export function middleware(request: NextRequest) {
    */
 
   return response;
+=======
+export function middleware(request: NextRequest) {
+  // Since the token is stored in localStorage (client-side only),
+  // this middleware cannot access it to make routing decisions.
+  // Instead, we rely on the ProtectedRoute component on the client side
+  // to handle authentication checks and redirects.
+
+  // The middleware will just allow all requests through, and the
+  // ProtectedRoute component will handle redirects to login if needed.
+
+  return NextResponse.next();
+>>>>>>> eb2d3f000ab4a50872c92ad3659fe7aeedbd036b
 }
 
 export const config = {

@@ -1,9 +1,12 @@
 "use client";
 
-import { useEffect, useState } from 'react';
-import { useRouter, usePathname } from 'next/navigation';
-import { useAuth } from '@/contexts/AuthContext';
-import { validateStoredToken, clearInvalidToken } from '@/lib/auth/tokenValidator';
+import { useEffect, useState } from "react";
+import { useRouter, usePathname } from "next/navigation";
+import { useAuth } from "@/contexts/AuthContext";
+import {
+  validateStoredToken,
+  clearInvalidToken,
+} from "@/lib/auth/tokenValidator";
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -32,7 +35,7 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
     if (!isLoading && !isAuthenticated && tokenValidated) {
       // Redirect to login with the current path as redirect parameter
       const redirectUrl = encodeURIComponent(pathname);
-      console.log('ProtectedRoute: Not authenticated, redirecting to login');
+      console.log("ProtectedRoute: Not authenticated, redirecting to login");
       router.replace(`/auth/login?redirect=${redirectUrl}`);
     }
   }, [isAuthenticated, isLoading, tokenValidated, router, pathname]);
@@ -43,26 +46,29 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
       const validation = validateStoredToken();
 
       if (!validation.isValid) {
-        console.log('ProtectedRoute: Token validation failed:', validation.error);
+        console.log(
+          "ProtectedRoute: Token validation failed:",
+          validation.error
+        );
 
         // Clear invalid or expired token
         clearInvalidToken();
 
         // If token is invalid and user is authenticated in context, trigger logout
         if (isAuthenticated) {
-          console.log('ProtectedRoute: Logging out due to invalid token');
+          console.log("ProtectedRoute: Logging out due to invalid token");
           logout();
         }
 
         // Don't redirect here - let the useEffect handle it after AuthContext finishes loading
         // This prevents race conditions on page refresh
       } else {
-        console.log('ProtectedRoute: Token is valid');
+        console.log("ProtectedRoute: Token is valid");
       }
 
       setTokenValidated(true);
     } catch (error) {
-      console.error('ProtectedRoute: Error validating token:', error);
+      console.error("ProtectedRoute: Error validating token:", error);
       clearInvalidToken();
       setTokenValidated(true);
     }

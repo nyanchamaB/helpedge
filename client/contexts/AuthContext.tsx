@@ -38,7 +38,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   /**
    * Initialize authentication state
+<<<<<<< HEAD
    * Validates token (including expiry) and loads user data
+=======
+   * Validates token and loads user data
+>>>>>>> eb2d3f000ab4a50872c92ad3659fe7aeedbd036b
    */
   async function initializeAuth() {
     setIsLoading(true);
@@ -51,6 +55,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return;
       }
 
+<<<<<<< HEAD
       // First, perform client-side token validation (structure + expiry check)
       // This is faster and prevents unnecessary API calls for expired tokens
       const { validateStoredToken: validateTokenClient, clearInvalidToken } = await import('@/lib/auth/tokenValidator');
@@ -88,6 +93,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       } else {
         // Could not extract user from token
         console.log('AuthContext: Could not extract user from token');
+=======
+      // Validate token with backend
+      const response = await validateToken(token);
+
+      if (response.success && response.data?.valid) {
+        // Get user from token
+        const currentUser = getCurrentUser();
+        setUser(currentUser);
+      } else {
+        // Token is invalid, clear it
+>>>>>>> eb2d3f000ab4a50872c92ad3659fe7aeedbd036b
         localStorage.removeItem('authToken');
         setUser(null);
       }
