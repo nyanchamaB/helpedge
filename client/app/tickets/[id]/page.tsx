@@ -22,7 +22,7 @@ interface Ticket {
 
 async function getTicket(id: string): Promise<Ticket | null> {
   const cookieStore = await cookies(); //Await cookies before accessing properties
-  const res = await fetch(`http://localhost:8000/api/tickets/${id}`, {
+  const res = await fetch(`http://localhost:5000/api/tickets/${id}`, {
     // cache: "no-store", //First await cache
     headers: {
       Cookie: cookieStore.toString(),

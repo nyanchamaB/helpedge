@@ -1,25 +1,11 @@
-// LandingPage.tsx
-import React from 'react';
-import NavHeader from './Landingpage/navbar';
-import HeroSection from './Landingpage/sections/hero';
-import FeaturesSection from './Landingpage/sections/features';
-import ResourcesSection from './Landingpage/sections/resources';
-import SupportSection from './Landingpage/sections/support';
-import Footer from './Landingpage/footer';
-
-const LandingPage = () => {
+import NavHeader from "./onboarding/navsection";
+import HomePage from "./onboarding/home";
+export default function Page() {
   return (
-    <div>
+    <>
       <NavHeader />
-      <main>
-        <HeroSection />
-        <FeaturesSection />
-        <ResourcesSection />
-        <SupportSection />
-        <Footer />
-      </main>
-    </div>
+      <HomePage />
+      
+    </>
   );
-};
-
-export default LandingPage;
+}
