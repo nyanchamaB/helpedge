@@ -7,7 +7,6 @@ export const navLinks = [
     label: "Features",
     href: "/features",
     dropdown: [
-   //   { label: "Service Desk", href: "/features/service-desk" },
       { label: "Automation", href: "/features/automation" },
       { label: "Analytics", href: "/features/analytics" },
       { label: "Integrations", href: "/features/integrations" },

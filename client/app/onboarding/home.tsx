@@ -54,7 +54,7 @@ export default function HomePage() {
       {/* Hero Section */}
       <section
         id="/"
-        className="bg-gradient-to-br from-blue-700 via-blue-200 to-black text-white py-32 px-6 text-center relative overflow-hidden"
+        className="relative bg-gradient-to-br from-blue-700 via-blue-200 to-black text-white px-6 text-center overflow-hidden min-h-[75vh] md:min-h-[75vh] flex flex-col justify-center"
       >
         <div className="absolute inset-0 bg-black/20"></div>
         <motion.div
@@ -63,16 +63,16 @@ export default function HomePage() {
           transition={{ duration: 0.8 }}
           className="relative z-10"
         >
-          <motion.h1
+          <motion.h2
             key={currentPhrase}
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -30 }}
             transition={{ duration: 0.7 }}
-            className="text-5xl md:text-7xl font-extrabold mb-6 leading-tight min-h-[4rem]"
+            className="text-5xl md:text-7xl font-bold mb-6 leading-tight min-h-[4rem]"
           >
             {heroPhrases[currentPhrase]}
-          </motion.h1>
+          </motion.h2>
 
           <motion.p
             initial={{ opacity: 0 }}
@@ -80,7 +80,7 @@ export default function HomePage() {
             transition={{ delay: 0.5, duration: 0.8 }}
             className="text-xl md:text-2xl mb-10 max-w-3xl mx-auto text-blue-100 leading-relaxed"
           >
-            Let&quots revolutionize your IT service management with HelpEdge.
+            Let's revolutionize your IT service management with HelpEdge.
           </motion.p>
 
           <motion.div
@@ -105,7 +105,7 @@ export default function HomePage() {
             className="flex justify-center"
           >
             <motion.div
-              className="relative w-full max-w-5xl cursor-pointer"
+              className="relative w-full max-w-4xl cursor-pointer"
               onHoverStart={() => setIsVideoHovered(true)}
               onHoverEnd={() => setIsVideoHovered(false)}
               animate={{
@@ -191,7 +191,7 @@ export default function HomePage() {
           transition={{ duration: 0.7 }}
           className="text-center mb-20"
         >
-          <h2 className="text-4xl md:text-5xl font-bold mb-6 text-blue-900">
+          <h2 className="text-4xl md:text-6xl font-bold mb-6 text-blue-900">
             Comprehensive ITSM Solutions
           </h2>
           <p className="text-xl text-gray-600 max-w-4xl mx-auto leading-relaxed">
