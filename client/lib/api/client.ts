@@ -78,11 +78,42 @@ export async function apiRequest<T = any>(
     console.log('API Response Data:', data);
 
     if (!response.ok) {
+      // Parse error message from different response formats
+      let errorMessage = 'Request failed';
+
+      // Check for ASP.NET Core Problem Details format (RFC 7807)
+      if (data && typeof data === 'object') {
+        if (data.title && data.detail) {
+          errorMessage = `${data.title}: ${data.detail}`;
+        } else if (data.detail) {
+          errorMessage = data.detail;
+        } else if (data.title) {
+          errorMessage = data.title;
+        } else if (data.error) {
+          errorMessage = data.error;
+        } else if (data.message) {
+          errorMessage = data.message;
+        }
+      } else if (typeof data === 'string') {
+        errorMessage = data;
+      }
+
+      // Add status code context
+      if (response.status === 500) {
+        errorMessage += ' (Internal Server Error - Check backend logs)';
+      } else if (response.status === 401) {
+        errorMessage += ' (Unauthorized - Check authentication)';
+      } else if (response.status === 403) {
+        errorMessage += ' (Forbidden - Insufficient permissions)';
+      } else if (response.status === 404) {
+        errorMessage += ' (Not Found)';
+      }
+
       return {
         success: false,
         status: response.status,
-        error: data?.error || data?.message || data || 'Request failed',
-        data: undefined,
+        error: errorMessage,
+        data: data, // Include original data for debugging
       };
     }
 
