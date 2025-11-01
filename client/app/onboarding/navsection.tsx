@@ -44,43 +44,54 @@ export default function NavHeader() {
               className="relative"
               ref={link.dropdown ? dropdownRef : undefined}
             >
-              <button
-                type="button"
-                className="text-gray-700 hover:text-indigo-600 font-medium transition flex items-center"
-                onClick={() =>
-                  setOpenDropdown(openDropdown === link.label ? null : link.label)
-                }
-              >
-                {link.label}
-                {link.dropdown && (
-                  <svg
-                    className="ml-1 w-4 h-4"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
+              {/* Render a dropdown-toggle button only when dropdown exists.
+                  Otherwise render a normal Link so navigation works. */}
+              {link.dropdown && link.dropdown.length > 0 ? (
+                <>
+                  <button
+                    type="button"
+                    className="text-gray-700 hover:text-indigo-600 font-medium transition flex items-center"
+                    onClick={() =>
+                      setOpenDropdown(openDropdown === link.label ? null : link.label)
+                    }
                   >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M19 9l-7 7-7-7"
-                    />
-                  </svg>
-                )}
-              </button>
-              {link.dropdown && openDropdown === link.label && (
-                <div className="absolute left-0 mt-2 w-100 display-content-center bg-white shadow-lg rounded-lg py-2 z-50">
-                  {link.dropdown.map((item) => (
-                    <Link
-                      key={item.label}
-                      href={item.href}
-                      className="block px-4 py-2 text-gray-700 hover:bg-indigo-50 hover:text-indigo-700"
-                      onClick={() => setOpenDropdown(null)}
+                    {link.label}
+                    <svg
+                      className="ml-1 w-4 h-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
                     >
-                      {item.label}
-                    </Link>
-                  ))}
-                </div>
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M19 9l-7 7-7-7"
+                      />
+                    </svg>
+                  </button>
+                  {openDropdown === link.label && (
+                    <div className="absolute left-0 mt-2 w-56 bg-white shadow-lg rounded-lg py-2 z-50">
+                      {link.dropdown.map((item) => (
+                        <Link
+                          key={item.label}
+                          href={item.href}
+                          className="block px-4 py-2 text-gray-700 hover:bg-indigo-50 hover:text-indigo-700"
+                          onClick={() => setOpenDropdown(null)}
+                        >
+                          {item.label}
+                        </Link>
+                      ))}
+                    </div>
+                  )}
+                </>
+              ) : (
+                <Link
+                  href={link.href ?? "#"}
+                  className={`text-gray-700 hover:text-indigo-600 font-medium transition`}
+                >
+                  {link.label}
+                </Link>
               )}
             </div>
           ))}
@@ -125,10 +136,18 @@ export default function NavHeader() {
             Login
           </Link>
           <button className="px-4 py-2 border border-indigo-400 text-indigo-600 rounded-lg hover:bg-indigo-50">
+             <Link
+            href = "/ContactTeam"
+            >
             Reach out to Us
+          </Link>
           </button>
           <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-indigo-700">
+            <Link
+            href = "/GetStarted"
+            >
             Get Started
+          </Link>
           </button>
         </div>
 
