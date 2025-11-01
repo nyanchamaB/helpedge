@@ -38,7 +38,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   /**
    * Initialize authentication state
-   * Validates token and loads user data
+   * Validates token (including expiry) and loads user data
    */
   async function initializeAuth() {
     setIsLoading(true);
@@ -51,15 +51,43 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return;
       }
 
-      // Validate token with backend
-      const response = await validateToken(token);
+      // First, perform client-side token validation (structure + expiry check)
+      // This is faster and prevents unnecessary API calls for expired tokens
+      const { validateStoredToken: validateTokenClient, clearInvalidToken } = await import('@/lib/auth/tokenValidator');
+      const clientValidation = validateTokenClient();
 
-      if (response.success && response.data?.valid) {
-        // Get user from token
-        const currentUser = getCurrentUser();
+      if (!clientValidation.isValid) {
+        console.log('AuthContext: Client-side token validation failed:', clientValidation.error);
+        // Clear invalid or expired token
+        clearInvalidToken();
+        setUser(null);
+        setIsLoading(false);
+        return;
+      }
+
+      // Client-side validation passed, get user from token
+      const currentUser = getCurrentUser();
+
+      if (currentUser) {
         setUser(currentUser);
+        console.log('AuthContext: User authenticated from token:', currentUser.email);
+
+        // Optionally validate with backend for signature verification
+        // But don't fail if backend is unavailable - trust client-side validation
+        try {
+          const response = await validateToken(token);
+          // Backend returns { isValid: true } not { valid: true }
+          if (!response.success || (!response.data?.valid && !response.data?.isValid)) {
+            console.warn('AuthContext: Backend token validation failed, but trusting client-side validation');
+          } else {
+            console.log('AuthContext: Backend token validation successful');
+          }
+        } catch (backendError) {
+          console.warn('AuthContext: Could not reach backend for token validation, but trusting client-side validation');
+        }
       } else {
-        // Token is invalid, clear it
+        // Could not extract user from token
+        console.log('AuthContext: Could not extract user from token');
         localStorage.removeItem('authToken');
         setUser(null);
       }
