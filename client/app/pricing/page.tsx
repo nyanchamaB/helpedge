@@ -56,7 +56,6 @@ export default function Pricing() {
       <div className="relative overflow-hidden min-h-screen bg-white">
         {/* Main content */}
         <div className="py-16 px-4 sm:px-6 lg:px-8">
-          {/* ========== Pricing Section ========== */}
           <div className="max-w-7xl mx-auto text-center mb-16">
             <h2 className="text-5xl font-extrabold text-gray-900 tracking-tight">
               Plans for Every Team
@@ -131,7 +130,7 @@ export default function Pricing() {
             ))}
           </div>
 
-          {/* ========== Feature Comparison Table ========== */}
+          {/* Feature Comparison Table */}
           <div className="max-w-6xl mt-24 mx-auto">
             <h3 className="text-3xl font-bold text-gray-900 mb-12 text-center">
               Compare Features Across Plans
@@ -190,7 +189,7 @@ export default function Pricing() {
             </div>
           </div>
 
-          {/* ========== Infrastructure Section ========== */}
+          {/*Infrastructure Section */}
           <div className="max-w-7xl mx-auto mt-24">
             <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl p-12 md:p-16 border border-gray-200">
               <div className="grid md:grid-cols-2 gap-12 items-center">
@@ -200,7 +199,7 @@ export default function Pricing() {
                     Infrastructure Efficiency & Security Guaranteed
                   </h3>
                   <p className="text-lg text-gray-700 mb-10">
-                    We've engineered our infrastructure for reliability,
+                    We&lsquo;ve engineered our infrastructure for reliability,
                     scalability, and enterprise-grade protection—so you can build and
                     grow with confidence.
                   </p>
@@ -241,7 +240,7 @@ export default function Pricing() {
             </div>
           </div>
 
-          {/* ========== Final CTA Section ========== */}
+          {/*  Final CTA Section  */}
           <div className="max-w-5xl mx-auto mt-24">
             <div className="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl p-12 text-center text-white shadow-xl">
               <h4 className="text-4xl font-bold mb-4">
