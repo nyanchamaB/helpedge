@@ -2,7 +2,6 @@
 import { LucideIcon, Loader2, MoonIcon, SunIcon, ArrowRight,ArrowLeft,ArrowUp, Menu, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import React from "react";
-import { siteConfig } from "@/config/site";
 import LogoImage  from "./public/globe.svg"; //LogoImage from "@/public/globe.svg";
 import Image from "next/image";
 import { IconType } from "react-icons";
@@ -22,6 +21,7 @@ import { SiPostgresql } from "react-icons/si";
 import { SiRedis } from "react-icons/si";
 import { SiDocker } from "react-icons/si";
 import { SiKubernetes } from "react-icons/si";
+import { HelpCircle } from "lucide-react";
 import { FaHome, FaRegLightbulb, FaBookOpen, FaLifeRing, FaUserPlus } from "react-icons/fa";
 export type Icons = LucideIcon | IconType;
 
@@ -50,6 +50,7 @@ export const IconsList = {
     menu: Menu,
     close: X,
     loading: Loader2,
+    help: HelpCircle,
     openai: SiOpenai,
     google: FaGoogle,
     vercel: TbBrandVercel,
