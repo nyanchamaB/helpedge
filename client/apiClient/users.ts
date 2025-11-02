@@ -2,16 +2,23 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 // User roles enum
 export enum UserRole {
   SuperAdmin = 0,
-  TenantAdmin = 1,
-  CompanyAdmin = 2,
-  Agent = 3,
-  EndUser = 4,
+  PlatformAuditor = 1,
+  PlatformSupport = 2,
+  TenantAdmin = 3,
+  OrgAuditor = 4,
+  BillingManager = 5,
+  ITManager = 6,
+  TeamLead = 7,
+  ServiceDeskAgent = 8,
+  Technician = 9,
+  EndUser = 10,
+  SecurityAdmin = 11,
+  DataProtectionOfficer = 12,
 }
-
 // Users interface
 export interface User {
   id: string
-  name: string;
+  name: string; //update to first and last name if needed
   email: string;
   role: UserRole;
   department: string;
