@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HelpEdge API Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 20px;
+            background: #f9f9f9;
+            border-left: 4px solid #007bff;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 5px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+        .result {
+            margin-top: 10px;
+            padding: 15px;
+            border-radius: 4px;
+            white-space: pre-wrap;
+            font-family: monospace;
+            font-size: 12px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .success {
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+        .error {
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+        .info {
+            background-color: #d1ecf1;
+            border: 1px solid #bee5eb;
+            color: #0c5460;
+        }
+        .loading {
+            background-color: #fff3cd;
+            border: 1px solid #ffeeba;
+            color: #856404;
+        }
+        input {
+            width: 100%;
+            padding: 8px;
+            margin: 5px 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        label {
+            display: block;
+            margin-top: 10px;
+            font-weight: bold;
+            color: #555;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 HelpEdge API Connection Test</h1>
+        <p>This page tests the connection to the HelpEdge API to diagnose CORS and connectivity issues.</p>
+
+        <div class="test-section">
+            <h2>Test 1: API Reachability</h2>
+            <button onclick="testReachability()">Test API Connection</button>
+            <div id="reachability-result"></div>
+        </div>
+
+        <div class="test-section">
+            <h2>Test 2: Login Endpoint</h2>
+            <label for="email">Email:</label>
+            <input type="email" id="email" value="admin@helpedge.com" placeholder="admin@helpedge.com">
+
+            <label for="password">Password:</label>
+            <input type="password" id="password" value="Admin123!" placeholder="Password">
+
+            <button onclick="testLogin()">Test Login</button>
+            <div id="login-result"></div>
+        </div>
+
+        <div class="test-section">
+            <h2>CORS Information</h2>
+            <p>If you see a CORS error in the browser console, the backend needs to add CORS headers.</p>
+            <p><strong>Your Origin:</strong> <code id="origin"></code></p>
+            <button onclick="checkCORS()">Check CORS Headers</button>
+            <div id="cors-result"></div>
+        </div>
+
+        <div class="test-section">
+            <h2>Quick Diagnostics</h2>
+            <div id="diagnostics" class="result info">
+                <strong>Browser:</strong> <span id="browser"></span><br>
+                <strong>Current URL:</strong> <span id="currentUrl"></span><br>
+                <strong>API Base URL:</strong> https://helpedge-api.onrender.com<br>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE_URL = 'https://helpedge-api.onrender.com';
+
+        // Initialize diagnostics
+        document.getElementById('origin').textContent = window.location.origin;
+        document.getElementById('browser').textContent = navigator.userAgent;
+        document.getElementById('currentUrl').textContent = window.location.href;
+
+        function showResult(elementId, message, type) {
+            const element = document.getElementById(elementId);
+            element.className = `result ${type}`;
+            element.textContent = message;
+        }
+
+        async function testReachability() {
+            const resultDiv = document.getElementById('reachability-result');
+            showResult('reachability-result', 'Testing...', 'loading');
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/swagger/index.html`, {
+                    method: 'GET',
+                    mode: 'no-cors' // This won't give us the response but will tell us if it's reachable
+                });
+
+                showResult('reachability-result',
+                    `✓ API appears to be reachable!\n\nNote: Using 'no-cors' mode, so we can't see the actual response.\nIf login test fails with CORS error, the backend needs to add CORS headers.`,
+                    'success'
+                );
+            } catch (error) {
+                showResult('reachability-result',
+                    `✗ Cannot reach API\n\nError: ${error.message}\n\nThis could mean:\n- The API is down\n- Network connectivity issue\n- Firewall blocking the request`,
+                    'error'
+                );
+            }
+        }
+
+        async function testLogin() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const resultDiv = document.getElementById('login-result');
+
+            if (!email || !password) {
+                showResult('login-result', '⚠ Please enter email and password', 'error');
+                return;
+            }
+
+            showResult('login-result', 'Testing login...', 'loading');
+
+            try {
+                console.log('Attempting login to:', `${API_BASE_URL}/api/Auth/login`);
+                console.log('Request body:', { email, password: '***' });
+
+                const response = await fetch(`${API_BASE_URL}/api/Auth/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ email, password }),
+                    mode: 'cors',
+                    credentials: 'omit'
+                });
+
+                console.log('Response status:', response.status);
+                console.log('Response headers:', Object.fromEntries(response.headers.entries()));
+
+                const data = await response.json();
+                console.log('Response data:', data);
+
+                if (response.ok) {
+                    showResult('login-result',
+                        `✓ Login Successful!\n\nStatus: ${response.status}\nToken received: ${data.token ? 'Yes' : 'No'}\n\nResponse:\n${JSON.stringify(data, null, 2)}`,
+                        'success'
+                    );
+                } else {
+                    showResult('login-result',
+                        `✗ Login Failed\n\nStatus: ${response.status}\n\nResponse:\n${JSON.stringify(data, null, 2)}`,
+                        'error'
+                    );
+                }
+            } catch (error) {
+                console.error('Login error:', error);
+
+                let errorMessage = `✗ Request Failed\n\nError: ${error.message}\n\n`;
+
+                if (error instanceof TypeError && error.message.includes('fetch')) {
+                    errorMessage += `🔴 THIS IS A CORS ERROR!\n\n`;
+                    errorMessage += `The backend API (${API_BASE_URL}) needs to add these CORS headers:\n\n`;
+                    errorMessage += `Access-Control-Allow-Origin: ${window.location.origin}\n`;
+                    errorMessage += `Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS\n`;
+                    errorMessage += `Access-Control-Allow-Headers: Content-Type, Authorization\n\n`;
+                    errorMessage += `Check the browser console (F12) for detailed CORS error messages.\n\n`;
+                    errorMessage += `Solution: Contact the backend team to add your origin to the CORS whitelist.`;
+                } else {
+                    errorMessage += `This might be a network connectivity issue.\n`;
+                    errorMessage += `Check your internet connection and firewall settings.`;
+                }
+
+                showResult('login-result', errorMessage, 'error');
+            }
+        }
+
+        async function checkCORS() {
+            const resultDiv = document.getElementById('cors-result');
+            showResult('cors-result', 'Checking CORS headers...', 'loading');
+
+            try {
+                // Try OPTIONS request to check CORS
+                const response = await fetch(`${API_BASE_URL}/api/Auth/login`, {
+                    method: 'OPTIONS',
+                    headers: {
+                        'Access-Control-Request-Method': 'POST',
+                        'Access-Control-Request-Headers': 'Content-Type',
+                        'Origin': window.location.origin
+                    }
+                });
+
+                const headers = Object.fromEntries(response.headers.entries());
+                console.log('CORS headers:', headers);
+
+                const corsHeaders = {
+                    'access-control-allow-origin': headers['access-control-allow-origin'] || 'Not set',
+                    'access-control-allow-methods': headers['access-control-allow-methods'] || 'Not set',
+                    'access-control-allow-headers': headers['access-control-allow-headers'] || 'Not set',
+                    'access-control-allow-credentials': headers['access-control-allow-credentials'] || 'Not set',
+                };
+
+                showResult('cors-result',
+                    `CORS Headers:\n\n${JSON.stringify(corsHeaders, null, 2)}\n\n` +
+                    `${corsHeaders['access-control-allow-origin'] !== 'Not set' ?
+                        '✓ CORS appears to be configured' :
+                        '✗ CORS headers not found - this is the problem!'}`,
+                    corsHeaders['access-control-allow-origin'] !== 'Not set' ? 'success' : 'error'
+                );
+            } catch (error) {
+                showResult('cors-result',
+                    `Could not check CORS headers\n\nError: ${error.message}\n\nThis usually means CORS is not configured on the backend.`,
+                    'error'
+                );
+            }
+        }
+
+        // Log everything to console for debugging
+        console.log('API Test Page Loaded');
+        console.log('Current Origin:', window.location.origin);
+        console.log('API Base URL:', API_BASE_URL);
+        console.log('Ready to test!');
+    </script>
+</body>
+</html>

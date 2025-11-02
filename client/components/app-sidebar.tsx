@@ -1,48 +1,55 @@
-import * as React from 'react';
-import { Button } from '@/components/ui/button';
-import { Sidebar, SidebarContent, SidebarMenuItem, SidebarHeader, SidebarFooter} from '@/components/ui/sidebar';
-import { usePathname, useRouter } from 'next/navigation';
-import { signOut, signIn } from 'next-auth/react';
-// import { toast } from 'sonner';          
-import { useUser } from '@/hooks/useUser';
-import {  RoleSwitcher } from '@/components/role-switcher';
-//import {MobileRoleSwitcher} from '@/components/mobile-role-switcher';
-import { NavMain } from '@/components/nav-main';
-import { NavUser } from '@/components/nav-user';
-import { useSidebar } from '@/components/ui/sidebar';
-//import { MobileRoleSwitcher } from './mobile-role-switcher';
-import { navData } from '@/app/constants/nav-data';
+"use client";
 
+import * as React from "react";
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarFooter,
+  SidebarHeader,
+  SidebarMenu,
+  SidebarMenuItem,
+  SidebarMenuButton,
+} from "@/components/ui/sidebar";
+import { NavMain } from "@/components/nav-main";
+import { NavUser } from "@/components/nav-user";
+import { navData } from "@/app/constants/nav-data";
+import { useUser } from "@/hooks/useUser";
+import Link from "next/link";
+import { siteConfig } from "@/config/site";
 
+export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const { user, isLoading } = useUser();
+  const userRole = user?.decodedToken?.role || "enduser";
 
-export function AppSidebar({...props } : React.ComponentProps<typeof Sidebar>) {
-  const {setOpenMobile } = useSidebar();
-  const {user, userData, isLoading } = useUser();
+  return (
+    <Sidebar collapsible="icon" {...props}>
+      <SidebarHeader>
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <SidebarMenuButton size="lg" asChild>
+              <Link href="/dashboard">
+                <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
+                  <span className="text-lg font-bold">H</span>
+                </div>
+                <div className="grid flex-1 text-left text-sm leading-tight">
+                  <span className="truncate font-semibold">
+                    {siteConfig.name}
+                  </span>
+                  <span className="truncate text-xs">Help Desk</span>
+                </div>
+              </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </SidebarMenu>
+      </SidebarHeader>
 
-  const handleItemClick = React.useCallback(() => {
-    setOpenMobile(false);
-  }, [setOpenMobile]);
+      <SidebarContent>
+        {!isLoading && <NavMain items={navData.navMain} userRole={userRole} />}
+      </SidebarContent>
 
-    return (
-    <Sidebar collapsible = "icon" {...props}>
-        <SidebarHeader>
-            <RoleSwitcher className="hidden md:inline-flex" />
-        </SidebarHeader>
-        <SidebarContent>   
-            <NavMain items={navData.navMain} onItemClick={handleItemClick} />
-            </SidebarContent>
-        <SidebarContent>
-            <SidebarFooter>
-                {userData && (
-                    <NavUser/>
-                )}
-                <Button variant="destructive" className="w-full justify-start" onClick={() => signOut({ callbackUrl: '/' })}>
-                    Sign Out
-                </Button>
-            </SidebarFooter>
-        </SidebarContent>
+      <SidebarFooter>
+        <NavUser />
+      </SidebarFooter>
     </Sidebar>
   );
 }
-
-
