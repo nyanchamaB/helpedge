@@ -2,28 +2,16 @@
 import React from 'react';
 import { SidebarProvider, SidebarTrigger, SidebarInset} from '@/components/ui/sidebar';
 import { AppSidebar } from '@/components/app-sidebar';
-import {redirect, useParams} from 'next/navigation';
-import { UserProvider } from '@/hooks/useUser';
-//import { ErpSycHandler } from '@/components/erp-sync-handler';
-//import { RedirectHandler } from '@/components/redirect-handler';
-import { NavMain } from '@/components/nav-main';
 import { NavUser } from '@/components/nav-user';
+import { ProtectedRoute } from '@/components/ProtectedRoute';
 
 interface DashboardLayoutProps {
-    children: React.ReactNode;  
+    children: React.ReactNode;
 }
 
 export default function DashboardLayout({ children }: DashboardLayoutProps) {
-   // const session = await UserProvider();
-
-   // if (!session?.user) {
-    //    redirect('/login');
-   // }
-   // if (session.user && !session.user.emailVerified) {
-    //    redirect('/verify-email');
-   // }
     return (
-        <UserProvider>
+        <ProtectedRoute>
             <SidebarProvider>
                 <AppSidebar />
                 <SidebarInset>
@@ -42,6 +30,6 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                         </main>
                 </SidebarInset>
             </SidebarProvider>
-        </UserProvider>
+        </ProtectedRoute>
     );
 }
