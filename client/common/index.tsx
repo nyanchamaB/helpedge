@@ -1,5 +1,5 @@
-import * as Icons from "@mui/icons-material";
-import { view } from "framer-motion/client";
+// Only import specific icons needed - tree-shakeable imports
+import { Computer, Settings, BarChart } from "@mui/icons-material";
 
 // Navigation links for in-page sections
 export const navLinks = [
@@ -51,17 +51,17 @@ export const navLinks = [
 // Features section data
 export const features = [
   {
-    icon: <Icons.Computer fontSize="large" className="text-blue-700" />,
+    icon: <Computer fontSize="large" className="text-blue-700" />,
     title: "Service Desk",
     desc: "Centralized support for IT requests.",
   },
   {
-    icon: <Icons.Settings fontSize="large" className="text-blue-700" />,
+    icon: <Settings fontSize="large" className="text-blue-700" />,
     title: "Automation",
     desc: "Automate repetitive IT processes.",
   },
   {
-    icon: <Icons.BarChart fontSize="large" className="text-blue-700" />,
+    icon: <BarChart fontSize="large" className="text-blue-700" />,
     title: "Analytics",
     desc: "Get insights from your service data.",
   },
