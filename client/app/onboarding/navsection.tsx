@@ -5,6 +5,7 @@ import { navLinks } from "@/common";
 import Link from "next/link";
 import { useState, useRef, useEffect } from "react";
 import { usePathname } from "next/navigation";
+import { siteConfig } from "@/config/site";
 
 export default function NavHeader() {
   const pathname = usePathname();
@@ -32,8 +33,11 @@ export default function NavHeader() {
       <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
         {/* Left: Logo */}
         <Link href="/" className="flex items-center space-x-2">
-          <Globe className="text-indigo-600 w-7 h-7" />
-          <span className="font-bold text-xl text-gray-800">HelpEdge</span>
+          <img
+            src={siteConfig.logo}
+            alt="HelpEdge Logo"
+            className="h-8 w-auto transition-transform duration-200 hover:scale-105"
+          />
         </Link>
 
         {/* Middle Nav (Desktop) */}
