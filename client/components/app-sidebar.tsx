@@ -13,13 +13,13 @@ import {
 import { NavMain } from "@/components/nav-main";
 import { NavUser } from "@/components/nav-user";
 import { navData } from "@/app/constants/nav-data";
-import { useUser } from "@/hooks/useUser";
+import { useAuth } from "@/contexts/AuthContext";
 import Link from "next/link";
 import { siteConfig } from "@/config/site";
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
-  const { user, isLoading } = useUser();
-  const userRole = user?.decodedToken?.role || "enduser";
+  const { user, isLoading } = useAuth();
+  const userRole = user?.role || "enduser";
 
   return (
     <Sidebar collapsible="icon" {...props}>
