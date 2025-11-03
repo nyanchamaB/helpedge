@@ -43,27 +43,24 @@ export const navData = {
       icon: BookOpen,
       role: ["admin", "agent", "enduser"],
     },
-    {/*{
-      title: "Customers",
-      url: "/customers",
-      icon: Users,
-      roles: ["admin"], // only admins
-    },
-    */},
+    // {
+    //   title: "Customers",
+    //   url: "/customers",
+    //   icon: Users,
+    //   roles: ["admin"], // only admins
+    // },
     {
       title: "Reports",
       url: "/reports",
       icon: Calendar,
       role: ["admin", "agent"], // admins & agents
     },
-    {/*
-    {
-      title: "Billing",
-      url: "/billing",
-      icon: CreditCard,
-      roles: ["admin"], // only admins
-    },
-    */},
+    // {
+    //   title: "Billing",
+    //   url: "/billing",
+    //   icon: CreditCard,
+    //   roles: ["admin"], // only admins
+    // },
     {
       title: "Settings",
       url: "/settings",
