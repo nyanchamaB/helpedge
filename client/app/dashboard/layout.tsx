@@ -1,9 +1,14 @@
 "use client";
 import React from 'react';
+import dynamic from 'next/dynamic';
 import { SidebarProvider, SidebarTrigger, SidebarInset} from '@/components/ui/sidebar';
-import { AppSidebar } from '@/components/app-sidebar';
-import { NavUser } from '@/components/nav-user';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
+
+// Lazy load dashboard-specific components for better code splitting
+// Since this is a Client Component, dynamic imports work without ssr option
+const AppSidebar = dynamic(() => import('@/components/app-sidebar').then(mod => ({ default: mod.AppSidebar })));
+
+const NavUser = dynamic(() => import('@/components/nav-user').then(mod => ({ default: mod.NavUser })));
 
 interface DashboardLayoutProps {
     children: React.ReactNode;
