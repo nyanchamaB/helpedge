@@ -8,7 +8,7 @@ const protectedRoutes = [
   '/customers',
   '/reports',
   '/knowledge-base',
-  '/setttings', // Note: typo in original folder name
+  '/settings',
   '/billing',
   '/features',
   '/support',

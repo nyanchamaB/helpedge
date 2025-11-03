@@ -7,7 +7,7 @@ import { MobileNavLink } from "@/components/mobile-nav-link";
 import { MobileNavFooter } from "@/components/mobile-nav-footer";
 import { siteConfig } from "@/config/site";
 import { usePathname } from "next/navigation";
-import { motion, AnimatePresence } from "framer-motion";
+import { LazyMotion, domAnimation, m, AnimatePresence } from "framer-motion";
 import { buttonVariants } from "@/components/ui/button";
 import Link from "next/link";   
 import { ThemeToggle } from "@/components/theme-toggle";    
@@ -22,7 +22,8 @@ export function MobileNav({ links }: { links: { href: string; title: string }[] 
             <MobileNavIcon />
             <AnimatePresence>
                 {open && (
-                    <motion.div
+                    <LazyMotion features={domAnimation} strict>
+                    <m.div
                         initial={{ height: 0, opacity: 0 }}
                         animate={{ height: "auto", opacity: 1 }}
                         exit={{ height: 0, opacity: 0 }}
@@ -41,7 +42,8 @@ export function MobileNav({ links }: { links: { href: string; title: string }[] 
                             ))}
                         </div>
                         <MobileNavFooter />
-                    </motion.div>
+                    </m.div>
+                    </LazyMotion>
                 )}
             </AnimatePresence>
         </div>

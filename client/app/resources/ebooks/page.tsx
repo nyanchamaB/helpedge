@@ -6,7 +6,7 @@ import {
   Calendar, Eye, Play, Share, Heart, Bookmark, ExternalLink,
   ThumbsUp, BarChart3, Zap, Globe, Lock, Unlock
 } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { LazyMotion, domAnimation, m, AnimatePresence } from "framer-motion";
 import NavHeader from "@/app/onboarding/navsection";
 import { ebooks, } from "@/common/index"; 
 
@@ -110,6 +110,7 @@ const filterOptions = ['All', 'E-book', 'Guide', 'Report', 'Webinar', 'Case Stud
   };
 
   return (
+    <LazyMotion features={domAnimation} strict>
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white">
       <NavHeader />
       
@@ -120,7 +121,7 @@ const filterOptions = ['All', 'E-book', 'Guide', 'Report', 'Webinar', 'Case Stud
         <div className="absolute bottom-0 right-0 w-96 h-96 bg-purple-400 rounded-full translate-x-1/2 translate-y-1/2 opacity-20"></div>
         
         <div className="relative max-w-7xl mx-auto px-6 text-center">
-          <motion.div
+          <m.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
@@ -133,7 +134,7 @@ const filterOptions = ['All', 'E-book', 'Guide', 'Report', 'Webinar', 'Case Stud
             </p>
             
             {/* Enhanced Search and Filter */}
-            <motion.div 
+            <m.div 
               className="bg-white/10 backdrop-blur-lg rounded-2xl p-8 max-w-4xl mx-auto border border-white/20"
               initial={{ opacity: 0, y: 40 }}
               animate={{ opacity: 1, y: 0 }}
@@ -153,7 +154,7 @@ const filterOptions = ['All', 'E-book', 'Guide', 'Report', 'Webinar', 'Case Stud
                 
                 <div className="flex flex-wrap gap-2 justify-center">
                   {filterOptions.map((filter) => (
-                    <motion.button
+                    <m.button
                       key={filter}
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
@@ -165,7 +166,7 @@ const filterOptions = ['All', 'E-book', 'Guide', 'Report', 'Webinar', 'Case Stud
                       }`}
                     >
                       {filter}
-                    </motion.button>
+                    </m.button>
                   ))}
                 </div>
               </div>
@@ -205,8 +206,8 @@ const filterOptions = ['All', 'E-book', 'Guide', 'Report', 'Webinar', 'Case Stud
                   </select>
                 </div>
               </div>
-            </motion.div>
-          </motion.div>
+            </m.div>
+          </m.div>
         </div>
       </section>
 
@@ -214,7 +215,7 @@ const filterOptions = ['All', 'E-book', 'Guide', 'Report', 'Webinar', 'Case Stud
       {featuredEbooks.length > 0 && (
         <section className="py-16 bg-white">
           <div className="max-w-7xl mx-auto px-6">
-            <motion.div
+            <m.div
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
@@ -228,16 +229,16 @@ const filterOptions = ['All', 'E-book', 'Guide', 'Report', 'Webinar', 'Case Stud
               <p className="text-xl text-gray-600 max-w-2xl mx-auto">
                 Curated selection of top-rated ITSM resources handpicked by our experts
               </p>
-            </motion.div>
+            </m.div>
 
-            <motion.div
+            <m.div
               variants={containerVariants}
               initial="hidden"
               whileInView="visible"
               className="grid md:grid-cols-2 lg:grid-cols-3 gap-8"
             >
               {featuredEbooks.map((ebook, idx) => (
-                <motion.div
+                <m.div
                   key={ebook.id}
                   variants={itemVariants}
                   whileHover={{ y: -8, scale: 1.02 }}
@@ -305,9 +306,9 @@ const filterOptions = ['All', 'E-book', 'Guide', 'Report', 'Webinar', 'Case Stud
                       )}
                     </div>
                   </div>
-                </motion.div>
+                </m.div>
               ))}
-            </motion.div>
+            </m.div>
           </div>
         </section>
       )}
@@ -346,7 +347,7 @@ const filterOptions = ['All', 'E-book', 'Guide', 'Report', 'Webinar', 'Case Stud
           </div>
 
           {sortedEbooks.length > 0 ? (
-            <motion.div
+            <m.div
               variants={containerVariants}
               initial="hidden"
               animate="visible"
@@ -356,7 +357,7 @@ const filterOptions = ['All', 'E-book', 'Guide', 'Report', 'Webinar', 'Case Stud
               }
             >
               {sortedEbooks.map((ebook, idx) => (
-                <motion.div
+                <m.div
                   key={ebook.id}
                   variants={itemVariants}
                   whileHover={{ y: -4 }}
@@ -432,11 +433,11 @@ const filterOptions = ['All', 'E-book', 'Guide', 'Report', 'Webinar', 'Case Stud
                       </div>
                     </div>
                   </div>
-                </motion.div>
+                </m.div>
               ))}
-            </motion.div>
+            </m.div>
           ) : (
-            <motion.div
+            <m.div
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               className="text-center py-16"
@@ -452,7 +453,7 @@ const filterOptions = ['All', 'E-book', 'Guide', 'Report', 'Webinar', 'Case Stud
               >
                 Clear Filters
               </button>
-            </motion.div>
+            </m.div>
           )}
         </div>
       </section>
@@ -460,14 +461,14 @@ const filterOptions = ['All', 'E-book', 'Guide', 'Report', 'Webinar', 'Case Stud
       {/* Ebook Detail Modal */}
       <AnimatePresence>
         {isModalOpen && selectedEbook && (
-          <motion.div
+          <m.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
             onClick={closeModal}
           >
-            <motion.div
+            <m.div
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
@@ -556,15 +557,15 @@ const filterOptions = ['All', 'E-book', 'Guide', 'Report', 'Webinar', 'Case Stud
                   </div>
                 </div>
               </div>
-            </motion.div>
-          </motion.div>
+            </m.div>
+          </m.div>
         )}
       </AnimatePresence>
 
       {/* Newsletter Section */}
       <section className="py-16 bg-gradient-to-r from-blue-600 to-purple-700">
         <div className="max-w-4xl mx-auto px-6 text-center">
-          <motion.div
+          <m.div
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
@@ -581,20 +582,21 @@ const filterOptions = ['All', 'E-book', 'Guide', 'Report', 'Webinar', 'Case Stud
                 placeholder="Enter your email address"
                 className="flex-1 px-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-300"
               />
-              <motion.button 
+              <m.button 
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 className="bg-white text-blue-600 px-6 py-3 rounded-lg hover:bg-gray-50 transition-colors font-semibold"
               >
                 Subscribe
-              </motion.button>
+              </m.button>
             </div>
             <p className="text-sm text-blue-200 mt-4">
               Join 15,000+ IT professionals. No spam, unsubscribe anytime.
             </p>
-          </motion.div>
+          </m.div>
         </div>
       </section>
     </div>
+    </LazyMotion>
   );
 }

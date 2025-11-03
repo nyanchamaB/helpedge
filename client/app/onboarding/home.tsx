@@ -1,20 +1,22 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { LazyMotion, domAnimation, m } from "framer-motion";
 import Image from "next/image";
-import ComputerIcon from "@mui/icons-material/Computer";
-import SettingsIcon from "@mui/icons-material/Settings";
-import BarChartIcon from "@mui/icons-material/BarChart";
-import EmailIcon from "@mui/icons-material/Email";
-import TwitterIcon from "@mui/icons-material/Twitter";
-import LinkedInIcon from "@mui/icons-material/LinkedIn";
-import PhoneIcon from "@mui/icons-material/Phone";
-import PlayCircleIcon from "@mui/icons-material/PlayCircle";
-import SecurityIcon from "@mui/icons-material/Security";
-import CloudQueueIcon from "@mui/icons-material/CloudQueue";
-import GroupIcon from "@mui/icons-material/Group";
-import TrendingUpIcon from "@mui/icons-material/TrendingUp";
-import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+import {
+  Monitor,
+  Settings,
+  BarChart3,
+  Mail,
+  Twitter,
+  Linkedin,
+  Phone,
+  PlayCircle,
+  Shield,
+  Cloud,
+  Users,
+  TrendingUp,
+  CheckCircle2
+} from "lucide-react";
 import { useState, useEffect } from "react";
 
 const heroPhrases = [
@@ -50,6 +52,7 @@ export default function HomePage() {
   };
 
   return (
+    <LazyMotion features={domAnimation} strict>
     <main className="flex flex-col w-full bg-white">
       {/* Hero Section */}
       <section
@@ -57,13 +60,13 @@ export default function HomePage() {
         className="bg-gradient-to-br from-blue-700 via-blue-200 to-black text-white py-32 px-6 text-center relative overflow-hidden"
       >
         <div className="absolute inset-0 bg-black/20"></div>
-        <motion.div
+        <m.div
           initial={{ opacity: 0, y: -50 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
           className="relative z-10"
         >
-          <motion.h1
+          <m.h1
             key={currentPhrase}
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
@@ -72,18 +75,18 @@ export default function HomePage() {
             className="text-5xl md:text-7xl font-extrabold mb-6 leading-tight min-h-[4rem]"
           >
             {heroPhrases[currentPhrase]}
-          </motion.h1>
+          </m.h1>
 
-          <motion.p
+          <m.p
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.5, duration: 0.8 }}
             className="text-xl md:text-2xl mb-10 max-w-3xl mx-auto text-blue-100 leading-relaxed"
           >
             Let&quots revolutionize your IT service management with HelpEdge.
-          </motion.p>
+          </m.p>
 
-          <motion.div
+          <m.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.7 }}
@@ -95,16 +98,16 @@ export default function HomePage() {
             <button className="px-10 py-4 border-2 border-white rounded-lg text-white hover:bg-white hover:text-blue-900 transition-all duration-300 font-bold transform hover:scale-105">
               Request Demo
             </button>
-          </motion.div>
+          </m.div>
 
           {/* Animated Dashboard Video/Image */}
-          <motion.div
+          <m.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 1, duration: 0.8 }}
             className="flex justify-center"
           >
-            <motion.div
+            <m.div
               className="relative w-full max-w-5xl cursor-pointer"
               onHoverStart={() => setIsVideoHovered(true)}
               onHoverEnd={() => setIsVideoHovered(false)}
@@ -117,7 +120,7 @@ export default function HomePage() {
                 ease: "easeInOut",
               }}
             >
-              <motion.div
+              <m.div
                 animate={{
                   scale: isVideoHovered ? 1.02 : 1,
                 }}
@@ -133,59 +136,59 @@ export default function HomePage() {
                   height={700}
                   className="rounded-2xl shadow-2xl border-4 border-white/20"
                 />
-                <motion.div
+                <m.div
                   whileHover={{ scale: 1.2 }}
                   className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 cursor-pointer"
                 >
-                  <PlayCircleIcon className="text-white w-24 h-24 opacity-90 drop-shadow-2xl" />
-                </motion.div>
+                  <PlayCircle className="text-white w-24 h-24 opacity-90 drop-shadow-2xl" />
+                </m.div>
 
                 {/* Video Play Overlay */}
                 {isVideoHovered && (
-                  <motion.div
+                  <m.div
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     className="absolute inset-0 bg-black/30 rounded-2xl flex items-center justify-center"
                   >
-                    <motion.div
+                    <m.div
                       initial={{ scale: 0 }}
                       animate={{ scale: 1 }}
                       className="text-white text-center"
                     >
                       <div className="text-2xl font-bold mb-2">Watch Demo</div>
                       <div className="text-lg">See HelpEdge ITSM in action</div>
-                    </motion.div>
-                  </motion.div>
+                    </m.div>
+                  </m.div>
                 )}
-              </motion.div>
+              </m.div>
 
               {/* Floating elements when hovered */}
               {isVideoHovered && (
                 <>
-                  <motion.div
+                  <m.div
                     initial={{ opacity: 0, scale: 0 }}
                     animate={{ opacity: 1, scale: 1 }}
                     className="absolute -top-4 -right-4 bg-green-500 text-white px-3 py-1 rounded-full text-sm font-bold"
                   >
                     Live Demo
-                  </motion.div>
-                  <motion.div
+                  </m.div>
+                  <m.div
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: 0.2 }}
                     className="absolute -bottom-4 -left-4 bg-blue-500 text-white px-3 py-1 rounded-full text-sm font-bold"
                   >
                     AI-Powered
-                  </motion.div>
+                  </m.div>
                 </>
               )}
-            </motion.div>
-          </motion.div>
-        </motion.div>
+            </m.div>
+          </m.div>
+        </m.div>
       </section>
 
       <section className="py-32 px-6 bg-gradient-to-b from-white to-blue-50">
-        <motion.div
+        <m.div
           initial={{ opacity: 0, y: 40 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7 }}
@@ -199,9 +202,9 @@ export default function HomePage() {
             workflows, reduce costs, and enhance service quality across your
             organization.
           </p>
-        </motion.div>
+        </m.div>
 
-        <motion.div
+        <m.div
           variants={staggerContainer}
           initial="initial"
           whileInView="animate"
@@ -209,7 +212,7 @@ export default function HomePage() {
         >
           {[
             {
-              icon: <ComputerIcon fontSize="large" className="text-blue-600" />,
+              icon: <Monitor className="w-12 h-12 text-blue-600" />,
               title: "Service Desk",
               desc: "Unified platform for incident, problem, and change management with AI-powered ticket routing.",
               features: [
@@ -219,7 +222,7 @@ export default function HomePage() {
               ],
             },
             {
-              icon: <SettingsIcon fontSize="large" className="text-green-600" />,
+              icon: <Settings className="w-12 h-12 text-green-600" />,
               title: "Process Automation",
               desc: "Automate repetitive IT processes and workflows to increase efficiency and reduce human error.",
               features: [
@@ -229,19 +232,19 @@ export default function HomePage() {
               ],
             },
             {
-              icon: <BarChartIcon fontSize="large" className="text-purple-600" />,
+              icon: <BarChart3 className="w-12 h-12 text-purple-600" />,
               title: "Advanced Analytics",
               desc: "Real-time dashboards and predictive analytics for data-driven decision making.",
               features: ["KPI Tracking", "Predictive Insights", "Custom Reports"],
             },
             {
-              icon: <SecurityIcon fontSize="large" className="text-red-600" />,
+              icon: <Shield className="w-12 h-12 text-red-600" />,
               title: "Security & Compliance",
               desc: "Enterprise-grade security with compliance frameworks for ITIL, ISO 20000, and more.",
               features: ["ITIL Compliance", "Audit Trails", "Risk Management"],
             },
           ].map((feature, idx) => (
-            <motion.div
+            <m.div
               key={idx}
               variants={fadeInUp}
               whileHover={{ y: -10, scale: 1.02 }}
@@ -258,19 +261,19 @@ export default function HomePage() {
               <ul className="space-y-2">
                 {feature.features.map((item, i) => (
                   <li key={i} className="flex items-center text-sm text-gray-500">
-                    <CheckCircleIcon className="w-4 h-4 text-green-500 mr-2" />
+                    <CheckCircle2 className="w-4 h-4 text-green-500 mr-2" />
                     {item}
                   </li>
                 ))}
               </ul>
-            </motion.div>
+            </m.div>
           ))}
-        </motion.div>
+        </m.div>
       </section>
 
       {/* ITSM Benefits Section */}
       <section className="py-32 px-6 bg-white">
-        <motion.div
+        <m.div
           initial={{ opacity: 0, y: 40 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7 }}
@@ -283,32 +286,32 @@ export default function HomePage() {
             Organizations using HelpEdge ITSM experience significant improvements in
             service quality and operational efficiency.
           </p>
-        </motion.div>
+        </m.div>
 
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 max-w-7xl mx-auto">
           {[
             {
               value: "95%",
               label: "Faster Incident Resolution",
-              icon: <TrendingUpIcon className="w-8 h-8" />,
+              icon: <TrendingUp className="w-8 h-8" />,
             },
             {
               value: "80%",
               label: "Reduced Downtime",
-              icon: <CloudQueueIcon className="w-8 h-8" />,
+              icon: <Cloud className="w-8 h-8" />,
             },
             {
               value: "70%",
               label: "Improved Team Efficiency",
-              icon: <GroupIcon className="w-8 h-8" />,
+              icon: <Users className="w-8 h-8" />,
             },
             {
               value: "60%",
               label: "Cost Reduction",
-              icon: <BarChartIcon className="w-8 h-8" />,
+              icon: <BarChart3 className="w-8 h-8" />,
             },
           ].map((stat, idx) => (
-            <motion.div
+            <m.div
               key={idx}
               initial={{ opacity: 0, scale: 0.8 }}
               whileInView={{ opacity: 1, scale: 1 }}
@@ -321,14 +324,14 @@ export default function HomePage() {
               </div>
               <h3 className="text-5xl font-bold mb-2">{stat.value}</h3>
               <p className="text-blue-100 text-lg">{stat.label}</p>
-            </motion.div>
+            </m.div>
           ))}
         </div>
       </section>
 
       {/* Customer Success Stories */}
       <section className="py-32 px-6 bg-gray-50">
-        <motion.div
+        <m.div
           initial={{ opacity: 0, y: 40 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7 }}
@@ -341,7 +344,7 @@ export default function HomePage() {
             See how enterprises are transforming their IT service management with
             HelpEdge.
           </p>
-        </motion.div>
+        </m.div>
 
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-10 max-w-7xl mx-auto">
           {[
@@ -364,7 +367,7 @@ export default function HomePage() {
               metrics: ["ROI in 3 Months", "99.9% Uptime"],
             },
           ].map((story, idx) => (
-            <motion.div
+            <m.div
               key={idx}
               initial={{ opacity: 0, y: 60 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -392,7 +395,7 @@ export default function HomePage() {
                   ))}
                 </div>
               </div>
-            </motion.div>
+            </m.div>
           ))}
         </div>
       </section>
@@ -400,7 +403,7 @@ export default function HomePage() {
       {/* ITSM Evolution Section */}
       <section className="py-32 px-6 bg-white">
         <div className="max-w-6xl mx-auto">
-          <motion.div
+          <m.div
             initial={{ opacity: 0, y: 40 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7 }}
@@ -413,9 +416,9 @@ export default function HomePage() {
               From traditional IT support to modern AI-driven service management -
               understand the journey.
             </p>
-          </motion.div>
+          </m.div>
 
-          <motion.div
+          <m.div
             initial={{ opacity: 0, x: -100 }}
             whileInView={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8 }}
@@ -448,7 +451,7 @@ export default function HomePage() {
                     desc: "Predictive analytics and automation",
                   },
                 ].map((period, idx) => (
-                  <motion.div
+                  <m.div
                     key={idx}
                     whileHover={{ x: 10 }}
                     className="flex items-start space-x-4 p-4 rounded-lg hover:bg-blue-50 transition-colors"
@@ -460,12 +463,12 @@ export default function HomePage() {
                       <h4 className="font-semibold text-gray-800">{period.title}</h4>
                       <p className="text-gray-600">{period.desc}</p>
                     </div>
-                  </motion.div>
+                  </m.div>
                 ))}
               </div>
             </div>
 
-            <motion.div
+            <m.div
               initial={{ opacity: 0, scale: 0.8 }}
               whileInView={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.8, delay: 0.3 }}
@@ -478,8 +481,8 @@ export default function HomePage() {
                 height={400}
                 className="rounded-xl shadow-2xl"
               />
-            </motion.div>
-          </motion.div>
+            </m.div>
+          </m.div>
         </div>
       </section>
 
@@ -504,7 +507,7 @@ export default function HomePage() {
         </svg>
 
         {/* Content */}
-        <motion.div
+        <m.div
           initial={{ opacity: 0, y: 40 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7 }}
@@ -518,24 +521,24 @@ export default function HomePage() {
             service management.
           </p>
           <div className="flex justify-center gap-6 flex-wrap">
-            <motion.button
+            <m.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               className="px-12 py-4 bg-white text-blue-900 font-bold rounded-lg shadow-2xl hover:bg-blue-50 transition-all duration-300"
             >
               Start Free Trial
-            </motion.button>
-            <motion.button
+            </m.button>
+            <m.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               className="px-12 py-4 border-2 border-white rounded-lg text-white hover:bg-white hover:text-blue-900 transition-all duration-300 font-bold"
             >
               Schedule Demo
-            </motion.button>
+            </m.button>
           </div>
 
           {/* Floating elements */}
-          <motion.div
+          <m.div
             animate={{
               y: [0, -15, 0],
             }}
@@ -546,10 +549,10 @@ export default function HomePage() {
             }}
             className="absolute -top-10 -left-10 text-white/10"
           >
-            <SettingsIcon className="w-32 h-32" />
-          </motion.div>
+            <Settings className="w-32 h-32" />
+          </m.div>
 
-          <motion.div
+          <m.div
             animate={{
               y: [0, 15, 0],
             }}
@@ -561,10 +564,11 @@ export default function HomePage() {
             }}
             className="absolute -bottom-10 -right-10 text-white/10"
           >
-            <ComputerIcon className="w-32 h-32" />
-          </motion.div>
-        </motion.div>
+            <Monitor className="w-32 h-32" />
+          </m.div>
+        </m.div>
       </section>
     </main>
+    </LazyMotion>
   );
 }
