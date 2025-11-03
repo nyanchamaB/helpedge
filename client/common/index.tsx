@@ -1,5 +1,4 @@
-// Only import specific icons needed - tree-shakeable imports
-import { Computer, Settings, BarChart } from "@mui/icons-material";
+import { Monitor, Settings, BarChart3 } from "lucide-react";
 
 // Navigation links for in-page sections
 export const navLinks = [
@@ -51,17 +50,17 @@ export const navLinks = [
 // Features section data
 export const features = [
   {
-    icon: <Computer fontSize="large" className="text-blue-700" />,
+    icon: <Monitor className="w-12 h-12 text-blue-700" />,
     title: "Service Desk",
     desc: "Centralized support for IT requests.",
   },
   {
-    icon: <Settings fontSize="large" className="text-blue-700" />,
+    icon: <Settings className="w-12 h-12 text-blue-700" />,
     title: "Automation",
     desc: "Automate repetitive IT processes.",
   },
   {
-    icon: <BarChart fontSize="large" className="text-blue-700" />,
+    icon: <BarChart3 className="w-12 h-12 text-blue-700" />,
     title: "Analytics",
     desc: "Get insights from your service data.",
   },
