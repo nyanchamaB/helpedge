@@ -2,19 +2,21 @@
 
 import { motion } from "framer-motion";
 import Image from "next/image";
-import ComputerIcon from "@mui/icons-material/Computer";
-import SettingsIcon from "@mui/icons-material/Settings";
-import BarChartIcon from "@mui/icons-material/BarChart";
-import EmailIcon from "@mui/icons-material/Email";
-import TwitterIcon from "@mui/icons-material/Twitter";
-import LinkedInIcon from "@mui/icons-material/LinkedIn";
-import PhoneIcon from "@mui/icons-material/Phone";
-import PlayCircleIcon from "@mui/icons-material/PlayCircle";
-import SecurityIcon from "@mui/icons-material/Security";
-import CloudQueueIcon from "@mui/icons-material/CloudQueue";
-import GroupIcon from "@mui/icons-material/Group";
-import TrendingUpIcon from "@mui/icons-material/TrendingUp";
-import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+import {
+  Monitor,
+  Settings,
+  BarChart3,
+  Mail,
+  Twitter,
+  Linkedin,
+  Phone,
+  PlayCircle,
+  Shield,
+  Cloud,
+  Users,
+  TrendingUp,
+  CheckCircle2
+} from "lucide-react";
 import { useState, useEffect } from "react";
 
 const heroPhrases = [
@@ -137,7 +139,7 @@ export default function HomePage() {
                   whileHover={{ scale: 1.2 }}
                   className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 cursor-pointer"
                 >
-                  <PlayCircleIcon className="text-white w-24 h-24 opacity-90 drop-shadow-2xl" />
+                  <PlayCircle className="text-white w-24 h-24 opacity-90 drop-shadow-2xl" />
                 </motion.div>
 
                 {/* Video Play Overlay */}
@@ -209,7 +211,7 @@ export default function HomePage() {
         >
           {[
             {
-              icon: <ComputerIcon fontSize="large" className="text-blue-600" />,
+              icon: <Monitor className="w-12 h-12 text-blue-600" />,
               title: "Service Desk",
               desc: "Unified platform for incident, problem, and change management with AI-powered ticket routing.",
               features: [
@@ -219,7 +221,7 @@ export default function HomePage() {
               ],
             },
             {
-              icon: <SettingsIcon fontSize="large" className="text-green-600" />,
+              icon: <Settings className="w-12 h-12 text-green-600" />,
               title: "Process Automation",
               desc: "Automate repetitive IT processes and workflows to increase efficiency and reduce human error.",
               features: [
@@ -229,13 +231,13 @@ export default function HomePage() {
               ],
             },
             {
-              icon: <BarChartIcon fontSize="large" className="text-purple-600" />,
+              icon: <BarChart3 className="w-12 h-12 text-purple-600" />,
               title: "Advanced Analytics",
               desc: "Real-time dashboards and predictive analytics for data-driven decision making.",
               features: ["KPI Tracking", "Predictive Insights", "Custom Reports"],
             },
             {
-              icon: <SecurityIcon fontSize="large" className="text-red-600" />,
+              icon: <Shield className="w-12 h-12 text-red-600" />,
               title: "Security & Compliance",
               desc: "Enterprise-grade security with compliance frameworks for ITIL, ISO 20000, and more.",
               features: ["ITIL Compliance", "Audit Trails", "Risk Management"],
@@ -258,7 +260,7 @@ export default function HomePage() {
               <ul className="space-y-2">
                 {feature.features.map((item, i) => (
                   <li key={i} className="flex items-center text-sm text-gray-500">
-                    <CheckCircleIcon className="w-4 h-4 text-green-500 mr-2" />
+                    <CheckCircle2 className="w-4 h-4 text-green-500 mr-2" />
                     {item}
                   </li>
                 ))}
@@ -290,22 +292,22 @@ export default function HomePage() {
             {
               value: "95%",
               label: "Faster Incident Resolution",
-              icon: <TrendingUpIcon className="w-8 h-8" />,
+              icon: <TrendingUp className="w-8 h-8" />,
             },
             {
               value: "80%",
               label: "Reduced Downtime",
-              icon: <CloudQueueIcon className="w-8 h-8" />,
+              icon: <Cloud className="w-8 h-8" />,
             },
             {
               value: "70%",
               label: "Improved Team Efficiency",
-              icon: <GroupIcon className="w-8 h-8" />,
+              icon: <Users className="w-8 h-8" />,
             },
             {
               value: "60%",
               label: "Cost Reduction",
-              icon: <BarChartIcon className="w-8 h-8" />,
+              icon: <BarChart3 className="w-8 h-8" />,
             },
           ].map((stat, idx) => (
             <motion.div
@@ -546,7 +548,7 @@ export default function HomePage() {
             }}
             className="absolute -top-10 -left-10 text-white/10"
           >
-            <SettingsIcon className="w-32 h-32" />
+            <Settings className="w-32 h-32" />
           </motion.div>
 
           <motion.div
@@ -561,7 +563,7 @@ export default function HomePage() {
             }}
             className="absolute -bottom-10 -right-10 text-white/10"
           >
-            <ComputerIcon className="w-32 h-32" />
+            <Monitor className="w-32 h-32" />
           </motion.div>
         </motion.div>
       </section>
