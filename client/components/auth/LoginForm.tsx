@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAuth } from "@/contexts/AuthContext";
 import { getRedirectUrl } from "@/lib/utils/redirect";
+import { siteConfig } from "@/config/site";
 
 export default function LoginForm() {
   const [formData, setFormData] = useState({
@@ -72,9 +73,13 @@ export default function LoginForm() {
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
-          <CardTitle className="text-2xl font-bold text-blue-600">
-            HelpEdge
-          </CardTitle>
+          <div className="flex justify-center mb-4">
+            <img
+              src={siteConfig.logo}
+              alt="HelpEdge Logo"
+              className="h-16 w-auto"
+            />
+          </div>
           <p className="text-gray-600">Sign in to your account</p>
         </CardHeader>
         <CardContent>
