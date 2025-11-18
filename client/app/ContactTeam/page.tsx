@@ -34,7 +34,7 @@ export default function ContactTeamPage() {
       <div className="max-w-4xl mx-auto pt-12">
         <h1 className="text-4xl font-bold mb-6 text-center text-gray-900">Contact Our Sales Team</h1>
         <p className="text-center text-gray-600 mb-8">
-          We're happy to answer questions and get you acquainted with HelpEdge.
+          We are happy to answer questions and get you acquainted with HelpEdge.
         </p>
 
         {/* New Feature Highlights Section */}

@@ -31,8 +31,8 @@ export const navData = {
       icon: MessageCircle,
       role: ["admin", "agent", "enduser"], // all have access, but child items differ
       items: [
-        { title: "All Tickets", url: "/tickets", roles: ["admin"] },
-        { title: "Assigned Tickets", url: "/tickets/assigned", roles: ["agent"] },
+       // { title: "All Tickets", url: "/tickets", roles: ["admin"] },
+       // { title: "Assigned Tickets", url: "/tickets/assigned", roles: ["agent"] },
         { title: "My Tickets", url: "/tickets/my-tickets", roles: ["enduser"] },
         { title: "Create Ticket", url: "/tickets/create", roles: ["enduser"] },
       ],

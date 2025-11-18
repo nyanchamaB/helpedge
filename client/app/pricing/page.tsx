@@ -94,10 +94,10 @@ export default function Pricing() {
                       {plan.price}
                     </span>
                   </div>
-                  <p className="text-gray-600 mb-8 min-h-[48px]">{plan.description}</p>
+                  <p className="text-gray-600 mb-8 min-h-12">{plan.description}</p>
 
                   <Link
-                    href="/GetStarted"
+                    href="/stepper"
                     className={`block w-full py-3.5 rounded-md font-semibold text-center transition-all mb-8 ${
                       plan.highlight
                         ? "bg-blue-600 text-white hover:bg-blue-700 shadow-md"
@@ -111,7 +111,7 @@ export default function Pricing() {
                     {plan.features.map((feature) => (
                       <li key={feature} className="flex items-start text-sm">
                         <svg
-                          className="w-5 h-5 mr-3 mt-0.5 text-green-600 flex-shrink-0"
+                          className="w-5 h-5 mr-3 mt-0.5 text-green-600 shrink-0"
                           fill="currentColor"
                           viewBox="0 0 20 20"
                         >
@@ -191,7 +191,7 @@ export default function Pricing() {
 
           {/*Infrastructure Section */}
           <div className="max-w-7xl mx-auto mt-24">
-            <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl p-12 md:p-16 border border-gray-200">
+            <div className="bg-linear-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl p-12 md:p-16 border border-gray-200">
               <div className="grid md:grid-cols-2 gap-12 items-center">
                 {/* Content Left */}
                 <div>
@@ -212,7 +212,7 @@ export default function Pricing() {
                       { title: "Compliance Ready", desc: "SOC 2 Type II, GDPR, and custom data residency options." }
                     ].map((item) => (
                       <div key={item.title} className="flex items-start">
-                        <div className="flex-shrink-0 w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center mr-4">
+                        <div className="shrink-0 w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center mr-4">
                           <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
                             <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                           </svg>
@@ -242,7 +242,7 @@ export default function Pricing() {
 
           {/*  Final CTA Section  */}
           <div className="max-w-5xl mx-auto mt-24">
-            <div className="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl p-12 text-center text-white shadow-xl">
+            <div className="bg-linear-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl p-12 text-center text-white shadow-xl">
               <h4 className="text-4xl font-bold mb-4">
                 Modern Infrastructure. Future-Proof Performance.
               </h4>
@@ -254,7 +254,7 @@ export default function Pricing() {
 
               <div className="flex flex-wrap justify-center gap-4">
                 <Link
-                  href="/GetStarted"
+                  href="/stepper"
                   className="inline-block px-10 py-4 bg-white text-blue-600 rounded-lg hover:bg-gray-100 font-bold transition-all text-lg shadow-lg"
                 >
                   Get Started
