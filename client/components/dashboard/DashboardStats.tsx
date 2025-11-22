@@ -149,10 +149,11 @@ export default function DashboardStats() {
   // Calculate stats from actual tickets data (source of truth)
   // This ensures accuracy even if API endpoints return incorrect data
   const calculatedCounts = {
-    open: tickets.filter((t) => t.status === 0).length,
-    inProgress: tickets.filter((t) => t.status === 1).length,
-    resolved: tickets.filter((t) => t.status === 2).length,
-    closed: tickets.filter((t) => t.status === 3).length,
+    open: tickets.filter((t) => t.status === "Open").length,
+    inProgress: tickets.filter((t) => t.status === "InProgress").length,
+    resolved: tickets.filter((t) => t.status === "Resolved").length,
+    closed: tickets.filter((t) => t.status === "Closed").length,
+    onHold: tickets.filter((t) => t.status === "OnHold").length,
   };
 
   // Debug: Log discrepancies between API and calculated counts
@@ -185,8 +186,8 @@ export default function DashboardStats() {
   // Always use calculated counts from actual ticket data (source of truth)
   const displayStatusCounts = calculatedCounts;
 
-  // Calculate urgent tickets
-  const urgentTickets = tickets.filter((t) => t.priority === 3).length;
+  // Calculate critical tickets
+  const criticalTickets = tickets.filter((t) => t.priority === "Critical").length;
 
   // Loading state
   if (isLoading) {
@@ -401,11 +402,11 @@ export default function DashboardStats() {
         <Card className="hover:shadow-lg transition">
           <CardHeader>
             <CardTitle className="text-sm font-medium text-gray-600">
-              Urgent Tickets
+              Critical Tickets
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-3xl font-bold text-red-600">{urgentTickets}</p>
+            <p className="text-3xl font-bold text-red-600">{criticalTickets}</p>
           </CardContent>
         </Card>
       </div>
