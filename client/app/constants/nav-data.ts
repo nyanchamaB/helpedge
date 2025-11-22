@@ -70,7 +70,7 @@ export const navData = {
         { title: "All Tickets", url: "/tickets", roles: ["Admin", "ITManager", "TeamLead", "ServiceDeskAgent"] },
         { title: "Assigned to Me", url: "/tickets/assigned", roles: [...SUPPORT_ROLES, "TeamLead"] },
         { title: "My Tickets", url: "/tickets/my-tickets", roles: ["EndUser"] },
-        { title: "Create Ticket", url: "/tickets/create", roles: ALL_ROLES },
+        { title: "Create Ticket", url: "/tickets/create-ticket", roles: ALL_ROLES },
         { title: "Queue", url: "/tickets/queue", roles: ["ServiceDeskAgent", "TeamLead"] },
       ],
     },
