@@ -24,6 +24,32 @@ export interface User {
   updatedAt: string;
 }
 
+// Full User Profile from /api/Users/me endpoint
+export interface UserProfile {
+  id: string;
+  email: string;
+  firstName: string;
+  lastName: string;
+  fullName: string;
+  role: 'Admin' | 'Agent' | 'EndUser';
+  department?: string;
+  jobTitle?: string;
+  employeeId?: string;
+  managerId?: string;
+  phoneNumber?: string;
+  mobileNumber?: string;
+  officeLocation?: string;
+  isActive: boolean;
+  lastLoginAt?: string;
+  externalId?: string;
+  externalSource?: string;
+  avatarUrl?: string;
+  timeZone?: string;
+  preferredLanguage?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface CreateUserRequest {
   email: string;
   password: string;
@@ -41,6 +67,17 @@ export interface UpdateUserRequest {
 
 export interface UpdateUserPasswordRequest {
   password: string;
+}
+
+/**
+ * Get current authenticated user's profile
+ * @returns Current user's full profile
+ */
+export async function getCurrentUserProfile(): Promise<ApiResponse<UserProfile>> {
+  return apiRequest<UserProfile>('/api/Users/me', {
+    method: 'GET',
+    includeAuth: true,
+  });
 }
 
 /**
