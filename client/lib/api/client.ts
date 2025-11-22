@@ -23,7 +23,7 @@ export interface ApiRequestConfig {
 
 /**
  * Make an API request to the HelpEdge backend
- * Cookies are sent automatically with credentials: 'include' (default)
+ * When includeAuth is true, adds Authorization header with Bearer token
  * Use credentials: 'omit' for public endpoints to avoid CORS issues
  */
 export async function apiRequest<T = any>(
@@ -34,7 +34,8 @@ export async function apiRequest<T = any>(
     method = 'GET',
     body,
     headers = {},
-    credentials = 'include', // Default to include for cookie-based auth
+    includeAuth = false,
+    credentials = 'omit', // Default to omit for CORS compatibility
   } = config;
 
   const url = `${API_BASE_URL}${endpoint}`;
@@ -43,6 +44,14 @@ export async function apiRequest<T = any>(
     'Content-Type': 'application/json',
     ...headers,
   };
+
+  // Add Authorization header if includeAuth is true
+  if (includeAuth) {
+    const token = getAuthToken();
+    if (token) {
+      requestHeaders['Authorization'] = `Bearer ${token}`;
+    }
+  }
 
   try {
     console.log('API Request:', { url, method, headers: requestHeaders, body, credentials });
