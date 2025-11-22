@@ -8,20 +8,25 @@ import {
   logout as apiLogout,
   getCurrentUser,
   validateToken,
+  getDashboardRouteForRole,
+  refreshToken as apiRefreshToken,
   type LoginRequest,
   type RegisterRequest,
   type User,
+  type UserRole,
 } from '@/lib/api/auth';
-import { ApiResponse } from '@/lib/api/client';
+import { getAuthToken } from '@/lib/api/client';
 
 interface AuthContextType {
   user: User | null;
   isLoading: boolean;
   isAuthenticated: boolean;
-  login: (credentials: LoginRequest) => Promise<{ success: boolean; error?: string }>;
-  register: (userData: RegisterRequest) => Promise<{ success: boolean; error?: string }>;
-  logout: () => void;
+  login: (credentials: LoginRequest, redirectTo?: string) => Promise<{ success: boolean; error?: string; redirectUrl?: string }>;
+  register: (userData: RegisterRequest) => Promise<{ success: boolean; error?: string; redirectUrl?: string }>;
+  logout: () => Promise<void>;
   refreshUser: () => Promise<void>;
+  refreshSession: () => Promise<boolean>;
+  getDashboardRoute: () => string;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -39,11 +44,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   /**
    * Initialize authentication state
    * Validates token (including expiry) and loads user data
+   * Token is stored in cookies (set by backend via Set-Cookie header)
    */
   async function initializeAuth() {
     setIsLoading(true);
     try {
-      const token = typeof window !== 'undefined' ? localStorage.getItem('authToken') : null;
+      const token = typeof window !== 'undefined' ? getAuthToken() : null;
 
       if (!token) {
         setUser(null);
@@ -88,7 +94,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       } else {
         // Could not extract user from token
         console.log('AuthContext: Could not extract user from token');
-        localStorage.removeItem('authToken');
+        // Clear the cookie by calling logout
+        apiLogout();
         setUser(null);
       }
     } catch (error) {
@@ -101,19 +108,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   /**
    * Login user
+   * Backend sets auth cookie via Set-Cookie header automatically
+   * Returns the appropriate dashboard route for the user's role
    */
-  async function login(credentials: LoginRequest): Promise<{ success: boolean; error?: string }> {
+  async function login(credentials: LoginRequest, redirectTo?: string): Promise<{ success: boolean; error?: string; redirectUrl?: string }> {
     try {
       console.log('AuthContext: Calling login API...');
       const response = await apiLogin(credentials);
       console.log('AuthContext: Login API response:', response);
 
-      // Check if token was stored (apiLogin handles token storage)
-      const storedToken = typeof window !== 'undefined' ? localStorage.getItem('authToken') : null;
-      console.log('AuthContext: Token in localStorage:', storedToken ? 'YES' : 'NO');
+      // Check if cookie was set by the backend (via Set-Cookie header)
+      const storedToken = typeof window !== 'undefined' ? getAuthToken() : null;
+      console.log('AuthContext: Token in cookie:', storedToken ? 'YES' : 'NO');
 
       if (response.success && storedToken) {
-        // Get user from the newly stored token
+        // Get user from the newly set cookie token
         console.log('AuthContext: Getting current user from token...');
         const currentUser = getCurrentUser();
         console.log('AuthContext: Current user:', currentUser);
@@ -121,8 +130,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setUser(currentUser);
 
         if (currentUser) {
-          console.log('AuthContext: Login successful, user set');
-          return { success: true };
+          // Determine redirect URL based on role or custom redirect
+          const roleBasedRoute = getDashboardRouteForRole(currentUser.role);
+          const redirectUrl = redirectTo || roleBasedRoute;
+
+          console.log('AuthContext: Login successful, user role:', currentUser.role);
+          console.log('AuthContext: Redirecting to:', redirectUrl);
+
+          return { success: true, redirectUrl };
         } else {
           console.error('AuthContext: Failed to extract user from token');
           return {
@@ -131,7 +146,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           };
         }
       } else {
-        console.error('AuthContext: Login failed or no token stored');
+        console.error('AuthContext: Login failed or no token in cookie');
         return {
           success: false,
           error: response.error || 'Login failed. Please check your credentials.'
@@ -150,7 +165,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
    * Register new user
    * Note: Backend registration does not return a token, so we auto-login after successful registration
    */
-  async function register(userData: RegisterRequest): Promise<{ success: boolean; error?: string }> {
+  async function register(userData: RegisterRequest): Promise<{ success: boolean; error?: string; redirectUrl?: string }> {
     try {
       const response = await apiRegister(userData);
 
@@ -175,11 +190,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   /**
-   * Logout user
+   * Get the dashboard route for the current user's role
    */
-  function logout() {
+  function getDashboardRoute(): string {
+    if (!user) return '/dashboard';
+    return getDashboardRouteForRole(user.role);
+  }
+
+  /**
+   * Logout user - clears all storage and calls backend
+   */
+  async function logout(): Promise<void> {
     console.log('AuthContext: Logging out...');
-    apiLogout();
+    try {
+      await apiLogout();
+    } catch (error) {
+      console.error('AuthContext: Logout error:', error);
+    }
     setUser(null);
     console.log('AuthContext: User cleared, redirecting to login...');
     // Use Next.js router for client-side navigation
@@ -189,9 +216,34 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   /**
    * Refresh user data from token
    */
-  async function refreshUser() {
+  async function refreshUser(): Promise<void> {
     const currentUser = getCurrentUser();
     setUser(currentUser);
+  }
+
+  /**
+   * Refresh the authentication session
+   * Returns true if refresh was successful
+   */
+  async function refreshSession(): Promise<boolean> {
+    try {
+      console.log('AuthContext: Refreshing session...');
+      const result = await apiRefreshToken();
+
+      if (result.success) {
+        // Update user data from the new token
+        const currentUser = getCurrentUser();
+        setUser(currentUser);
+        console.log('AuthContext: Session refreshed successfully');
+        return true;
+      } else {
+        console.error('AuthContext: Session refresh failed:', result.error);
+        return false;
+      }
+    } catch (error) {
+      console.error('AuthContext: Session refresh error:', error);
+      return false;
+    }
   }
 
   const value: AuthContextType = {
@@ -202,6 +254,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     register,
     logout,
     refreshUser,
+    refreshSession,
+    getDashboardRoute,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
