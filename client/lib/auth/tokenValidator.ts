@@ -165,14 +165,21 @@ export function validateToken(token: string | null): TokenValidationResult {
 }
 
 /**
- * Gets token from localStorage (client-side only)
+ * Gets token from cookie (client-side only)
  */
 export function getStoredToken(): string | null {
   if (typeof window === 'undefined') {
     return null;
   }
 
-  return localStorage.getItem('authToken');
+  const cookies = document.cookie.split(';');
+  for (const cookie of cookies) {
+    const [name, value] = cookie.trim().split('=');
+    if (name === 'authToken') {
+      return value;
+    }
+  }
+  return null;
 }
 
 /**
@@ -184,11 +191,11 @@ export function validateStoredToken(): TokenValidationResult {
 }
 
 /**
- * Clears invalid or expired token from storage
+ * Clears invalid or expired token from cookie
  */
 export function clearInvalidToken(): void {
   if (typeof window !== 'undefined') {
-    localStorage.removeItem('authToken');
+    document.cookie = 'authToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
   }
 }
 
