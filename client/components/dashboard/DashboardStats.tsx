@@ -18,6 +18,7 @@ import {
   getPriorityColor,
   type Ticket,
 } from "@/lib/api/tickets";
+import { getAuthToken } from "@/lib/api/client";
 
 export default function DashboardStats() {
   // State management
@@ -238,7 +239,7 @@ export default function DashboardStats() {
                   </li>
                   <li>Check browser console (F12) for detailed error logs</li>
                   <li>
-                    Verify you are logged in (check localStorage for
+                    Verify you are logged in (check cookies for
                     &apos;authToken&apos;)
                   </li>
                   <li>
@@ -266,7 +267,7 @@ export default function DashboardStats() {
                   <p>
                     <strong>Token Present:</strong>{" "}
                     {typeof window !== "undefined" &&
-                    localStorage.getItem("authToken")
+                    getAuthToken()
                       ? "✅ Yes"
                       : "❌ No"}
                   </p>
