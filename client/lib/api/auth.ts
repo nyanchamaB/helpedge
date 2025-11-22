@@ -220,7 +220,7 @@ export async function validateToken(token: string): Promise<ApiResponse<Validate
 /**
  * Refresh the authentication token
  * Returns a new token with extended expiration
- * Sends the current token in the request body for the backend to validate and refresh
+ * Sends the current token in the Authorization header for the backend to validate and refresh
  */
 export async function refreshToken(): Promise<ApiResponse<LoginResponse>> {
   const currentToken = getAuthToken();
@@ -236,7 +236,9 @@ export async function refreshToken(): Promise<ApiResponse<LoginResponse>> {
 
   const response = await apiRequest<any>('/api/Auth/refresh', {
     method: 'POST',
-    body: { token: currentToken },
+    headers: {
+      'Authorization': `Bearer ${currentToken}`,
+    },
     credentials: 'omit',
   });
 
