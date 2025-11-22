@@ -67,14 +67,16 @@ export function SessionAlert({ onLogout }: SessionAlertProps) {
               <Clock className="h-5 w-5" />
               Session Expiring Soon
             </AlertDialogTitle>
-            <AlertDialogDescription className="space-y-2">
-              <p>
-                Your session will expire in{" "}
-                <span className="font-bold text-yellow-600">
-                  {sessionState.remainingTimeFormatted}
-                </span>
-              </p>
-              <p>Would you like to extend your session?</p>
+            <AlertDialogDescription asChild>
+              <div className="text-sm text-muted-foreground space-y-2">
+                <p>
+                  Your session will expire in{" "}
+                  <span className="font-bold text-yellow-600">
+                    {sessionState.remainingTimeFormatted}
+                  </span>
+                </p>
+                <p>Would you like to extend your session?</p>
+              </div>
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -100,14 +102,16 @@ export function SessionAlert({ onLogout }: SessionAlertProps) {
               <LogOut className="h-5 w-5" />
               Session Expired
             </AlertDialogTitle>
-            <AlertDialogDescription className="space-y-2">
-              <p>
-                Your session has expired for security reasons. Please log in
-                again to continue.
-              </p>
-              <p className="text-sm text-muted-foreground">
-                Sessions expire after 30 minutes of the token being issued.
-              </p>
+            <AlertDialogDescription asChild>
+              <div className="text-sm text-muted-foreground space-y-2">
+                <p>
+                  Your session has expired for security reasons. Please log in
+                  again to continue.
+                </p>
+                <p>
+                  Sessions expire after 30 minutes of the token being issued.
+                </p>
+              </div>
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
