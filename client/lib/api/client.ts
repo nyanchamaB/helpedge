@@ -16,10 +16,15 @@ export interface ApiRequestConfig {
   body?: any;
   headers?: Record<string, string>;
   includeAuth?: boolean;
+  // Use 'omit' for public endpoints like login/register to avoid CORS issues
+  // Use 'include' for authenticated endpoints to send cookies
+  credentials?: 'include' | 'omit' | 'same-origin';
 }
 
 /**
  * Make an API request to the HelpEdge backend
+ * Cookies are sent automatically with credentials: 'include' (default)
+ * Use credentials: 'omit' for public endpoints to avoid CORS issues
  */
 export async function apiRequest<T = any>(
   endpoint: string,
@@ -29,7 +34,7 @@ export async function apiRequest<T = any>(
     method = 'GET',
     body,
     headers = {},
-    includeAuth = true,
+    credentials = 'include', // Default to include for cookie-based auth
   } = config;
 
   const url = `${API_BASE_URL}${endpoint}`;
@@ -39,23 +44,15 @@ export async function apiRequest<T = any>(
     ...headers,
   };
 
-  // Add Authorization header if token exists and auth is required
-  if (includeAuth) {
-    const token = getAuthToken();
-    if (token) {
-      requestHeaders['Authorization'] = `Bearer ${token}`;
-    }
-  }
-
   try {
-    console.log('API Request:', { url, method, headers: requestHeaders, body });
+    console.log('API Request:', { url, method, headers: requestHeaders, body, credentials });
 
     const response = await fetch(url, {
       method,
       headers: requestHeaders,
       body: body ? JSON.stringify(body) : undefined,
-      mode: 'cors', // Explicitly set CORS mode
-      credentials: 'omit', // Don't send cookies for cross-origin
+      mode: 'cors',
+      credentials, // Use provided credentials mode
     });
 
     console.log('API Response:', {
@@ -162,31 +159,33 @@ export async function apiRequest<T = any>(
 }
 
 /**
- * Get the authentication token from localStorage
+ * Get the authentication token from cookies (client-side)
+ * Note: This reads from document.cookie, not httpOnly cookies
+ * The actual auth token is httpOnly and sent automatically by browser
  */
-function getAuthToken(): string | null {
+export function getAuthToken(): string | null {
   if (typeof window === 'undefined') return null;
-  return localStorage.getItem('authToken');
+  const cookies = document.cookie.split(';');
+  for (const cookie of cookies) {
+    const [name, value] = cookie.trim().split('=');
+    if (name === 'authToken') {
+      return value;
+    }
+  }
+  return null;
 }
 
 /**
- * Set the authentication token in localStorage
- */
-export function setAuthToken(token: string): void {
-  if (typeof window === 'undefined') return;
-  localStorage.setItem('authToken', token);
-}
-
-/**
- * Remove the authentication token from localStorage
+ * Remove the authentication token cookie
+ * Sets the cookie with an expired date to delete it
  */
 export function removeAuthToken(): void {
   if (typeof window === 'undefined') return;
-  localStorage.removeItem('authToken');
+  document.cookie = 'authToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
 }
 
 /**
- * Check if user is authenticated (has valid token)
+ * Check if user is authenticated (has valid token cookie)
  */
 export function isAuthenticated(): boolean {
   if (typeof window === 'undefined') return false;
