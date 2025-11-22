@@ -12,18 +12,25 @@ import {
   SidebarMenuSubButton,
 } from "@/components/ui/sidebar";
 import { ChevronDown, ChevronRight } from "lucide-react";
+import { UserRole } from "@/lib/api/auth";
+
+interface NavSubItem {
+  title: string;
+  url: string;
+  roles?: string[] | UserRole[];
+}
 
 interface NavItem {
   title: string;
   url: string;
   icon: React.ElementType;
-  role?: string[];
-  items?: { title: string; url: string; role?: string[] }[];
+  role?: string[] | UserRole[];
+  items?: NavSubItem[];
 }
 
 interface NavMainProps {
   items: NavItem[];
-  userRole: string;
+  userRole: string | UserRole;
   onItemClick?: () => void;
 }
 
@@ -31,13 +38,13 @@ export function NavMain({ items, userRole, onItemClick }: NavMainProps) {
   const pathname = usePathname();
   const [openMenus, setOpenMenus] = React.useState<string[]>([]);
 
-  // Filter items based on role
+  // Filter items based on role (handle both 'role' and 'roles' for sub-items)
   const filteredItems = items
-    .filter((item) => !item.role || item.role.includes(userRole))
+    .filter((item) => !item.role || item.role.includes(userRole as UserRole))
     .map((item) => ({
       ...item,
       items: item.items
-        ? item.items.filter((sub) => !sub.role || sub.role.includes(userRole))
+        ? item.items.filter((sub) => !sub.roles || sub.roles.includes(userRole as UserRole))
         : [],
     }));
 
