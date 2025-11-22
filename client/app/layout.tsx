@@ -10,7 +10,7 @@ import { Toaster } from "@/components/ui/sonner";
 // Note: In Next.js 15 App Router, default is Server Component, so we use dynamic imports
 // without ssr option (it will default to true for SEO benefits)
 const ScrollTop = dynamic(() => import("@/components/scrolltop"));
-const Footer = dynamic(() => import("./onboarding/footer"));
+const ConditionalFooter = dynamic(() => import("@/components/layout/ConditionalFooter"));
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -41,7 +41,7 @@ export default function RootLayout({
           {children}
           <ScrollTop />
           <Toaster />
-          <Footer />
+          <ConditionalFooter />
         </AuthProvider>
       </body>
     </html>
