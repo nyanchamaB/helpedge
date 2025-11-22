@@ -106,7 +106,12 @@ export function useSessionManager(): UseSessionManagerReturn {
         console.log("Session refreshed successfully");
         warningDismissedRef.current = false;
         setShowExpiryWarning(false);
-        checkSession(); // Update state with new token info
+
+        // Small delay to ensure cookie is updated before checking session
+        setTimeout(() => {
+          checkSession(); // Update state with new token info
+        }, 100);
+
         return true;
       } else {
         console.error("Failed to refresh session:", result.error);
