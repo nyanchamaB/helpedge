@@ -16,6 +16,7 @@ import {
   HelpCircle,
   LogOut,
   ChevronsUpDown,
+  Loader2,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -33,8 +34,18 @@ export function NavUser() {
   const pathname = usePathname();
   const router = useRouter();
   const [selectedKey, setSelectedKey] = useState(pathname);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   const isMobile = typeof window !== "undefined" && window.innerWidth < 768;
+
+  const handleLogout = async () => {
+    setIsLoggingOut(true);
+    try {
+      await logout();
+    } finally {
+      setIsLoggingOut(false);
+    }
+  };
 
   if (isLoading) return null;
   if (!user) return null;
@@ -117,12 +128,15 @@ export function NavUser() {
             <DropdownMenuSeparator />
 
             <DropdownMenuItem
-              onClick={() => {
-                logout();
-              }}
+              onClick={handleLogout}
+              disabled={isLoggingOut}
             >
-              <LogOut />
-              Sign Out
+              {isLoggingOut ? (
+                <Loader2 className="animate-spin" />
+              ) : (
+                <LogOut />
+              )}
+              {isLoggingOut ? "Signing Out..." : "Sign Out"}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
