@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { siteConfig } from "@/config/site";
 
 export default function GetStartedPage() {
   return (
@@ -15,8 +16,12 @@ export default function GetStartedPage() {
         <div className="relative w-full max-w-2xl bg-white/90 backdrop-blur-md p-12 md:p-16 rounded-3xl shadow-2xl border border-blue-100 transition-transform hover:scale-[1.01]">
           
           {/* Logo */}
-          <div className="mb-8 text-center">
-            <h1 className="text-4xl font-bold text-blue-900 tracking-tight">HelpEdge</h1>
+          <div className="mb-8 text-center flex justify-center">
+            <img
+              src={siteConfig.logo}
+              alt="HelpEdge Logo"
+              className="h-16 w-auto"
+            />
           </div>
 
           {/* Title & description */}

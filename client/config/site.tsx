@@ -50,7 +50,7 @@ export const siteConfig = {
         { title: "Customizable", description: "Tailored to your needs." , Image: "/customize.PNG" },
         { title: "Support", description: "24/7 customer support." , Image: "/support.PNG" },
     ],
-    logo: "/globe.svg",  
+    logo: "/logo.png",  
     support: {
     title: "Support",
     description: "Get help with our ITSM platform",

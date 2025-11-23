@@ -3,6 +3,8 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import dynamic from "next/dynamic";
 import { AuthProvider } from "@/contexts/AuthContext";
+import { Toaster } from "@/components/ui/sonner";
+
 
 // Lazy load non-critical components for better initial load performance
 // Note: In Next.js 15 App Router, default is Server Component, so we use dynamic imports
@@ -38,6 +40,7 @@ export default function RootLayout({
         <AuthProvider>
           {children}
           <ScrollTop />
+          <Toaster />
           <Footer />
         </AuthProvider>
       </body>
