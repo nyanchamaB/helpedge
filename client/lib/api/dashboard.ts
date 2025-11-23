@@ -5,18 +5,14 @@
 
 import { apiRequest, ApiResponse } from './client';
 
-// Dashboard Stats Interfaces
+// Dashboard Stats Interfaces - matches actual API response
 export interface DashboardStats {
   totalTickets: number;
   openTickets: number;
-  inProgressTickets?: number;
-  resolvedTickets: number;
-  closedTickets?: number;
+  inProgressTickets: number;
+  rlvedTickets: number; // Note: API returns "rlvedTickets" (resolved tickets)
   totalUsers: number;
-  activeUsers?: number;
-  totalCategories?: number;
-  todayTickets?: number;
-  avgResolutionTime?: number;
+  todayTickets: number;
 }
 
 export interface TicketStatusCounts {
@@ -127,10 +123,12 @@ export interface DetailedHealthStatus {
 /**
  * Get overall dashboard statistics
  * Available to: Admin, ITManager, TeamLead, ServiceDeskAgent, Technician, SecurityAdmin
+ * NOT available to: EndUser, SystemAdmin
  */
 export async function getDashboardStats(): Promise<ApiResponse<DashboardStats>> {
   return apiRequest<DashboardStats>('/api/Dashboard/stats', {
     method: 'GET',
+    includeAuth: true,
   });
 }
 
@@ -141,6 +139,7 @@ export async function getDashboardStats(): Promise<ApiResponse<DashboardStats>> 
 export async function getTicketStatusCounts(): Promise<ApiResponse<TicketStatusCounts>> {
   return apiRequest<TicketStatusCounts>('/api/Dashboard/ticket-status-counts', {
     method: 'GET',
+    includeAuth: true,
   });
 }
 
@@ -151,6 +150,7 @@ export async function getTicketStatusCounts(): Promise<ApiResponse<TicketStatusC
 export async function getCategoryTicketCounts(): Promise<ApiResponse<CategoryTicketCount[]>> {
   return apiRequest<CategoryTicketCount[]>('/api/Dashboard/category-ticket-counts', {
     method: 'GET',
+    includeAuth: true,
   });
 }
 
@@ -161,6 +161,7 @@ export async function getCategoryTicketCounts(): Promise<ApiResponse<CategoryTic
 export async function getMyStats(): Promise<ApiResponse<MyStats>> {
   return apiRequest<MyStats>('/api/Dashboard/my-stats', {
     method: 'GET',
+    includeAuth: true,
   });
 }
 
@@ -171,6 +172,7 @@ export async function getMyStats(): Promise<ApiResponse<MyStats>> {
 export async function getTeamStats(): Promise<ApiResponse<TeamStats>> {
   return apiRequest<TeamStats>('/api/Dashboard/team-stats', {
     method: 'GET',
+    includeAuth: true,
   });
 }
 
@@ -181,6 +183,7 @@ export async function getTeamStats(): Promise<ApiResponse<TeamStats>> {
 export async function getMySLA(): Promise<ApiResponse<SLAStats>> {
   return apiRequest<SLAStats>('/api/Dashboard/my-sla', {
     method: 'GET',
+    includeAuth: true,
   });
 }
 
@@ -191,6 +194,7 @@ export async function getMySLA(): Promise<ApiResponse<SLAStats>> {
 export async function getMyTicketsDashboard(): Promise<ApiResponse<MyTicketsDashboard>> {
   return apiRequest<MyTicketsDashboard>('/api/Dashboard/my-tickets', {
     method: 'GET',
+    includeAuth: true,
   });
 }
 
