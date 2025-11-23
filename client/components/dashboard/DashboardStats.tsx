@@ -6,12 +6,12 @@ import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
 import {
   getDashboardStats,
-  getTicketStatusCounts,
   type DashboardStats as DashboardStatsType,
-  type TicketStatusCounts,
 } from "@/lib/api/dashboard";
 import {
   getAllTickets,
+  getTicketsByAssignee,
+  getTicketsByCreator,
   getStatusString,
   getPriorityString,
   getStatusColor,
@@ -19,123 +19,102 @@ import {
   type Ticket,
 } from "@/lib/api/tickets";
 import { getAuthToken } from "@/lib/api/client";
+import { useAuth } from "@/contexts/AuthContext";
+import {
+  Ticket as TicketIcon,
+  Users,
+  Clock,
+  CheckCircle,
+  AlertTriangle,
+  TrendingUp,
+  Calendar,
+  RefreshCw,
+} from "lucide-react";
+
+// Roles that can access /api/Dashboard/stats
+const DASHBOARD_STATS_ROLES = [
+  "Admin",
+  "ITManager",
+  "TeamLead",
+  "ServiceDeskAgent",
+  "Technician",
+  "SecurityAdmin",
+];
 
 export default function DashboardStats() {
+  const { user } = useAuth();
+
   // State management
   const [stats, setStats] = useState<DashboardStatsType | null>(null);
-  const [statusCounts, setStatusCounts] = useState<TicketStatusCounts | null>(
-    null
-  );
   const [tickets, setTickets] = useState<Ticket[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  // Check if user can access dashboard stats API
+  const canAccessDashboardStats = user && DASHBOARD_STATS_ROLES.includes(user.role);
+  const isEndUser = user?.role === "EndUser";
+  const isSystemAdmin = user?.role === "SystemAdmin";
 
   // Fetch dashboard data on mount
   useEffect(() => {
     let mounted = true;
 
-    if (mounted) {
+    if (mounted && user) {
       fetchDashboardData();
     }
 
     return () => {
       mounted = false;
     };
-  }, []); // Empty dependency array - only run once
+  }, [user]); // Re-fetch when user changes
 
   async function fetchDashboardData() {
+    if (!user) return;
+
     setIsLoading(true);
     setError(null);
 
     try {
-      console.log("🔄 Fetching dashboard data...");
+      console.log("🔄 Fetching dashboard data for role:", user.role);
 
-      // Fetch each endpoint separately to better handle individual failures
-      // Stats endpoint
-      console.log("📊 Fetching dashboard stats...");
-      const statsResponse = await getDashboardStats();
-      if (statsResponse.success && statsResponse.data) {
-        console.log("✅ Dashboard stats loaded:", statsResponse.data);
-        setStats(statsResponse.data);
-      } else {
-        console.warn("⚠️ Failed to fetch dashboard stats:", {
-          error: statsResponse.error,
-          status: statsResponse.status,
-          data: statsResponse.data,
-        });
-      }
-
-      // Status counts endpoint
-      console.log("📈 Fetching ticket status counts...");
-      const statusCountsResponse = await getTicketStatusCounts();
-      if (statusCountsResponse.success && statusCountsResponse.data) {
-        console.log("✅ Status counts loaded:", statusCountsResponse.data);
-
-        // Handle backend response format (might be array or object)
-        let normalizedCounts;
-        if (Array.isArray(statusCountsResponse.data)) {
-          // Backend returns array, take first item
-          const backendData = statusCountsResponse.data[0] as any;
-          normalizedCounts = {
-            open: backendData.openTickets || 0,
-            inProgress: backendData.inProgressTickets || 0,
-            resolved: backendData.resolvedTickets || 0,
-            closed: backendData.closedTickets || 0,
-          };
-        } else if (typeof statusCountsResponse.data === 'object') {
-          const backendData = statusCountsResponse.data as any;
-          normalizedCounts = {
-            open: backendData.openTickets || backendData.open || 0,
-            inProgress: backendData.inProgressTickets || backendData.inProgress || 0,
-            resolved: backendData.resolvedTickets || backendData.resolved || 0,
-            closed: backendData.closedTickets || backendData.closed || 0,
-          };
+      // Fetch dashboard stats only for authorized roles
+      if (canAccessDashboardStats) {
+        console.log("📊 Fetching dashboard stats...");
+        const statsResponse = await getDashboardStats();
+        if (statsResponse.success && statsResponse.data) {
+          console.log("✅ Dashboard stats loaded:", statsResponse.data);
+          setStats(statsResponse.data);
+        } else {
+          console.warn("⚠️ Failed to fetch dashboard stats:", {
+            error: statsResponse.error,
+            status: statsResponse.status,
+          });
         }
-
-        setStatusCounts(normalizedCounts);
-      } else {
-        console.warn("⚠️ Failed to fetch status counts:", {
-          error: statusCountsResponse.error,
-          status: statusCountsResponse.status,
-          data: statusCountsResponse.data,
-        });
       }
 
-      // Tickets endpoint
-      console.log("🎫 Fetching tickets...");
-      const ticketsResponse = await getAllTickets();
+      // Fetch tickets based on user role
+      let ticketsResponse;
+
+      if (isEndUser) {
+        // EndUser: Show only their own created tickets
+        console.log("🎫 Fetching tickets created by user...");
+        ticketsResponse = await getTicketsByCreator(user.id);
+      } else if (isSystemAdmin) {
+        // SystemAdmin: Show tickets assigned to them
+        console.log("🎫 Fetching tickets assigned to SystemAdmin...");
+        ticketsResponse = await getTicketsByAssignee(user.id);
+      } else {
+        // Other roles: Show all tickets
+        console.log("🎫 Fetching all tickets...");
+        ticketsResponse = await getAllTickets();
+      }
+
       if (ticketsResponse.success && ticketsResponse.data) {
-        console.log(
-          "✅ Tickets loaded:",
-          ticketsResponse.data.length,
-          "tickets"
-        );
+        console.log("✅ Tickets loaded:", ticketsResponse.data.length, "tickets");
         setTickets(ticketsResponse.data);
       } else {
-        console.error("❌ Failed to fetch tickets:", {
-          error: ticketsResponse.error,
-          status: ticketsResponse.status,
-          data: ticketsResponse.data,
-        });
-
-        // Parse error details if it's a JSON error from backend
-        let errorMessage = ticketsResponse.error || "Failed to fetch tickets";
-
-        // Try to extract more details from the error
-        if (
-          typeof ticketsResponse.data === "object" &&
-          ticketsResponse.data !== null
-        ) {
-          const errorData = ticketsResponse.data as any;
-          if (errorData.detail) {
-            errorMessage = `${errorData.title || "Error"}: ${errorData.detail}`;
-          }
-          if (errorData.status === 500) {
-            errorMessage += " (Backend server error - check backend logs)";
-          }
-        }
-
-        setError(errorMessage);
+        console.error("❌ Failed to fetch tickets:", ticketsResponse.error);
+        setError(ticketsResponse.error || "Failed to fetch tickets");
       }
 
       setIsLoading(false);
@@ -146,8 +125,7 @@ export default function DashboardStats() {
     }
   }
 
-  // Calculate stats from actual tickets data (source of truth)
-  // This ensures accuracy even if API endpoints return incorrect data
+  // Calculate stats from actual tickets data
   const calculatedCounts = {
     open: tickets.filter((t) => t.status === "Open").length,
     inProgress: tickets.filter((t) => t.status === "InProgress").length,
@@ -156,38 +134,25 @@ export default function DashboardStats() {
     onHold: tickets.filter((t) => t.status === "OnHold").length,
   };
 
-  // Debug: Log discrepancies between API and calculated counts
-  if (statusCounts) {
-    const hasDiscrepancy =
-      statusCounts.open !== calculatedCounts.open ||
-      statusCounts.inProgress !== calculatedCounts.inProgress ||
-      statusCounts.resolved !== calculatedCounts.resolved ||
-      statusCounts.closed !== calculatedCounts.closed;
-
-    if (hasDiscrepancy) {
-      console.warn('⚠️ Status count mismatch detected:');
-      console.warn('API counts:', statusCounts);
-      console.warn('Calculated from tickets:', calculatedCounts);
-      console.warn('Using calculated counts (from actual ticket data)');
-    }
-  }
-
-  const displayStats = stats || {
-    totalTickets: tickets.length,
-    openTickets: calculatedCounts.open,
-    inProgressTickets: calculatedCounts.inProgress,
-    resolvedTickets: calculatedCounts.resolved,
-    closedTickets: calculatedCounts.closed,
-    totalUsers: 0,
-    activeUsers: 0,
-    totalCategories: 0,
-  };
-
-  // Always use calculated counts from actual ticket data (source of truth)
-  const displayStatusCounts = calculatedCounts;
-
-  // Calculate critical tickets
+  // Calculate critical and high priority tickets
   const criticalTickets = tickets.filter((t) => t.priority === "Critical").length;
+  const highPriorityTickets = tickets.filter((t) => t.priority === "High").length;
+
+  // Get today's tickets from the tickets list
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const todayTicketsFromList = tickets.filter((t) => {
+    const createdDate = new Date(t.createdAt);
+    createdDate.setHours(0, 0, 0, 0);
+    return createdDate.getTime() === today.getTime();
+  }).length;
+
+  // Get dashboard title based on role
+  const getDashboardTitle = () => {
+    if (isEndUser) return "My Tickets Dashboard";
+    if (isSystemAdmin) return "My Assigned Tickets";
+    return "Dashboard";
+  };
 
   // Loading state
   if (isLoading) {
@@ -342,12 +307,19 @@ export default function DashboardStats() {
   return (
     <main className="p-6 space-y-8">
       <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900">{getDashboardTitle()}</h1>
+          {user && (
+            <p className="text-sm text-muted-foreground mt-1">
+              Welcome back, {user.name} ({user.role})
+            </p>
+          )}
+        </div>
         <button
           onClick={fetchDashboardData}
           className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 flex items-center space-x-2"
         >
-          <span>↻</span>
+          <RefreshCw className="h-4 w-4" />
           <span>Refresh</span>
         </button>
       </div>
@@ -360,109 +332,152 @@ export default function DashboardStats() {
         </div>
       )}
 
-      {/* Overview Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <Card className="hover:shadow-lg transition">
-          <CardHeader>
-            <CardTitle className="text-sm font-medium text-gray-600">
-              Total Tickets
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-3xl font-bold">{displayStats.totalTickets}</p>
-          </CardContent>
-        </Card>
+      {/* Organization Stats - Only for authorized roles */}
+      {canAccessDashboardStats && stats && (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
+          <Card className="hover:shadow-lg transition">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium text-gray-600 flex items-center gap-2">
+                <TicketIcon className="h-4 w-4" />
+                Total Tickets
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-3xl font-bold">{stats.totalTickets}</p>
+            </CardContent>
+          </Card>
 
-        <Card className="hover:shadow-lg transition">
-          <CardHeader>
-            <CardTitle className="text-sm font-medium text-gray-600">
-              Open Tickets
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-3xl font-bold text-blue-600">
-              {displayStatusCounts.open}
-            </p>
-          </CardContent>
-        </Card>
+          <Card className="hover:shadow-lg transition">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium text-gray-600 flex items-center gap-2">
+                <AlertTriangle className="h-4 w-4 text-blue-500" />
+                Open
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-3xl font-bold text-blue-600">{stats.openTickets}</p>
+            </CardContent>
+          </Card>
 
-        <Card className="hover:shadow-lg transition">
-          <CardHeader>
-            <CardTitle className="text-sm font-medium text-gray-600">
-              Resolved Tickets
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-3xl font-bold text-green-600">
-              {displayStatusCounts.resolved}
-            </p>
-          </CardContent>
-        </Card>
+          <Card className="hover:shadow-lg transition">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium text-gray-600 flex items-center gap-2">
+                <Clock className="h-4 w-4 text-yellow-500" />
+                In Progress
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-3xl font-bold text-yellow-600">{stats.inProgressTickets}</p>
+            </CardContent>
+          </Card>
 
-        <Card className="hover:shadow-lg transition">
-          <CardHeader>
-            <CardTitle className="text-sm font-medium text-gray-600">
-              Critical Tickets
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-3xl font-bold text-red-600">{criticalTickets}</p>
-          </CardContent>
-        </Card>
-      </div>
+          <Card className="hover:shadow-lg transition">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium text-gray-600 flex items-center gap-2">
+                <CheckCircle className="h-4 w-4 text-green-500" />
+                Resolved
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-3xl font-bold text-green-600">{stats.rlvedTickets}</p>
+            </CardContent>
+          </Card>
 
-      {/* Secondary Stats */}
-      {stats && (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-sm font-medium text-gray-600">
+          <Card className="hover:shadow-lg transition">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium text-gray-600 flex items-center gap-2">
+                <Users className="h-4 w-4 text-purple-500" />
                 Total Users
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-2xl font-bold">{stats.totalUsers}</p>
-              <p className="text-sm text-gray-500">
-                {stats.activeUsers} active
-              </p>
+              <p className="text-3xl font-bold text-purple-600">{stats.totalUsers}</p>
             </CardContent>
           </Card>
 
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-sm font-medium text-gray-600">
-                Categories
+          <Card className="hover:shadow-lg transition">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium text-gray-600 flex items-center gap-2">
+                <Calendar className="h-4 w-4 text-indigo-500" />
+                Today
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-2xl font-bold">{stats.totalCategories}</p>
+              <p className="text-3xl font-bold text-indigo-600">{stats.todayTickets}</p>
             </CardContent>
           </Card>
-
-          {stats.avgResolutionTime !== undefined && (
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-sm font-medium text-gray-600">
-                  Avg Resolution Time
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-2xl font-bold">
-                  {Math.round(stats.avgResolutionTime)}h
-                </p>
-              </CardContent>
-            </Card>
-          )}
         </div>
       )}
 
+      {/* Ticket Status Summary - For all users (based on their visible tickets) */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+        <Card className="hover:shadow-lg transition border-l-4 border-l-blue-500">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium text-gray-600">Open</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-2xl font-bold text-blue-600">{calculatedCounts.open}</p>
+          </CardContent>
+        </Card>
+
+        <Card className="hover:shadow-lg transition border-l-4 border-l-yellow-500">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium text-gray-600">In Progress</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-2xl font-bold text-yellow-600">{calculatedCounts.inProgress}</p>
+          </CardContent>
+        </Card>
+
+        <Card className="hover:shadow-lg transition border-l-4 border-l-green-500">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium text-gray-600">Resolved</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-2xl font-bold text-green-600">{calculatedCounts.resolved}</p>
+          </CardContent>
+        </Card>
+
+        <Card className="hover:shadow-lg transition border-l-4 border-l-gray-500">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium text-gray-600">Closed</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-2xl font-bold text-gray-600">{calculatedCounts.closed}</p>
+          </CardContent>
+        </Card>
+
+        <Card className="hover:shadow-lg transition border-l-4 border-l-red-500">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium text-gray-600">Critical Priority</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-2xl font-bold text-red-600">{criticalTickets}</p>
+            {highPriorityTickets > 0 && (
+              <p className="text-sm text-orange-600">{highPriorityTickets} high</p>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+
       {/* Recent Tickets */}
       <section>
-        <h2 className="text-2xl font-semibold mb-4">Recent Tickets</h2>
+        <h2 className="text-2xl font-semibold mb-4">
+          {isEndUser ? "My Recent Tickets" : isSystemAdmin ? "My Assigned Tickets" : "Recent Tickets"}
+        </h2>
         {tickets.length === 0 ? (
           <Card>
             <CardContent className="p-8 text-center text-gray-500">
-              <p>No tickets found</p>
+              <TicketIcon className="h-12 w-12 mx-auto mb-4 opacity-50" />
+              <p>{isEndUser ? "You haven't created any tickets yet" : "No tickets found"}</p>
+              {isEndUser && (
+                <a
+                  href="/tickets/create-ticket"
+                  className="inline-block mt-4 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                >
+                  Create Your First Ticket
+                </a>
+              )}
             </CardContent>
           </Card>
         ) : (
@@ -475,21 +490,20 @@ export default function DashboardStats() {
                   key={ticket.id}
                   className="hover:shadow-lg transition cursor-pointer"
                   onClick={() => {
-                    // Navigate to ticket detail
                     window.location.href = `/tickets/${ticket.id}`;
                   }}
                 >
                   <CardContent className="p-4 space-y-2">
                     <div className="flex items-start justify-between">
                       <h3 className="text-lg font-semibold truncate flex-1">
-                        {ticket.subject || 'No Subject'}
+                        {ticket.subject || "No Subject"}
                       </h3>
                       <span className="text-xs text-gray-500 ml-2">
                         #{ticket.ticketNumber}
                       </span>
                     </div>
                     <p className="text-sm text-gray-600 line-clamp-2">
-                      {ticket.description || 'No description provided'}
+                      {ticket.description || "No description provided"}
                     </p>
                     <p className="text-xs text-gray-500">{formattedDate}</p>
                     <div className="flex gap-2 mt-2 flex-wrap">
@@ -507,6 +521,17 @@ export default function DashboardStats() {
                 </Card>
               );
             })}
+          </div>
+        )}
+
+        {tickets.length > 6 && (
+          <div className="mt-4 text-center">
+            <a
+              href={isEndUser ? "/tickets/my-tickets" : "/tickets"}
+              className="text-blue-600 hover:underline"
+            >
+              View all {tickets.length} tickets
+            </a>
           </div>
         )}
       </section>
