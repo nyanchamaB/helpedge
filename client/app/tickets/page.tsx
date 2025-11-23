@@ -2,45 +2,50 @@
 
 import { useEffect, useState } from "react";
 import { TicketsTable } from "@/components/tickets/TicketsTable";
-import { getTicketsByCreator, Ticket } from "@/lib/api/tickets";
+import { getAllTickets, Ticket } from "@/lib/api/tickets";
 import { useAuth } from "@/contexts/AuthContext";
-import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
-import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 /**
- * My Tickets Page
- * Displays tickets created by the current user
- * Available to all users, especially EndUsers
+ * All Tickets Page
+ * Displays all tickets in the system for authorized roles:
+ * - Admin: Full access to all tickets
+ * - ITManager: Full access to all tickets
+ * - TeamLead: Access to team tickets
+ * - ServiceDeskAgent: Access to queue and assigned tickets
  */
-export default function MyTicketsPage() {
+export default function AllTicketsPage() {
   const { user, isLoading: authLoading } = useAuth();
+  const router = useRouter();
   const [tickets, setTickets] = useState<Ticket[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  // Roles that can access all tickets
+  const allowedRoles = ["Admin", "ITManager", "TeamLead", "ServiceDeskAgent"];
+
   useEffect(() => {
+    // Check authorization after auth loading completes
     if (!authLoading && user) {
-      fetchMyTickets();
+      if (!allowedRoles.includes(user.role)) {
+        // Redirect unauthorized users to their tickets
+        router.push("/tickets/my-tickets");
+        return;
+      }
+      fetchTickets();
     }
   }, [authLoading, user]);
 
-  async function fetchMyTickets() {
-    if (!user?.id) {
-      setError("User ID not found");
-      setIsLoading(false);
-      return;
-    }
-
+  async function fetchTickets() {
     setIsLoading(true);
     setError(null);
 
-    const response = await getTicketsByCreator(user.id);
+    const response = await getAllTickets();
 
     if (response.success && response.data) {
       setTickets(response.data);
     } else {
-      setError(response.error || "Failed to load your tickets");
+      setError(response.error || "Failed to load tickets");
     }
 
     setIsLoading(false);
@@ -53,7 +58,7 @@ export default function MyTicketsPage() {
         <div className="flex items-center justify-center min-h-[400px]">
           <div className="flex flex-col items-center space-y-4">
             <div className="w-10 h-10 border-4 border-blue-600 border-t-transparent rounded-full animate-spin" />
-            <p className="text-gray-500">Loading...</p>
+            <p className="text-gray-500">Checking authorization...</p>
           </div>
         </div>
       </div>
@@ -64,27 +69,21 @@ export default function MyTicketsPage() {
     <div className="container py-6 space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold">My Tickets</h1>
+          <h1 className="text-2xl font-bold">All Tickets</h1>
           <p className="text-muted-foreground">
-            View and track your submitted tickets
+            View and manage all tickets in the system
           </p>
         </div>
-        <Button asChild>
-          <Link href="/tickets/create-ticket">
-            <Plus className="h-4 w-4 mr-2" />
-            New Ticket
-          </Link>
-        </Button>
       </div>
 
       <TicketsTable
         tickets={tickets}
         isLoading={isLoading}
         error={error}
-        onRefresh={fetchMyTickets}
-        title="My Submitted Tickets"
+        onRefresh={fetchTickets}
+        title="All Tickets"
         showFilters={true}
-        emptyMessage="You haven't submitted any tickets yet"
+        emptyMessage="No tickets found in the system"
       />
     </div>
   );

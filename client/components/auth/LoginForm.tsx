@@ -27,14 +27,21 @@ export default function LoginForm() {
     setErrors({});
 
     try {
-      console.log('LoginForm: Submitting login...');
-      const result = await login(formData);
-      console.log('LoginForm: Login result:', result);
+      console.log("LoginForm: Submitting login...");
+
+      // Get any custom redirect from URL params
+      const customRedirect = getRedirectUrl(searchParams);
+      // Only use custom redirect if it's not the default dashboard
+      const redirectTo =
+        customRedirect !== "/dashboard" ? customRedirect : undefined;
+
+      const result = await login(formData, redirectTo);
+      console.log("LoginForm: Login result:", result);
 
       if (result.success) {
-        // Redirect to intended page or dashboard
-        const redirectUrl = getRedirectUrl(searchParams);
-        console.log('LoginForm: Redirecting to:', redirectUrl);
+        // Use role-based redirect URL from AuthContext, or custom redirect
+        const redirectUrl = result.redirectUrl || "/dashboard";
+        console.log("LoginForm: Redirecting to:", redirectUrl);
 
         // Use router.push for client-side navigation
         // Small delay to ensure state updates are processed
@@ -42,9 +49,10 @@ export default function LoginForm() {
           router.push(redirectUrl);
         }, 100);
       } else {
-        console.error('LoginForm: Login failed:', result.error);
+        console.error("LoginForm: Login failed:", result.error);
         setErrors({
-          general: result.error || "Login failed. Please check your credentials.",
+          general:
+            result.error || "Login failed. Please check your credentials.",
         });
       }
     } catch (error) {
@@ -54,7 +62,7 @@ export default function LoginForm() {
       });
     } finally {
       setIsLoading(false);
-      console.log('LoginForm: Loading set to false');
+      console.log("LoginForm: Loading set to false");
     }
   };
 
@@ -135,12 +143,12 @@ export default function LoginForm() {
             </Button>
 
             <p className="text-center text-sm text-gray-600">
-              Don&apos;t have an account?{" "}
+              Have an issue accessing account?{" "}
               <a
-                href="/auth/register"
+                href="/auth/contact-support"
                 className="text-blue-600 hover:underline"
               >
-                Sign up
+                Contact Support
               </a>
             </p>
           </form>

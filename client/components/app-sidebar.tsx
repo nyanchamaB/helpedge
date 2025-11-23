@@ -16,10 +16,12 @@ import { navData } from "@/app/constants/nav-data";
 import { useAuth } from "@/contexts/AuthContext";
 import Link from "next/link";
 import { siteConfig } from "@/config/site";
+import { UserRole } from "@/lib/api/auth";
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { user, isLoading } = useAuth();
-  const userRole = user?.role || "enduser";
+  // Default to EndUser if no role is found
+  const userRole: UserRole = user?.role || "EndUser";
 
   return (
     <Sidebar collapsible="icon" {...props}>

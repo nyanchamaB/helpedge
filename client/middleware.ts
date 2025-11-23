@@ -5,10 +5,13 @@ import type { NextRequest } from 'next/server';
 const protectedRoutes = [
   '/dashboard',
   '/tickets',
-  '/customers',
+  '/team',
   '/reports',
+  '/systems',
+  '/security',
   '/knowledge-base',
   '/settings',
+  '/customers',
   '/billing',
   '/features',
   '/support',
@@ -61,17 +64,7 @@ export function middleware(request: NextRequest) {
     'camera=(), microphone=(), geolocation=()'
   );
 
-  /**
-   * Cookie-based authentication check
-   * SECURITY NOTE: Currently, auth tokens are stored in localStorage (client-side only),
-   * which this middleware cannot access. For enhanced security, consider migrating to
-   * httpOnly cookies, which can be validated here for an additional security layer.
-   *
-   * To migrate to cookie-based auth:
-   * 1. Update login/register API to set httpOnly cookies
-   * 2. Update the code below to read from cookies instead of localStorage
-   * 3. Remove localStorage token management from client code
-   */
+  // Get auth token from cookie
   const authTokenCookie = request.cookies.get('authToken')?.value;
 
   // Check if route is protected
@@ -94,10 +87,27 @@ export function middleware(request: NextRequest) {
         url.pathname = '/dashboard';
         return NextResponse.redirect(url);
       }
+      // Allow access to protected routes
+      return response;
     } else if (validation.isExpired) {
-      // Token is expired, clear cookie
-      const response = NextResponse.next();
-      response.cookies.delete('authToken');
+      // Token is expired, clear cookie and redirect
+      const expiredResponse = NextResponse.redirect(
+        new URL(`/auth/login?redirect=${encodeURIComponent(pathname)}`, request.url)
+      );
+      expiredResponse.cookies.delete('authToken');
+
+      if (isProtectedRoute) {
+        return expiredResponse;
+      }
+
+      // For non-protected routes, just clear the cookie
+      const clearCookieResponse = NextResponse.next();
+      clearCookieResponse.cookies.delete('authToken');
+      return clearCookieResponse;
+    } else {
+      // Invalid token structure, clear cookie
+      const invalidResponse = NextResponse.next();
+      invalidResponse.cookies.delete('authToken');
 
       if (isProtectedRoute) {
         // Redirect to login for protected routes
@@ -107,16 +117,18 @@ export function middleware(request: NextRequest) {
         return NextResponse.redirect(url);
       }
 
-      return response;
+      return invalidResponse;
+    }
+  } else {
+    // No auth token cookie present
+    if (isProtectedRoute) {
+      // Redirect unauthenticated users to login
+      const url = request.nextUrl.clone();
+      url.pathname = '/auth/login';
+      url.searchParams.set('redirect', pathname);
+      return NextResponse.redirect(url);
     }
   }
-
-  /**
-   * Client-side route guards
-   * Since tokens are in localStorage, the PublicRoute and ProtectedRoute
-   * components handle the actual authentication checks and redirects.
-   * This middleware serves as an additional security layer when cookies are used.
-   */
 
   return response;
 }

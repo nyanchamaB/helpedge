@@ -1,10 +1,10 @@
-import DashboardStats from '@/components/dashboard/DashboardStats';
+import RoleDashboard from '@/components/dashboard/RoleDashboard';
 
 /**
  * Dashboard Page
- * Displays dashboard statistics, ticket counts, and recent tickets
- * Uses real API endpoints from the backend
+ * Displays role-specific dashboard with relevant statistics
+ * Redirects users to their role-appropriate dashboard view
  */
 export default function DashboardPage() {
-  return <DashboardStats />;
+  return <RoleDashboard />;
 }
