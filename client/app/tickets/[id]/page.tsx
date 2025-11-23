@@ -34,6 +34,13 @@ import {
   getTicketById,
   assignTicket,
   unassignTicket,
+  acknowledgeTicket,
+  addTicketComment,
+  resolveTicket,
+  closeTicket,
+  reopenTicket,
+  confirmTriageSuggestions,
+  modifyTriageSuggestions,
   Ticket,
   getStatusString,
   getPriorityString,
@@ -42,7 +49,9 @@ import {
   TicketPriorityString,
   TriageStatusString,
 } from "@/lib/api/tickets";
-import { getAllUsers, User as UserType } from "@/lib/api/users";
+import { Textarea } from "@/components/ui/textarea";
+import { getAllUsers, User as UserType, getUserDisplayName } from "@/lib/api/users";
+import { getAllCategories, Category } from "@/lib/api/categories";
 import { useAuth } from "@/contexts/AuthContext";
 import {
   ArrowLeft,
@@ -60,6 +69,15 @@ import {
   UserPlus,
   UserMinus,
   Loader2,
+  Play,
+  CheckCircle2,
+  XCircle,
+  RotateCcw,
+  Send,
+  Lock,
+  Sparkles,
+  Check,
+  Edit2,
 } from "lucide-react";
 
 // Status badge styling
@@ -174,14 +192,45 @@ export default function TicketDetailPage() {
 
   // Assignment states
   const [users, setUsers] = useState<UserType[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [isLoadingUsers, setIsLoadingUsers] = useState(false);
+  const [isLoadingCategories, setIsLoadingCategories] = useState(false);
   const [isAssigning, setIsAssigning] = useState(false);
   const [assignDialogOpen, setAssignDialogOpen] = useState(false);
   const [selectedUserId, setSelectedUserId] = useState<string>("");
+  const [selectedCategoryId, setSelectedCategoryId] = useState<string>("");
+  const [selectedPriority, setSelectedPriority] = useState<TicketPriorityString>("Medium");
   const [assignError, setAssignError] = useState<string | null>(null);
+
+  // Triage states
+  const [isTriaging, setIsTriaging] = useState(false);
+  const [triageError, setTriageError] = useState<string | null>(null);
+
+  // Workflow action states
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [actionError, setActionError] = useState<string | null>(null);
+
+  // Comment states
+  const [newComment, setNewComment] = useState("");
+  const [isInternalComment, setIsInternalComment] = useState(false);
+  const [isAddingComment, setIsAddingComment] = useState(false);
+  const [commentError, setCommentError] = useState<string | null>(null);
 
   // Check if current user can assign tickets
   const canAssign = user && ASSIGN_ROLES.includes(user.role);
+
+  // Check if current user can triage tickets (same roles as assign)
+  const canTriage = user && ASSIGN_ROLES.includes(user.role);
+
+  // Check if ticket needs triage (has AI suggestions and triageStatus is Pending)
+  const needsTriage = ticket?.triageStatus === "Pending" &&
+    (ticket?.aiSuggestedCategoryId || ticket?.aiSuggestedAssigneeId || ticket?.aiSuggestedPriority);
+
+  // Check if current user is the assignee
+  const isAssignee = user && ticket?.assignedToId === user.id;
+
+  // Check if user can perform workflow actions (assignee or admin roles)
+  const canPerformActions = isAssignee || (user && ["Admin", "ITManager"].includes(user.role));
 
   useEffect(() => {
     if (ticketId) {
@@ -220,12 +269,48 @@ export default function TicketDetailPage() {
     setIsLoadingUsers(false);
   }
 
-  // Handle opening assign dialog
+  // Fetch categories when dialog opens
+  async function fetchCategories() {
+    if (categories.length > 0) return; // Already loaded
+
+    setIsLoadingCategories(true);
+    const response = await getAllCategories();
+
+    if (response.success && response.data) {
+      // Filter to only show active categories
+      const activeCategories = response.data.filter((c) => c.isActive);
+      setCategories(activeCategories);
+    }
+
+    setIsLoadingCategories(false);
+  }
+
+  // Handle opening assign dialog - pre-fill with AI suggestions if available
   function handleOpenAssignDialog() {
     setAssignDialogOpen(true);
     setAssignError(null);
-    setSelectedUserId(ticket?.assignedToId || "");
+    setTriageError(null);
+
+    // Pre-fill with AI suggestions or current values
+    setSelectedUserId(
+      ticket?.assignedToId ||
+      ticket?.aiSuggestedAssigneeId ||
+      ""
+    );
+    setSelectedCategoryId(
+      ticket?.categoryId ||
+      ticket?.aiSuggestedCategoryId ||
+      ""
+    );
+    setSelectedPriority(
+      ticket?.priority ||
+      ticket?.aiSuggestedPriority ||
+      "Medium"
+    );
+
+    // Fetch both users and categories
     fetchUsers();
+    fetchCategories();
   }
 
   // Handle ticket assignment
@@ -266,6 +351,144 @@ export default function TicketDetailPage() {
     }
 
     setIsAssigning(false);
+  }
+
+  // Confirm AI suggestions (1-click triage)
+  async function handleConfirmTriage() {
+    if (!ticket) return;
+
+    setIsTriaging(true);
+    setTriageError(null);
+
+    const response = await confirmTriageSuggestions(ticket.id);
+
+    if (response.success) {
+      await fetchTicket();
+      setAssignDialogOpen(false);
+    } else {
+      setTriageError(response.error || "Failed to confirm AI suggestions");
+    }
+
+    setIsTriaging(false);
+  }
+
+  // Modify AI suggestions during triage
+  async function handleModifyTriage() {
+    if (!ticket) return;
+
+    setIsTriaging(true);
+    setTriageError(null);
+
+    const response = await modifyTriageSuggestions(ticket.id, {
+      categoryId: selectedCategoryId || undefined,
+      assigneeId: selectedUserId || undefined,
+      priority: selectedPriority,
+    });
+
+    if (response.success) {
+      await fetchTicket();
+      setAssignDialogOpen(false);
+    } else {
+      setTriageError(response.error || "Failed to modify triage suggestions");
+    }
+
+    setIsTriaging(false);
+  }
+
+  // Acknowledge ticket (start working on it)
+  async function handleAcknowledge() {
+    if (!ticket) return;
+
+    setIsProcessing(true);
+    setActionError(null);
+
+    const response = await acknowledgeTicket(ticket.id);
+
+    if (response.success) {
+      await fetchTicket();
+    } else {
+      setActionError(response.error || "Failed to acknowledge ticket");
+    }
+
+    setIsProcessing(false);
+  }
+
+  // Resolve ticket
+  async function handleResolve() {
+    if (!ticket) return;
+
+    setIsProcessing(true);
+    setActionError(null);
+
+    const response = await resolveTicket(ticket.id);
+
+    if (response.success) {
+      await fetchTicket();
+    } else {
+      setActionError(response.error || "Failed to resolve ticket");
+    }
+
+    setIsProcessing(false);
+  }
+
+  // Close ticket
+  async function handleClose() {
+    if (!ticket) return;
+
+    setIsProcessing(true);
+    setActionError(null);
+
+    const response = await closeTicket(ticket.id);
+
+    if (response.success) {
+      await fetchTicket();
+    } else {
+      setActionError(response.error || "Failed to close ticket");
+    }
+
+    setIsProcessing(false);
+  }
+
+  // Reopen ticket
+  async function handleReopen() {
+    if (!ticket) return;
+
+    setIsProcessing(true);
+    setActionError(null);
+
+    const response = await reopenTicket(ticket.id);
+
+    if (response.success) {
+      await fetchTicket();
+    } else {
+      setActionError(response.error || "Failed to reopen ticket");
+    }
+
+    setIsProcessing(false);
+  }
+
+  // Add comment
+  async function handleAddComment() {
+    if (!ticket || !newComment.trim() || !user) return;
+
+    setIsAddingComment(true);
+    setCommentError(null);
+
+    const response = await addTicketComment(ticket.id, {
+      content: newComment.trim(),
+      authorId: user.id,
+      isInternal: isInternalComment,
+    });
+
+    if (response.success) {
+      await fetchTicket();
+      setNewComment("");
+      setIsInternalComment(false);
+    } else {
+      setCommentError(response.error || "Failed to add comment");
+    }
+
+    setIsAddingComment(false);
   }
 
   if (isLoading) {
@@ -345,28 +568,179 @@ export default function TicketDetailPage() {
         {canAssign && (
           <Dialog open={assignDialogOpen} onOpenChange={setAssignDialogOpen}>
             <DialogTrigger asChild>
-              <Button variant="outline" onClick={handleOpenAssignDialog}>
-                <UserPlus className="h-4 w-4 mr-2" />
-                {ticket.assignedToId ? "Reassign" : "Assign"}
+              <Button
+                variant={needsTriage ? "default" : "outline"}
+                onClick={handleOpenAssignDialog}
+                className={needsTriage ? "bg-purple-600 hover:bg-purple-700" : ""}
+              >
+                {needsTriage ? (
+                  <Sparkles className="h-4 w-4 mr-2" />
+                ) : (
+                  <UserPlus className="h-4 w-4 mr-2" />
+                )}
+                {needsTriage
+                  ? "Triage"
+                  : ticket.assignedToId
+                  ? "Reassign"
+                  : "Assign"}
               </Button>
             </DialogTrigger>
-            <DialogContent>
+            <DialogContent className="max-w-lg">
               <DialogHeader>
-                <DialogTitle>Assign Ticket</DialogTitle>
+                <DialogTitle className="flex items-center gap-2">
+                  {needsTriage && <Sparkles className="h-5 w-5 text-purple-500" />}
+                  {needsTriage ? "Triage Ticket" : "Assign Ticket"}
+                </DialogTitle>
                 <DialogDescription>
-                  Select a user to assign this ticket to.
+                  {needsTriage
+                    ? "Review AI suggestions and confirm or modify them."
+                    : "Select a user to assign this ticket to."}
                 </DialogDescription>
               </DialogHeader>
 
               <div className="space-y-4 py-4">
-                {assignError && (
+                {(assignError || triageError) && (
                   <div className="bg-red-50 border border-red-200 text-red-700 px-3 py-2 rounded-md text-sm">
-                    {assignError}
+                    {assignError || triageError}
                   </div>
                 )}
 
+                {/* AI Suggestions Banner */}
+                {needsTriage && (
+                  <div className="bg-purple-50 border border-purple-200 rounded-lg p-3">
+                    <div className="flex items-center gap-2 text-purple-800 font-medium mb-2">
+                      <Sparkles className="h-4 w-4" />
+                      AI Suggestions
+                    </div>
+                    <div className="text-sm text-purple-700 space-y-1">
+                      {ticket.aiSuggestedPriority && (
+                        <div className="flex justify-between">
+                          <span>Priority:</span>
+                          <span className="font-medium">{ticket.aiSuggestedPriority}</span>
+                          {ticket.aiPriorityConfidence && (
+                            <span className="text-xs opacity-75">
+                              ({(ticket.aiPriorityConfidence * 100).toFixed(0)}%)
+                            </span>
+                          )}
+                        </div>
+                      )}
+                      {ticket.aiSuggestedCategoryId && (
+                        <div className="flex justify-between">
+                          <span>Category:</span>
+                          <span className="font-medium font-mono text-xs">
+                            {categories.find(c => c.id === ticket.aiSuggestedCategoryId)?.name || ticket.aiSuggestedCategoryId.slice(-8)}
+                          </span>
+                          {ticket.aiCategoryConfidence && (
+                            <span className="text-xs opacity-75">
+                              ({(ticket.aiCategoryConfidence * 100).toFixed(0)}%)
+                            </span>
+                          )}
+                        </div>
+                      )}
+                      {ticket.aiSuggestedAssigneeId && (
+                        <div className="flex justify-between">
+                          <span>Assignee:</span>
+                          <span className="font-medium">
+                            {users.find(u => u.id === ticket.aiSuggestedAssigneeId)?.fullName || ticket.aiSuggestedAssigneeId.slice(-8)}
+                          </span>
+                          {ticket.aiAssigneeConfidence && (
+                            <span className="text-xs opacity-75">
+                              ({(ticket.aiAssigneeConfidence * 100).toFixed(0)}%)
+                            </span>
+                          )}
+                        </div>
+                      )}
+                      {ticket.aiAssignmentReason && (
+                        <div className="pt-2 border-t border-purple-200 mt-2">
+                          <span className="text-xs italic">{ticket.aiAssignmentReason}</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {/* Priority Selection */}
                 <div className="space-y-2">
-                  <label className="text-sm font-medium">Assignee</label>
+                  <label className="text-sm font-medium flex items-center gap-2">
+                    Priority
+                    {ticket.aiSuggestedPriority && selectedPriority === ticket.aiSuggestedPriority && (
+                      <Badge variant="outline" className="text-xs bg-purple-50 text-purple-700">
+                        <Sparkles className="h-3 w-3 mr-1" />
+                        AI
+                      </Badge>
+                    )}
+                  </label>
+                  <Select
+                    value={selectedPriority}
+                    onValueChange={(value) => setSelectedPriority(value as TicketPriorityString)}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select priority" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Low">Low</SelectItem>
+                      <SelectItem value="Medium">Medium</SelectItem>
+                      <SelectItem value="High">High</SelectItem>
+                      <SelectItem value="Critical">Critical</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {/* Category Selection */}
+                <div className="space-y-2">
+                  <label className="text-sm font-medium flex items-center gap-2">
+                    Category
+                    {ticket.aiSuggestedCategoryId && selectedCategoryId === ticket.aiSuggestedCategoryId && (
+                      <Badge variant="outline" className="text-xs bg-purple-50 text-purple-700">
+                        <Sparkles className="h-3 w-3 mr-1" />
+                        AI
+                      </Badge>
+                    )}
+                  </label>
+                  {isLoadingCategories ? (
+                    <div className="flex items-center justify-center py-4">
+                      <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+                      <span className="ml-2 text-sm text-muted-foreground">
+                        Loading categories...
+                      </span>
+                    </div>
+                  ) : (
+                    <Select
+                      value={selectedCategoryId}
+                      onValueChange={setSelectedCategoryId}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select a category" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {categories.map((c) => (
+                          <SelectItem key={c.id} value={c.id}>
+                            <div className="flex items-center gap-2">
+                              <span>{c.name}</span>
+                              {c.description && (
+                                <span className="text-muted-foreground text-xs">
+                                  - {c.description}
+                                </span>
+                              )}
+                            </div>
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  )}
+                </div>
+
+                {/* Assignee Selection */}
+                <div className="space-y-2">
+                  <label className="text-sm font-medium flex items-center gap-2">
+                    Assignee
+                    {ticket.aiSuggestedAssigneeId && selectedUserId === ticket.aiSuggestedAssigneeId && (
+                      <Badge variant="outline" className="text-xs bg-purple-50 text-purple-700">
+                        <Sparkles className="h-3 w-3 mr-1" />
+                        AI
+                      </Badge>
+                    )}
+                  </label>
                   {isLoadingUsers ? (
                     <div className="flex items-center justify-center py-4">
                       <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
@@ -386,7 +760,7 @@ export default function TicketDetailPage() {
                         {users.map((u) => (
                           <SelectItem key={u.id} value={u.id}>
                             <div className="flex items-center gap-2">
-                              <span>{u.name}</span>
+                              <span>{u.fullName || `${u.firstName} ${u.lastName}`}</span>
                               <span className="text-muted-foreground text-xs">
                                 ({u.email})
                               </span>
@@ -400,17 +774,17 @@ export default function TicketDetailPage() {
 
                 {ticket.assignedToId && (
                   <p className="text-sm text-muted-foreground">
-                    Currently assigned to: {ticket.assignedToId}
+                    Currently assigned to: {users.find(u => u.id === ticket.assignedToId)?.fullName || ticket.assignedToId}
                   </p>
                 )}
               </div>
 
               <div className="flex justify-between">
-                {ticket.assignedToId && (
+                {ticket.assignedToId && !needsTriage && (
                   <Button
                     variant="outline"
                     onClick={handleUnassign}
-                    disabled={isAssigning}
+                    disabled={isAssigning || isTriaging}
                   >
                     {isAssigning ? (
                       <Loader2 className="h-4 w-4 animate-spin mr-2" />
@@ -427,23 +801,164 @@ export default function TicketDetailPage() {
                   >
                     Cancel
                   </Button>
-                  <Button
-                    onClick={handleAssign}
-                    disabled={!selectedUserId || isAssigning}
-                  >
-                    {isAssigning ? (
-                      <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                    ) : (
-                      <UserPlus className="h-4 w-4 mr-2" />
-                    )}
-                    Assign
-                  </Button>
+
+                  {/* Triage buttons */}
+                  {needsTriage && canTriage ? (
+                    <>
+                      {/* 1-Click Confirm AI Suggestions */}
+                      <Button
+                        onClick={handleConfirmTriage}
+                        disabled={isTriaging}
+                        className="bg-purple-600 hover:bg-purple-700"
+                      >
+                        {isTriaging ? (
+                          <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                        ) : (
+                          <Check className="h-4 w-4 mr-2" />
+                        )}
+                        Confirm AI
+                      </Button>
+
+                      {/* Apply Modified Values */}
+                      <Button
+                        onClick={handleModifyTriage}
+                        disabled={!selectedUserId || isTriaging}
+                        variant="outline"
+                      >
+                        {isTriaging ? (
+                          <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                        ) : (
+                          <Edit2 className="h-4 w-4 mr-2" />
+                        )}
+                        Save Changes
+                      </Button>
+                    </>
+                  ) : (
+                    /* Regular assign button */
+                    <Button
+                      onClick={handleAssign}
+                      disabled={!selectedUserId || isAssigning}
+                    >
+                      {isAssigning ? (
+                        <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                      ) : (
+                        <UserPlus className="h-4 w-4 mr-2" />
+                      )}
+                      Assign
+                    </Button>
+                  )}
                 </div>
               </div>
             </DialogContent>
           </Dialog>
         )}
       </div>
+
+      {/* Workflow Actions Card */}
+      {canPerformActions && (
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-lg flex items-center gap-2">
+              <Play className="h-5 w-5" />
+              Actions
+            </CardTitle>
+            <CardDescription>
+              {isAssignee
+                ? "You are assigned to this ticket"
+                : "Admin actions available"}
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            {actionError && (
+              <div className="bg-red-50 border border-red-200 text-red-700 px-3 py-2 rounded-md text-sm mb-4">
+                {actionError}
+              </div>
+            )}
+
+            <div className="flex flex-wrap gap-2">
+              {/* Acknowledge - Only for Open tickets assigned to current user */}
+              {ticket.status === "Open" && isAssignee && (
+                <Button
+                  onClick={handleAcknowledge}
+                  disabled={isProcessing}
+                  className="bg-blue-600 hover:bg-blue-700"
+                >
+                  {isProcessing ? (
+                    <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                  ) : (
+                    <Play className="h-4 w-4 mr-2" />
+                  )}
+                  Start Working
+                </Button>
+              )}
+
+              {/* Resolve - For InProgress tickets */}
+              {ticket.status === "InProgress" && canPerformActions && (
+                <Button
+                  onClick={handleResolve}
+                  disabled={isProcessing}
+                  className="bg-green-600 hover:bg-green-700"
+                >
+                  {isProcessing ? (
+                    <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                  ) : (
+                    <CheckCircle2 className="h-4 w-4 mr-2" />
+                  )}
+                  Mark Resolved
+                </Button>
+              )}
+
+              {/* Close - For Resolved tickets */}
+              {ticket.status === "Resolved" && canPerformActions && (
+                <Button
+                  onClick={handleClose}
+                  disabled={isProcessing}
+                  variant="outline"
+                >
+                  {isProcessing ? (
+                    <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                  ) : (
+                    <XCircle className="h-4 w-4 mr-2" />
+                  )}
+                  Close Ticket
+                </Button>
+              )}
+
+              {/* Reopen - For Closed or Resolved tickets */}
+              {(ticket.status === "Closed" || ticket.status === "Resolved") &&
+                canPerformActions && (
+                  <Button
+                    onClick={handleReopen}
+                    disabled={isProcessing}
+                    variant="outline"
+                  >
+                    {isProcessing ? (
+                      <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                    ) : (
+                      <RotateCcw className="h-4 w-4 mr-2" />
+                    )}
+                    Reopen Ticket
+                  </Button>
+                )}
+
+              {/* Status indicator for non-actionable states */}
+              {ticket.status === "Open" && !isAssignee && ticket.assignedToId && (
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <Clock className="h-4 w-4" />
+                  Waiting for assignee to acknowledge
+                </div>
+              )}
+
+              {ticket.status === "Open" && !ticket.assignedToId && (
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <UserPlus className="h-4 w-4" />
+                  Ticket needs to be assigned first
+                </div>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Description */}
       <Card>
@@ -683,7 +1198,61 @@ export default function TicketDetailPage() {
             )}
           </CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="space-y-6">
+          {/* Add Comment Form */}
+          {user && ticket.status !== "Closed" && (
+            <div className="border rounded-lg p-4 bg-gray-50">
+              <h4 className="text-sm font-medium mb-3">Add a Comment</h4>
+
+              {commentError && (
+                <div className="bg-red-50 border border-red-200 text-red-700 px-3 py-2 rounded-md text-sm mb-3">
+                  {commentError}
+                </div>
+              )}
+
+              <Textarea
+                placeholder="Write your comment here..."
+                value={newComment}
+                onChange={(e) => setNewComment(e.target.value)}
+                rows={3}
+                className="mb-3"
+              />
+
+              <div className="flex items-center justify-between">
+                <label className="flex items-center gap-2 text-sm cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={isInternalComment}
+                    onChange={(e) => setIsInternalComment(e.target.checked)}
+                    className="rounded border-gray-300"
+                  />
+                  <Lock className="h-4 w-4 text-yellow-600" />
+                  <span>Internal note (not visible to end user)</span>
+                </label>
+
+                <Button
+                  onClick={handleAddComment}
+                  disabled={!newComment.trim() || isAddingComment}
+                  size="sm"
+                >
+                  {isAddingComment ? (
+                    <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                  ) : (
+                    <Send className="h-4 w-4 mr-2" />
+                  )}
+                  Add Comment
+                </Button>
+              </div>
+            </div>
+          )}
+
+          {ticket.status === "Closed" && (
+            <div className="text-center py-4 text-muted-foreground text-sm">
+              This ticket is closed. Reopen it to add comments.
+            </div>
+          )}
+
+          {/* Comments List */}
           {!ticket.comments || ticket.comments.length === 0 ? (
             <p className="text-muted-foreground text-center py-8">
               No comments yet
@@ -712,6 +1281,7 @@ export default function TicketDetailPage() {
                         </span>
                         {comment.isInternal && (
                           <Badge variant="outline" className="text-xs bg-yellow-100">
+                            <Lock className="h-3 w-3 mr-1" />
                             Internal
                           </Badge>
                         )}
