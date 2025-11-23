@@ -95,6 +95,13 @@ export interface AddCommentRequest {
   isInternal: boolean;
 }
 
+// Triage modification request
+export interface TriageModifyRequest {
+  categoryId?: string;
+  assigneeId?: string;
+  priority?: TicketPriorityString;
+}
+
 /**
  * Get all tickets
  * @returns Array of all tickets
@@ -196,6 +203,20 @@ export async function unassignTicket(ticketId: string): Promise<ApiResponse<Tick
 }
 
 /**
+ * Acknowledge a ticket assignment
+ * Changes ticket status to InProgress
+ * Only the assigned user can acknowledge
+ * @param ticketId - The ticket ID
+ * @returns Updated ticket
+ */
+export async function acknowledgeTicket(ticketId: string): Promise<ApiResponse<Ticket>> {
+  return apiRequest<Ticket>(`/api/Tickets/${ticketId}/acknowledge`, {
+    method: 'PATCH',
+    includeAuth: true,
+  });
+}
+
+/**
  * Update ticket priority
  * @param ticketId - The ticket ID
  * @param priority - New priority level
@@ -273,6 +294,54 @@ export async function addTicketComment(
 export async function deleteTicket(ticketId: string): Promise<ApiResponse<void>> {
   return apiRequest<void>(`/api/Tickets/${ticketId}`, {
     method: 'DELETE',
+    includeAuth: true,
+  });
+}
+
+/**
+ * Get tickets pending triage
+ * Retrieves tickets that require human review of AI suggestions before assignment
+ * Authorization: Admin, ITManager, TeamLead, ServiceDeskAgent
+ * @returns Array of tickets pending triage
+ */
+export async function getTicketsPendingTriage(): Promise<ApiResponse<Ticket[]>> {
+  return apiRequest<Ticket[]>('/api/Tickets/pending-triage', {
+    method: 'GET',
+    includeAuth: true,
+  });
+}
+
+/**
+ * Confirm AI suggestions during triage
+ * Confirms and applies the AI-suggested category, priority, and assignee for the ticket
+ * This is a 1-click confirmation of AI recommendations
+ * Authorization: Admin, ITManager, TeamLead, ServiceDeskAgent
+ * @param ticketId - The ticket ID
+ * @returns Updated ticket with confirmed AI suggestions
+ */
+export async function confirmTriageSuggestions(ticketId: string): Promise<ApiResponse<Ticket>> {
+  return apiRequest<Ticket>(`/api/Tickets/${ticketId}/triage/confirm`, {
+    method: 'PATCH',
+    includeAuth: true,
+  });
+}
+
+/**
+ * Modify AI suggestions during triage
+ * Overrides the AI-suggested category, priority, or assignee with different values
+ * Use this when AI suggestions need to be corrected
+ * Authorization: Admin, ITManager, TeamLead, ServiceDeskAgent
+ * @param ticketId - The ticket ID
+ * @param modifications - The modified values to apply
+ * @returns Updated ticket with modified suggestions
+ */
+export async function modifyTriageSuggestions(
+  ticketId: string,
+  modifications: TriageModifyRequest
+): Promise<ApiResponse<Ticket>> {
+  return apiRequest<Ticket>(`/api/Tickets/${ticketId}/triage/modify`, {
+    method: 'PATCH',
+    body: modifications,
     includeAuth: true,
   });
 }
