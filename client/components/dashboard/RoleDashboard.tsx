@@ -677,25 +677,25 @@ function EndUserDashboard() {
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <StatCard
           title="Open Requests"
-          value={myTickets?.statusCounts.open ?? 0}
+          value={myTickets?.statusCounts?.open ?? 0}
           icon={<AlertCircle className="h-4 w-4" />}
           color="bg-yellow-500"
         />
         <StatCard
           title="In Progress"
-          value={myTickets?.statusCounts.inProgress ?? 0}
+          value={myTickets?.statusCounts?.inProgress ?? 0}
           icon={<Clock className="h-4 w-4" />}
           color="bg-blue-500"
         />
         <StatCard
           title="Resolved"
-          value={myTickets?.statusCounts.resolved ?? 0}
+          value={myTickets?.statusCounts?.resolved ?? 0}
           icon={<CheckCircle className="h-4 w-4" />}
           color="bg-green-500"
         />
         <StatCard
           title="Closed"
-          value={myTickets?.statusCounts.closed ?? 0}
+          value={myTickets?.statusCounts?.closed ?? 0}
           icon={<Ticket className="h-4 w-4" />}
           color="bg-gray-500"
         />
