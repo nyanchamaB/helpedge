@@ -134,6 +134,7 @@ export const navData = {
         { title: "Profile", url: "/settings/profile", roles: ALL_ROLES },
         { title: "Team Settings", url: "/settings/team", roles: MANAGEMENT_ROLES },
         { title: "System Settings", url: "/settings/system", roles: ["Admin"] },
+        { title: "Cron Settings", url: "/settings/cron-settings", roles: ["Admin", "ITManager"] },
         { title: "Preferences", url: "/settings/preferences", roles: ALL_ROLES },
         { title: "Notifications", url: "/settings/notifications", roles: ALL_ROLES },
       ],
