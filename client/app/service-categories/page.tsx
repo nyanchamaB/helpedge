@@ -1,214 +1,191 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import { flexRender, NoInfer } from "@tanstack/react-table";
-import { ColumnDef, useReactTable, getCoreRowModel } from "@tanstack/react-table";
-import Link from "next/link";
-import { toast } from "sonner";
-import {Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { ConfirmDeleteDialog } from "@/components/ui/confirm-delete-dialog";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { ServiceRequestCategory, deleteServiceRequestCategory, activateServiceRequestCategory, deactivateServiceRequestCategory } from "@/lib/api/service-request-category";
-import { Edit, Trash2, Power } from "lucide-react";
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import RequestCategoryTable from '@/components/service-request-category/RequestCategoryTable';
+import { ServiceRequestCategory } from '@/lib/api/service-request-category';
+import {
+  getServiceRequestsCategories, 
+  deleteServiceRequestCategory,
+  activateServiceRequestCategory,
+  deactivateServiceRequestCategory
+} from '@/lib/api/service-request-category';
+import { toast } from 'sonner';
+import { Button } from '@/components/ui/button';
+import { Plus, RefreshCw, Download, Upload } from 'lucide-react';
 
-interface Props {
-  data: ServiceRequestCategory[];
-  onUpdate: () => void;
-}
+export default function ServiceRequestCategoriesPage() {
+  const router = useRouter();
+  const [categories, setCategories] = useState<ServiceRequestCategory[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
-export default function ServiceRequestCategoriesTable ({ data, onUpdate }: Props) {
-  const [search, setSearch] = useState("");
-  const [filterType, setFilterType] = useState<string | undefined>(undefined);
-  const [filterActive, setFilterActive] = useState<boolean | undefined>(undefined);
-  const [page, setPage] = useState(1);
-  const perPage = 10;
-
-  const filteredData = useMemo(() => {
-    return (data || []).filter((c) =>
-      (c.name.toLowerCase().includes(search.toLowerCase()) ||
-        c.description.toLowerCase().includes(search.toLowerCase())) &&
-      (filterType ? c.requestType === filterType : true) &&
-      (filterActive !== undefined ? c.isActive === filterActive : true)
-    );
-  }, [data, search, filterType, filterActive]);
-
-  const totalPages = Math.ceil(filteredData.length / perPage);
-  const paginatedData = useMemo(() => {
-    const start = (page - 1) * perPage;
-    return filteredData.slice(start, start + perPage);
-  }, [filteredData, page]);
-
-  const handleDelete = async (id: string): Promise<void> => {
+  const fetchCategories = async () => {
+    setIsLoading(true);
     try {
-      await deleteServiceRequestCategory(id);
-      toast.success("Category deleted");
-      onUpdate();
-    } catch {
-      toast.error("Delete failed");
+      const response = await getServiceRequestsCategories();
+      setCategories(response.data || []);
+    } catch (error) {
+      toast.error('Failed to fetch categories');
+      console.error(error);
+    } finally {
+      setIsLoading(false);
+      setIsRefreshing(false);
     }
   };
 
-  const handleToggle = async (category: ServiceRequestCategory): Promise<void> => {
+  useEffect(() => {
+    fetchCategories();
+  }, []);
+
+  const handleView = (category: ServiceRequestCategory) => {
+    router.push(`/service-categories/${category.id}`);
+  };
+
+  const handleEdit = (category: ServiceRequestCategory) => {
+    router.push(`/service-categories/${category.id}/edit`);
+  };
+
+  const handleDelete = async (categoryId: string) => {
+    // Note: The table now has its own confirmation dialog
     try {
-      if (category.isActive) {
-        await deactivateServiceRequestCategory(category.id);
-        toast.success("Category deactivated");
-      } else {
-        await activateServiceRequestCategory(category.id);
-        toast.success("Category activated");
+      await deleteServiceRequestCategory(categoryId);
+      toast.success('Category deleted successfully');
+      fetchCategories(); // Refresh the list
+    } catch (error) {
+      toast.error('Failed to delete category');
+      console.error(error);
+    }
+  };
+
+  const handleCreate = () => {
+    router.push('/service-categories/create-category');
+  };
+
+  const handleRefresh = async () => {
+    setIsRefreshing(true);
+    await fetchCategories();
+    toast.success('Categories refreshed');
+  };
+
+  const handleExport = () => {
+    toast.info('Export functionality coming soon!');
+    // Implement export logic here
+    // You could create a function like exportServiceRequestCategories()
+  };
+
+  const handleImport = () => {
+    toast.info('Import functionality coming soon!');
+    // Implement import logic here
+  };
+
+  const handleBulkDelete = async (ids: string[]) => {
+    if (confirm(`Are you sure you want to delete ${ids.length} categories?`)) {
+      try {
+        // Note: You might want to create a bulk delete API endpoint
+        // For now, we'll delete sequentially
+        const promises = ids.map(id => deleteServiceRequestCategory(id));
+        await Promise.all(promises);
+        toast.success(`${ids.length} categories deleted successfully`);
+        fetchCategories(); // Refresh the list
+      } catch (error) {
+        toast.error('Failed to delete categories');
+        console.error(error);
       }
-      onUpdate();
-    } catch {
-      toast.error("Toggle failed");
     }
   };
 
-  const columns = useMemo<ColumnDef<ServiceRequestCategory>[]>(() => [
-    {
-      accessorKey: "name",
-      header: "Name",
-      cell: ({ row }) => (
-        <Link
-          href={`/service-request-categories/${row.original.id}`}
-          className="text-blue-600 hover:underline"
-        >
-          {row.original.name}
-        </Link>
-      ),
-    },
-    {
-      accessorKey: "requestType",
-      header: "Type",
-    },
-    {
-      accessorKey: "isActive",
-      header: "Status",
-      cell: ({ row }) => (
-        <span className={row.original.isActive ? "text-green-600 font-bold" : "text-red-600 font-bold"}>
-          {row.original.isActive ? "Active" : "Inactive"}
-        </span>
-      ),
-    },
-    {
-      id: "actions",
-      header: "Actions",
-      cell: ({ row }) => {
-        const cat = row.original;
-        return (
-          <div className="flex gap-2 items-center">
-            {/* Edit */}
-            <Link href={`/service-request-categories/edit/${cat.id}`}>
-              <Button variant="ghost" size="sm"><Edit /></Button>
-            </Link>
+  const handleBulkActivate = async (ids: string[]) => {
+    try {
+      const promises = ids.map(id => activateServiceRequestCategory(id));
+      await Promise.all(promises);
+      toast.success(`${ids.length} categories activated successfully`);
+      fetchCategories(); // Refresh the list
+    } catch (error) {
+      toast.error('Failed to activate categories');
+      console.error(error);
+    }
+  };
 
-            {/* Delete */}
-            <ConfirmDeleteDialog onConfirm={() => handleDelete(cat.id)}>
-              <Button variant="ghost" size="sm"><Trash2 /></Button>
-            </ConfirmDeleteDialog>
-
-            {/* Toggle Active */}
-            <Button variant="outline" size="sm" onClick={() => handleToggle(cat)}>
-              <Power className={cat.isActive ? "text-green-600" : "text-gray-400"} />
-            </Button>
-          </div>
-        );
-      },
-    },
-  ], [handleDelete, handleToggle]);
-
-  const table = useReactTable({
-    data: paginatedData,
-    columns,
-    getCoreRowModel: getCoreRowModel(),
-  });
-
-  const handleFilterChange = () => setPage(1);
+  const handleBulkDeactivate = async (ids: string[]) => {
+    try {
+      const promises = ids.map(id => deactivateServiceRequestCategory(id));
+      await Promise.all(promises);
+      toast.success(`${ids.length} categories deactivated successfully`);
+      fetchCategories(); // Refresh the list
+    } catch (error) {
+      toast.error('Failed to deactivate categories');
+      console.error(error);
+    }
+  };
 
   return (
-    <div className="flex flex-col gap-4">
-        <Card>
-        <CardHeader>
-            <CardTitle>Service Request Categories</CardTitle>        
-        </CardHeader>
-        <CardContent>
-        <div className="flex flex-col gap-4">
-    <div className="space-y-4">
-      {/* Search and Filters */}
-      <div className="flex gap-4 flex-wrap mb-2">
-        <Input
-          placeholder="Search name or description..."
-          value={search}
-          onChange={(e) => { setSearch(e.target.value); handleFilterChange(); }}
-          className="max-w-xs"
-        />
-        <select
-          className="border rounded p-2"
-          value={filterType ?? ""}
-          onChange={(e) => { setFilterType(e.target.value || undefined); handleFilterChange(); }}
-        >
-          <option value="">All Types</option>
-          <option value="Access">Access</option>
-          <option value="Incident">Incident</option>
-          <option value="Change">Change</option>
-          <option value="Other">Other</option>
-        </select>
-        <select
-          className="border rounded p-2"
-          value={filterActive === undefined ? "" : filterActive ? "Active" : "Inactive"}
-          onChange={(e) => {
-            setFilterActive(
-              e.target.value === "" ? undefined : e.target.value === "Active" ? true : false
-            );
-            handleFilterChange();
-          }}
-        >
-          <option value="">All Status</option>
-          <option value="Active">Active</option>
-          <option value="Inactive">Inactive</option>
-        </select>
+    <div className="container mx-auto py-8">
+      {/* Header */}
+      <div className="flex flex-col space-y-4 md:flex-row md:items-center md:justify-between md:space-y-0 mb-8">
+        <div>
+          <h1 className="text-3xl font-bold">Service Request Categories</h1>
+          <p className="text-gray-500">
+            Manage and organize different types of service requests
+          </p>
+        </div>
+        
+        <div className="flex flex-wrap gap-2">
+          {/* Refresh Button */}
+          <Button 
+            variant="outline" 
+            onClick={handleRefresh}
+            disabled={isRefreshing}
+            className="gap-2"
+          >
+            <RefreshCw className={`h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`} />
+            {isRefreshing ? 'Refreshing...' : 'Refresh'}
+          </Button>
+          
+          {/* Export Button */}
+          <Button 
+            variant="outline" 
+            onClick={handleExport}
+            className="gap-2"
+          >
+            <Download className="h-4 w-4" />
+            Export
+          </Button>
+          
+          {/* Import Button */}
+          <Button 
+            variant="outline" 
+            onClick={handleImport}
+            className="gap-2"
+          >
+            <Upload className="h-4 w-4" />
+            Import
+          </Button>
+          
+          {/* Create Button */}
+          <Button onClick={handleCreate} className="gap-2">
+            <Plus className="h-4 w-4" />
+            Add Category
+          </Button>
+        </div>
       </div>
 
-      {/* Table */}
-      <Table>
-        <TableHeader>
-          {table.getHeaderGroups().map(headerGroup => (
-            <TableRow key={headerGroup.id}>
-              {headerGroup.headers.map(header => (
-                <TableHead key={header.id}>
-                  {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
-                </TableHead>
-              ))}
-            </TableRow>
-          ))}
-        </TableHeader>
-
-        <TableBody>
-          {table.getRowModel().rows.map(row => (
-            <TableRow key={row.id} className="hover:bg-gray-50">
-              {row.getVisibleCells().map(cell => (
-                <TableCell key={cell.id}>
-                  {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                </TableCell>
-              ))}
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-
-      {/* Pagination */}
-      {totalPages > 1 && (
-        <div className="flex justify-between mt-4">
-          <Button variant="outline" disabled={page === 1} onClick={() => setPage(p => p - 1)}>Previous</Button>
-          <span>Page {page} / {totalPages}</span>
-          <Button variant="outline" disabled={page === totalPages} onClick={() => setPage(p => p + 1)}>Next</Button>
-        </div>
-      )}
-    </div>
-    </div>
-    </CardContent>
-    </Card>
+      {/* Table with all features */}
+      <RequestCategoryTable
+        categories={categories}
+        isLoading={isLoading || isRefreshing}
+        onCategoryClick={handleView}
+        onEdit={handleEdit}
+        onDelete={handleDelete}
+        onCreate={handleCreate}
+        onExport={handleExport}
+        onImport={handleImport}
+        onBulkDelete={handleBulkDelete}
+        onBulkActivate={handleBulkActivate}
+        onBulkDeactivate={handleBulkDeactivate}
+        showFilters={true}
+        showActions={true}
+      />
     </div>
   );
-};
+}

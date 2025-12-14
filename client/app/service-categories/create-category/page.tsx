@@ -1,102 +1,57 @@
 "use client";
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { CategoryForm } from '@/components/service-request-category/CategoryForm';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { ArrowLeft } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import Link from 'next/link';
+import { createServiceRequestCategory } from '@/lib/api/service-request-category';
+import { toast } from 'sonner';
 
-import { useRouter } from "next/navigation";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import * as z from "zod";
-
-import { createServiceRequestCategory } from "@/lib/api/service-request-category";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
-import { toast } from "sonner";
-
-
-const formSchema = z.object({
-  name: z.string().min(1, "Name is required"),
-  description: z.string().optional(),
-  requestType: z.enum(["Access", "Incident", "Change", "Other"]),
-  color: z.string().optional(),
-  icon: z.string().optional(),
-});
-
-type FormValues = z.infer<typeof formSchema>;
-
-export default function CreateServiceRequestCategoryPage() {
+export default function CreateCategoryPage() {
   const router = useRouter();
-  //const { toast } = useToast();
+  const [isLoading, setIsLoading] = useState(false);
 
-  const form = useForm<FormValues>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      name: "",
-      description: "",
-      requestType: "Access",
-      color: "#000000",
-      icon: "",
-    },
-  });
-
-  const onSubmit = async (values: FormValues) => {
+  const handleSubmit = async (data: any) => {
+    setIsLoading(true);
     try {
-      await createServiceRequestCategory(values);
-      toast.success("Category created successfully");
-      router.push("/service-request-categories");
-    } catch {
-      toast.error( "Category creation failed");
+      await createServiceRequestCategory(data);
+      toast.success('Category created successfully');
+      router.push('/service-categories/page.tsx');
+    } catch (error: any) {
+      toast.error(error.message || 'Failed to create category');
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return (
-    <div className="p-6 max-w-lg space-y-6">
-      <h1 className="text-2xl font-bold">Create Service Request Category</h1>
+    <div className="container mx-auto py-8">
+      <div className="mb-6">
+        <Link href="/service-categories/">
+          <Button variant="ghost" className="gap-2">
+            <ArrowLeft className="h-4 w-4" />
+            Back to Categories
+          </Button>
+        </Link>
+      </div>
 
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-
-        {/* Name */}
-        <div>
-          <Label>Name</Label>
-          <Input {...form.register("name")} />
-          {form.formState.errors.name && (
-            <p className="text-red-600 text-sm">{form.formState.errors.name.message}</p>
-          )}
-        </div>
-
-        {/* Description */}
-        <div>
-          <Label>Description</Label>
-          <Input {...form.register("description")} />
-        </div>
-
-        {/* Request Type */}
-        <div>
-          <Label>Request Type</Label>
-          <select
-            {...form.register("requestType")}
-            className="border rounded p-2 w-full"
-          >
-            <option value="Access">Access</option>
-            <option value="Incident">Incident</option>
-            <option value="Change">Change</option>
-            <option value="Other">Other</option>
-          </select>
-        </div>
-
-        {/* Color */}
-        <div>
-          <Label>Color</Label>
-          <Input type="color" {...form.register("color")} />
-        </div>
-
-        {/* Icon */}
-        <div>
-          <Label>Icon</Label>
-          <Input {...form.register("icon")} />
-        </div>
-
-        {/* Submit Button */}
-        <Button type="submit">Create Category</Button>
-      </form>
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-2xl">Create New Category</CardTitle>
+          <p className="text-gray-500">
+            Create a new service request category
+          </p>
+        </CardHeader>
+        <CardContent>
+          <CategoryForm
+            onSubmit={handleSubmit}
+            onCancel={() => router.back()}
+            isLoading={isLoading}
+          />
+        </CardContent>
+      </Card>
     </div>
   );
 }

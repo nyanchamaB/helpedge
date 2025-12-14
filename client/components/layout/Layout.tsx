@@ -4,6 +4,9 @@
 import { useEffect, useState } from 'react';
 import Sidebar from './Sidebar';
 import Header from './Header';
+import {Breadcrumbs} from '@/components/ui/breadcrumbs';
+import {BreadcrumbContainer} from './breadcrumb';
+import { useBreadcrumbs } from '@/hooks/usebreadcrumb';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -12,6 +15,7 @@ interface LayoutProps {
 export default function Layout({ children }: LayoutProps) {
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const breadcrumbItems = useBreadcrumbs();
 
   useEffect(() => {
     // Get user info from API or context
@@ -38,6 +42,11 @@ export default function Layout({ children }: LayoutProps) {
         <Sidebar userRole={user.role} />
         <div className="flex-1">
           <Header user={user} />
+          {breadcrumbItems.length > 0 && (
+            <BreadcrumbContainer>
+              <Breadcrumbs items={breadcrumbItems} />
+            </BreadcrumbContainer>
+          )}
           <main className="p-6">
             {children}
           </main>

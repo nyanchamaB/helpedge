@@ -28,53 +28,58 @@ export interface ServiceRequestCategory {
   updatedAt: string;
 }
 
-export const getServiceRequestsCategories = async (): Promise<ApiResponse<ServiceRequestCategory[]>> => apiRequest('/api/service-requests-categories', {
+export async function getServiceRequestsCategories(): Promise<ApiResponse<ServiceRequestCategory[]>> {
+  return apiRequest<ServiceRequestCategory[]>('/api/service-request-categories', {
     method: 'GET',
     includeAuth: true,
   });
+}
 
-export const createServiceRequestCategory = async (data: Partial<ServiceRequestCategory>): Promise<ApiResponse<ServiceRequestCategory>> => apiRequest('/api/service-requests-categories', {
+export async function getServiceRequestCategoryById(id: string): Promise<ApiResponse<ServiceRequestCategory>> {
+  return apiRequest<ServiceRequestCategory>(`/api/service-request-categories/${id}`, {
+    method: 'GET',
+    includeAuth: true,
+  });
+}
+
+export async function createServiceRequestCategory(data: Partial<ServiceRequestCategory>): Promise<ApiResponse<ServiceRequestCategory>> {
+  return apiRequest<ServiceRequestCategory>('/api/service-request-categories', {
     method: 'POST',
     includeAuth: true,
     body: JSON.stringify(data),
   });
+}
 
-export const getServiceRequestCategoryById = async (id: string): Promise<ServiceRequestCategory> => {
-  const response = await apiRequest(`/api/service-requests-categories/${id}`, {
-    method: 'GET',
-    includeAuth: true,
-  });
-  return response.data;
-};
-
-export const updateServiceRequestCategory = async (id: string, data: Partial<ServiceRequestCategory>): Promise<ApiResponse<ServiceRequestCategory>> => apiRequest(`/api/service-requests-categories/${id}`, {
+export async function updateServiceRequestCategory(id: string, data: Partial<ServiceRequestCategory>): Promise<ApiResponse<ServiceRequestCategory>> {
+  return apiRequest<ServiceRequestCategory>(`/api/service-request-categories/${id}`, {
     method: 'PUT',
     includeAuth: true,
     body: JSON.stringify(data),
   });
+}
 
-export const deleteServiceRequestCategory = async (id: string): Promise<ApiResponse<null>> => apiRequest(`/api/service-requests-categories/${id}`, {
+export const deleteServiceRequestCategory = async (id: string): Promise<ApiResponse<null>> => apiRequest(`/api/service-request-categories/${id}`, {
     method: 'DELETE',
     includeAuth: true,
   });
 
-export const activateServiceRequestCategory = async (id: string): Promise<ApiResponse<ServiceRequestCategory>> => apiRequest(`/api/service-requests-categories/${id}/activate`, {
+export const activateServiceRequestCategory = async (id: string): Promise<ApiResponse<ServiceRequestCategory>> => apiRequest(`/api/service-request-categories/${id}/activate`, {
     method: 'PATCH',
     includeAuth: true,
   });
   //deactivate
-  export const deactivateServiceRequestCategory = async (id: string): Promise<ApiResponse<ServiceRequestCategory>> => apiRequest(`/api/service-requests-categories/${id}/deactivate`, {
+  export const deactivateServiceRequestCategory = async (id: string): Promise<ApiResponse<ServiceRequestCategory>> => apiRequest(`/api/service-request-categories/${id}/deactivate`, {
     method: 'PATCH',
     includeAuth: true,
   });
 
   //by type
-  export const getServiceRequestsCategoriesByType = async (type: string): Promise<ApiResponse<ServiceRequestCategory[]>> => apiRequest(`/api/service-requests-categories/by-type/${type}`, {
+  export const getServiceRequestsCategoriesByType = async (type: string): Promise<ApiResponse<ServiceRequestCategory[]>> => apiRequest(`/api/service-request-categories/by-type/${type}`, {
     method: 'GET',
     includeAuth: true,
   });
 //get active categories
-export const getActiveServiceRequestCategories = async (): Promise<ApiResponse<ServiceRequestCategory[]>> => apiRequest('/api/service-requests-categories/active', {
+export const getActiveServiceRequestCategories = async (): Promise<ApiResponse<ServiceRequestCategory[]>> => apiRequest('/api/service-request-categories/active', {
     method: 'GET',
     includeAuth: true,
   });
@@ -87,3 +92,4 @@ export const toggleServiceRequestCategory = async (id: string,isActive: boolean)
     return activateServiceRequestCategory(id);
   }
 };
+
