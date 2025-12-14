@@ -35,9 +35,10 @@ export async function apiRequest<T = any>(
     body,
     headers = {},
     includeAuth = false,
-    credentials = 'omit', // Default to omit for CORS compatibility
+    credentials, //allow caller to specify credentials mode
   } = config;
 
+  const effectiveCredentials: 'include' | 'omit' | 'same-origin' = credentials ?? (includeAuth ? 'include' : 'omit');
   const url = `${API_BASE_URL}${endpoint}`;
 
   const requestHeaders: Record<string, string> = {
@@ -54,14 +55,15 @@ export async function apiRequest<T = any>(
   }
 
   try {
+    const requestBody = body === undefined ? undefined : typeof body === 'string' ? body : JSON.stringify(body);
     console.log('API Request:', { url, method, headers: requestHeaders, body, credentials });
 
     const response = await fetch(url, {
       method,
       headers: requestHeaders,
-      body: body ? JSON.stringify(body) : undefined,
+      body: requestBody,
       mode: 'cors',
-      credentials, // Use provided credentials mode
+      credentials: effectiveCredentials, // Use provided credentials mode
     });
 
     console.log('API Response:', {

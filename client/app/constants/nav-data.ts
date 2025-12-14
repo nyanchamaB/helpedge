@@ -75,6 +75,27 @@ export const navData = {
       ],
     },
     {
+      title: "Service Requests",
+      url: "/service-requests",
+      icon: ClipboardList,
+      role: ALL_ROLES,
+      items: [
+        { title: "View Requests", url: "/service-requests", roles: ["Admin", "ITManager", "TeamLead", "ServiceDeskAgent"] },
+        { title: "My Requests", url: "/service-requests/my-requests", roles: ["EndUser"] },
+        { title: "Create Request", url: "/service-requests/create-request", roles: ALL_ROLES },
+      ],
+    },
+    {
+      title: "Service Categories",
+      url: "/service-categories",
+      icon: UserCheck,
+      role: ALL_ROLES,
+      items: [
+        { title: "View Categories", url: "/service-categories", roles: ["Admin", "ITManager", "TeamLead", "ServiceDeskAgent"] },
+        { title: "Create Category", url: "/service-categories/create-category", roles: ["Admin", "ITManager"] },
+      ],
+    },
+    {
       title: "Team",
       url: "/team",
       icon: Users,

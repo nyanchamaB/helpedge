@@ -9,6 +9,8 @@ const Footer = dynamic(() => import("@/app/onboarding/footer"));
 const HIDE_FOOTER_ROUTES = [
   "/dashboard",
   "/tickets",
+  "/serive-requests",
+  "/service-categories",
   "/team",
   "/reports",
   "/systems",
