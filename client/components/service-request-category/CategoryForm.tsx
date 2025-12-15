@@ -1,50 +1,50 @@
 // /components/service-request-category/CategoryForm.tsx
 "use client";
-import { useState } from 'react';
-import { useForm, useFieldArray } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod';
-import { ServiceRequestCategory } from '@/lib/api/service-request-category';
-import { 
+import { useState } from "react";
+import { useForm, useFieldArray } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+import { ServiceRequestCategory } from "@/lib/api/service-request-category";
+import {
   Form,
   FormControl,
   FormDescription,
   FormField,
   FormItem,
   FormLabel,
-  FormMessage 
-} from '@/components/ui/form';
-import { 
-  Card, 
-  CardContent, 
-  CardDescription, 
-  CardHeader, 
-  CardTitle 
-} from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Button } from '@/components/ui/button';
-import { Switch } from '@/components/ui/switch';
-import { Badge } from '@/components/ui/badge';
-import { Separator } from '@/components/ui/separator';
+  FormMessage,
+} from "@/components/ui/form";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
+} from "@/components/ui/select";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from '@/components/ui/popover';
-import { Label } from '@/components/ui/label';
-import { 
-  Plus, 
-  Trash2, 
-  GripVertical, 
-  Eye, 
+} from "@/components/ui/popover";
+import { Label } from "@/components/ui/label";
+import {
+  Plus,
+  Trash2,
+  GripVertical,
+  Eye,
   EyeOff,
   Palette,
   Type,
@@ -55,16 +55,15 @@ import {
   AlertCircle,
   Users,
   Clock,
-  Tag
-} from 'lucide-react';
-import { cn } from '@/lib/utils';
-import { da } from 'zod/v4/locales';
+  Tag,
+} from "lucide-react";
+import { cn } from "@/lib/utils";
 
 // Required field schema
 const requiredFieldSchema = z.object({
-  name: z.string().min(1, 'Field name is required'),
-  label: z.string().min(1, 'Field label is required'),
-  type: z.enum(['Text', 'Dropdown', 'Number', 'Date']),
+  name: z.string().min(1, "Field name is required"),
+  label: z.string().min(1, "Field label is required"),
+  type: z.enum(["Text", "Dropdown", "Number", "Date"]),
   isRequired: z.boolean().default(false),
   options: z.array(z.string()).optional(),
   defaultValue: z.string().optional(),
@@ -75,11 +74,20 @@ const requiredFieldSchema = z.object({
 
 // Main form schema
 const categoryFormSchema = z.object({
-  name: z.string().min(1, 'Name is required').max(100, 'Name is too long'),
-  description: z.string().min(1, 'Description is required').max(500, 'Description is too long'),
-  requestType: z.enum(['Access', 'Hardware', 'Software', 'Support']),
-  color: z.string().regex(/^#[0-9A-F]{6}$/i, 'Invalid hex color').default('#3b82f6'),
-  icon: z.string().min(1, 'Icon is required').max(2, 'Icon should be 1-2 emojis'),
+  name: z.string().min(1, "Name is required").max(100, "Name is too long"),
+  description: z
+    .string()
+    .min(1, "Description is required")
+    .max(500, "Description is too long"),
+  requestType: z.enum(["Access", "Hardware", "Software", "Support"]),
+  color: z
+    .string()
+    .regex(/^#[0-9A-F]{6}$/i, "Invalid hex color")
+    .default("#3b82f6"),
+  icon: z
+    .string()
+    .min(1, "Icon is required")
+    .max(2, "Icon should be 1-2 emojis"),
   isActive: z.boolean().default(true),
   requiresApproval: z.boolean().default(false),
   defaultWorkflowId: z.string().optional(),
@@ -93,7 +101,7 @@ type CategoryFormValues = z.infer<typeof categoryFormSchema>;
 
 interface CategoryFormProps {
   initialData?: Partial<ServiceRequestCategory>;
-  onSubmit: (data: CategoryFormValues) => Promise<void>;  // Keep this
+  onSubmit: (data: CategoryFormValues) => Promise<void>;
   onCancel?: () => void;
   isLoading?: boolean;
   isEditing?: boolean;
@@ -107,57 +115,75 @@ const fieldTypeIcons = {
 };
 
 const requestTypeOptions = [
-  { value: 'Access', label: 'Access' },
-  { value: 'Hardware', label: 'Hardware' },
-  { value: 'Software', label: 'Software' },
-  { value: 'Support', label: 'Support' },
+  { value: "Access", label: "Access" },
+  { value: "Hardware", label: "Hardware" },
+  { value: "Software", label: "Software" },
+  { value: "Support", label: "Support" },
 ];
 
 const presetColors = [
-  '#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6',
-  '#06b6d4', '#84cc16', '#f97316', '#ec4899', '#6366f1',
-  '#14b8a6', '#f43f5e', '#8b5cf6', '#0ea5e9', '#84cc16'
+  "#3b82f6",
+  "#10b981",
+  "#f59e0b",
+  "#ef4444",
+  "#8b5cf6",
+  "#06b6d4",
+  "#84cc16",
+  "#f97316",
+  "#ec4899",
+  "#6366f1",
+  "#14b8a6",
+  "#f43f5e",
+  "#8b5cf6",
+  "#0ea5e9",
+  "#84cc16",
 ];
 
-export function CategoryForm({ 
-  initialData, 
-  onSubmit, 
-  onCancel, 
+export function CategoryForm({
+  initialData,
+  onSubmit,
+  onCancel,
   isLoading,
-  isEditing = false 
+  isEditing = false,
 }: CategoryFormProps) {
-  const [keywordInput, setKeywordInput] = useState('');
-  const [roleInput, setRoleInput] = useState('');
+  const [keywordInput, setKeywordInput] = useState("");
+  const [roleInput, setRoleInput] = useState("");
   const [optionsInput, setOptionsInput] = useState<Record<number, string>>({});
-  
+
   const form = useForm({
     resolver: zodResolver(categoryFormSchema),
-    defaultValues: initialData ? {
-      ...initialData,
-      requestType: initialData.requestType as 'Access' | 'Hardware' | 'Software' | 'Support',
-      fulfillmentRoles: initialData.fulfillmentRoles || [],
-      requiredFields: initialData.requiredFields || [],
-      keywords: initialData.keywords || [],
-      estimatedFulfillmentDays: initialData.estimatedFulfillmentDays || 7,
-    } : {
-      name: '',
-      description: '',
-      requestType: 'Access',
-      color: '#3b82f6',
-      icon: '📋',
-      isActive: true,
-      requiresApproval: false,
-      defaultWorkflowId: '',
-      fulfillmentRoles: [],
-      estimatedFulfillmentDays: 7,
-      requiredFields: [],
-      keywords: [],
-    },
+    defaultValues: initialData
+      ? {
+          ...initialData,
+          requestType: initialData.requestType as
+            | "Access"
+            | "Hardware"
+            | "Software"
+            | "Support",
+          fulfillmentRoles: initialData.fulfillmentRoles || [],
+          requiredFields: initialData.requiredFields || [],
+          keywords: initialData.keywords || [],
+          estimatedFulfillmentDays: initialData.estimatedFulfillmentDays || 7,
+        }
+      : {
+          name: "",
+          description: "",
+          requestType: "Access",
+          color: "#3b82f6",
+          icon: "📋",
+          isActive: true,
+          requiresApproval: false,
+          defaultWorkflowId: "",
+          fulfillmentRoles: [],
+          estimatedFulfillmentDays: 7,
+          requiredFields: [],
+          keywords: [],
+        },
   });
 
   const { fields, append, remove, move } = useFieldArray({
     control: form.control,
-    name: 'requiredFields',
+    name: "requiredFields",
   });
 
   const handleSubmit = async (data: CategoryFormValues) => {
@@ -168,48 +194,62 @@ export function CategoryForm({
     };
     await onSubmit(orderedData);
   };
+
   // Keywords handlers
   const addKeyword = () => {
     if (keywordInput.trim()) {
-      const currentKeywords = form.getValues('keywords') || [];
-      form.setValue('keywords', [...currentKeywords, keywordInput.trim()]);
-      setKeywordInput('');
+      const currentKeywords = form.getValues("keywords") || [];
+      form.setValue("keywords", [...currentKeywords, keywordInput.trim()]);
+      setKeywordInput("");
     }
   };
 
   const removeKeyword = (index: number) => {
-    const currentKeywords = form.getValues('keywords') || [];
-    form.setValue('keywords', currentKeywords.filter((_, i) => i !== index));
+    const currentKeywords = form.getValues("keywords") || [];
+    form.setValue(
+      "keywords",
+      currentKeywords.filter((_, i) => i !== index)
+    );
   };
 
   // Role handlers
   const addRole = () => {
     if (roleInput.trim()) {
-      const currentRoles = form.getValues('fulfillmentRoles') || [];
-      form.setValue('fulfillmentRoles', [...currentRoles, roleInput.trim()]);
-      setRoleInput('');
+      const currentRoles = form.getValues("fulfillmentRoles") || [];
+      form.setValue("fulfillmentRoles", [...currentRoles, roleInput.trim()]);
+      setRoleInput("");
     }
   };
 
   const removeRole = (index: number) => {
-    const currentRoles = form.getValues('fulfillmentRoles') || [];
-    form.setValue('fulfillmentRoles', currentRoles.filter((_, i) => i !== index));
+    const currentRoles = form.getValues("fulfillmentRoles") || [];
+    form.setValue(
+      "fulfillmentRoles",
+      currentRoles.filter((_, i) => i !== index)
+    );
   };
 
   // Field options handlers
   const addOption = (fieldIndex: number) => {
     const optionValue = optionsInput[fieldIndex];
     if (optionValue?.trim()) {
-      const currentOptions = form.getValues(`requiredFields.${fieldIndex}.options`) || [];
-      form.setValue(`requiredFields.${fieldIndex}.options`, [...currentOptions, optionValue.trim()]);
-      setOptionsInput(prev => ({ ...prev, [fieldIndex]: '' }));
+      const currentOptions =
+        form.getValues(`requiredFields.${fieldIndex}.options`) || [];
+      form.setValue(`requiredFields.${fieldIndex}.options`, [
+        ...currentOptions,
+        optionValue.trim(),
+      ]);
+      setOptionsInput((prev) => ({ ...prev, [fieldIndex]: "" }));
     }
   };
 
   const removeOption = (fieldIndex: number, optionIndex: number) => {
-    const currentOptions = form.getValues(`requiredFields.${fieldIndex}.options`) || [];
-    form.setValue(`requiredFields.${fieldIndex}.options`, 
-      currentOptions.filter((_, i) => i !== optionIndex));
+    const currentOptions =
+      form.getValues(`requiredFields.${fieldIndex}.options`) || [];
+    form.setValue(
+      `requiredFields.${fieldIndex}.options`,
+      currentOptions.filter((_, i) => i !== optionIndex)
+    );
   };
 
   return (
@@ -245,7 +285,10 @@ export function CategoryForm({
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Request Type *</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                    >
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue placeholder="Select type" />
@@ -272,10 +315,10 @@ export function CategoryForm({
                 <FormItem>
                   <FormLabel>Description *</FormLabel>
                   <FormControl>
-                    <Textarea 
+                    <Textarea
                       placeholder="Describe what this category is for..."
                       className="min-h-[100px]"
-                      {...field} 
+                      {...field}
                     />
                   </FormControl>
                   <FormMessage />
@@ -292,20 +335,24 @@ export function CategoryForm({
                     <FormLabel>Icon</FormLabel>
                     <FormControl>
                       <div className="flex space-x-2">
-                        <Input 
+                        <Input
                           placeholder="📋"
                           maxLength={2}
-                          {...field} 
+                          {...field}
                           onChange={(e) => {
                             field.onChange(e);
-                            form.trigger('icon');
+                            form.trigger("icon");
                           }}
                         />
-                        <div 
+                        <div
                           className="flex items-center justify-center w-12 h-12 rounded-md border"
-                          style={{ backgroundColor: `${form.watch('color')}20` }}
+                          style={{
+                            backgroundColor: `${form.watch("color")}20`,
+                          }}
                         >
-                          <span className="text-2xl">{field.value || '📋'}</span>
+                          <span className="text-2xl">
+                            {field.value || "📋"}
+                          </span>
                         </div>
                       </div>
                     </FormControl>
@@ -327,15 +374,15 @@ export function CategoryForm({
                       <PopoverTrigger asChild>
                         <FormControl>
                           <div className="flex space-x-2">
-                            <Input 
+                            <Input
                               placeholder="#3b82f6"
-                              {...field} 
+                              {...field}
                               onChange={(e) => {
                                 field.onChange(e);
-                                form.trigger('color');
+                                form.trigger("color");
                               }}
                             />
-                            <div 
+                            <div
                               className="w-12 h-12 rounded-md border cursor-pointer flex items-center justify-center"
                               style={{ backgroundColor: field.value }}
                             >
@@ -353,7 +400,7 @@ export function CategoryForm({
                                 type="button"
                                 className="w-8 h-8 rounded-full border-2 border-white hover:scale-110 transition-transform"
                                 style={{ backgroundColor: color }}
-                                onClick={() => form.setValue('color', color)}
+                                onClick={() => form.setValue("color", color)}
                               >
                                 {field.value === color && (
                                   <Check className="h-4 w-4 text-white mx-auto" />
@@ -424,10 +471,10 @@ export function CategoryForm({
                 <FormItem>
                   <FormLabel>Workflow ID (Optional)</FormLabel>
                   <FormControl>
-                    <Input 
+                    <Input
                       placeholder="Enter workflow ID for automatic approval routing"
-                      {...field} 
-                      value={field.value || ''}
+                      {...field}
+                      value={field.value || ""}
                     />
                   </FormControl>
                   <FormDescription>
@@ -462,7 +509,9 @@ export function CategoryForm({
                         min="0"
                         max="365"
                         {...field}
-                        onChange={(e) => field.onChange(parseInt(e.target.value) || 0)}
+                        onChange={(e) =>
+                          field.onChange(parseInt(e.target.value) || 0)
+                        }
                       />
                       <span className="text-sm text-gray-500">days</span>
                     </div>
@@ -485,15 +534,17 @@ export function CategoryForm({
                   placeholder="Add a role (e.g., IT Admin, Manager)..."
                   value={roleInput}
                   onChange={(e) => setRoleInput(e.target.value)}
-                  onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addRole())}
+                  onKeyDown={(e) =>
+                    e.key === "Enter" && (e.preventDefault(), addRole())
+                  }
                 />
                 <Button type="button" onClick={addRole} variant="outline">
                   <Plus className="h-4 w-4" />
                 </Button>
               </div>
-              
+
               <div className="flex flex-wrap gap-2">
-                {(form.watch('fulfillmentRoles') || []).map((role, index) => (
+                {(form.watch("fulfillmentRoles") || []).map((role, index) => (
                   <Badge key={index} variant="secondary" className="gap-1 pl-3">
                     <Users className="h-3 w-3" />
                     {role}
@@ -506,8 +557,10 @@ export function CategoryForm({
                     </button>
                   </Badge>
                 ))}
-                {(form.watch('fulfillmentRoles') || []).length === 0 && (
-                  <p className="text-sm text-gray-500 italic">No roles added yet</p>
+                {(form.watch("fulfillmentRoles") || []).length === 0 && (
+                  <p className="text-sm text-gray-500 italic">
+                    No roles added yet
+                  </p>
                 )}
               </div>
             </div>
@@ -529,15 +582,17 @@ export function CategoryForm({
                   placeholder="Add a keyword..."
                   value={keywordInput}
                   onChange={(e) => setKeywordInput(e.target.value)}
-                  onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addKeyword())}
+                  onKeyDown={(e) =>
+                    e.key === "Enter" && (e.preventDefault(), addKeyword())
+                  }
                 />
                 <Button type="button" onClick={addKeyword} variant="outline">
                   <Plus className="h-4 w-4" />
                 </Button>
               </div>
-              
+
               <div className="flex flex-wrap gap-2">
-                {(form.watch('keywords') || []).map((keyword, index) => (
+                {(form.watch("keywords") || []).map((keyword, index) => (
                   <Badge key={index} variant="outline" className="gap-1 pl-3">
                     <Tag className="h-3 w-3" />
                     {keyword}
@@ -550,8 +605,10 @@ export function CategoryForm({
                     </button>
                   </Badge>
                 ))}
-                {(form.watch('keywords') || []).length === 0 && (
-                  <p className="text-sm text-gray-500 italic">No keywords added yet</p>
+                {(form.watch("keywords") || []).length === 0 && (
+                  <p className="text-sm text-gray-500 italic">
+                    No keywords added yet
+                  </p>
                 )}
               </div>
             </div>
@@ -569,7 +626,10 @@ export function CategoryForm({
           <CardContent>
             <div className="space-y-6">
               {fields.map((field, index) => (
-                <div key={field.id} className="border rounded-lg p-6 space-y-4 bg-gray-50">
+                <div
+                  key={field.id}
+                  className="border rounded-lg p-6 space-y-4 bg-gray-50"
+                >
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-3">
                       <GripVertical className="h-4 w-4 text-gray-400" />
@@ -594,10 +654,7 @@ export function CategoryForm({
                         <FormItem>
                           <FormLabel>Field Name *</FormLabel>
                           <FormControl>
-                            <Input 
-                              placeholder="e.g., reason" 
-                              {...field} 
-                            />
+                            <Input placeholder="e.g., reason" {...field} />
                           </FormControl>
                           <FormDescription>
                             Internal field identifier
@@ -614,9 +671,9 @@ export function CategoryForm({
                         <FormItem>
                           <FormLabel>Display Label *</FormLabel>
                           <FormControl>
-                            <Input 
-                              placeholder="e.g., Reason for request" 
-                              {...field} 
+                            <Input
+                              placeholder="e.g., Reason for request"
+                              {...field}
                             />
                           </FormControl>
                           <FormDescription>
@@ -633,21 +690,26 @@ export function CategoryForm({
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Field Type *</FormLabel>
-                          <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <Select
+                            onValueChange={field.onChange}
+                            defaultValue={field.value}
+                          >
                             <FormControl>
                               <SelectTrigger>
                                 <SelectValue placeholder="Select type" />
                               </SelectTrigger>
                             </FormControl>
                             <SelectContent>
-                              {Object.entries(fieldTypeIcons).map(([type, icon]) => (
-                                <SelectItem key={type} value={type}>
-                                  <div className="flex items-center space-x-2">
-                                    {icon}
-                                    <span>{type}</span>
-                                  </div>
-                                </SelectItem>
-                              ))}
+                              {Object.entries(fieldTypeIcons).map(
+                                ([type, icon]) => (
+                                  <SelectItem key={type} value={type}>
+                                    <div className="flex items-center space-x-2">
+                                      {icon}
+                                      <span>{type}</span>
+                                    </div>
+                                  </SelectItem>
+                                )
+                              )}
                             </SelectContent>
                           </Select>
                           <FormMessage />
@@ -666,7 +728,9 @@ export function CategoryForm({
                               type="number"
                               min="0"
                               {...field}
-                              onChange={(e) => field.onChange(parseInt(e.target.value) || 0)}
+                              onChange={(e) =>
+                                field.onChange(parseInt(e.target.value) || 0)
+                              }
                             />
                           </FormControl>
                           <FormDescription>
@@ -679,24 +743,43 @@ export function CategoryForm({
                   </div>
 
                   {/* Options for Dropdown fields */}
-                  {form.watch(`requiredFields.${index}.type`) === 'Dropdown' && (
+                  {form.watch(`requiredFields.${index}.type`) ===
+                    "Dropdown" && (
                     <div className="space-y-4 p-4 bg-white rounded-lg border">
                       <FormLabel>Dropdown Options</FormLabel>
                       <div className="flex space-x-2">
                         <Input
                           placeholder="Add an option..."
-                          value={optionsInput[index] || ''}
-                          onChange={(e) => setOptionsInput(prev => ({ ...prev, [index]: e.target.value }))}
-                          onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addOption(index))}
+                          value={optionsInput[index] || ""}
+                          onChange={(e) =>
+                            setOptionsInput((prev) => ({
+                              ...prev,
+                              [index]: e.target.value,
+                            }))
+                          }
+                          onKeyDown={(e) =>
+                            e.key === "Enter" &&
+                            (e.preventDefault(), addOption(index))
+                          }
                         />
-                        <Button type="button" onClick={() => addOption(index)} variant="outline">
+                        <Button
+                          type="button"
+                          onClick={() => addOption(index)}
+                          variant="outline"
+                        >
                           <Plus className="h-4 w-4" />
                         </Button>
                       </div>
-                      
+
                       <div className="flex flex-wrap gap-2">
-                        {(form.watch(`requiredFields.${index}.options`) || []).map((option, optIndex) => (
-                          <Badge key={optIndex} variant="secondary" className="gap-1">
+                        {(
+                          form.watch(`requiredFields.${index}.options`) || []
+                        ).map((option, optIndex) => (
+                          <Badge
+                            key={optIndex}
+                            variant="secondary"
+                            className="gap-1"
+                          >
                             {option}
                             <button
                               type="button"
@@ -707,8 +790,11 @@ export function CategoryForm({
                             </button>
                           </Badge>
                         ))}
-                        {(form.watch(`requiredFields.${index}.options`) || []).length === 0 && (
-                          <p className="text-sm text-gray-500 italic">No options added yet</p>
+                        {(form.watch(`requiredFields.${index}.options`) || [])
+                          .length === 0 && (
+                          <p className="text-sm text-gray-500 italic">
+                            No options added yet
+                          </p>
                         )}
                       </div>
                     </div>
@@ -722,10 +808,10 @@ export function CategoryForm({
                         <FormItem>
                           <FormLabel>Default Value</FormLabel>
                           <FormControl>
-                            <Input 
-                              placeholder="Default value" 
-                              {...field} 
-                              value={field.value || ''}
+                            <Input
+                              placeholder="Default value"
+                              {...field}
+                              value={field.value || ""}
                             />
                           </FormControl>
                           <FormMessage />
@@ -740,10 +826,10 @@ export function CategoryForm({
                         <FormItem>
                           <FormLabel>Validation Regex</FormLabel>
                           <FormControl>
-                            <Input 
-                              placeholder="e.g., ^[a-zA-Z0-9]+$" 
-                              {...field} 
-                              value={field.value || ''}
+                            <Input
+                              placeholder="e.g., ^[a-zA-Z0-9]+$"
+                              {...field}
+                              value={field.value || ""}
                             />
                           </FormControl>
                           <FormMessage />
@@ -759,10 +845,10 @@ export function CategoryForm({
                       <FormItem>
                         <FormLabel>Help Text</FormLabel>
                         <FormControl>
-                          <Input 
+                          <Input
                             placeholder="Help text shown to users..."
-                            {...field} 
-                            value={field.value || ''}
+                            {...field}
+                            value={field.value || ""}
                           />
                         </FormControl>
                         <FormMessage />
@@ -795,13 +881,15 @@ export function CategoryForm({
                 type="button"
                 variant="outline"
                 className="w-full border-dashed"
-                onClick={() => append({
-                  name: '',
-                  label: '',
-                  type: 'Text',
-                  isRequired: false,
-                  order: fields.length,
-                })}
+                onClick={() =>
+                  append({
+                    name: "",
+                    label: "",
+                    type: "Text",
+                    isRequired: false,
+                    order: fields.length,
+                  })
+                }
               >
                 <Plus className="h-4 w-4 mr-2" />
                 Add Required Field
@@ -823,31 +911,29 @@ export function CategoryForm({
         {/* Form Actions */}
         <div className="flex justify-end space-x-4 pt-6 border-t">
           {onCancel && (
-            <Button 
-              type="button" 
-              variant="outline" 
-              onClick={onCancel} 
+            <Button
+              type="button"
+              variant="outline"
+              onClick={onCancel}
               disabled={isLoading}
             >
               Cancel
             </Button>
           )}
-          <Button 
-            type="submit" 
-            disabled={isLoading}
-            className="min-w-[140px]"
-          >
+          <Button type="submit" disabled={isLoading} className="min-w-[140px]">
             {isLoading ? (
               <>
                 <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent mr-2" />
-                {isEditing ? 'Updating...' : 'Creating...'}
+                {isEditing ? "Updating..." : "Creating..."}
               </>
-            ) : isEditing ? 'Update Category' : 'Create Category'}
+            ) : isEditing ? (
+              "Update Category"
+            ) : (
+              "Create Category"
+            )}
           </Button>
         </div>
       </form>
     </Form>
   );
 }
-componentsrequest-category-table.t.txt
-Displaying componentsrequest-category-table.t.txt.
