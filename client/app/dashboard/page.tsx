@@ -1,10 +1,12 @@
-import RoleDashboard from '@/components/dashboard/RoleDashboard';
+"use client";
+
+import { MainContentRenderer } from '@/components/layout/MainContentRenderer';
 
 /**
- * Dashboard Page
- * Displays role-specific dashboard with relevant statistics
- * Redirects users to their role-appropriate dashboard view
+ * Main SPA Page
+ * Single-page application that renders different content based on sidebar navigation
+ * All navigation happens in the main content area without page reloads
  */
 export default function DashboardPage() {
-  return <RoleDashboard />;
+  return <MainContentRenderer />;
 }
