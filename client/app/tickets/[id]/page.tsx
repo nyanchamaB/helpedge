@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useNavigation } from "@/contexts/NavigationContext";
 import { format } from "date-fns";
 import {
   Card,
@@ -78,7 +78,13 @@ import {
   Sparkles,
   Check,
   Edit2,
+  RefreshCw,
 } from "lucide-react";
+import { AIDetailsSection } from "@/components/tickets/AIDetailsSection";
+import { OverrideModal } from "@/components/ai/OverrideModal";
+import type { TicketAIDetails } from "@/lib/types/ai";
+import { useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 
 // Status badge styling
 function getStatusBadgeStyle(status: TicketStatusString): string {
@@ -180,15 +186,21 @@ function TicketDetailSkeleton() {
 // Roles allowed to assign tickets
 const ASSIGN_ROLES = ["Admin", "ITManager", "TeamLead", "ServiceDeskAgent"];
 
+// Roles allowed to view AI details and override classifications
+const AI_ROLES = ["Admin", "ITManager", "TeamLead", "ServiceDeskAgent"];
+
 export default function TicketDetailPage() {
-  const params = useParams();
-  const router = useRouter();
+  const { pageParams, navigateTo, activePage } = useNavigation();
   const { user } = useAuth();
-  const ticketId = params.id as string;
+  const queryClient = useQueryClient();
+  const ticketId = pageParams.id as string;
 
   const [ticket, setTicket] = useState<Ticket | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  // AI Override Modal state
+  const [overrideModalOpen, setOverrideModalOpen] = useState(false);
 
   // Assignment states
   const [users, setUsers] = useState<UserType[]>([]);
@@ -221,6 +233,9 @@ export default function TicketDetailPage() {
 
   // Check if current user can triage tickets (same roles as assign)
   const canTriage = user && ASSIGN_ROLES.includes(user.role);
+
+  // Check if current user can view AI details and override
+  const canViewAI = user && AI_ROLES.includes(user.role);
 
   // Check if ticket needs triage (has AI suggestions and triageStatus is Pending)
   const needsTriage = ticket?.triageStatus === "Pending" &&
@@ -511,7 +526,7 @@ export default function TicketDetailPage() {
               </h2>
               <p className="text-muted-foreground mb-4">{error}</p>
               <div className="flex justify-center gap-2">
-                <Button variant="outline" onClick={() => router.back()}>
+                <Button variant="outline" onClick={() => navigateTo('/tickets')}>
                   <ArrowLeft className="h-4 w-4 mr-2" />
                   Go Back
                 </Button>
@@ -536,7 +551,7 @@ export default function TicketDetailPage() {
           <Button
             variant="ghost"
             size="icon"
-            onClick={() => router.back()}
+            onClick={() => navigateTo('/tickets')}
             className="mt-1"
           >
             <ArrowLeft className="h-5 w-5" />
@@ -564,27 +579,41 @@ export default function TicketDetailPage() {
           </div>
         </div>
 
-        {/* Assign Button - Only for authorized roles */}
-        {canAssign && (
-          <Dialog open={assignDialogOpen} onOpenChange={setAssignDialogOpen}>
-            <DialogTrigger asChild>
-              <Button
-                variant={needsTriage ? "default" : "outline"}
-                onClick={handleOpenAssignDialog}
-                className={needsTriage ? "bg-purple-600 hover:bg-purple-700" : ""}
-              >
-                {needsTriage ? (
-                  <Sparkles className="h-4 w-4 mr-2" />
-                ) : (
-                  <UserPlus className="h-4 w-4 mr-2" />
-                )}
-                {needsTriage
-                  ? "Triage"
-                  : ticket.assignedToId
-                  ? "Reassign"
-                  : "Assign"}
-              </Button>
-            </DialogTrigger>
+        {/* Action Buttons */}
+        <div className="flex items-center gap-2">
+          {/* Override AI Button - Only for AI-authorized roles */}
+          {canViewAI && (
+            <Button
+              variant="outline"
+              onClick={() => setOverrideModalOpen(true)}
+              className="flex items-center gap-2"
+            >
+              <RefreshCw className="h-4 w-4" />
+              Override AI
+            </Button>
+          )}
+
+          {/* Assign Button - Only for authorized roles */}
+          {canAssign && (
+            <Dialog open={assignDialogOpen} onOpenChange={setAssignDialogOpen}>
+              <DialogTrigger asChild>
+                <Button
+                  variant={needsTriage ? "default" : "outline"}
+                  onClick={handleOpenAssignDialog}
+                  className={needsTriage ? "bg-purple-600 hover:bg-purple-700" : ""}
+                >
+                  {needsTriage ? (
+                    <Sparkles className="h-4 w-4 mr-2" />
+                  ) : (
+                    <UserPlus className="h-4 w-4 mr-2" />
+                  )}
+                  {needsTriage
+                    ? "Triage"
+                    : ticket.assignedToId
+                    ? "Reassign"
+                    : "Assign"}
+                </Button>
+              </DialogTrigger>
             <DialogContent className="max-w-lg">
               <DialogHeader>
                 <DialogTitle className="flex items-center gap-2">
@@ -851,7 +880,8 @@ export default function TicketDetailPage() {
               </div>
             </DialogContent>
           </Dialog>
-        )}
+          )}
+        </div>
       </div>
 
       {/* Workflow Actions Card */}
@@ -974,6 +1004,15 @@ export default function TicketDetailPage() {
           </div>
         </CardContent>
       </Card>
+
+      {/* AI Classification Details Section - Only for authorized roles */}
+      {canViewAI && (
+        <AIDetailsSection
+          ticketId={ticketId}
+          ticketDescription={ticket.description}
+          initialExpanded={false}
+        />
+      )}
 
       {/* Details Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -1298,6 +1337,34 @@ export default function TicketDetailPage() {
           )}
         </CardContent>
       </Card>
+
+      {/* Override AI Modal - Only for authorized roles */}
+      {canViewAI && (
+        <OverrideModal
+          isOpen={overrideModalOpen}
+          onClose={() => setOverrideModalOpen(false)}
+          onSuccess={() => {
+            // Refresh ticket data and AI details
+            fetchTicket();
+            queryClient.invalidateQueries({ queryKey: ['ticket-ai-details', ticketId] });
+            toast.success('AI classification overridden successfully');
+          }}
+          ticketId={ticketId}
+          aiDetails={{
+            ticketId,
+            method: 'Hybrid' as any, // Will be populated from actual AI details
+            finalCategory: ticket.categoryId,
+            finalPriority: ticket.priority,
+            finalAssignee: ticket.assignedToId,
+          } as TicketAIDetails}
+          availableCategories={categories.map((c) => ({ id: c.id, name: c.name }))}
+          availablePriorities={['Low', 'Medium', 'High', 'Critical']}
+          availableAssignees={users.map((u) => ({
+            id: u.id,
+            name: u.fullName || `${u.firstName} ${u.lastName}`,
+          }))}
+        />
+      )}
     </div>
   );
 }

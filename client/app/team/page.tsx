@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useNavigation } from "@/contexts/NavigationContext";
 import { useAuth } from "@/contexts/AuthContext";
 
 /**
@@ -10,19 +10,19 @@ import { useAuth } from "@/contexts/AuthContext";
  */
 export default function TeamPage() {
   const { user, isLoading } = useAuth();
-  const router = useRouter();
+  const { navigateTo } = useNavigation();
 
   const allowedRoles = ["Admin", "ITManager", "TeamLead"];
 
   useEffect(() => {
     if (!isLoading && user) {
       if (!allowedRoles.includes(user.role)) {
-        router.push("/dashboard");
+        navigateTo("/dashboard");
       } else {
-        router.push("/team/members");
+        navigateTo("/team/members");
       }
     }
-  }, [isLoading, user, router]);
+  }, [isLoading, user, navigateTo]);
 
   return (
     <div className="container py-6">

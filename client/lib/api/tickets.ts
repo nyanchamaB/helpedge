@@ -85,6 +85,17 @@ export interface CreateTicketRequest {
   categoryId?: string;
 }
 
+export interface CreateTicketFromEmailRequest {
+  subject: string;
+  description: string;
+  createdById: string;
+  emailMessageId: string;
+  emailSender: string;
+  emailRecipients: string[];
+  priority?: TicketPriority;
+  categoryId?: string;
+}
+
 export interface UpdateTicketPriorityRequest {
   priority: TicketPriority;
 }
@@ -170,6 +181,23 @@ export async function createTicket(ticket: CreateTicketRequest): Promise<ApiResp
   return apiRequest<Ticket>('/api/Tickets', {
     method: 'POST',
     body: ticket,
+    includeAuth: true,
+  });
+}
+
+/**
+ * Create a new ticket from email
+ * Used for manual email-to-ticket creation. AI analysis is automatically applied.
+ * Authorization: Admin, ITManager, ServiceDeskAgent
+ * @param emailTicket - Email ticket creation data
+ * @returns Created ticket object with AI suggestions
+ */
+export async function createTicketFromEmail(
+  emailTicket: CreateTicketFromEmailRequest
+): Promise<ApiResponse<Ticket>> {
+  return apiRequest<Ticket>('/api/Tickets/from-email', {
+    method: 'POST',
+    body: emailTicket,
     includeAuth: true,
   });
 }

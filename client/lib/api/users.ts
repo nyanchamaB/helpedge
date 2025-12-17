@@ -266,3 +266,35 @@ export function isSupportRole(role: UserRoleString): boolean {
 export function canViewAllUsers(role: UserRoleString): boolean {
   return ['Admin', 'ITManager', 'TeamLead'].includes(role);
 }
+
+// ============================================
+// User Preferences
+// ============================================
+
+/**
+ * Get current user's AI preferences
+ */
+export async function getUserAIPreferences(): Promise<
+  ApiResponse<import('@/lib/types/ai').AIUserPreferences>
+> {
+  return apiRequest<import('@/lib/types/ai').AIUserPreferences>(
+    '/api/Users/me/preferences/ai',
+    {
+      method: 'GET',
+      includeAuth: true,
+    }
+  );
+}
+
+/**
+ * Update current user's AI preferences
+ */
+export async function updateUserAIPreferences(
+  preferences: import('@/lib/types/ai').AIUserPreferences
+): Promise<ApiResponse<void>> {
+  return apiRequest<void>('/api/Users/me/preferences/ai', {
+    method: 'PUT',
+    body: preferences,
+    includeAuth: true,
+  });
+}

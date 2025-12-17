@@ -3,30 +3,20 @@
 import { usePathname } from "next/navigation";
 import dynamic from "next/dynamic";
 
-const Footer = dynamic(() => import("@/app/onboarding/footer"));
+const Footer = dynamic(() => import("@/app/onboarding/footer").then(mod => mod.default), {
+  ssr: false,
+});
 
-// Routes where footer should be hidden
-const HIDE_FOOTER_ROUTES = [
-  "/dashboard",
-  "/tickets",
-  "/team",
-  "/reports",
-  "/systems",
-  "/security",
-  "/knowledge-base",
-  "/settings",
-  "/auth",
-];
+// Only show footer on the landing page
+const SHOW_FOOTER_ROUTES = ["/"];
 
 export default function ConditionalFooter() {
   const pathname = usePathname();
 
-  // Hide footer on dashboard and related routes
-  const shouldHideFooter = HIDE_FOOTER_ROUTES.some((route) =>
-    pathname?.startsWith(route)
-  );
+  // Only show footer on landing page (root path)
+  const shouldShowFooter = SHOW_FOOTER_ROUTES.includes(pathname || "");
 
-  if (shouldHideFooter) {
+  if (!shouldShowFooter) {
     return null;
   }
 
