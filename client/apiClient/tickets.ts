@@ -1,4 +1,4 @@
-/*import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
 // Status enum
 export enum TicketStatus {
@@ -439,4 +439,3 @@ export const useCreateTicketComment = () => {
     },
   });
 };
-*/
