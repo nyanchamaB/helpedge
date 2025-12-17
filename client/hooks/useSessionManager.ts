@@ -62,12 +62,18 @@ export function useSessionManager(): UseSessionManagerReturn {
     const token = getAuthToken();
 
     if (!token) {
-      setSessionState({
-        isAuthenticated: false,
-        isExpiringSoon: false,
-        isExpired: true,
-        remainingTime: null,
-        remainingTimeFormatted: "00:00",
+      setSessionState((prev) => {
+        // Only update if state has changed
+        if (!prev.isExpired || prev.isAuthenticated || prev.remainingTime !== null) {
+          return {
+            isAuthenticated: false,
+            isExpiringSoon: false,
+            isExpired: true,
+            remainingTime: null,
+            remainingTimeFormatted: "00:00",
+          };
+        }
+        return prev;
       });
       return;
     }
@@ -76,12 +82,25 @@ export function useSessionManager(): UseSessionManagerReturn {
     const expiringSoon = isTokenExpiringSoon(WARNING_BEFORE_EXPIRY_MINUTES);
     const expired = isTokenExpired();
 
-    setSessionState({
-      isAuthenticated: !expired,
-      isExpiringSoon: expiringSoon && !expired,
-      isExpired: expired,
-      remainingTime,
-      remainingTimeFormatted: formatRemainingTime(remainingTime),
+    setSessionState((prev) => {
+      const newState = {
+        isAuthenticated: !expired,
+        isExpiringSoon: expiringSoon && !expired,
+        isExpired: expired,
+        remainingTime,
+        remainingTimeFormatted: formatRemainingTime(remainingTime),
+      };
+
+      // Only update if something has changed
+      if (
+        prev.isAuthenticated !== newState.isAuthenticated ||
+        prev.isExpiringSoon !== newState.isExpiringSoon ||
+        prev.isExpired !== newState.isExpired ||
+        prev.remainingTime !== newState.remainingTime
+      ) {
+        return newState;
+      }
+      return prev;
     });
 
     // Show expiry warning if expiring soon and not dismissed
