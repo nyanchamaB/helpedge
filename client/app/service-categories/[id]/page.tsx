@@ -137,7 +137,7 @@ export default function CategoryDetailPage() {
                 )}
               </div>
 
-              {category.fulfillmentRoles.length > 0 && (
+              {category.fulfillmentRoles && category.fulfillmentRoles.length > 0 && (
                 <div>
                   <p className="text-sm text-gray-500 mb-2">Fulfillment Roles</p>
                   <div className="flex flex-wrap gap-2">
@@ -154,7 +154,7 @@ export default function CategoryDetailPage() {
           </Card>
 
           {/* Required Fields */}
-          {category.requiredFields.length > 0 && (
+          {category.requiredFields && category.requiredFields.length > 0 && (
             <Card>
               <CardHeader>
                 <CardTitle>Required Fields ({category.requiredFields.length})</CardTitle>
@@ -179,11 +179,11 @@ export default function CategoryDetailPage() {
                           </div>
                           <code className="text-sm text-gray-500">{field.name}</code>
                         </div>
-                        
+
                         {field.helpText && (
                           <p className="text-sm text-gray-500 mt-2">{field.helpText}</p>
                         )}
-                        
+
                         {field.options && field.options.length > 0 && (
                           <div className="mt-3">
                             <p className="text-sm text-gray-500 mb-1">Options:</p>
@@ -207,7 +207,7 @@ export default function CategoryDetailPage() {
         {/* Sidebar */}
         <div className="space-y-6">
           {/* Keywords */}
-          {category.keywords.length > 0 && (
+          {category.keywords && category.keywords.length > 0 && (
             <Card>
               <CardHeader>
                 <CardTitle>Keywords</CardTitle>
@@ -230,23 +230,43 @@ export default function CategoryDetailPage() {
               <CardTitle>Timestamps</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div>
-                <p className="text-sm text-gray-500">Created</p>
-                <div className="flex items-center space-x-2 mt-1">
-                  <Calendar className="h-4 w-4 text-gray-400" />
-                  <span>{format(new Date(category.createdAt), 'PPpp')}</span>
+              {category.createdAt && (
+                <div>
+                  <p className="text-sm text-gray-500">Created</p>
+                  <div className="flex items-center space-x-2 mt-1">
+                    <Calendar className="h-4 w-4 text-gray-400" />
+                    <span>
+                      {(() => {
+                        try {
+                          return format(new Date(category.createdAt), 'PPpp');
+                        } catch {
+                          return 'N/A';
+                        }
+                      })()}
+                    </span>
+                  </div>
                 </div>
-              </div>
-              
-              <Separator />
-              
-              <div>
-                <p className="text-sm text-gray-500">Last Updated</p>
-                <div className="flex items-center space-x-2 mt-1">
-                  <Calendar className="h-4 w-4 text-gray-400" />
-                  <span>{format(new Date(category.updatedAt), 'PPpp')}</span>
+              )}
+
+              {category.createdAt && category.updatedAt && <Separator />}
+
+              {category.updatedAt && (
+                <div>
+                  <p className="text-sm text-gray-500">Last Updated</p>
+                  <div className="flex items-center space-x-2 mt-1">
+                    <Calendar className="h-4 w-4 text-gray-400" />
+                    <span>
+                      {(() => {
+                        try {
+                          return format(new Date(category.updatedAt), 'PPpp');
+                        } catch {
+                          return 'N/A';
+                        }
+                      })()}
+                    </span>
+                  </div>
                 </div>
-              </div>
+              )}
             </CardContent>
           </Card>
         </div>
