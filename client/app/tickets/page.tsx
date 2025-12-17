@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { TicketsTable } from "@/components/tickets/TicketsTable";
 import { getAllTickets, Ticket } from "@/lib/api/tickets";
 import { useAuth } from "@/contexts/AuthContext";
-import { useRouter } from "next/navigation";
+import { useNavigation } from "@/contexts/NavigationContext";
 
 /**
  * All Tickets Page
@@ -16,7 +16,7 @@ import { useRouter } from "next/navigation";
  */
 export default function AllTicketsPage() {
   const { user, isLoading: authLoading } = useAuth();
-  const router = useRouter();
+  const { navigateTo } = useNavigation();
   const [tickets, setTickets] = useState<Ticket[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -29,12 +29,12 @@ export default function AllTicketsPage() {
     if (!authLoading && user) {
       if (!allowedRoles.includes(user.role)) {
         // Redirect unauthorized users to their tickets
-        router.push("/tickets/my-tickets");
+        navigateTo("/tickets/my-tickets");
         return;
       }
       fetchTickets();
     }
-  }, [authLoading, user]);
+  }, [authLoading, user, navigateTo]);
 
   async function fetchTickets() {
     setIsLoading(true);
