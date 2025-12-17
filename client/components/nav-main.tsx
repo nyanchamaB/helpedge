@@ -48,6 +48,22 @@ export function NavMain({ items, userRole, onItemClick }: NavMainProps) {
         : [],
     }));
 
+  // Auto-expand parent menu when child is active
+  React.useEffect(() => {
+    const menusToOpen: string[] = [];
+    filteredItems.forEach((item) => {
+      if (item.items && item.items.length > 0) {
+        const hasActiveChild = item.items.some((sub) => pathname === sub.url);
+        if (hasActiveChild) {
+          menusToOpen.push(item.title);
+        }
+      }
+    });
+    if (menusToOpen.length > 0) {
+      setOpenMenus((prev) => [...new Set([...prev, ...menusToOpen])]);
+    }
+  }, [pathname, filteredItems]);
+
   const toggleMenu = (title: string) => {
     setOpenMenus((prev) =>
       prev.includes(title)
@@ -69,7 +85,7 @@ export function NavMain({ items, userRole, onItemClick }: NavMainProps) {
             <SidebarMenuButton
               asChild
               className={`flex items-center justify-between ${
-                isActive ? "bg-gray-100 font-semibold" : ""
+                isActive ? "bg-blue-50 text-blue-700 font-semibold hover:bg-blue-100" : "hover:bg-gray-50"
               }`}
               onClick={() => {
                 if (item.items && item.items.length > 0) {
@@ -84,7 +100,7 @@ export function NavMain({ items, userRole, onItemClick }: NavMainProps) {
                   href={item.url}
                   className="flex items-center gap-2 w-full"
                 >
-                  <item.icon className="h-5 w-5" />
+                  <item.icon className={`h-5 w-5 ${isActive ? "text-blue-700" : ""}`} />
                   <span>{item.title}</span>
                 </Link>
                 {item.items && item.items.length > 0 && (
@@ -108,16 +124,20 @@ export function NavMain({ items, userRole, onItemClick }: NavMainProps) {
                     <SidebarMenuSubItem
                       key={`sub-${item.title}-${subItem.title}`}
                     >
-                      <SidebarMenuSubButton asChild>
+                      <SidebarMenuSubButton
+                        asChild
+                        className={subActive ? "bg-blue-50" : ""}
+                      >
                         <Link
                           href={subItem.url}
                           onClick={onItemClick}
                           className={`flex items-center gap-2 pl-8 text-sm ${
                             subActive
-                              ? "text-blue-600 font-medium"
-                              : "text-gray-700 hover:text-blue-600"
+                              ? "text-blue-700 font-semibold"
+                              : "text-gray-700 hover:text-blue-600 hover:bg-gray-50"
                           }`}
                         >
+                          <span className={`w-1.5 h-1.5 rounded-full ${subActive ? "bg-blue-700" : "bg-transparent"}`} />
                           {subItem.title}
                         </Link>
                       </SidebarMenuSubButton>
