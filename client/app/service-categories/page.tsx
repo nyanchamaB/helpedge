@@ -1,11 +1,11 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useNavigation } from '@/contexts/NavigationContext';
 import RequestCategoryTable from '@/components/service-request-category/RequestCategoryTable';
 import { ServiceRequestCategory } from '@/lib/api/service-request-category';
 import {
-  getServiceRequestsCategories, 
+  getServiceRequestsCategories,
   deleteServiceRequestCategory,
   activateServiceRequestCategory,
   deactivateServiceRequestCategory
@@ -15,7 +15,7 @@ import { Button } from '@/components/ui/button';
 import { Plus, RefreshCw, Download, Upload } from 'lucide-react';
 
 export default function ServiceRequestCategoriesPage() {
-  const router = useRouter();
+  const { navigateTo } = useNavigation();
   const [categories, setCategories] = useState<ServiceRequestCategory[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -39,11 +39,11 @@ export default function ServiceRequestCategoriesPage() {
   }, []);
 
   const handleView = (category: ServiceRequestCategory) => {
-    router.push(`/service-categories/${category.id}`);
+    navigateTo(`/service-categories/${category.id}`);
   };
 
   const handleEdit = (category: ServiceRequestCategory) => {
-    router.push(`/service-categories/${category.id}/edit`);
+    navigateTo(`/service-categories/${category.id}/edit`);
   };
 
   const handleDelete = async (categoryId: string) => {
@@ -59,7 +59,7 @@ export default function ServiceRequestCategoriesPage() {
   };
 
   const handleCreate = () => {
-    router.push('/service-categories/create-category');
+    navigateTo('/service-categories/create-category');
   };
 
   const handleRefresh = async () => {
