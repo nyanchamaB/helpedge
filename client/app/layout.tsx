@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import dynamic from "next/dynamic";
 import { AuthProvider } from "@/contexts/AuthContext";
+import { ReactQueryProvider } from "./providers";
 import { Toaster } from "@/components/ui/sonner";
 
 
@@ -37,12 +38,14 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <AuthProvider>
-          {children}
-          <ScrollTop />
-          <Toaster />
-          <ConditionalFooter />
-        </AuthProvider>
+        <ReactQueryProvider>
+          <AuthProvider>
+            {children}
+            <ScrollTop />
+            <Toaster />
+            <ConditionalFooter />
+          </AuthProvider>
+        </ReactQueryProvider>
       </body>
     </html>
   );
