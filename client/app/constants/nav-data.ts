@@ -13,6 +13,8 @@ import {
   UserCheck,
   Ticket,
   ClipboardList,
+  Brain,
+  Database,
 } from "lucide-react";
 import { siteConfig } from "@/config/site";
 import { UserRole } from "@/lib/api/auth";
@@ -71,6 +73,7 @@ export const navData = {
         { title: "Assigned to Me", url: "/tickets/assigned", roles: [...SUPPORT_ROLES, "TeamLead"] },
         { title: "My Tickets", url: "/tickets/my-tickets", roles: ["EndUser"] },
         { title: "Create Ticket", url: "/tickets/create-ticket", roles: ALL_ROLES },
+        { title: "From Email", url: "/tickets/from-email", roles: ["Admin", "ITManager", "ServiceDeskAgent"] },
         { title: "Queue", url: "/tickets/queue", roles: ["ServiceDeskAgent", "TeamLead"] },
       ],
     },
@@ -138,6 +141,18 @@ export const navData = {
         { title: "Access Requests", url: "/security/access-requests", roles: ["Admin", "SecurityAdmin"] },
         { title: "Audit Log", url: "/security/audit", roles: ["Admin", "SecurityAdmin"] },
         { title: "Permissions", url: "/security/permissions", roles: ["Admin"] },
+      ],
+    },
+    {
+      title: "AI & ML Admin",
+      url: "/admin",
+      icon: Brain,
+      role: ["Admin", "ITManager"],
+      items: [
+        { title: "AI Analytics", url: "/admin/ai-analytics", roles: ["Admin", "ITManager"] },
+        { title: "ML Models", url: "/admin/ml-models", roles: ["Admin"] },
+        { title: "Training Data", url: "/admin/training-data", roles: ["Admin"] },
+        { title: "Review Queue", url: "/tickets/review-queue", roles: ["Admin", "ITManager", "TeamLead", "ServiceDeskAgent"] },
       ],
     },
     {
