@@ -80,9 +80,10 @@ export const navData = {
       icon: ClipboardList,
       role: ALL_ROLES,
       items: [
-        { title: "View Requests", url: "/service-requests", roles: ["Admin", "ITManager", "TeamLead", "ServiceDeskAgent"] },
-        { title: "My Requests", url: "/service-requests/my-requests", roles: ["EndUser"] },
-        { title: "Create Request", url: "/service-requests/create-request", roles: ALL_ROLES },
+        { title: "Service Requests", url: "/service-requests", roles: ["Admin", "ITManager", "TeamLead", "ServiceDeskAgent"] },
+        { title: "My Requests Details", url: "/service-requests/my-requests", roles: ALL_ROLES },
+        { title: "Raise Service Request", url: "/service-requests/create-request", roles: ALL_ROLES },
+        { title: "Request Queue", url: "/service-requests/queue", roles: ["ServiceDeskAgent", "TeamLead", "ITManager", "Admin", "SystemAdmin", "Technician", "SecurityAdmin"] },
       ],
     },
     {
