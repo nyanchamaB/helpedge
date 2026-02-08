@@ -44,7 +44,7 @@ export const navLinks = [
       // Add more resource links here
     ],
   },
-  { label: "Pricing", href: "/pricing" },
+  { label: "Services", href: "/services" },
 ];
 
 // Features section data
