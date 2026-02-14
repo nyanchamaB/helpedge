@@ -47,25 +47,18 @@ const MANAGEMENT_ROLES: UserRole[] = ["Admin", "ITManager", "TeamLead"];
 const SUPPORT_ROLES: UserRole[] = ["ServiceDeskAgent", "Technician", "SecurityAdmin", "SystemAdmin"];
 
 export const navData = {
-  user: {
-    name: "user",
-    email: "user@gmail.com",
-    image: "/default-avatar.png",
-  },
-
-  // Role-based navigation with all 8 roles
   navMain: [
     {
       title: "Dashboard",
       url: "/dashboard",
       icon: LayoutDashboard,
-      role: ALL_ROLES,
+      roles: ALL_ROLES, 
     },
     {
       title: "Tickets",
       url: "/tickets",
       icon: Ticket,
-      role: ALL_ROLES,
+      roles: ALL_ROLES, 
       items: [
         { title: "All Tickets", url: "/tickets", roles: ["Admin", "ITManager", "TeamLead", "ServiceDeskAgent"] },
         { title: "Assigned to Me", url: "/tickets/assigned", roles: [...SUPPORT_ROLES, "TeamLead"] },
@@ -78,7 +71,7 @@ export const navData = {
       title: "Service Requests",
       url: "/service-requests",
       icon: ClipboardList,
-      role: ALL_ROLES,
+      roles: ALL_ROLES, 
       items: [
         { title: "Service Requests", url: "/service-requests", roles: ["Admin", "ITManager", "TeamLead", "ServiceDeskAgent"] },
         { title: "My Requests Details", url: "/service-requests/my-requests", roles: ALL_ROLES },
@@ -90,7 +83,7 @@ export const navData = {
       title: "Service Categories",
       url: "/service-categories",
       icon: UserCheck,
-      role: ALL_ROLES,
+      roles: ALL_ROLES, 
       items: [
         { title: "View Categories", url: "/service-categories", roles: ["Admin", "ITManager", "TeamLead", "ServiceDeskAgent"] },
         { title: "Create Category", url: "/service-categories/create-category", roles: ["Admin", "ITManager"] },
@@ -100,7 +93,7 @@ export const navData = {
       title: "Team",
       url: "/team",
       icon: Users,
-      role: MANAGEMENT_ROLES,
+      roles: MANAGEMENT_ROLES, 
       items: [
         { title: "Members", url: "/team/members", roles: MANAGEMENT_ROLES },
         { title: "Workload", url: "/team/workload", roles: ["TeamLead", "ITManager"] },
@@ -111,7 +104,7 @@ export const navData = {
       title: "Reports",
       url: "/reports",
       icon: TrendingUp,
-      role: [...MANAGEMENT_ROLES, "ServiceDeskAgent", "Technician"],
+      roles: [...MANAGEMENT_ROLES, "ServiceDeskAgent", "Technician"], 
       items: [
         { title: "Overview", url: "/reports", roles: MANAGEMENT_ROLES },
         { title: "My Performance", url: "/reports/my-performance", roles: SUPPORT_ROLES },
@@ -123,7 +116,7 @@ export const navData = {
       title: "Systems",
       url: "/systems",
       icon: Server,
-      role: ["Admin", "SystemAdmin"],
+      roles: ["Admin", "SystemAdmin"], 
       items: [
         { title: "Infrastructure", url: "/systems/infrastructure", roles: ["Admin", "SystemAdmin"] },
         { title: "Health Status", url: "/systems/health", roles: ["Admin", "SystemAdmin"] },
@@ -134,7 +127,7 @@ export const navData = {
       title: "Security",
       url: "/security",
       icon: Shield,
-      role: ["Admin", "SecurityAdmin"],
+      roles: ["Admin", "SecurityAdmin"], 
       items: [
         { title: "Access Requests", url: "/security/access-requests", roles: ["Admin", "SecurityAdmin"] },
         { title: "Audit Log", url: "/security/audit", roles: ["Admin", "SecurityAdmin"] },
@@ -145,13 +138,13 @@ export const navData = {
       title: "Knowledge Base",
       url: "/knowledge-base",
       icon: BookOpen,
-      role: ALL_ROLES,
+      roles: ALL_ROLES, 
     },
     {
       title: "Settings",
       url: "/settings",
       icon: Settings,
-      role: ALL_ROLES,
+      roles: ALL_ROLES, 
       items: [
         { title: "Profile", url: "/settings/profile", roles: ALL_ROLES },
         { title: "Team Settings", url: "/settings/team", roles: MANAGEMENT_ROLES },
@@ -165,7 +158,7 @@ export const navData = {
       title: "Help",
       url: siteConfig.links.docs,
       icon: HelpCircle,
-      role: ALL_ROLES,
+      roles: ALL_ROLES, // ✅ Changed
     },
   ],
 };
