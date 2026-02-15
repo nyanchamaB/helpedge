@@ -11,9 +11,10 @@ export function Breadcrumb() {
   const pathname = usePathname();
   
   // Don't show breadcrumbs on dashboard home
-  if (pathname === "/dashboard") {
+{/*  if (pathname === "/dashboard") {
     return null;
   }
+    */}
   
   // Generate breadcrumb items from pathname
   const pathSegments = pathname.split("/").filter(Boolean);
@@ -45,7 +46,7 @@ export function Breadcrumb() {
 
       {/* Breadcrumb items */}
       {breadcrumbItems.map((item, index) => {
-        const isLast = index === breadcrumbItems.length - 1;
+        const isLast = index === breadcrumbItems.length - 1; // Last item is the current page, so it shouldn't be a link
         
         return (
           <Fragment key={item.href}>

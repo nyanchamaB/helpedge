@@ -10,6 +10,7 @@ import {
   SidebarMenuItem,
   SidebarMenuButton,
   useSidebar,
+  SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { NavMain } from "@/components/nav-main";
 import { NavUser } from "@/components/nav-user";
@@ -31,35 +32,41 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
-        <SidebarMenu>
-          <SidebarMenuItem>
-            <SidebarMenuButton size="lg" asChild>
-              <Link href="/dashboard" onClick={handleNavItemClick}> 
-                <div className="flex aspect-square size-8 items-center justify-center rounded-lg overflow-hidden">
-                  <img
-                    src={siteConfig.logo}
-                    alt="HelpEdge Logo"
-                    className="h-full w-full relative object-contain"
-                  />
-                </div>
-                <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-semibold">
-                    {siteConfig.name}
-                  </span>
-                  {/*<span className="truncate text-xs">Help Desk</span> */}
-                </div>
-              </Link>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-        </SidebarMenu>
+        <div className="flex items-center justify-between w-full p-2">
+          {/* Logo + Company Name */}
+          <Link 
+          href="/dashboard" 
+          onClick={handleNavItemClick}
+          className="flex items-center gap-2 min-w-0">
+            <div className="size-8 rounded-lg overflow-hidden flex-shrink-0 group-data-[state=collapsed]:hidden">
+              <img
+               src={siteConfig.logo}
+               alt="HelpEdge Logo"
+               className="h-full w-full object-contain"
+              />
+            </div>
+            <div className="grid flex-1 text-left text-sm leading-tight group-data-[state=collapsed]:hidden">
+              <span className="truncate font-semibold">
+                {siteConfig.name}
+              </span>
+            </div>
+          </Link>
+          {/* Close button */}
+          <SidebarTrigger className="flex-shrink-0" />
+        </div>
       </SidebarHeader>
-
       <SidebarContent>
         {!isLoading && <NavMain items={navData.navMain} userRole={userRole} />}
       </SidebarContent>
 
       <SidebarFooter>
         <NavUser />
+        {/* <div className="grid flex-1 text-left text-sm leading-tight mt-5">
+                  <span className="truncate font-semibold">
+                    {siteConfig.name}
+                  </span>
+          </div> 
+          */}
       </SidebarFooter>
     </Sidebar>
   );

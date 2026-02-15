@@ -85,7 +85,7 @@ export function NavMain({ items, userRole, onItemClick }: NavMainProps) {
                   className="flex items-center gap-2 w-full"
                 >
                   <item.icon className="h-5 w-5" />
-                  <span>{item.title}</span>
+                  <span className="group-data-[state=collapsed]:hidden">{item.title}</span>
                 </Link>
                 {item.items && item.items.length > 0 && (
                   <span>

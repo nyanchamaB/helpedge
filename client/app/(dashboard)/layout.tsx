@@ -4,8 +4,7 @@ import dynamic from 'next/dynamic';
 import { SidebarProvider, SidebarTrigger, SidebarInset } from '@/components/ui/sidebar';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
 import { Separator } from '@/components/ui/separator';
-import { Breadcrumb } from '@/components/layout/breadcrumb'; // ✅ Import Breadcrumb component
-//import { BreadcrumbContainer } from '@/components/layout/breadcrumb';
+import { Breadcrumb } from '@/components/layout/breadcrumb';
 import { ModeToggle } from '@/components/mode-toggle';
 import { Button } from '@/components/ui/button';
 import { Bell, Search } from 'lucide-react';
@@ -26,10 +25,10 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                 <SidebarInset>
                     {/* Header */}
                     <header className="flex h-16 shrink-0 items-center gap-2 border-b bg-white dark:bg-gray-950 px-4">
-                        <SidebarTrigger className="-ml-1" />
-                        <Separator orientation="vertical" className="mr-2 h-4" />
+                       {/*} <SidebarTrigger className="-ml-1" />
+                        <Separator orientation="vertical" className="mr-2 h-4" /> */}
 
-                        {/* ✅ Breadcrumbs */}
+                        {/* Breadcrumbs */}
                         <div className="flex-1">
                             <Breadcrumb />
                         </div>
