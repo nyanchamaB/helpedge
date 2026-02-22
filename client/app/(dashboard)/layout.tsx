@@ -3,12 +3,11 @@ import React from 'react';
 import dynamic from 'next/dynamic';
 import { SidebarProvider, SidebarTrigger, SidebarInset } from '@/components/ui/sidebar';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
-import { Separator } from '@/components/ui/separator';
 import { Breadcrumb } from '@/components/layout/breadcrumb';
-import { ModeToggle } from '@/components/mode-toggle';
 import { Button } from '@/components/ui/button';
 import { Bell, Search } from 'lucide-react';
-
+// modetoggle and session timer are client components, so we need to dynamically import them to avoid hydration issues
+const ModeToggle = dynamic(() => import('@/components/mode-toggle').then(mod => ({ default: mod.ModeToggle })));
 const AppSidebar = dynamic(() => import('@/components/app-sidebar').then(mod => ({ default: mod.AppSidebar })));
 const SessionAlert = dynamic(() => import('@/components/auth/SessionAlert').then(mod => ({ default: mod.SessionAlert })));
 const SessionTimer = dynamic(() => import('@/components/auth/SessionAlert').then(mod => ({ default: mod.SessionTimer })));
