@@ -4,7 +4,7 @@ import "./globals.css";
 import dynamic from "next/dynamic";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { Toaster } from "@/components/ui/sonner";
-import { ThemeProviders} from "@/components/theme-provider";
+import ThemeProviders from "@/components/theme-provider";
 
 
 // Lazy load non-critical components for better initial load performance
