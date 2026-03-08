@@ -29,6 +29,8 @@ export interface Ticket {
   emailMassageId: string;
   emailSender: string;
   emailRecipients: string[];
+  triageStatus?: string;
+  isEscalated?: boolean;
   createdAt: string;
   updatedAt: string;
   resolvedAt?: string;
