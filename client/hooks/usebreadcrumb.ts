@@ -40,7 +40,7 @@ export function useBreadcrumbs() {
 
   useEffect(() => {
     // Check if we have a custom config for this route
-    let matchedRoute = Object.keys(routeConfig).find(route => {
+    const matchedRoute = Object.keys(routeConfig).find(route => {
       const routePattern = route.replace(/\[.*?\]/g, '([^/]+)');
       const regex = new RegExp(`^${routePattern}$`);
       return regex.test(pathname);

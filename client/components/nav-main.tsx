@@ -100,8 +100,8 @@ export function NavMain({ items, userRole, onItemClick }: NavMainProps) {
                   href={item.url}
                   className="flex items-center gap-2 w-full"
                 >
-                  <item.icon className={`h-5 w-5 ${isActive ? "text-blue-700" : ""}`} />
-                  <span>{item.title}</span>
+                  <item.icon className="h-5 w-5" />
+                  <span className="group-data-[state=collapsed]:hidden">{item.title}</span>
                 </Link>
                 {item.items && item.items.length > 0 && (
                   <span>
