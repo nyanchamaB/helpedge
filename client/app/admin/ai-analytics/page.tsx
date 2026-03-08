@@ -119,15 +119,15 @@ export default function AIAnalyticsDashboard() {
 
     const csvData = [
       ['Metric', 'Value'],
-      ['Total Classifications', metrics.totalClassifications],
-      ['Overall Accuracy', `${(metrics.overallAccuracy * 100).toFixed(2)}%`],
-      ['Category Accuracy', `${(metrics.categoryAccuracy * 100).toFixed(2)}%`],
-      ['Priority Accuracy', `${(metrics.priorityAccuracy * 100).toFixed(2)}%`],
-      ['Automation Rate', `${(metrics.automationRate * 100).toFixed(2)}%`],
-      ['Override Rate', `${(metrics.overrideRate * 100).toFixed(2)}%`],
-      ['Approval Rate', `${(metrics.approvalRate * 100).toFixed(2)}%`],
-      ['Avg Confidence', `${(metrics.averageConfidence * 100).toFixed(2)}%`],
-      ['Avg Processing Time', `${metrics.averageProcessingTimeMs.toFixed(2)}ms`],
+      ['Total Classifications', metrics.totalClassifications || 0],
+      ['Overall Accuracy', `${((metrics.overallAccuracy || 0) * 100).toFixed(2)}%`],
+      ['Category Accuracy', `${((metrics.categoryAccuracy || 0) * 100).toFixed(2)}%`],
+      ['Priority Accuracy', `${((metrics.priorityAccuracy || 0) * 100).toFixed(2)}%`],
+      ['Automation Rate', `${((metrics.automationRate || 0) * 100).toFixed(2)}%`],
+      ['Override Rate', `${((metrics.overrideRate || 0) * 100).toFixed(2)}%`],
+      ['Approval Rate', `${((metrics.approvalRate || 0) * 100).toFixed(2)}%`],
+      ['Avg Confidence', `${((metrics.averageConfidence || 0) * 100).toFixed(2)}%`],
+      ['Avg Processing Time', `${(metrics.averageProcessingTimeMs || 0).toFixed(2)}ms`],
       ['Date Range', `${dateRange} days`],
     ];
 
@@ -230,15 +230,15 @@ export default function AIAnalyticsDashboard() {
             {/* Overall Accuracy */}
             <MetricCard
               title="Overall Accuracy"
-              value={`${(metrics.overallAccuracy * 100).toFixed(1)}%`}
-              description={`${metrics.classificationsWithOutcome} evaluated`}
+              value={`${((metrics?.overallAccuracy || 0) * 100).toFixed(1)}%`}
+              description={`${metrics?.classificationsWithOutcome || 0} evaluated`}
               icon={Target}
-              trend={metrics.overallAccuracy >= 0.75 ? 'up' : 'down'}
-              trendValue={`${(metrics.overallAccuracy * 100).toFixed(1)}%`}
+              trend={(metrics?.overallAccuracy || 0) >= 0.75 ? 'up' : 'down'}
+              trendValue={`${((metrics?.overallAccuracy || 0) * 100).toFixed(1)}%`}
               colorClass={
-                metrics.overallAccuracy >= 0.8
+                (metrics?.overallAccuracy || 0) >= 0.8
                   ? 'text-green-600'
-                  : metrics.overallAccuracy >= 0.6
+                  : (metrics?.overallAccuracy || 0) >= 0.6
                   ? 'text-yellow-600'
                   : 'text-red-600'
               }
@@ -247,13 +247,13 @@ export default function AIAnalyticsDashboard() {
             {/* Automation Rate */}
             <MetricCard
               title="Automation Rate"
-              value={`${(metrics.automationRate * 100).toFixed(1)}%`}
+              value={`${((metrics?.automationRate || 0) * 100).toFixed(1)}%`}
               description="Not needing review"
               icon={Activity}
-              trend={metrics.automationRate >= 0.7 ? 'up' : 'down'}
-              trendValue={`${(metrics.automationRate * 100).toFixed(1)}%`}
+              trend={(metrics?.automationRate || 0) >= 0.7 ? 'up' : 'down'}
+              trendValue={`${((metrics?.automationRate || 0) * 100).toFixed(1)}%`}
               colorClass={
-                metrics.automationRate >= 0.7
+                (metrics?.automationRate || 0) >= 0.7
                   ? 'text-green-600'
                   : 'text-yellow-600'
               }
@@ -262,7 +262,7 @@ export default function AIAnalyticsDashboard() {
             {/* Average Confidence */}
             <MetricCard
               title="Avg Confidence"
-              value={`${(metrics.averageConfidence * 100).toFixed(1)}%`}
+              value={`${((metrics?.averageConfidence || 0) * 100).toFixed(1)}%`}
               description="Across all classifications"
               icon={Target}
               colorClass="text-blue-600"
@@ -271,13 +271,13 @@ export default function AIAnalyticsDashboard() {
             {/* Override Rate */}
             <MetricCard
               title="Override Rate"
-              value={`${(metrics.overrideRate * 100).toFixed(1)}%`}
+              value={`${((metrics?.overrideRate || 0) * 100).toFixed(1)}%`}
               description="Classifications corrected"
               icon={AlertCircle}
-              trend={metrics.overrideRate <= 0.2 ? 'up' : 'down'}
-              trendValue={`${(metrics.overrideRate * 100).toFixed(1)}%`}
+              trend={(metrics?.overrideRate || 0) <= 0.2 ? 'up' : 'down'}
+              trendValue={`${((metrics?.overrideRate || 0) * 100).toFixed(1)}%`}
               colorClass={
-                metrics.overrideRate <= 0.2
+                (metrics?.overrideRate || 0) <= 0.2
                   ? 'text-green-600'
                   : 'text-yellow-600'
               }
@@ -289,7 +289,7 @@ export default function AIAnalyticsDashboard() {
             {/* Category Accuracy */}
             <MetricCard
               title="Category Accuracy"
-              value={`${(metrics.categoryAccuracy * 100).toFixed(1)}%`}
+              value={`${((metrics?.categoryAccuracy || 0) * 100).toFixed(1)}%`}
               description="Category predictions"
               icon={Target}
               colorClass="text-purple-600"
@@ -298,7 +298,7 @@ export default function AIAnalyticsDashboard() {
             {/* Priority Accuracy */}
             <MetricCard
               title="Priority Accuracy"
-              value={`${(metrics.priorityAccuracy * 100).toFixed(1)}%`}
+              value={`${((metrics?.priorityAccuracy || 0) * 100).toFixed(1)}%`}
               description="Priority predictions"
               icon={Target}
               colorClass="text-orange-600"
@@ -307,11 +307,11 @@ export default function AIAnalyticsDashboard() {
             {/* Processing Time */}
             <MetricCard
               title="Avg Processing Time"
-              value={`${metrics.averageProcessingTimeMs.toFixed(0)}ms`}
+              value={`${(metrics?.averageProcessingTimeMs || 0).toFixed(0)}ms`}
               description="Per classification"
               icon={Clock}
               colorClass={
-                metrics.averageProcessingTimeMs < 500
+                (metrics?.averageProcessingTimeMs || 0) < 500
                   ? 'text-green-600'
                   : 'text-yellow-600'
               }
@@ -320,7 +320,7 @@ export default function AIAnalyticsDashboard() {
             {/* Total Classifications */}
             <MetricCard
               title="Total Classifications"
-              value={metrics.totalClassifications.toLocaleString()}
+              value={metrics?.totalClassifications?.toLocaleString() || '0'}
               description={`In last ${dateRange} days`}
               icon={Activity}
               colorClass="text-gray-600"

@@ -20,6 +20,7 @@ function extractParamsFromPath(path: string): Record<string, string> {
   // Define known dynamic route patterns
   const patterns = [
     { pattern: /^\/tickets\/([^\/]+)$/, paramNames: ['id'] },
+    { pattern: /^\/portal\/ticket\/([^\/]+)$/, paramNames: ['id'] },
     { pattern: /^\/service-categories\/([^\/]+)\/edit$/, paramNames: ['id'] },
     { pattern: /^\/service-categories\/([^\/]+)$/, paramNames: ['id'] },
   ];

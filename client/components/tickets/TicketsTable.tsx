@@ -11,7 +11,7 @@ import {
   getStatusString,
   getPriorityString,
 } from "@/lib/api/tickets";
-import { Eye, Ticket as TicketIcon } from "lucide-react";
+import { Eye, Ticket as TicketIcon, TrendingUp } from "lucide-react";
 
 interface TicketsTableProps {
   tickets: Ticket[];
@@ -86,9 +86,17 @@ export function TicketsTable({
       sortable: true,
       render: (ticket) => (
         <div className="max-w-md">
-          <p className="font-medium text-gray-900 truncate">
-            {ticket.subject || "No Subject"}
-          </p>
+          <div className="flex items-center gap-2">
+            <p className="font-medium text-gray-900 truncate">
+              {ticket.subject || "No Subject"}
+            </p>
+            {ticket.isEscalated && (
+              <Badge variant="outline" className="shrink-0 bg-orange-100 text-orange-700 border-orange-200">
+                <TrendingUp className="h-3 w-3 mr-1" />
+                Escalated
+              </Badge>
+            )}
+          </div>
           <p className="text-sm text-gray-500 truncate">
             {ticket.description || "No description"}
           </p>

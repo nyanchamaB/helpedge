@@ -5,6 +5,54 @@ import dynamic from "next/dynamic";
 import { Skeleton } from "@/components/ui/skeleton";
 import EmailTicketPage from "@/components/tickets/EmailTicketPage";
 
+// Agent pages
+const AgentDashboardContent = dynamic(() => import("@/app/agent/dashboard/page"), {
+  loading: () => <PageSkeleton />,
+});
+
+const AgentTicketsContent = dynamic(() => import("@/app/agent/tickets/page"), {
+  loading: () => <PageSkeleton />,
+});
+
+// Resolver pages
+const ResolverDashboardContent = dynamic(() => import("@/app/resolver/dashboard/page"), {
+  loading: () => <PageSkeleton />,
+});
+
+const ResolverTicketsContent = dynamic(() => import("@/app/resolver/tickets/page"), {
+  loading: () => <PageSkeleton />,
+});
+
+// Manager pages
+const ManagerDashboardContent = dynamic(() => import("@/app/manager/dashboard/page"), {
+  loading: () => <PageSkeleton />,
+});
+
+const ManagerTicketsContent = dynamic(() => import("@/app/manager/tickets/page"), {
+  loading: () => <PageSkeleton />,
+});
+
+// Portal (end-user) pages
+const PortalMyTicketsContent = dynamic(() => import("@/app/portal/my-tickets/page"), {
+  loading: () => <PageSkeleton />,
+});
+
+const PortalCreateTicketContent = dynamic(() => import("@/app/portal/create-ticket/page"), {
+  loading: () => <PageSkeleton />,
+});
+
+const PortalTicketDetailContent = dynamic(() => import("@/app/portal/ticket/page"), {
+  loading: () => <PageSkeleton />,
+});
+
+const PortalEmailTicketContent = dynamic(() => import("@/app/portal/email-ticket/page"), {
+  loading: () => <PageSkeleton />,
+});
+
+const PortalNotificationsContent = dynamic(() => import("@/app/portal/notifications/page"), {
+  loading: () => <PageSkeleton />,
+});
+
 // Dynamically import all page components
 const DashboardContent = dynamic(() => import("@/app/dashboard/DashboardContent"), {
   loading: () => <PageSkeleton />,
@@ -199,6 +247,30 @@ export function MainContentRenderer() {
 
   // Route mapping
   const renderContent = () => {
+    // Agent routes
+    if (activePage === '/agent/dashboard') return <AgentDashboardContent />;
+    if (activePage === '/agent/tickets') return <AgentTicketsContent />;
+
+    // Resolver routes
+    if (activePage === '/resolver/dashboard') return <ResolverDashboardContent />;
+    if (activePage === '/resolver/tickets') return <ResolverTicketsContent />;
+
+    // Manager routes
+    if (activePage === '/manager/dashboard') return <ManagerDashboardContent />;
+    if (activePage === '/manager/tickets') return <ManagerTicketsContent />;
+
+    // Portal (end-user) static routes
+    if (activePage === '/portal/my-tickets') return <PortalMyTicketsContent />;
+    if (activePage === '/portal/create-ticket') return <PortalCreateTicketContent />;
+    if (activePage === '/portal/email-ticket') return <PortalEmailTicketContent />;
+    if (activePage === '/portal/notifications') return <PortalNotificationsContent />;
+
+    // Portal ticket detail: /portal/ticket/[id]
+    const portalTicketMatch = matchRoute(activePage, '/portal/ticket/[id]');
+    if (portalTicketMatch.match) {
+      return <PortalTicketDetailContent />;
+    }
+
     // Handle static tickets routes FIRST to prevent them from matching dynamic patterns
     if (activePage === '/tickets') return <AllTicketsContent />;
     if (activePage === '/tickets/assigned') return <AssignedTicketsContent />;

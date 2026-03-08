@@ -50,7 +50,11 @@ import {
   TriageStatusString,
 } from "@/lib/api/tickets";
 import { Textarea } from "@/components/ui/textarea";
-import { getAllUsers, User as UserType, getUserDisplayName } from "@/lib/api/users";
+import {
+  getAllUsers,
+  User as UserType,
+  getUserDisplayName,
+} from "@/lib/api/users";
 import { getAllCategories, Category } from "@/lib/api/categories";
 import { useAuth } from "@/contexts/AuthContext";
 import {
@@ -79,9 +83,11 @@ import {
   Check,
   Edit2,
   RefreshCw,
+  TrendingUp,
 } from "lucide-react";
 import { AIDetailsSection } from "@/components/tickets/AIDetailsSection";
 import { OverrideModal } from "@/components/ai/OverrideModal";
+import { EscalateDialog } from "@/components/tickets/EscalateDialog";
 import type { TicketAIDetails } from "@/lib/types/ai";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -131,6 +137,10 @@ function getTriageBadgeStyle(triageStatus: TriageStatusString): string {
       return "bg-blue-100 text-blue-700 border-blue-200";
     case "Skipped":
       return "bg-gray-100 text-gray-700 border-gray-200";
+    case "AutoAssigned":
+      return "bg-green-100 text-green-700 border-green-200";
+    case "AssignedWithReview":
+      return "bg-amber-100 text-amber-700 border-amber-200";
     default:
       return "bg-gray-100 text-gray-700 border-gray-200";
   }
@@ -202,6 +212,9 @@ export default function TicketDetailPage() {
   // AI Override Modal state
   const [overrideModalOpen, setOverrideModalOpen] = useState(false);
 
+  // Escalate dialog state
+  const [escalateDialogOpen, setEscalateDialogOpen] = useState(false);
+
   // Assignment states
   const [users, setUsers] = useState<UserType[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
@@ -211,7 +224,8 @@ export default function TicketDetailPage() {
   const [assignDialogOpen, setAssignDialogOpen] = useState(false);
   const [selectedUserId, setSelectedUserId] = useState<string>("");
   const [selectedCategoryId, setSelectedCategoryId] = useState<string>("");
-  const [selectedPriority, setSelectedPriority] = useState<TicketPriorityString>("Medium");
+  const [selectedPriority, setSelectedPriority] =
+    useState<TicketPriorityString>("Medium");
   const [assignError, setAssignError] = useState<string | null>(null);
 
   // Triage states
@@ -238,20 +252,30 @@ export default function TicketDetailPage() {
   const canViewAI = user && AI_ROLES.includes(user.role);
 
   // Check if ticket needs triage (has AI suggestions and triageStatus is Pending)
-  const needsTriage = ticket?.triageStatus === "Pending" &&
-    (ticket?.aiSuggestedCategoryId || ticket?.aiSuggestedAssigneeId || ticket?.aiSuggestedPriority);
+  const needsTriage =
+    ticket?.triageStatus === "Pending" &&
+    (ticket?.aiSuggestedCategoryId ||
+      ticket?.aiSuggestedAssigneeId ||
+      ticket?.aiSuggestedPriority);
 
   // Check if current user is the assignee
   const isAssignee = user && ticket?.assignedToId === user.id;
 
   // Check if user can perform workflow actions (assignee or admin roles)
-  const canPerformActions = isAssignee || (user && ["Admin", "ITManager"].includes(user.role));
+  const canPerformActions =
+    isAssignee || (user && ["Admin", "ITManager"].includes(user.role));
 
   useEffect(() => {
     if (ticketId) {
       fetchTicket();
     }
   }, [ticketId]);
+
+  // Fetch categories and users on component mount for AI suggestions display
+  useEffect(() => {
+    fetchCategories();
+    fetchUsers();
+  }, []);
 
   async function fetchTicket() {
     setIsLoading(true);
@@ -300,6 +324,20 @@ export default function TicketDetailPage() {
     setIsLoadingCategories(false);
   }
 
+  // Helper function to get category name by ID
+  function getCategoryName(categoryId: string | undefined): string {
+    if (!categoryId) return "Unknown Category";
+    const category = categories.find((c) => c.id === categoryId);
+    return category?.name || "Unknown Category";
+  }
+
+  // Helper function to get user display name by ID
+  function getUserName(userId: string | null | undefined): string {
+    if (!userId) return "Unknown User";
+    const user = users.find((u) => u.id === userId);
+    return user ? getUserDisplayName(user) : "Unknown User";
+  }
+
   // Handle opening assign dialog - pre-fill with AI suggestions if available
   function handleOpenAssignDialog() {
     setAssignDialogOpen(true);
@@ -308,19 +346,13 @@ export default function TicketDetailPage() {
 
     // Pre-fill with AI suggestions or current values
     setSelectedUserId(
-      ticket?.assignedToId ||
-      ticket?.aiSuggestedAssigneeId ||
-      ""
+      ticket?.assignedToId || ticket?.aiSuggestedAssigneeId || ""
     );
     setSelectedCategoryId(
-      ticket?.categoryId ||
-      ticket?.aiSuggestedCategoryId ||
-      ""
+      ticket?.categoryId || ticket?.aiSuggestedCategoryId || ""
     );
     setSelectedPriority(
-      ticket?.priority ||
-      ticket?.aiSuggestedPriority ||
-      "Medium"
+      ticket?.priority || ticket?.aiSuggestedPriority || "Medium"
     );
 
     // Fetch both users and categories
@@ -526,7 +558,10 @@ export default function TicketDetailPage() {
               </h2>
               <p className="text-muted-foreground mb-4">{error}</p>
               <div className="flex justify-center gap-2">
-                <Button variant="outline" onClick={() => navigateTo('/tickets')}>
+                <Button
+                  variant="outline"
+                  onClick={() => navigateTo("/tickets")}
+                >
                   <ArrowLeft className="h-4 w-4 mr-2" />
                   Go Back
                 </Button>
@@ -551,7 +586,7 @@ export default function TicketDetailPage() {
           <Button
             variant="ghost"
             size="icon"
-            onClick={() => navigateTo('/tickets')}
+            onClick={() => navigateTo("/tickets")}
             className="mt-1"
           >
             <ArrowLeft className="h-5 w-5" />
@@ -564,15 +599,30 @@ export default function TicketDetailPage() {
               <Hash className="h-4 w-4" />
               <span className="font-mono">{ticket.ticketNumber}</span>
               <span className="mx-2">·</span>
-              <Badge variant="outline" className={getStatusBadgeStyle(ticket.status)}>
+              <Badge
+                variant="outline"
+                className={getStatusBadgeStyle(ticket.status)}
+              >
                 {getStatusString(ticket.status)}
               </Badge>
-              <Badge variant="outline" className={getPriorityBadgeStyle(ticket.priority)}>
+              <Badge
+                variant="outline"
+                className={getPriorityBadgeStyle(ticket.priority)}
+              >
                 {getPriorityString(ticket.priority)}
               </Badge>
               {ticket.triageStatus && (
-                <Badge variant="outline" className={getTriageBadgeStyle(ticket.triageStatus)}>
+                <Badge
+                  variant="outline"
+                  className={getTriageBadgeStyle(ticket.triageStatus)}
+                >
                   Triage: {getTriageStatusString(ticket.triageStatus)}
+                </Badge>
+              )}
+              {ticket.isEscalated && (
+                <Badge variant="outline" className="bg-orange-100 text-orange-700 border-orange-200">
+                  <TrendingUp className="h-3 w-3 mr-1" />
+                  Escalated
                 </Badge>
               )}
             </div>
@@ -581,6 +631,14 @@ export default function TicketDetailPage() {
 
         {/* Action Buttons */}
         <div className="flex items-center gap-2">
+          {/* Escalate Button */}
+          {canAssign && !ticket.isEscalated && (
+            <Button variant="outline" onClick={() => setEscalateDialogOpen(true)}>
+              <TrendingUp className="h-4 w-4 mr-2" />
+              Escalate
+            </Button>
+          )}
+
           {/* Override AI Button - Only for AI-authorized roles */}
           {canViewAI && (
             <Button
@@ -600,7 +658,9 @@ export default function TicketDetailPage() {
                 <Button
                   variant={needsTriage ? "default" : "outline"}
                   onClick={handleOpenAssignDialog}
-                  className={needsTriage ? "bg-purple-600 hover:bg-purple-700" : ""}
+                  className={
+                    needsTriage ? "bg-purple-600 hover:bg-purple-700" : ""
+                  }
                 >
                   {needsTriage ? (
                     <Sparkles className="h-4 w-4 mr-2" />
@@ -614,272 +674,302 @@ export default function TicketDetailPage() {
                     : "Assign"}
                 </Button>
               </DialogTrigger>
-            <DialogContent className="max-w-lg">
-              <DialogHeader>
-                <DialogTitle className="flex items-center gap-2">
-                  {needsTriage && <Sparkles className="h-5 w-5 text-purple-500" />}
-                  {needsTriage ? "Triage Ticket" : "Assign Ticket"}
-                </DialogTitle>
-                <DialogDescription>
-                  {needsTriage
-                    ? "Review AI suggestions and confirm or modify them."
-                    : "Select a user to assign this ticket to."}
-                </DialogDescription>
-              </DialogHeader>
-
-              <div className="space-y-4 py-4">
-                {(assignError || triageError) && (
-                  <div className="bg-red-50 border border-red-200 text-red-700 px-3 py-2 rounded-md text-sm">
-                    {assignError || triageError}
-                  </div>
-                )}
-
-                {/* AI Suggestions Banner */}
-                {needsTriage && (
-                  <div className="bg-purple-50 border border-purple-200 rounded-lg p-3">
-                    <div className="flex items-center gap-2 text-purple-800 font-medium mb-2">
-                      <Sparkles className="h-4 w-4" />
-                      AI Suggestions
-                    </div>
-                    <div className="text-sm text-purple-700 space-y-1">
-                      {ticket.aiSuggestedPriority && (
-                        <div className="flex justify-between">
-                          <span>Priority:</span>
-                          <span className="font-medium">{ticket.aiSuggestedPriority}</span>
-                          {ticket.aiPriorityConfidence && (
-                            <span className="text-xs opacity-75">
-                              ({(ticket.aiPriorityConfidence * 100).toFixed(0)}%)
-                            </span>
-                          )}
-                        </div>
-                      )}
-                      {ticket.aiSuggestedCategoryId && (
-                        <div className="flex justify-between">
-                          <span>Category:</span>
-                          <span className="font-medium font-mono text-xs">
-                            {categories.find(c => c.id === ticket.aiSuggestedCategoryId)?.name || ticket.aiSuggestedCategoryId.slice(-8)}
-                          </span>
-                          {ticket.aiCategoryConfidence && (
-                            <span className="text-xs opacity-75">
-                              ({(ticket.aiCategoryConfidence * 100).toFixed(0)}%)
-                            </span>
-                          )}
-                        </div>
-                      )}
-                      {ticket.aiSuggestedAssigneeId && (
-                        <div className="flex justify-between">
-                          <span>Assignee:</span>
-                          <span className="font-medium">
-                            {users.find(u => u.id === ticket.aiSuggestedAssigneeId)?.fullName || ticket.aiSuggestedAssigneeId.slice(-8)}
-                          </span>
-                          {ticket.aiAssigneeConfidence && (
-                            <span className="text-xs opacity-75">
-                              ({(ticket.aiAssigneeConfidence * 100).toFixed(0)}%)
-                            </span>
-                          )}
-                        </div>
-                      )}
-                      {ticket.aiAssignmentReason && (
-                        <div className="pt-2 border-t border-purple-200 mt-2">
-                          <span className="text-xs italic">{ticket.aiAssignmentReason}</span>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                )}
-
-                {/* Priority Selection */}
-                <div className="space-y-2">
-                  <label className="text-sm font-medium flex items-center gap-2">
-                    Priority
-                    {ticket.aiSuggestedPriority && selectedPriority === ticket.aiSuggestedPriority && (
-                      <Badge variant="outline" className="text-xs bg-purple-50 text-purple-700">
-                        <Sparkles className="h-3 w-3 mr-1" />
-                        AI
-                      </Badge>
+              <DialogContent className="w-full max-w-3xl">
+                <DialogHeader>
+                  <DialogTitle className="flex items-center gap-2">
+                    {needsTriage && (
+                      <Sparkles className="h-5 w-5 text-purple-500" />
                     )}
-                  </label>
-                  <Select
-                    value={selectedPriority}
-                    onValueChange={(value) => setSelectedPriority(value as TicketPriorityString)}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select priority" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="Low">Low</SelectItem>
-                      <SelectItem value="Medium">Medium</SelectItem>
-                      <SelectItem value="High">High</SelectItem>
-                      <SelectItem value="Critical">Critical</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
+                    {needsTriage ? "Triage Ticket" : "Assign Ticket"}
+                  </DialogTitle>
+                  <DialogDescription>
+                    {needsTriage
+                      ? "Review AI suggestions and confirm or modify them."
+                      : "Select a user to assign this ticket to."}
+                  </DialogDescription>
+                </DialogHeader>
 
-                {/* Category Selection */}
-                <div className="space-y-2">
-                  <label className="text-sm font-medium flex items-center gap-2">
-                    Category
-                    {ticket.aiSuggestedCategoryId && selectedCategoryId === ticket.aiSuggestedCategoryId && (
-                      <Badge variant="outline" className="text-xs bg-purple-50 text-purple-700">
-                        <Sparkles className="h-3 w-3 mr-1" />
-                        AI
-                      </Badge>
-                    )}
-                  </label>
-                  {isLoadingCategories ? (
-                    <div className="flex items-center justify-center py-4">
-                      <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
-                      <span className="ml-2 text-sm text-muted-foreground">
-                        Loading categories...
-                      </span>
+                <div className="space-y-4 py-4">
+                  {(assignError || triageError) && (
+                    <div className="bg-red-50 border border-red-200 text-red-700 px-3 py-2 rounded-md text-sm">
+                      {assignError || triageError}
                     </div>
-                  ) : (
-                    <Select
-                      value={selectedCategoryId}
-                      onValueChange={setSelectedCategoryId}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select a category" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {categories.map((c) => (
-                          <SelectItem key={c.id} value={c.id}>
-                            <div className="flex items-center gap-2">
-                              <span>{c.name}</span>
-                              {c.description && (
-                                <span className="text-muted-foreground text-xs">
-                                  - {c.description}
-                                </span>
-                              )}
-                            </div>
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
                   )}
-                </div>
 
-                {/* Assignee Selection */}
-                <div className="space-y-2">
-                  <label className="text-sm font-medium flex items-center gap-2">
-                    Assignee
-                    {ticket.aiSuggestedAssigneeId && selectedUserId === ticket.aiSuggestedAssigneeId && (
-                      <Badge variant="outline" className="text-xs bg-purple-50 text-purple-700">
-                        <Sparkles className="h-3 w-3 mr-1" />
-                        AI
-                      </Badge>
-                    )}
-                  </label>
-                  {isLoadingUsers ? (
-                    <div className="flex items-center justify-center py-4">
-                      <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
-                      <span className="ml-2 text-sm text-muted-foreground">
-                        Loading users...
-                      </span>
-                    </div>
-                  ) : (
-                    <Select
-                      value={selectedUserId}
-                      onValueChange={setSelectedUserId}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select a user" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {users.map((u) => (
-                          <SelectItem key={u.id} value={u.id}>
-                            <div className="flex items-center gap-2">
-                              <span>{u.fullName || `${u.firstName} ${u.lastName}`}</span>
-                              <span className="text-muted-foreground text-xs">
-                                ({u.email})
+                  {/* AI Suggestions Banner */}
+                  {needsTriage && (
+                    <div className="bg-purple-50 border border-purple-200 rounded-lg p-3">
+                      <div className="flex items-center gap-2 text-purple-800 font-medium mb-2">
+                        <Sparkles className="h-4 w-4" />
+                        AI Suggestions
+                      </div>
+                      <div className="text-sm text-purple-700 space-y-1">
+                        {ticket.aiSuggestedPriority && (
+                          <div className="flex justify-between">
+                            <span>Priority:</span>
+                            <span className="font-medium">
+                              {ticket.aiSuggestedPriority}
+                            </span>
+                            {ticket.aiPriorityConfidence && (
+                              <span className="text-xs opacity-75">
+                                (
+                                {(ticket.aiPriorityConfidence * 100).toFixed(0)}
+                                %)
                               </span>
-                            </div>
-                          </SelectItem>
-                        ))}
+                            )}
+                          </div>
+                        )}
+                        {ticket.aiSuggestedCategoryId && (
+                          <div className="flex justify-between">
+                            <span>Category:</span>
+                            <span className="font-medium">
+                              {getCategoryName(ticket.aiSuggestedCategoryId)}
+                            </span>
+                            {ticket.aiCategoryConfidence && (
+                              <span className="text-xs opacity-75">
+                                (
+                                {(ticket.aiCategoryConfidence * 100).toFixed(0)}
+                                %)
+                              </span>
+                            )}
+                          </div>
+                        )}
+                        {ticket.aiSuggestedAssigneeId && (
+                          <div className="flex justify-between">
+                            <span>Assignee:</span>
+                            <span className="font-medium">
+                              {getUserName(ticket.aiSuggestedAssigneeId)}
+                            </span>
+                            {ticket.aiAssigneeConfidence && (
+                              <span className="text-xs opacity-75">
+                                (
+                                {(ticket.aiAssigneeConfidence * 100).toFixed(0)}
+                                %)
+                              </span>
+                            )}
+                          </div>
+                        )}
+                        {ticket.aiAssignmentReason && (
+                          <div className="pt-2 border-t border-purple-200 mt-2">
+                            <span className="text-xs italic">
+                              {ticket.aiAssignmentReason}
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Priority Selection */}
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium flex items-center gap-2">
+                      Priority
+                      {ticket.aiSuggestedPriority &&
+                        selectedPriority === ticket.aiSuggestedPriority && (
+                          <Badge
+                            variant="outline"
+                            className="text-xs bg-purple-50 text-purple-700"
+                          >
+                            <Sparkles className="h-3 w-3 mr-1" />
+                            AI
+                          </Badge>
+                        )}
+                    </label>
+                    <Select
+                      value={selectedPriority}
+                      onValueChange={(value) =>
+                        setSelectedPriority(value as TicketPriorityString)
+                      }
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select priority" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Low">Low</SelectItem>
+                        <SelectItem value="Medium">Medium</SelectItem>
+                        <SelectItem value="High">High</SelectItem>
+                        <SelectItem value="Critical">Critical</SelectItem>
                       </SelectContent>
                     </Select>
+                  </div>
+
+                  {/* Category Selection */}
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium flex items-center gap-2">
+                      Category
+                      {ticket.aiSuggestedCategoryId &&
+                        selectedCategoryId === ticket.aiSuggestedCategoryId && (
+                          <Badge
+                            variant="outline"
+                            className="text-xs bg-purple-50 text-purple-700"
+                          >
+                            <Sparkles className="h-3 w-3 mr-1" />
+                            AI
+                          </Badge>
+                        )}
+                    </label>
+                    {isLoadingCategories ? (
+                      <div className="flex items-center justify-center py-4">
+                        <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+                        <span className="ml-2 text-sm text-muted-foreground">
+                          Loading categories...
+                        </span>
+                      </div>
+                    ) : (
+                      <Select
+                        value={selectedCategoryId}
+                        onValueChange={setSelectedCategoryId}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select a category" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {categories.map((c) => (
+                            <SelectItem key={c.id} value={c.id}>
+                              <div className="flex items-center gap-2">
+                                <span>{c.name}</span>
+                                {c.description && (
+                                  <span className="text-muted-foreground text-xs">
+                                    - {c.description}
+                                  </span>
+                                )}
+                              </div>
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    )}
+                  </div>
+
+                  {/* Assignee Selection */}
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium flex items-center gap-2">
+                      Assignee
+                      {ticket.aiSuggestedAssigneeId &&
+                        selectedUserId === ticket.aiSuggestedAssigneeId && (
+                          <Badge
+                            variant="outline"
+                            className="text-xs bg-purple-50 text-purple-700"
+                          >
+                            <Sparkles className="h-3 w-3 mr-1" />
+                            AI
+                          </Badge>
+                        )}
+                    </label>
+                    {isLoadingUsers ? (
+                      <div className="flex items-center justify-center py-4">
+                        <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+                        <span className="ml-2 text-sm text-muted-foreground">
+                          Loading users...
+                        </span>
+                      </div>
+                    ) : (
+                      <Select
+                        value={selectedUserId}
+                        onValueChange={setSelectedUserId}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select a user" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {users.map((u) => (
+                            <SelectItem key={u.id} value={u.id}>
+                              <div className="flex items-center gap-2">
+                                <span>
+                                  {u.fullName || `${u.firstName} ${u.lastName}`}
+                                </span>
+                                <span className="text-muted-foreground text-xs">
+                                  ({u.email})
+                                </span>
+                              </div>
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    )}
+                  </div>
+
+                  {ticket.assignedToId && (
+                    <p className="text-sm text-muted-foreground">
+                      Currently assigned to:{" "}
+                      {users.find((u) => u.id === ticket.assignedToId)
+                        ?.fullName || ticket.assignedToId}
+                    </p>
                   )}
                 </div>
 
-                {ticket.assignedToId && (
-                  <p className="text-sm text-muted-foreground">
-                    Currently assigned to: {users.find(u => u.id === ticket.assignedToId)?.fullName || ticket.assignedToId}
-                  </p>
-                )}
-              </div>
-
-              <div className="flex justify-between">
-                {ticket.assignedToId && !needsTriage && (
-                  <Button
-                    variant="outline"
-                    onClick={handleUnassign}
-                    disabled={isAssigning || isTriaging}
-                  >
-                    {isAssigning ? (
-                      <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                    ) : (
-                      <UserMinus className="h-4 w-4 mr-2" />
-                    )}
-                    Unassign
-                  </Button>
-                )}
-                <div className="flex gap-2 ml-auto">
-                  <Button
-                    variant="outline"
-                    onClick={() => setAssignDialogOpen(false)}
-                  >
-                    Cancel
-                  </Button>
-
-                  {/* Triage buttons */}
-                  {needsTriage && canTriage ? (
-                    <>
-                      {/* 1-Click Confirm AI Suggestions */}
-                      <Button
-                        onClick={handleConfirmTriage}
-                        disabled={isTriaging}
-                        className="bg-purple-600 hover:bg-purple-700"
-                      >
-                        {isTriaging ? (
-                          <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                        ) : (
-                          <Check className="h-4 w-4 mr-2" />
-                        )}
-                        Confirm AI
-                      </Button>
-
-                      {/* Apply Modified Values */}
-                      <Button
-                        onClick={handleModifyTriage}
-                        disabled={!selectedUserId || isTriaging}
-                        variant="outline"
-                      >
-                        {isTriaging ? (
-                          <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                        ) : (
-                          <Edit2 className="h-4 w-4 mr-2" />
-                        )}
-                        Save Changes
-                      </Button>
-                    </>
-                  ) : (
-                    /* Regular assign button */
+                <div className="flex justify-between">
+                  {ticket.assignedToId && !needsTriage && (
                     <Button
-                      onClick={handleAssign}
-                      disabled={!selectedUserId || isAssigning}
+                      variant="outline"
+                      onClick={handleUnassign}
+                      disabled={isAssigning || isTriaging}
                     >
                       {isAssigning ? (
                         <Loader2 className="h-4 w-4 animate-spin mr-2" />
                       ) : (
-                        <UserPlus className="h-4 w-4 mr-2" />
+                        <UserMinus className="h-4 w-4 mr-2" />
                       )}
-                      Assign
+                      Unassign
                     </Button>
                   )}
+                  <div className="flex gap-2 ml-auto">
+                    <Button
+                      variant="outline"
+                      onClick={() => setAssignDialogOpen(false)}
+                    >
+                      Cancel
+                    </Button>
+
+                    {/* Triage buttons */}
+                    {needsTriage && canTriage ? (
+                      <>
+                        {/* 1-Click Confirm AI Suggestions */}
+                        <Button
+                          onClick={handleConfirmTriage}
+                          disabled={isTriaging}
+                          className="bg-purple-600 hover:bg-purple-700"
+                        >
+                          {isTriaging ? (
+                            <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                          ) : (
+                            <Check className="h-4 w-4 mr-2" />
+                          )}
+                          Confirm AI
+                        </Button>
+
+                        {/* Apply Modified Values */}
+                        <Button
+                          onClick={handleModifyTriage}
+                          disabled={!selectedUserId || isTriaging}
+                          variant="outline"
+                        >
+                          {isTriaging ? (
+                            <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                          ) : (
+                            <Edit2 className="h-4 w-4 mr-2" />
+                          )}
+                          Save Changes
+                        </Button>
+                      </>
+                    ) : (
+                      /* Regular assign button */
+                      <Button
+                        onClick={handleAssign}
+                        disabled={!selectedUserId || isAssigning}
+                      >
+                        {isAssigning ? (
+                          <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                        ) : (
+                          <UserPlus className="h-4 w-4 mr-2" />
+                        )}
+                        Assign
+                      </Button>
+                    )}
+                  </div>
                 </div>
-              </div>
-            </DialogContent>
-          </Dialog>
+              </DialogContent>
+            </Dialog>
           )}
         </div>
       </div>
@@ -972,12 +1062,14 @@ export default function TicketDetailPage() {
                 )}
 
               {/* Status indicator for non-actionable states */}
-              {ticket.status === "Open" && !isAssignee && ticket.assignedToId && (
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <Clock className="h-4 w-4" />
-                  Waiting for assignee to acknowledge
-                </div>
-              )}
+              {ticket.status === "Open" &&
+                !isAssignee &&
+                ticket.assignedToId && (
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <Clock className="h-4 w-4" />
+                    Waiting for assignee to acknowledge
+                  </div>
+                )}
 
               {ticket.status === "Open" && !ticket.assignedToId && (
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -1047,13 +1139,13 @@ export default function TicketDetailPage() {
             <DetailItem
               icon={<User className="h-4 w-4" />}
               label="Assigned To"
-              value={ticket.assignedToId || "Unassigned"}
+              value={getUserName(ticket.assignedToId) || "Unassigned"}
             />
             {ticket.categoryId && (
               <DetailItem
                 icon={<Tag className="h-4 w-4" />}
                 label="Category ID"
-                value={ticket.categoryId}
+                value={getCategoryName(ticket.categoryId)}
               />
             )}
           </CardContent>
@@ -1104,7 +1196,9 @@ export default function TicketDetailPage() {
         )}
 
         {/* AI Suggestions (if available) */}
-        {(ticket.aiSuggestedCategoryId || ticket.aiSuggestedAssigneeId || ticket.aiSuggestedPriority) && (
+        {(ticket.aiSuggestedCategoryId ||
+          ticket.aiSuggestedAssigneeId ||
+          ticket.aiSuggestedPriority) && (
           <Card>
             <CardHeader>
               <CardTitle className="text-lg flex items-center gap-2">
@@ -1118,14 +1212,22 @@ export default function TicketDetailPage() {
             <CardContent className="space-y-4">
               {ticket.aiSuggestedPriority && (
                 <div className="flex items-center justify-between">
-                  <span className="text-sm text-muted-foreground">Suggested Priority</span>
+                  <span className="text-sm text-muted-foreground">
+                    Suggested Priority
+                  </span>
                   <div className="flex items-center gap-2">
-                    <Badge variant="outline" className={getPriorityBadgeStyle(ticket.aiSuggestedPriority)}>
+                    <Badge
+                      variant="outline"
+                      className={getPriorityBadgeStyle(
+                        ticket.aiSuggestedPriority
+                      )}
+                    >
                       {ticket.aiSuggestedPriority}
                     </Badge>
                     {ticket.aiPriorityConfidence && (
                       <span className="text-xs text-muted-foreground">
-                        ({(ticket.aiPriorityConfidence * 100).toFixed(0)}% confidence)
+                        ({(ticket.aiPriorityConfidence * 100).toFixed(0)}%
+                        confidence)
                       </span>
                     )}
                   </div>
@@ -1133,12 +1235,17 @@ export default function TicketDetailPage() {
               )}
               {ticket.aiSuggestedCategoryId && (
                 <div className="flex items-center justify-between">
-                  <span className="text-sm text-muted-foreground">Suggested Category</span>
+                  <span className="text-sm text-muted-foreground">
+                    Suggested Category
+                  </span>
                   <div className="flex items-center gap-2">
-                    <span className="text-sm font-mono">{ticket.aiSuggestedCategoryId.slice(-8)}</span>
+                    <Badge variant="outline">
+                      {getCategoryName(ticket.aiSuggestedCategoryId)}
+                    </Badge>
                     {ticket.aiCategoryConfidence && (
                       <span className="text-xs text-muted-foreground">
-                        ({(ticket.aiCategoryConfidence * 100).toFixed(0)}% confidence)
+                        ({(ticket.aiCategoryConfidence * 100).toFixed(0)}%
+                        confidence)
                       </span>
                     )}
                   </div>
@@ -1146,12 +1253,17 @@ export default function TicketDetailPage() {
               )}
               {ticket.aiSuggestedAssigneeId && (
                 <div className="flex items-center justify-between">
-                  <span className="text-sm text-muted-foreground">Suggested Assignee</span>
+                  <span className="text-sm text-muted-foreground">
+                    Suggested Assignee
+                  </span>
                   <div className="flex items-center gap-2">
-                    <span className="text-sm font-mono">{ticket.aiSuggestedAssigneeId.slice(-8)}</span>
+                    <Badge variant="outline">
+                      {getUserName(ticket.aiSuggestedAssigneeId)}
+                    </Badge>
                     {ticket.aiAssigneeConfidence && (
                       <span className="text-xs text-muted-foreground">
-                        ({(ticket.aiAssigneeConfidence * 100).toFixed(0)}% confidence)
+                        ({(ticket.aiAssigneeConfidence * 100).toFixed(0)}%
+                        confidence)
                       </span>
                     )}
                   </div>
@@ -1159,7 +1271,9 @@ export default function TicketDetailPage() {
               )}
               {ticket.aiAssignmentReason && (
                 <div className="pt-2 border-t">
-                  <p className="text-sm text-muted-foreground mb-1">Assignment Reason</p>
+                  <p className="text-sm text-muted-foreground mb-1">
+                    Assignment Reason
+                  </p>
                   <p className="text-sm">{ticket.aiAssignmentReason}</p>
                 </div>
               )}
@@ -1167,8 +1281,65 @@ export default function TicketDetailPage() {
           </Card>
         )}
 
-        {/* Triage Information */}
-        {ticket.triageStatus && ticket.triageStatus !== "Pending" && (
+        {/* AutoAssigned banner */}
+        {ticket.triageStatus === "AutoAssigned" && (
+          <Card className="border-green-200 bg-green-50">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-base flex items-center gap-2 text-green-800">
+                <CheckCircle className="h-5 w-5" />
+                Auto-Assigned by AI
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-2">
+              <p className="text-sm text-green-700">
+                This ticket was automatically assigned by the AI system with high confidence. No manual review required.
+              </p>
+              {ticket.aiConfidenceScore != null && (
+                <p className="text-sm text-green-700">
+                  Confidence: <span className="font-medium">{(ticket.aiConfidenceScore * 100).toFixed(0)}%</span>
+                </p>
+              )}
+              {ticket.assignedToId && (
+                <p className="text-sm text-green-700">
+                  Assigned to: <span className="font-medium">{getUserName(ticket.assignedToId)}</span>
+                </p>
+              )}
+            </CardContent>
+          </Card>
+        )}
+
+        {/* AssignedWithReview banner */}
+        {ticket.triageStatus === "AssignedWithReview" && (
+          <Card className="border-amber-200 bg-amber-50">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-base flex items-center gap-2 text-amber-800">
+                <AlertCircle className="h-5 w-5" />
+                Assigned — Please Verify
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-2">
+              <p className="text-sm text-amber-700">
+                The AI assigned this ticket but flagged it for human review. Please verify the assignment is correct.
+              </p>
+              {ticket.aiConfidenceScore != null && (
+                <p className="text-sm text-amber-700">
+                  Confidence: <span className="font-medium">{(ticket.aiConfidenceScore * 100).toFixed(0)}%</span>
+                </p>
+              )}
+              {ticket.assignedToId && (
+                <p className="text-sm text-amber-700">
+                  Assigned to: <span className="font-medium">{getUserName(ticket.assignedToId)}</span>
+                </p>
+              )}
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Triage Information for Confirmed / Modified / Skipped */}
+        {ticket.triageStatus &&
+          ticket.triageStatus !== "Pending" &&
+          ticket.triageStatus !== "AutoAssigned" &&
+          ticket.triageStatus !== "AssignedWithReview" && (
           <Card>
             <CardHeader>
               <CardTitle className="text-lg">Triage Information</CardTitle>
@@ -1176,7 +1347,10 @@ export default function TicketDetailPage() {
             <CardContent className="space-y-4">
               <div className="flex items-center justify-between">
                 <span className="text-sm text-muted-foreground">Status</span>
-                <Badge variant="outline" className={getTriageBadgeStyle(ticket.triageStatus)}>
+                <Badge
+                  variant="outline"
+                  className={getTriageBadgeStyle(ticket.triageStatus)}
+                >
                   {getTriageStatusString(ticket.triageStatus)}
                 </Badge>
               </div>
@@ -1319,7 +1493,10 @@ export default function TicketDetailPage() {
                           {comment.authorId || "Unknown"}
                         </span>
                         {comment.isInternal && (
-                          <Badge variant="outline" className="text-xs bg-yellow-100">
+                          <Badge
+                            variant="outline"
+                            className="text-xs bg-yellow-100"
+                          >
                             <Lock className="h-3 w-3 mr-1" />
                             Internal
                           </Badge>
@@ -1328,7 +1505,9 @@ export default function TicketDetailPage() {
                           {format(new Date(comment.createdAt), "PPp")}
                         </span>
                       </div>
-                      <p className="text-sm whitespace-pre-wrap">{comment.content}</p>
+                      <p className="text-sm whitespace-pre-wrap">
+                        {comment.content}
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -1346,25 +1525,43 @@ export default function TicketDetailPage() {
           onSuccess={() => {
             // Refresh ticket data and AI details
             fetchTicket();
-            queryClient.invalidateQueries({ queryKey: ['ticket-ai-details', ticketId] });
-            toast.success('AI classification overridden successfully');
+            queryClient.invalidateQueries({
+              queryKey: ["ticket-ai-details", ticketId],
+            });
+            toast.success("AI classification overridden successfully");
           }}
           ticketId={ticketId}
-          aiDetails={{
-            ticketId,
-            method: 'Hybrid' as any, // Will be populated from actual AI details
-            finalCategory: ticket.categoryId,
-            finalPriority: ticket.priority,
-            finalAssignee: ticket.assignedToId,
-          } as TicketAIDetails}
-          availableCategories={categories.map((c) => ({ id: c.id, name: c.name }))}
-          availablePriorities={['Low', 'Medium', 'High', 'Critical']}
+          aiDetails={
+            {
+              ticketId,
+              method: "Hybrid" as any, // Will be populated from actual AI details
+              finalCategory: ticket.categoryId,
+              finalPriority: ticket.priority,
+              finalAssignee: ticket.assignedToId,
+            } as TicketAIDetails
+          }
+          availableCategories={categories.map((c) => ({
+            id: c.id,
+            name: c.name,
+          }))}
+          availablePriorities={["Low", "Medium", "High", "Critical"]}
           availableAssignees={users.map((u) => ({
             id: u.id,
             name: u.fullName || `${u.firstName} ${u.lastName}`,
           }))}
         />
       )}
+
+      {/* Escalate Dialog */}
+      <EscalateDialog
+        isOpen={escalateDialogOpen}
+        onClose={() => setEscalateDialogOpen(false)}
+        ticketId={ticketId}
+        onSuccess={() => {
+          fetchTicket();
+          toast.success("Ticket escalated successfully");
+        }}
+      />
     </div>
   );
 }
