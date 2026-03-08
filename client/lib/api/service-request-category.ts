@@ -1,5 +1,7 @@
 import { apiRequest, ApiResponse } from './client';
 
+export type SupportTier = 'L1' | 'L2';
+
 export interface ServiceRequestCategory {
   id: string;
   name: string;
@@ -24,6 +26,7 @@ export interface ServiceRequestCategory {
     order: number;
   }[];  
   keywords: string[];
+  supportTier?: SupportTier;
   createdAt: string;
   updatedAt: string;
 }
