@@ -308,7 +308,7 @@ export default function MLModelManagementPage() {
               <Brain className="h-4 w-4 text-blue-600 absolute top-4 right-4" />
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold">{stats.totalModels}</div>
+              <div className="text-3xl font-bold">{stats?.totalModels || 0}</div>
               <p className="text-xs text-muted-foreground mt-2">
                 Versions available
               </p>
@@ -324,12 +324,12 @@ export default function MLModelManagementPage() {
             </CardHeader>
             <CardContent>
               <div className="text-3xl font-bold">
-                {stats.activeModel
+                {stats?.activeModel
                   ? `${(stats.activeModel.accuracy * 100).toFixed(1)}%`
                   : 'N/A'}
               </div>
               <p className="text-xs text-muted-foreground mt-2">
-                {stats.activeModel?.version || 'No active model'}
+                {stats?.activeModel?.version || 'No active model'}
               </p>
             </CardContent>
           </Card>
@@ -343,7 +343,7 @@ export default function MLModelManagementPage() {
             </CardHeader>
             <CardContent>
               <div className="text-3xl font-bold">
-                {stats.trainingDataCount.toLocaleString()}
+                {stats?.trainingDataCount?.toLocaleString() || '0'}
               </div>
               <p className="text-xs text-muted-foreground mt-2">
                 Examples available
@@ -443,23 +443,23 @@ export default function MLModelManagementPage() {
                         {model.version}
                       </TableCell>
                       <TableCell>
-                        {format(new Date(model.trainingDate), 'PPpp')}
+                        {model.trainingDate ? format(new Date(model.trainingDate), 'PPpp') : '-'}
                       </TableCell>
                       <TableCell>
                         <Badge
                           variant={
-                            model.accuracy >= 0.8
+                            (model.accuracy || 0) >= 0.8
                               ? 'default'
-                              : model.accuracy >= 0.6
+                              : (model.accuracy || 0) >= 0.6
                               ? 'secondary'
                               : 'destructive'
                           }
                         >
-                          {(model.accuracy * 100).toFixed(1)}%
+                          {((model.accuracy || 0) * 100).toFixed(1)}%
                         </Badge>
                       </TableCell>
                       <TableCell>
-                        {model.trainingExamplesCount.toLocaleString()}
+                        {model.trainingExamplesCount?.toLocaleString() || '0'}
                       </TableCell>
                       <TableCell>
                         {model.isActive ? (
@@ -529,25 +529,25 @@ export default function MLModelManagementPage() {
                 <div>
                   <p className="text-sm font-medium">Accuracy</p>
                   <p className="text-2xl font-bold">
-                    {(selectedModel.accuracy * 100).toFixed(2)}%
+                    {((selectedModel?.accuracy || 0) * 100).toFixed(2)}%
                   </p>
                 </div>
                 <div>
                   <p className="text-sm font-medium">Training Examples</p>
                   <p className="text-2xl font-bold">
-                    {selectedModel.trainingExamplesCount.toLocaleString()}
+                    {selectedModel?.trainingExamplesCount?.toLocaleString() || '0'}
                   </p>
                 </div>
                 <div>
                   <p className="text-sm font-medium">Test Examples</p>
                   <p className="text-2xl font-bold">
-                    {selectedModel.testExamplesCount.toLocaleString()}
+                    {selectedModel?.testExamplesCount?.toLocaleString() || '0'}
                   </p>
                 </div>
                 <div>
                   <p className="text-sm font-medium">Status</p>
-                  <Badge className={selectedModel.isActive ? 'bg-green-600' : ''}>
-                    {selectedModel.isActive ? 'Active' : 'Inactive'}
+                  <Badge className={selectedModel?.isActive ? 'bg-green-600' : ''}>
+                    {selectedModel?.isActive ? 'Active' : 'Inactive'}
                   </Badge>
                 </div>
               </div>
@@ -616,7 +616,7 @@ export default function MLModelManagementPage() {
               <Alert>
                 <Database className="h-4 w-4" />
                 <AlertDescription>
-                  You have <strong>{stats.trainingDataCount}</strong> training
+                  You have <strong>{stats?.trainingDataCount || 0}</strong> training
                   examples available
                 </AlertDescription>
               </Alert>
