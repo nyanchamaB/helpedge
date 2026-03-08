@@ -90,6 +90,7 @@ const categoryFormSchema = z.object({
     .max(2, "Icon should be 1-2 emojis"),
   isActive: z.boolean().default(true),
   requiresApproval: z.boolean().default(false),
+  supportTier: z.enum(['L1', 'L2']).default('L1'),
   defaultWorkflowId: z.string().optional(),
   fulfillmentRoles: z.array(z.string()).default([]),
   estimatedFulfillmentDays: z.number().min(0).max(365).default(7),
@@ -173,6 +174,7 @@ export function CategoryForm({
           icon: "📋",
           isActive: true,
           requiresApproval: false,
+          supportTier: "L1" as const,
           defaultWorkflowId: "",
           fulfillmentRoles: [],
           estimatedFulfillmentDays: 7,
@@ -463,6 +465,31 @@ export function CategoryForm({
                 )}
               />
             </div>
+
+            <FormField
+              control={form.control}
+              name="supportTier"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Support Tier</FormLabel>
+                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select tier" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="L1">L1 — First-line support</SelectItem>
+                      <SelectItem value="L2">L2 — Second-line / escalation</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <FormDescription>
+                    L2 categories route to senior agents during escalations.
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
             <FormField
               control={form.control}
