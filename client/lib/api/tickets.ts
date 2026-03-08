@@ -24,16 +24,18 @@ export enum TicketPriority {
 
 // Triage Status Enum (matches backend)
 export enum TriageStatus {
-  Pending = 0,    // Not yet triaged - awaiting Team Lead review
-  Confirmed = 1,  // AI suggestions confirmed by Team Lead
-  Modified = 2,   // AI suggestions modified by Team Lead
-  Skipped = 3,    // Triage skipped (manual assignment)
+  Pending = 0,            // Not yet triaged - awaiting Team Lead review
+  Confirmed = 1,          // AI suggestions confirmed by Team Lead
+  Modified = 2,           // AI suggestions modified by Team Lead
+  Skipped = 3,            // Triage skipped (manual assignment)
+  AutoAssigned = 4,       // AI auto-assigned with high confidence (no human review needed)
+  AssignedWithReview = 5, // AI assigned but flagged for human review
 }
 
 // String literal types matching backend responses
 export type TicketStatusString = 'Open' | 'InProgress' | 'Resolved' | 'Closed' | 'OnHold';
 export type TicketPriorityString = 'Low' | 'Medium' | 'High' | 'Critical';
-export type TriageStatusString = 'Pending' | 'Confirmed' | 'Modified' | 'Skipped';
+export type TriageStatusString = 'Pending' | 'Confirmed' | 'Modified' | 'Skipped' | 'AutoAssigned' | 'AssignedWithReview';
 
 // Ticket Interfaces
 export interface TicketComment {
@@ -73,8 +75,14 @@ export interface Ticket {
   triagedById?: string | null;
   triagedAt?: string | null;
   categoryLocked?: boolean;
+  isEscalated?: boolean;
   comments?: TicketComment[];
   tags?: string[];
+}
+
+export interface EscalateTicketRequest {
+  reason: string;
+  targetUserId?: string;
 }
 
 export interface CreateTicketRequest {
@@ -374,6 +382,23 @@ export async function modifyTriageSuggestions(
   });
 }
 
+/**
+ * Escalate a ticket
+ * @param ticketId - The ticket ID
+ * @param body - Escalation reason and optional target user
+ * @returns Updated ticket
+ */
+export async function escalateTicket(
+  ticketId: string,
+  body: EscalateTicketRequest
+): Promise<ApiResponse<Ticket>> {
+  return apiRequest<Ticket>(`/api/Tickets/${ticketId}/escalate`, {
+    method: 'PATCH',
+    body,
+    includeAuth: true,
+  });
+}
+
 // Helper functions to convert between frontend and backend formats
 
 /**
@@ -434,6 +459,8 @@ export function getTriageStatusString(triageStatus: TriageStatusString | TriageS
     case TriageStatus.Confirmed: return 'Confirmed';
     case TriageStatus.Modified: return 'Modified';
     case TriageStatus.Skipped: return 'Skipped';
+    case TriageStatus.AutoAssigned: return 'Auto Assigned';
+    case TriageStatus.AssignedWithReview: return 'Assigned With Review';
     default: return 'Unknown';
   }
 }
@@ -477,6 +504,10 @@ export function getTriageStatusColor(triageStatus: TriageStatusString | TriageSt
     case 'Confirmed': return 'text-green-600';
     case 'Modified': return 'text-blue-600';
     case 'Skipped': return 'text-gray-600';
+    case 'Auto Assigned': return 'text-green-600';
+    case 'AutoAssigned': return 'text-green-600';
+    case 'Assigned With Review': return 'text-amber-600';
+    case 'AssignedWithReview': return 'text-amber-600';
     default: return 'text-gray-600';
   }
 }
