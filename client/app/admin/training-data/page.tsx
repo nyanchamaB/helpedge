@@ -278,7 +278,7 @@ export default function TrainingDataManagerPage() {
       item.actualPriority || '',
       item.source,
       item.isVerified ? 'Yes' : 'No',
-      format(new Date(item.createdAt), 'yyyy-MM-dd HH:mm'),
+      item.createdAt ? format(new Date(item.createdAt), 'yyyy-MM-dd HH:mm') : '',
     ]);
 
     const csv = [headers.join(','), ...rows.map((r) => r.join(','))].join('\n');
@@ -369,7 +369,7 @@ export default function TrainingDataManagerPage() {
             </CardHeader>
             <CardContent>
               <div className="text-3xl font-bold">
-                {stats.totalCount.toLocaleString()}
+                {stats?.totalCount?.toLocaleString() || '0'}
               </div>
               <p className="text-xs text-muted-foreground mt-2">
                 Training data entries
@@ -389,11 +389,11 @@ export default function TrainingDataManagerPage() {
             </CardHeader>
             <CardContent>
               <div className="text-3xl font-bold">
-                {stats.verifiedCount.toLocaleString()}
+                {stats?.verifiedCount?.toLocaleString() || '0'}
               </div>
               <p className="text-xs text-muted-foreground mt-2">
-                {stats.totalCount > 0
-                  ? `${((stats.verifiedCount / stats.totalCount) * 100).toFixed(1)}% verified`
+                {(stats?.totalCount ?? 0) > 0
+                  ? `${(((stats?.verifiedCount ?? 0) / (stats?.totalCount ?? 1)) * 100).toFixed(1)}% verified`
                   : 'No data yet'}
               </p>
             </CardContent>
@@ -409,9 +409,9 @@ export default function TrainingDataManagerPage() {
                 <BarChart3
                   className={cn(
                     'h-4 w-4',
-                    (stats.balanceScore || 0) >= 0.7
+                    (stats?.balanceScore || 0) >= 0.7
                       ? 'text-green-600'
-                      : (stats.balanceScore || 0) >= 0.5
+                      : (stats?.balanceScore || 0) >= 0.5
                       ? 'text-yellow-600'
                       : 'text-red-600'
                   )}
@@ -420,12 +420,12 @@ export default function TrainingDataManagerPage() {
             </CardHeader>
             <CardContent>
               <div className="text-3xl font-bold">
-                {stats.balanceScore
+                {stats?.balanceScore
                   ? `${(stats.balanceScore * 100).toFixed(0)}%`
                   : 'N/A'}
               </div>
               <Progress
-                value={(stats.balanceScore || 0) * 100}
+                value={(stats?.balanceScore || 0) * 100}
                 className="mt-2"
               />
               <p className="text-xs text-muted-foreground mt-2">
@@ -446,7 +446,7 @@ export default function TrainingDataManagerPage() {
             </CardHeader>
             <CardContent>
               <div className="text-3xl font-bold">
-                {stats.byCategory ? Object.keys(stats.byCategory).length : 0}
+                {stats?.byCategory ? Object.keys(stats.byCategory).length : 0}
               </div>
               <p className="text-xs text-muted-foreground mt-2">
                 Categories with data
@@ -582,7 +582,7 @@ export default function TrainingDataManagerPage() {
                         )}
                       </TableCell>
                       <TableCell className="text-sm text-muted-foreground">
-                        {format(new Date(item.createdAt), 'MMM d, yyyy')}
+                        {item.createdAt ? format(new Date(item.createdAt), 'MMM d, yyyy') : '-'}
                       </TableCell>
                       <TableCell className="text-right">
                         <Button
