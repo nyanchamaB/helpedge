@@ -1,7 +1,7 @@
 // /components/service-request-category/RequestCategoryTable.tsx
 "use client";
 import React, { useState } from "react";
-import { ServiceRequestCategory } from "@/lib/api/service-request-category";
+import { ServiceRequestCategory, SupportTier } from "@/lib/api/service-request-category";
 import {
   Table,
   TableBody,
@@ -190,6 +190,21 @@ export default function RequestCategoryTable({
       setSortField(field);
       setSortDirection("asc");
     }
+  };
+
+  const getTierBadge = (tier?: SupportTier) => {
+    if (!tier || tier === 'L1') {
+      return (
+        <Badge variant="outline" className="text-xs bg-gray-100 text-gray-600 border-gray-200">
+          L1
+        </Badge>
+      );
+    }
+    return (
+      <Badge variant="outline" className="text-xs bg-purple-100 text-purple-700 border-purple-200">
+        L2
+      </Badge>
+    );
   };
 
   const getRequestTypeColor = (type: string) => {
@@ -537,7 +552,10 @@ export default function RequestCategoryTable({
                             <span className="text-lg">{category.icon}</span>
                           </div>
                           <div>
-                            <div className="font-medium">{category.name}</div>
+                            <div className="flex items-center gap-2">
+                              <span className="font-medium">{category.name}</span>
+                              {getTierBadge(category.supportTier)}
+                            </div>
                             {category.keywords &&
                               category.keywords.length > 0 && (
                                 <div className="flex flex-wrap gap-1 mt-1">
