@@ -1,5 +1,7 @@
 "use client";
 
+export const dynamic = 'force-dynamic';
+
 import { useEffect, useMemo, useState } from "react";
 import { useNavigation } from "@/contexts/NavigationContext";
 import { getAllTickets, Ticket } from "@/lib/api/tickets";
