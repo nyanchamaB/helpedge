@@ -65,7 +65,7 @@ export interface TeamStats {
   statusBreakdown: TicketStatusCounts;
 }
 
-// SLA stats for SystemAdmin
+// SLA stats for resolver roles (my-sla)
 export interface SLAStats {
   assignedTickets: number;
   byPriority: {
@@ -81,6 +81,23 @@ export interface SLAStats {
   };
   slaBreaching: number;
   slaNearBreach: number;
+  // TTA/TTR fields added by backend
+  avgTtaMinutes?: number | null;
+  avgTtrMinutes?: number | null;
+  unacknowledgedCount?: number | null;
+}
+
+// Resolver KPIs for management view
+export interface ResolverKpis {
+  resolverId: string;
+  resolverName?: string;
+  assignedCount: number;
+  inProgressCount: number;
+  resolvedCount: number;
+  avgTtaMinutes?: number | null;
+  avgTtrMinutes?: number | null;
+  unacknowledgedCount?: number | null;
+  slaBreaching?: number | null;
 }
 
 // My tickets dashboard for EndUser
@@ -193,6 +210,17 @@ export async function getMySLA(): Promise<ApiResponse<SLAStats>> {
  */
 export async function getMyTicketsDashboard(): Promise<ApiResponse<MyTicketsDashboard>> {
   return apiRequest<MyTicketsDashboard>('/api/Dashboard/my-tickets', {
+    method: 'GET',
+    includeAuth: true,
+  });
+}
+
+/**
+ * Get resolver KPIs for management
+ * Available to: Admin, ITManager, TeamLead
+ */
+export async function getResolverKpis(): Promise<ApiResponse<ResolverKpis[]>> {
+  return apiRequest<ResolverKpis[]>('/api/Dashboard/resolver-kpis', {
     method: 'GET',
     includeAuth: true,
   });
