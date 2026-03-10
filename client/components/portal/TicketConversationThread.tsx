@@ -15,6 +15,16 @@ interface TicketConversationThreadProps {
   onReply: (content: string) => Promise<void>;
   isReplying?: boolean;
   disabled?: boolean;
+  userNames?: Record<string, string>;
+}
+
+function getInitials(name: string): string {
+  return name
+    .split(" ")
+    .map((p) => p[0])
+    .slice(0, 2)
+    .join("")
+    .toUpperCase() || "?";
 }
 
 export function TicketConversationThread({
@@ -23,6 +33,7 @@ export function TicketConversationThread({
   onReply,
   isReplying = false,
   disabled = false,
+  userNames = {},
 }: TicketConversationThreadProps) {
   const [replyContent, setReplyContent] = useState("");
 
@@ -49,6 +60,10 @@ export function TicketConversationThread({
         <div className="space-y-4">
           {publicComments.map((comment) => {
             const isOwn = comment.authorId === currentUserId;
+            const displayName =
+              comment.authorName ||
+              userNames[comment.authorId] ||
+              (isOwn ? "You" : "Support Agent");
             return (
               <div
                 key={comment.id}
@@ -63,7 +78,7 @@ export function TicketConversationThread({
                         : "bg-gray-100 text-gray-700"
                     )}
                   >
-                    {isOwn ? "Me" : "AG"}
+                    {getInitials(displayName)}
                   </AvatarFallback>
                 </Avatar>
                 <div
@@ -72,6 +87,9 @@ export function TicketConversationThread({
                     isOwn && "items-end"
                   )}
                 >
+                  <span className={cn("text-xs font-medium text-gray-600", isOwn && "text-right")}>
+                    {displayName}
+                  </span>
                   <div
                     className={cn(
                       "rounded-2xl px-4 py-2.5 text-sm leading-relaxed",
