@@ -12,6 +12,7 @@ export enum TicketStatus {
   Resolved = 2,
   Closed = 3,
   OnHold = 4,
+  AwaitingInfo = 5,
 }
 
 // Ticket Priority Enum (matches backend)
@@ -33,7 +34,7 @@ export enum TriageStatus {
 }
 
 // String literal types matching backend responses
-export type TicketStatusString = 'Open' | 'InProgress' | 'Resolved' | 'Closed' | 'OnHold';
+export type TicketStatusString = 'Open' | 'InProgress' | 'Resolved' | 'Closed' | 'OnHold' | 'AwaitingInfo';
 export type TicketPriorityString = 'Low' | 'Medium' | 'High' | 'Critical';
 export type TriageStatusString = 'Pending' | 'Confirmed' | 'Modified' | 'Skipped' | 'AutoAssigned' | 'AssignedWithReview';
 
@@ -42,6 +43,7 @@ export interface TicketComment {
   id: string;
   content: string;
   authorId: string;
+  authorName?: string;
   createdAt: string;
   isInternal: boolean;
 }
@@ -76,6 +78,8 @@ export interface Ticket {
   triagedAt?: string | null;
   categoryLocked?: boolean;
   isEscalated?: boolean;
+  assignedAt?: string | null;
+  acknowledgedAt?: string | null;
   comments?: TicketComment[];
   tags?: string[];
 }
@@ -294,12 +298,51 @@ export async function closeTicket(ticketId: string): Promise<ApiResponse<Ticket>
 }
 
 /**
+ * Transfer a ticket to another SystemAdmin (peer transfer)
+ * SystemAdmin only
+ * @param ticketId - The ticket ID
+ * @param toUserId - Target SystemAdmin user ID
+ */
+export async function transferTicket(
+  ticketId: string,
+  toUserId: string
+): Promise<ApiResponse<Ticket>> {
+  return apiRequest<Ticket>(`/api/Tickets/${ticketId}/transfer`, {
+    method: 'POST',
+    body: { toUserId },
+    includeAuth: true,
+  });
+}
+
+/**
  * Reopen a closed ticket
  * @param ticketId - The ticket ID
  * @returns Updated ticket
  */
 export async function reopenTicket(ticketId: string): Promise<ApiResponse<Ticket>> {
   return apiRequest<Ticket>(`/api/Tickets/${ticketId}/reopen`, {
+    method: 'PATCH',
+    includeAuth: true,
+  });
+}
+
+/**
+ * Flag a ticket as awaiting information from the requester.
+ * Only valid when the ticket is InProgress. All staff roles authorized.
+ */
+export async function requestAwaitingInfo(ticketId: string): Promise<ApiResponse<void>> {
+  return apiRequest<void>(`/api/Tickets/${ticketId}/awaiting-info`, {
+    method: 'PATCH',
+    includeAuth: true,
+  });
+}
+
+/**
+ * Resume progress on a ticket that is OnHold or AwaitingInfo (or Open+assigned).
+ * All staff roles authorized.
+ */
+export async function markInProgress(ticketId: string): Promise<ApiResponse<void>> {
+  return apiRequest<void>(`/api/Tickets/${ticketId}/mark-in-progress`, {
     method: 'PATCH',
     includeAuth: true,
   });
@@ -413,6 +456,7 @@ export function getStatusString(status: TicketStatusString | TicketStatus): stri
       case 'Resolved': return 'Resolved';
       case 'Closed': return 'Closed';
       case 'OnHold': return 'On Hold';
+      case 'AwaitingInfo': return 'Awaiting Info';
       default: return status;
     }
   }
@@ -423,6 +467,7 @@ export function getStatusString(status: TicketStatusString | TicketStatus): stri
     case TicketStatus.Resolved: return 'Resolved';
     case TicketStatus.Closed: return 'Closed';
     case TicketStatus.OnHold: return 'On Hold';
+    case TicketStatus.AwaitingInfo: return 'Awaiting Info';
     default: return 'Unknown';
   }
 }
@@ -490,7 +535,41 @@ export function getStatusColor(status: TicketStatusString | TicketStatus): strin
     case 'Resolved': return 'text-green-600';
     case 'Closed': return 'text-gray-600';
     case 'On Hold': return 'text-purple-600';
+    case 'Awaiting Info': return 'text-teal-600';
+    case 'AwaitingInfo': return 'text-teal-600';
     default: return 'text-gray-600';
+  }
+}
+
+/**
+ * Get context-aware display label for a ticket's status.
+ * Distinguishes "Open + assigned" (Awaiting Ack) from "Open + unassigned" (Open).
+ */
+export function getEffectiveStatusLabel(
+  status: TicketStatusString,
+  assignedToId?: string | null
+): string {
+  if (status === 'Open' && assignedToId) return 'Awaiting Ack';
+  return getStatusString(status);
+}
+
+/**
+ * Get context-aware badge style for a ticket's status.
+ * "Open + assigned" renders as amber (Awaiting Ack) instead of blue.
+ */
+export function getEffectiveStatusStyle(
+  status: TicketStatusString,
+  assignedToId?: string | null
+): string {
+  if (status === 'Open' && assignedToId) return 'bg-amber-100 text-amber-800 border-amber-200';
+  switch (status) {
+    case 'Open': return 'bg-blue-100 text-blue-800 border-blue-200';
+    case 'InProgress': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+    case 'Resolved': return 'bg-green-100 text-green-800 border-green-200';
+    case 'Closed': return 'bg-gray-100 text-gray-800 border-gray-200';
+    case 'OnHold': return 'bg-purple-100 text-purple-800 border-purple-200';
+    case 'AwaitingInfo': return 'bg-teal-100 text-teal-800 border-teal-200';
+    default: return 'bg-gray-100 text-gray-800 border-gray-200';
   }
 }
 
