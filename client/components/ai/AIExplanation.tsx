@@ -10,6 +10,7 @@ import { KeyPhrasesHighlight } from './KeyPhrasesHighlight';
 import { HighlightedText } from './HighlightedText';
 import { SimilarTicketsWidget } from './SimilarTicketsWidget';
 import { AlertTriangle, CheckCircle, Info } from 'lucide-react';
+import { ClassificationMethod } from '@/lib/types/ai';
 import type { TicketAIDetails, SimilarTicket } from '@/lib/types/ai';
 import { cn } from '@/lib/utils';
 
@@ -20,6 +21,7 @@ interface AIExplanationProps {
   onSimilarTicketClick?: (ticketId: string) => void;
   showDetailed?: boolean;
   className?: string;
+  getCategoryName?: (id: string) => string;
 }
 
 /**
@@ -33,6 +35,7 @@ export const AIExplanation: FC<AIExplanationProps> = ({
   onSimilarTicketClick,
   showDetailed = true,
   className,
+  getCategoryName,
 }) => {
   const {
     method,
@@ -46,7 +49,7 @@ export const AIExplanation: FC<AIExplanationProps> = ({
     processingTimeMs,
   } = aiDetails;
 
-  // Extract keywords from both rule-based and ML results
+  // Extract keywords from both rule-based and TF-IDF results
   const allKeywords = [
     ...(ruleBasedResult?.matchedKeywords || []),
     ...(mlResult?.topFeatures || []),
@@ -124,16 +127,20 @@ export const AIExplanation: FC<AIExplanationProps> = ({
 
           {/* Classification Results */}
           <div className="rounded-lg bg-muted p-4 space-y-2">
-            <div className="flex items-center justify-between">
-              <span className="text-sm font-medium">Category</span>
-              <span className="text-sm">{finalCategory || 'Unknown'}</span>
+            <div className="flex items-center justify-between gap-4">
+              <span className="text-sm font-medium shrink-0">Category</span>
+              <span className="text-sm text-right">
+                {finalCategory
+                  ? (getCategoryName ? getCategoryName(finalCategory) : finalCategory)
+                  : 'Unknown'}
+              </span>
             </div>
             <Separator />
             <div className="flex items-center justify-between">
               <span className="text-sm font-medium">Priority</span>
               <span className="text-sm">{finalPriority || 'Unknown'}</span>
             </div>
-            {processingTimeMs !== undefined && (
+            {processingTimeMs != null && (
               <>
                 <Separator />
                 <div className="flex items-center justify-between">
@@ -191,13 +198,13 @@ export const AIExplanation: FC<AIExplanationProps> = ({
         </Card>
       )}
 
-      {/* Detailed Results (Rule-based vs ML) */}
+      {/* Detailed Results (Rule-based, TF-IDF, CBR) */}
       {showDetailed && (ruleBasedResult || mlResult) && (
         <Card>
           <CardHeader>
             <CardTitle className="text-lg">Detailed Analysis</CardTitle>
             <p className="text-sm text-muted-foreground">
-              Breakdown of rule-based and machine learning predictions
+              Breakdown of rule-based and TF-IDF predictions
             </p>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -207,7 +214,7 @@ export const AIExplanation: FC<AIExplanationProps> = ({
                   <h4 className="font-medium">Rule-Based Analysis</h4>
                   <ConfidenceBadge
                     confidence={ruleBasedResult.confidence}
-                    method="RuleBased"
+                    method={ClassificationMethod.RuleBased}
                     size="sm"
                     showLabel={false}
                   />
@@ -237,10 +244,10 @@ export const AIExplanation: FC<AIExplanationProps> = ({
             {mlResult && (
               <div className="rounded-lg border p-4 space-y-3">
                 <div className="flex items-center justify-between">
-                  <h4 className="font-medium">Machine Learning Prediction</h4>
+                  <h4 className="font-medium">TF-IDF Analysis</h4>
                   <ConfidenceBadge
                     confidence={mlResult.confidence}
-                    method="MachineLearning"
+                    method={ClassificationMethod.MachineLearning}
                     size="sm"
                     showLabel={false}
                   />
@@ -252,16 +259,10 @@ export const AIExplanation: FC<AIExplanationProps> = ({
                       <span className="font-medium">{mlResult.category}</span>
                     </div>
                   )}
-                  {mlResult.modelVersion && (
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">Model Version:</span>
-                      <span className="text-xs font-mono">{mlResult.modelVersion}</span>
-                    </div>
-                  )}
                   {mlResult.allPredictions && mlResult.allPredictions.length > 1 && (
                     <div className="mt-3 space-y-1">
                       <p className="text-muted-foreground text-xs font-medium">
-                        Alternative Predictions:
+                        Alternative Categories:
                       </p>
                       {mlResult.allPredictions.slice(1, 4).map((pred) => (
                         <div
