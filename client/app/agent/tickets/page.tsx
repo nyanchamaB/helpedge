@@ -1,5 +1,7 @@
 "use client";
 
+export const dynamic = 'force-dynamic';
+
 import { useEffect, useMemo, useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigation } from "@/contexts/NavigationContext";
@@ -48,7 +50,7 @@ export default function AgentTickets() {
       case "inprogress":
         return tickets.filter((t) => t.status === "InProgress");
       case "waiting":
-        return tickets.filter((t) => t.status === "OnHold");
+        return tickets.filter((t) => t.status === "OnHold" || t.status === "AwaitingInfo");
       default:
         return tickets;
     }
@@ -60,7 +62,7 @@ export default function AgentTickets() {
       unassigned: tickets.filter((t) => t.status === "Open" && !t.assignedToId).length,
       mine: tickets.filter((t) => t.assignedToId === user?.id).length,
       inprogress: tickets.filter((t) => t.status === "InProgress").length,
-      waiting: tickets.filter((t) => t.status === "OnHold").length,
+      waiting: tickets.filter((t) => t.status === "OnHold" || t.status === "AwaitingInfo").length,
     }),
     [tickets, user?.id]
   );
