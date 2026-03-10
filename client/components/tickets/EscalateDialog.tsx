@@ -20,7 +20,7 @@ import {
 import { Label } from "@/components/ui/label";
 import { Loader2, TrendingUp } from "lucide-react";
 import { escalateTicket } from "@/lib/api/tickets";
-import { getAllUsers, User, getUserDisplayName } from "@/lib/api/users";
+import { getAssignableStaff, User, getUserDisplayName } from "@/lib/api/users";
 
 interface EscalateDialogProps {
   isOpen: boolean;
@@ -54,7 +54,7 @@ export function EscalateDialog({
 
   async function loadUsers() {
     setIsLoadingUsers(true);
-    const response = await getAllUsers();
+    const response = await getAssignableStaff();
     if (response.success && response.data) {
       setUsers(response.data.filter((u) => u.isActive));
     }
@@ -69,7 +69,7 @@ export function EscalateDialog({
 
     const response = await escalateTicket(ticketId, {
       reason: reason.trim(),
-      targetUserId: targetUserId || undefined,
+      targetUserId: targetUserId && targetUserId !== "none" ? targetUserId : undefined,
     });
 
     if (response.success) {
@@ -127,7 +127,7 @@ export function EscalateDialog({
                 />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">No specific assignee</SelectItem>
+                <SelectItem value="none">No specific assignee</SelectItem>
                 {users.map((user) => (
                   <SelectItem key={user.id} value={user.id}>
                     {getUserDisplayName(user)}
