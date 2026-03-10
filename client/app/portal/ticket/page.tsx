@@ -1,5 +1,7 @@
 "use client";
 
+export const dynamic = 'force-dynamic';
+
 import { useEffect, useState } from "react";
 import { useNavigation } from "@/contexts/NavigationContext";
 import { useAuth } from "@/contexts/AuthContext";
@@ -7,10 +9,12 @@ import {
   getTicketById,
   addTicketComment,
   Ticket,
-  getStatusString,
   getPriorityString,
+  getEffectiveStatusLabel,
+  getEffectiveStatusStyle,
 } from "@/lib/api/tickets";
 import { getCategoryById } from "@/lib/api/categories";
+import { getUserById } from "@/lib/api/users";
 import { TicketStatusTracker } from "@/components/portal/TicketStatusTracker";
 import { TicketConversationThread } from "@/components/portal/TicketConversationThread";
 import { NotificationBanner } from "@/components/portal/NotificationBanner";
@@ -35,24 +39,8 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
-import type { TicketStatusString, TicketPriorityString } from "@/lib/api/tickets";
+import type { TicketPriorityString } from "@/lib/api/tickets";
 
-function getStatusBadgeStyle(status: TicketStatusString): string {
-  switch (status) {
-    case "Open":
-      return "bg-blue-100 text-blue-700 border-blue-200";
-    case "InProgress":
-      return "bg-yellow-100 text-yellow-700 border-yellow-200";
-    case "Resolved":
-      return "bg-green-100 text-green-700 border-green-200";
-    case "Closed":
-      return "bg-gray-100 text-gray-700 border-gray-200";
-    case "OnHold":
-      return "bg-purple-100 text-purple-700 border-purple-200";
-    default:
-      return "bg-gray-100 text-gray-700 border-gray-200";
-  }
-}
 
 function getPriorityBadgeStyle(priority: TicketPriorityString): string {
   switch (priority) {
@@ -98,6 +86,7 @@ export default function PortalTicketDetail() {
   const [categoryName, setCategoryName] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isReplying, setIsReplying] = useState(false);
+  const [authorNames, setAuthorNames] = useState<Record<string, string>>({});
 
   useEffect(() => {
     if (ticketId) {
@@ -116,10 +105,34 @@ export default function PortalTicketDetail() {
           setCategoryName(catResponse.data.name);
         }
       }
+      resolveAuthorNames(response.data);
     } else {
       toast.error("Failed to load ticket");
     }
     setIsLoading(false);
+  }
+
+  async function resolveAuthorNames(t: Ticket) {
+    const uniqueIds = [...new Set((t.comments ?? []).map((c) => c.authorId))];
+    const names: Record<string, string> = {};
+    await Promise.all(
+      uniqueIds.map(async (id) => {
+        if (id === user?.id) {
+          names[id] = user.name || user.email || "You";
+        } else {
+          const res = await getUserById(id);
+          if (res.success && res.data) {
+            names[id] =
+              res.data.fullName ||
+              [res.data.firstName, res.data.lastName].filter(Boolean).join(" ") ||
+              "Support Agent";
+          } else {
+            names[id] = "Support Agent";
+          }
+        }
+      })
+    );
+    setAuthorNames((prev) => ({ ...prev, ...names }));
   }
 
   async function handleReply(content: string) {
@@ -130,8 +143,8 @@ export default function PortalTicketDetail() {
       authorId: user.id,
       isInternal: false,
     });
-    if (response.success && response.data) {
-      setTicket(response.data);
+    if (response.success) {
+      await fetchTicket();
       toast.success("Reply sent");
     } else {
       toast.error("Failed to send reply. Please try again.");
@@ -268,9 +281,9 @@ export default function PortalTicketDetail() {
                 <div className="flex gap-1.5 flex-wrap justify-end shrink-0">
                   <Badge
                     variant="outline"
-                    className={getStatusBadgeStyle(ticket.status)}
+                    className={getEffectiveStatusStyle(ticket.status, ticket.assignedToId)}
                   >
-                    {getStatusString(ticket.status)}
+                    {getEffectiveStatusLabel(ticket.status, ticket.assignedToId)}
                   </Badge>
                   <Badge
                     variant="outline"
@@ -310,6 +323,7 @@ export default function PortalTicketDetail() {
                 onReply={handleReply}
                 isReplying={isReplying}
                 disabled={isClosed}
+                userNames={authorNames}
               />
             </CardContent>
           </Card>
