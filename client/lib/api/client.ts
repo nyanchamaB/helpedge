@@ -2,6 +2,16 @@
 // Base configuration and utilities for making API requests
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://helpedge-api.onrender.com';
+// When set, browser requests are routed through the Next.js proxy to avoid CORS
+const API_PROXY_BASE = process.env.NEXT_PUBLIC_API_PROXY_BASE_URL || '';
+
+function getBaseUrl(): string {
+  // In the browser, use the proxy path to avoid CORS with local backend
+  if (typeof window !== 'undefined' && API_PROXY_BASE) {
+    return API_PROXY_BASE;
+  }
+  return API_BASE_URL;
+}
 
 export interface ApiResponse<T = any> {
   data?: T;
@@ -38,8 +48,10 @@ export async function apiRequest<T = any>(
     credentials, //allow caller to specify credentials mode
   } = config;
 
-  const effectiveCredentials: 'include' | 'omit' | 'same-origin' = credentials ?? (includeAuth ? 'include' : 'omit');
-  const url = `${API_BASE_URL}${endpoint}`;
+  // Auth is Bearer token in Authorization header — cookies are never needed.
+  // Force 'omit' to avoid CORS preflight failures from Access-Control-Allow-Credentials requirements.
+  const effectiveCredentials: 'include' | 'omit' | 'same-origin' = credentials === 'omit' || credentials === 'same-origin' ? credentials : 'omit';
+  const url = `${getBaseUrl()}${endpoint}`;
 
   const requestHeaders: Record<string, string> = {
     'Content-Type': 'application/json',
