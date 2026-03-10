@@ -1,5 +1,7 @@
 "use client";
 
+export const dynamic = 'force-dynamic';
+
 import { useEffect, useMemo, useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigation } from "@/contexts/NavigationContext";
@@ -183,6 +185,7 @@ export default function PortalMyTickets() {
             <SelectItem value="Open">Open</SelectItem>
             <SelectItem value="InProgress">In Progress</SelectItem>
             <SelectItem value="OnHold">On Hold</SelectItem>
+            <SelectItem value="AwaitingInfo">Awaiting Info</SelectItem>
             <SelectItem value="Resolved">Resolved</SelectItem>
             <SelectItem value="Closed">Closed</SelectItem>
           </SelectContent>
