@@ -6,29 +6,13 @@ import { format } from "date-fns";
 import { Clock, MessageSquare, ArrowRight, TrendingUp } from "lucide-react";
 import {
   Ticket,
-  TicketStatusString,
   TicketPriorityString,
-  getStatusString,
+  getEffectiveStatusLabel,
+  getEffectiveStatusStyle,
 } from "@/lib/api/tickets";
 import { useNavigation } from "@/contexts/NavigationContext";
 import { cn } from "@/lib/utils";
 
-function getStatusStyle(status: TicketStatusString): string {
-  switch (status) {
-    case "Open":
-      return "bg-blue-100 text-blue-700 border-blue-200";
-    case "InProgress":
-      return "bg-yellow-100 text-yellow-700 border-yellow-200";
-    case "Resolved":
-      return "bg-green-100 text-green-700 border-green-200";
-    case "Closed":
-      return "bg-gray-100 text-gray-700 border-gray-200";
-    case "OnHold":
-      return "bg-purple-100 text-purple-700 border-purple-200";
-    default:
-      return "bg-gray-100 text-gray-700 border-gray-200";
-  }
-}
 
 function getPriorityStyle(priority: TicketPriorityString): string {
   switch (priority) {
@@ -93,9 +77,9 @@ export function TicketCard({ ticket }: TicketCardProps) {
         <div className="flex items-center gap-2 flex-wrap">
           <Badge
             variant="outline"
-            className={cn("text-xs", getStatusStyle(ticket.status))}
+            className={cn("text-xs", getEffectiveStatusStyle(ticket.status, ticket.assignedToId))}
           >
-            {getStatusString(ticket.status)}
+            {getEffectiveStatusLabel(ticket.status, ticket.assignedToId)}
           </Badge>
           <Badge
             variant="outline"
