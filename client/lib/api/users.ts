@@ -107,6 +107,18 @@ export async function getAllUsers(): Promise<ApiResponse<User[]>> {
 }
 
 /**
+ * Get staff users eligible for ticket assignment.
+ * Returns all active non-EndUser accounts.
+ * Authorization: All staff roles (ServiceDeskAgent, Technician, SystemAdmin, SecurityAdmin, TeamLead, Admin, ITManager)
+ */
+export async function getAssignableStaff(): Promise<ApiResponse<User[]>> {
+  return apiRequest<User[]>('/api/Users/staff', {
+    method: 'GET',
+    includeAuth: true,
+  });
+}
+
+/**
  * Get a single user by ID
  * @param userId - The user ID
  * @returns Single user object
