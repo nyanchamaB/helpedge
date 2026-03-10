@@ -79,7 +79,7 @@ export const navData = {
         { title: "Manager Tickets", url: "/manager/tickets", roles: ["Admin", "ITManager", "TeamLead"] },
         { title: "My Queue", url: "/agent/tickets", roles: ["ServiceDeskAgent"] },
         { title: "My Work", url: "/resolver/tickets", roles: ["Technician", "SystemAdmin", "SecurityAdmin"] },
-        { title: "Assigned to Me", url: "/tickets/assigned", roles: [...SUPPORT_ROLES, "TeamLead"] },
+        { title: "Assigned to Me", url: "/tickets/assigned", roles: ["ServiceDeskAgent", "TeamLead"] },
         { title: "My Tickets", url: "/portal/my-tickets", roles: ["EndUser"] },
         { title: "Submit Ticket", url: "/portal/create-ticket", roles: ["EndUser"] },
         { title: "Email Instructions", url: "/portal/email-ticket", roles: ["EndUser"] },
