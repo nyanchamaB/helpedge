@@ -1,6 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+export const dynamic = 'force-dynamic';
+
+import { useEffect, useState, useMemo } from "react";
 import { useNavigation } from "@/contexts/NavigationContext";
 import { format } from "date-fns";
 import {
@@ -24,6 +26,17 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import {
   Select,
   SelectContent,
   SelectItem,
@@ -39,12 +52,18 @@ import {
   resolveTicket,
   closeTicket,
   reopenTicket,
+  transferTicket,
+  deleteTicket,
+  requestAwaitingInfo,
+  markInProgress,
   confirmTriageSuggestions,
   modifyTriageSuggestions,
   Ticket,
   getStatusString,
   getPriorityString,
   getTriageStatusString,
+  getEffectiveStatusLabel,
+  getEffectiveStatusStyle,
   TicketStatusString,
   TicketPriorityString,
   TriageStatusString,
@@ -52,6 +71,8 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import {
   getAllUsers,
+  getAssignableStaff,
+  getUserById,
   User as UserType,
   getUserDisplayName,
 } from "@/lib/api/users";
@@ -84,6 +105,9 @@ import {
   Edit2,
   RefreshCw,
   TrendingUp,
+  HelpCircle,
+  ArrowLeftRight,
+  Trash2,
 } from "lucide-react";
 import { AIDetailsSection } from "@/components/tickets/AIDetailsSection";
 import { OverrideModal } from "@/components/ai/OverrideModal";
@@ -91,6 +115,15 @@ import { EscalateDialog } from "@/components/tickets/EscalateDialog";
 import type { TicketAIDetails } from "@/lib/types/ai";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
+
+function getInitials(name: string): string {
+  return name
+    .split(" ")
+    .map((p) => p[0])
+    .slice(0, 2)
+    .join("")
+    .toUpperCase() || "?";
+}
 
 // Status badge styling
 function getStatusBadgeStyle(status: TicketStatusString): string {
@@ -105,6 +138,8 @@ function getStatusBadgeStyle(status: TicketStatusString): string {
       return "bg-gray-100 text-gray-800 border-gray-200";
     case "OnHold":
       return "bg-purple-100 text-purple-800 border-purple-200";
+    case "AwaitingInfo":
+      return "bg-teal-100 text-teal-800 border-teal-200";
     default:
       return "bg-gray-100 text-gray-800 border-gray-200";
   }
@@ -196,8 +231,17 @@ function TicketDetailSkeleton() {
 // Roles allowed to assign tickets
 const ASSIGN_ROLES = ["Admin", "ITManager", "TeamLead", "ServiceDeskAgent"];
 
+// Roles allowed to escalate tickets (backend: Admin, ITManager, TeamLead, Technician, SystemAdmin)
+const ESCALATE_ROLES = ["Admin", "ITManager", "TeamLead", "Technician", "SystemAdmin"];
+
 // Roles allowed to view AI details and override classifications
 const AI_ROLES = ["Admin", "ITManager", "TeamLead", "ServiceDeskAgent"];
+
+// Roles that can close/reopen tickets (backend: Admin, ITManager, TeamLead, ServiceDeskAgent)
+const CLOSE_REOPEN_ROLES = ["Admin", "ITManager", "TeamLead", "ServiceDeskAgent"];
+
+// Manager/supervisor roles that can act on any ticket (not just their own)
+const MANAGER_ROLES = ["Admin", "ITManager", "TeamLead"];
 
 export default function TicketDetailPage() {
   const { pageParams, navigateTo, activePage } = useNavigation();
@@ -236,14 +280,35 @@ export default function TicketDetailPage() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [actionError, setActionError] = useState<string | null>(null);
 
+  // Transfer dialog states (SystemAdmin peer-transfer)
+  const [transferDialogOpen, setTransferDialogOpen] = useState(false);
+  const [transferTargetId, setTransferTargetId] = useState("");
+  const [isTransferring, setIsTransferring] = useState(false);
+  const [transferError, setTransferError] = useState<string | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+
   // Comment states
   const [newComment, setNewComment] = useState("");
   const [isInternalComment, setIsInternalComment] = useState(false);
   const [isAddingComment, setIsAddingComment] = useState(false);
   const [commentError, setCommentError] = useState<string | null>(null);
+  const [authorNameMap, setAuthorNameMap] = useState<Record<string, string>>({});
+
+  // Build name map from already-loaded users; supplemented by per-ID lookups below
+  const knownNameMap = useMemo(() => {
+    const map: Record<string, string> = {};
+    users.forEach((u) => {
+      map[u.id] = getUserDisplayName(u);
+    });
+    if (user) {
+      map[user.id] = user.name || user.email || "You";
+    }
+    return map;
+  }, [users, user]);
 
   // Check if current user can assign tickets
   const canAssign = user && ASSIGN_ROLES.includes(user.role);
+  const canEscalate = user && ESCALATE_ROLES.includes(user.role);
 
   // Check if current user can triage tickets (same roles as assign)
   const canTriage = user && ASSIGN_ROLES.includes(user.role);
@@ -261,9 +326,63 @@ export default function TicketDetailPage() {
   // Check if current user is the assignee
   const isAssignee = user && ticket?.assignedToId === user.id;
 
-  // Check if user can perform workflow actions (assignee or admin roles)
-  const canPerformActions =
-    isAssignee || (user && ["Admin", "ITManager"].includes(user.role));
+  // Granular action permissions based on backend authorization
+  // Acknowledge: SystemAdmin only, own Open ticket (other roles auto-progress to InProgress on assign)
+  const canAcknowledge =
+    user?.role === "SystemAdmin" &&
+    Boolean(isAssignee) &&
+    ticket?.status === "Open";
+
+  // Resolve: assignee OR manager on any active ticket
+  const canResolve =
+    Boolean(isAssignee || (user && MANAGER_ROLES.includes(user.role))) &&
+    (ticket?.status === "InProgress" ||
+      ticket?.status === "OnHold" ||
+      ticket?.status === "AwaitingInfo");
+
+  // Close: specific roles on Resolved tickets
+  const canClose =
+    Boolean(user && CLOSE_REOPEN_ROLES.includes(user.role)) &&
+    ticket?.status === "Resolved";
+
+  // Reopen: specific roles on Resolved or Closed tickets
+  const canReopen =
+    Boolean(user && CLOSE_REOPEN_ROLES.includes(user.role)) &&
+    (ticket?.status === "Resolved" || ticket?.status === "Closed");
+
+  // Transfer: SystemAdmin only — peer-transfer of own assigned ticket
+  const canTransfer =
+    user?.role === "SystemAdmin" &&
+    Boolean(isAssignee) &&
+    (ticket?.status === "Open" || ticket?.status === "InProgress");
+
+  // Request Info: assignee or manager — flag ticket as awaiting user info (only from InProgress)
+  const canRequestInfo =
+    Boolean(isAssignee || (user && MANAGER_ROLES.includes(user.role))) &&
+    ticket?.status === "InProgress";
+
+  // Mark In Progress: two cases both use the same /mark-in-progress endpoint:
+  // 1. Resume a paused ticket (OnHold / AwaitingInfo) — assignee or manager
+  // 2. Start work on an Open/assigned ticket for non-SystemAdmin roles
+  //    (SystemAdmin uses /acknowledge instead — covered by canAcknowledge)
+  const canMarkInProgress =
+    (Boolean(isAssignee || (user && MANAGER_ROLES.includes(user.role))) &&
+      (ticket?.status === "OnHold" || ticket?.status === "AwaitingInfo")) ||
+    (Boolean(isAssignee) &&
+      ticket?.status === "Open" &&
+      user?.role !== "SystemAdmin");
+
+  // Show the actions card if any action is available or user is the assignee/manager
+  const showActionsCard =
+    canAcknowledge ||
+    canResolve ||
+    canClose ||
+    canReopen ||
+    canTransfer ||
+    canRequestInfo ||
+    canMarkInProgress ||
+    Boolean(isAssignee) ||
+    Boolean(user && MANAGER_ROLES.includes(user.role));
 
   useEffect(() => {
     if (ticketId) {
@@ -285,6 +404,10 @@ export default function TicketDetailPage() {
 
     if (response.success && response.data) {
       setTicket(response.data);
+      resolveCommentAuthors(
+        response.data.comments ?? [],
+        [response.data.assignedToId, response.data.createdById, response.data.triagedById]
+      );
     } else {
       setError(response.error || "Failed to load ticket");
     }
@@ -292,15 +415,40 @@ export default function TicketDetailPage() {
     setIsLoading(false);
   }
 
-  // Fetch users when dialog opens
+  async function resolveCommentAuthors(
+    comments: import("@/lib/api/tickets").TicketComment[],
+    extraIds?: (string | null | undefined)[]
+  ) {
+    const commentIds = comments.map((c) => c.authorId);
+    const all = [...commentIds, ...(extraIds?.filter(Boolean) as string[] ?? [])];
+    const uniqueIds = [...new Set(all)];
+    const extra: Record<string, string> = {};
+    await Promise.all(
+      uniqueIds.map(async (id) => {
+        const res = await getUserById(id);
+        if (res.success && res.data) {
+          extra[id] = getUserDisplayName(res.data);
+        }
+      })
+    );
+    if (Object.keys(extra).length > 0) {
+      setAuthorNameMap((prev) => ({ ...prev, ...extra }));
+    }
+  }
+
+  // Fetch users when dialog opens — Admin/Manager get full list, others get staff-only endpoint
   async function fetchUsers() {
     if (users.length > 0) return; // Already loaded
 
     setIsLoadingUsers(true);
-    const response = await getAllUsers();
+    let response = await getAllUsers();
+
+    // Fallback for roles without access to GET /api/Users (ServiceDeskAgent, Technician, etc.)
+    if (!response.success) {
+      response = await getAssignableStaff();
+    }
 
     if (response.success && response.data) {
-      // Filter to only show active users who can be assigned tickets
       const assignableUsers = response.data.filter((u) => u.isActive);
       setUsers(assignableUsers);
     }
@@ -333,9 +481,11 @@ export default function TicketDetailPage() {
 
   // Helper function to get user display name by ID
   function getUserName(userId: string | null | undefined): string {
-    if (!userId) return "Unknown User";
-    const user = users.find((u) => u.id === userId);
-    return user ? getUserDisplayName(user) : "Unknown User";
+    if (!userId) return "Unassigned";
+    // Check users list first (staff roles), then resolved maps
+    const fromList = users.find((u) => u.id === userId);
+    if (fromList) return getUserDisplayName(fromList);
+    return knownNameMap[userId] || authorNameMap[userId] || "...";
   }
 
   // Handle opening assign dialog - pre-fill with AI suggestions if available
@@ -478,6 +628,26 @@ export default function TicketDetailPage() {
     setIsProcessing(false);
   }
 
+  // Transfer ticket to another SystemAdmin
+  async function handleTransfer() {
+    if (!ticket || !transferTargetId) return;
+
+    setIsTransferring(true);
+    setTransferError(null);
+
+    const response = await transferTicket(ticket.id, transferTargetId);
+
+    if (response.success) {
+      setTransferDialogOpen(false);
+      setTransferTargetId("");
+      await fetchTicket();
+    } else {
+      setTransferError(response.error || "Failed to transfer ticket");
+    }
+
+    setIsTransferring(false);
+  }
+
   // Close ticket
   async function handleClose() {
     if (!ticket) return;
@@ -512,6 +682,56 @@ export default function TicketDetailPage() {
     }
 
     setIsProcessing(false);
+  }
+
+  // Request more info from the user (InProgress → AwaitingInfo)
+  async function handleRequestInfo() {
+    if (!ticket) return;
+
+    setIsProcessing(true);
+    setActionError(null);
+
+    const response = await requestAwaitingInfo(ticket.id);
+
+    if (response.success) {
+      await fetchTicket();
+    } else {
+      setActionError(response.error || "Failed to request information");
+    }
+
+    setIsProcessing(false);
+  }
+
+  // Resume work on a paused ticket (OnHold/AwaitingInfo → InProgress)
+  async function handleMarkInProgress() {
+    if (!ticket) return;
+
+    setIsProcessing(true);
+    setActionError(null);
+
+    const response = await markInProgress(ticket.id);
+
+    if (response.success) {
+      await fetchTicket();
+    } else {
+      setActionError(response.error || "Failed to resume ticket");
+    }
+
+    setIsProcessing(false);
+  }
+
+  // Delete ticket — Admin only
+  async function handleDelete() {
+    if (!ticket) return;
+    setIsDeleting(true);
+    const res = await deleteTicket(ticket.id);
+    if (res.success) {
+      toast.success("Ticket deleted");
+      navigateTo("/tickets");
+    } else {
+      toast.error(res.error || "Failed to delete ticket");
+      setIsDeleting(false);
+    }
   }
 
   // Add comment
@@ -601,9 +821,9 @@ export default function TicketDetailPage() {
               <span className="mx-2">·</span>
               <Badge
                 variant="outline"
-                className={getStatusBadgeStyle(ticket.status)}
+                className={getEffectiveStatusStyle(ticket.status, ticket.assignedToId)}
               >
-                {getStatusString(ticket.status)}
+                {getEffectiveStatusLabel(ticket.status, ticket.assignedToId)}
               </Badge>
               <Badge
                 variant="outline"
@@ -631,8 +851,50 @@ export default function TicketDetailPage() {
 
         {/* Action Buttons */}
         <div className="flex items-center gap-2">
+          {/* Delete — Admin only */}
+          {user?.role === "Admin" && (
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button
+                  variant="outline"
+                  className="border-red-300 text-red-600 hover:bg-red-50"
+                  disabled={isDeleting}
+                >
+                  {isDeleting ? (
+                    <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                  ) : (
+                    <Trash2 className="h-4 w-4 mr-2" />
+                  )}
+                  Delete
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Delete this ticket?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    <span className="font-medium">{ticket.ticketNumber}</span> —{" "}
+                    {ticket.subject}
+                    <br />
+                    <br />
+                    This action is permanent and cannot be undone. All comments,
+                    attachments, and AI analysis will be lost.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogAction
+                    onClick={handleDelete}
+                    className="bg-red-600 hover:bg-red-700 text-white"
+                  >
+                    Delete Ticket
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          )}
+
           {/* Escalate Button */}
-          {canAssign && !ticket.isEscalated && (
+          {canEscalate && !ticket.isEscalated && (
             <Button variant="outline" onClick={() => setEscalateDialogOpen(true)}>
               <TrendingUp className="h-4 w-4 mr-2" />
               Escalate
@@ -643,7 +905,11 @@ export default function TicketDetailPage() {
           {canViewAI && (
             <Button
               variant="outline"
-              onClick={() => setOverrideModalOpen(true)}
+              onClick={() => {
+                fetchUsers();
+                fetchCategories();
+                setOverrideModalOpen(true);
+              }}
               className="flex items-center gap-2"
             >
               <RefreshCw className="h-4 w-4" />
@@ -674,7 +940,7 @@ export default function TicketDetailPage() {
                     : "Assign"}
                 </Button>
               </DialogTrigger>
-              <DialogContent className="w-full max-w-3xl">
+              <DialogContent className="w-full max-w-2xl">
                 <DialogHeader>
                   <DialogTitle className="flex items-center gap-2">
                     {needsTriage && (
@@ -689,7 +955,7 @@ export default function TicketDetailPage() {
                   </DialogDescription>
                 </DialogHeader>
 
-                <div className="space-y-4 py-4">
+                <div className="space-y-4 py-4 max-h-[65vh] overflow-y-auto pr-1">
                   {(assignError || triageError) && (
                     <div className="bg-red-50 border border-red-200 text-red-700 px-3 py-2 rounded-md text-sm">
                       {assignError || triageError}
@@ -826,11 +1092,11 @@ export default function TicketDetailPage() {
                         <SelectContent>
                           {categories.map((c) => (
                             <SelectItem key={c.id} value={c.id}>
-                              <div className="flex items-center gap-2">
-                                <span>{c.name}</span>
+                              <div className="flex flex-col gap-0.5 py-0.5">
+                                <span className="font-medium">{c.name}</span>
                                 {c.description && (
-                                  <span className="text-muted-foreground text-xs">
-                                    - {c.description}
+                                  <span className="text-muted-foreground text-xs line-clamp-1 max-w-xs">
+                                    {c.description}
                                   </span>
                                 )}
                               </div>
@@ -874,12 +1140,10 @@ export default function TicketDetailPage() {
                         <SelectContent>
                           {users.map((u) => (
                             <SelectItem key={u.id} value={u.id}>
-                              <div className="flex items-center gap-2">
-                                <span>
-                                  {u.fullName || `${u.firstName} ${u.lastName}`}
-                                </span>
+                              <div className="flex flex-col gap-0.5 py-0.5">
+                                <span className="font-medium">{getUserDisplayName(u)}</span>
                                 <span className="text-muted-foreground text-xs">
-                                  ({u.email})
+                                  {u.role} · {u.email}
                                 </span>
                               </div>
                             </SelectItem>
@@ -892,8 +1156,9 @@ export default function TicketDetailPage() {
                   {ticket.assignedToId && (
                     <p className="text-sm text-muted-foreground">
                       Currently assigned to:{" "}
-                      {users.find((u) => u.id === ticket.assignedToId)
-                        ?.fullName || ticket.assignedToId}
+                      <span className="font-medium text-foreground">
+                        {getUserName(ticket.assignedToId)}
+                      </span>
                     </p>
                   )}
                 </div>
@@ -975,7 +1240,7 @@ export default function TicketDetailPage() {
       </div>
 
       {/* Workflow Actions Card */}
-      {canPerformActions && (
+      {showActionsCard && (
         <Card>
           <CardHeader className="pb-3">
             <CardTitle className="text-lg flex items-center gap-2">
@@ -985,7 +1250,9 @@ export default function TicketDetailPage() {
             <CardDescription>
               {isAssignee
                 ? "You are assigned to this ticket"
-                : "Admin actions available"}
+                : user && MANAGER_ROLES.includes(user.role)
+                ? "Manager actions available"
+                : "Ticket actions"}
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -996,8 +1263,8 @@ export default function TicketDetailPage() {
             )}
 
             <div className="flex flex-wrap gap-2">
-              {/* Acknowledge - Only for Open tickets assigned to current user */}
-              {ticket.status === "Open" && isAssignee && (
+              {/* Acknowledge — SystemAdmin only: Open ticket assigned to them */}
+              {canAcknowledge && (
                 <Button
                   onClick={handleAcknowledge}
                   disabled={isProcessing}
@@ -1012,8 +1279,8 @@ export default function TicketDetailPage() {
                 </Button>
               )}
 
-              {/* Resolve - For InProgress tickets */}
-              {ticket.status === "InProgress" && canPerformActions && (
+              {/* Resolve — assignee or manager, active ticket */}
+              {canResolve && (
                 <Button
                   onClick={handleResolve}
                   disabled={isProcessing}
@@ -1028,8 +1295,8 @@ export default function TicketDetailPage() {
                 </Button>
               )}
 
-              {/* Close - For Resolved tickets */}
-              {ticket.status === "Resolved" && canPerformActions && (
+              {/* Close — Admin/ITManager/TeamLead/ServiceDeskAgent on Resolved tickets */}
+              {canClose && (
                 <Button
                   onClick={handleClose}
                   disabled={isProcessing}
@@ -1044,43 +1311,181 @@ export default function TicketDetailPage() {
                 </Button>
               )}
 
-              {/* Reopen - For Closed or Resolved tickets */}
-              {(ticket.status === "Closed" || ticket.status === "Resolved") &&
-                canPerformActions && (
-                  <Button
-                    onClick={handleReopen}
-                    disabled={isProcessing}
-                    variant="outline"
-                  >
-                    {isProcessing ? (
-                      <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                    ) : (
-                      <RotateCcw className="h-4 w-4 mr-2" />
-                    )}
-                    Reopen Ticket
-                  </Button>
-                )}
+              {/* Reopen — Admin/ITManager/TeamLead/ServiceDeskAgent on Resolved/Closed */}
+              {canReopen && (
+                <Button
+                  onClick={handleReopen}
+                  disabled={isProcessing}
+                  variant="outline"
+                >
+                  {isProcessing ? (
+                    <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                  ) : (
+                    <RotateCcw className="h-4 w-4 mr-2" />
+                  )}
+                  Reopen Ticket
+                </Button>
+              )}
 
-              {/* Status indicator for non-actionable states */}
+              {/* Transfer — SystemAdmin peer-transfer of own assigned ticket */}
+              {canTransfer && (
+                <Button
+                  onClick={() => {
+                    setTransferTargetId("");
+                    setTransferError(null);
+                    setTransferDialogOpen(true);
+                  }}
+                  disabled={isProcessing}
+                  variant="outline"
+                >
+                  <ArrowLeftRight className="h-4 w-4 mr-2" />
+                  Transfer
+                </Button>
+              )}
+
+              {/* Request Info — flag ticket as awaiting user info (InProgress → AwaitingInfo) */}
+              {canRequestInfo && (
+                <Button
+                  onClick={handleRequestInfo}
+                  disabled={isProcessing}
+                  variant="outline"
+                >
+                  {isProcessing ? (
+                    <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                  ) : (
+                    <HelpCircle className="h-4 w-4 mr-2" />
+                  )}
+                  Request Info
+                </Button>
+              )}
+
+              {/* Start Working / Resume Work — both use /mark-in-progress */}
+              {canMarkInProgress && (
+                <Button
+                  onClick={handleMarkInProgress}
+                  disabled={isProcessing}
+                  className={
+                    ticket.status === "Open"
+                      ? "bg-blue-600 hover:bg-blue-700"
+                      : "border-blue-300 text-blue-700 hover:bg-blue-50"
+                  }
+                  variant={ticket.status === "Open" ? "default" : "outline"}
+                >
+                  {isProcessing ? (
+                    <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                  ) : (
+                    <Play className="h-4 w-4 mr-2" />
+                  )}
+                  {ticket.status === "Open" ? "Start Working" : "Resume Work"}
+                </Button>
+              )}
+
+
+              {/* Info: assigned to someone else, waiting to start */}
               {ticket.status === "Open" &&
                 !isAssignee &&
                 ticket.assignedToId && (
                   <div className="flex items-center gap-2 text-sm text-muted-foreground">
                     <Clock className="h-4 w-4" />
-                    Waiting for assignee to acknowledge
+                    Waiting for assignee to start working
                   </div>
                 )}
 
+              {/* Info: unassigned */}
               {ticket.status === "Open" && !ticket.assignedToId && (
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
                   <UserPlus className="h-4 w-4" />
                   Ticket needs to be assigned first
                 </div>
               )}
+
+              {/* Info: awaiting more information from user */}
+              {ticket.status === "AwaitingInfo" && !canResolve && (
+                <div className="flex items-center gap-2 text-sm text-teal-600">
+                  <HelpCircle className="h-4 w-4" />
+                  Waiting for user to provide more information
+                </div>
+              )}
             </div>
           </CardContent>
         </Card>
       )}
+
+      {/* Transfer Dialog — SystemAdmin peer-transfer */}
+      <Dialog
+        open={transferDialogOpen}
+        onOpenChange={(open) => {
+          if (!open) {
+            setTransferDialogOpen(false);
+            setTransferTargetId("");
+            setTransferError(null);
+          }
+        }}
+      >
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <ArrowLeftRight className="h-5 w-5 text-blue-500" />
+              Transfer Ticket
+            </DialogTitle>
+            <DialogDescription>
+              Transfer this ticket to another SystemAdmin. They will become
+              the new assignee responsible for resolving it.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-2">
+            {transferError && (
+              <div className="bg-red-50 border border-red-200 text-red-700 px-3 py-2 rounded-md text-sm">
+                {transferError}
+              </div>
+            )}
+            <div className="space-y-2">
+              <label className="text-sm font-medium">
+                Transfer to <span className="text-red-500">*</span>
+              </label>
+              <Select value={transferTargetId} onValueChange={setTransferTargetId}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select a SystemAdmin" />
+                </SelectTrigger>
+                <SelectContent>
+                  {users
+                    .filter(
+                      (u) =>
+                        u.role === "SystemAdmin" &&
+                        u.id !== user?.id &&
+                        u.isActive
+                    )
+                    .map((u) => (
+                      <SelectItem key={u.id} value={u.id}>
+                        {getUserDisplayName(u)}
+                      </SelectItem>
+                    ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          <div className="flex justify-end gap-2 pt-2">
+            <Button
+              variant="outline"
+              onClick={() => setTransferDialogOpen(false)}
+              disabled={isTransferring}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleTransfer}
+              disabled={!transferTargetId || isTransferring}
+            >
+              {isTransferring ? (
+                <Loader2 className="h-4 w-4 animate-spin mr-2" />
+              ) : (
+                <ArrowLeftRight className="h-4 w-4 mr-2" />
+              )}
+              Transfer
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {/* Description */}
       <Card>
@@ -1103,6 +1508,7 @@ export default function TicketDetailPage() {
           ticketId={ticketId}
           ticketDescription={ticket.description}
           initialExpanded={false}
+          getCategoryName={getCategoryName}
         />
       )}
 
@@ -1134,12 +1540,12 @@ export default function TicketDetailPage() {
             <DetailItem
               icon={<User className="h-4 w-4" />}
               label="Created By"
-              value={ticket.createdById || "System/Email"}
+              value={ticket.createdById ? getUserName(ticket.createdById) : "System/Email"}
             />
             <DetailItem
               icon={<User className="h-4 w-4" />}
               label="Assigned To"
-              value={getUserName(ticket.assignedToId) || "Unassigned"}
+              value={getUserName(ticket.assignedToId)}
             />
             {ticket.categoryId && (
               <DetailItem
@@ -1358,7 +1764,7 @@ export default function TicketDetailPage() {
                 <DetailItem
                   icon={<User className="h-4 w-4" />}
                   label="Triaged By"
-                  value={ticket.triagedById}
+                  value={getUserName(ticket.triagedById)}
                 />
               )}
               {ticket.triagedAt && (
@@ -1378,6 +1784,35 @@ export default function TicketDetailPage() {
           </Card>
         )}
       </div>
+
+      {/* Escalation Status */}
+      {ticket.isEscalated && (
+        <Card className="border-orange-200">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-lg flex items-center gap-2 text-orange-700">
+              <TrendingUp className="h-5 w-5" />
+              Escalation Status
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-muted-foreground">Assignment</span>
+              {ticket.assignedToId ? (
+                <span className="text-sm font-medium">
+                  Escalated to {getUserName(ticket.assignedToId)}
+                </span>
+              ) : (
+                <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-200">
+                  Awaiting L2 Assignment
+                </Badge>
+              )}
+            </div>
+            <p className="text-xs text-muted-foreground">
+              The escalation reason is recorded in the internal comments below.
+            </p>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Tags */}
       {ticket.tags && ticket.tags.length > 0 && (
@@ -1472,25 +1907,34 @@ export default function TicketDetailPage() {
             </p>
           ) : (
             <div className="space-y-4">
-              {ticket.comments.map((comment) => (
+              {ticket.comments.map((comment) => {
+                const authorName =
+                  comment.authorName ||
+                  knownNameMap[comment.authorId] ||
+                  authorNameMap[comment.authorId] ||
+                  "User";
+                const isOwn = comment.authorId === user?.id;
+                return (
                 <div
                   key={comment.id}
                   className={`p-4 rounded-lg border ${
                     comment.isInternal
                       ? "bg-yellow-50 border-yellow-200"
+                      : isOwn
+                      ? "bg-blue-50 border-blue-200"
                       : "bg-gray-50 border-gray-200"
                   }`}
                 >
                   <div className="flex items-start gap-3">
                     <Avatar className="h-8 w-8">
-                      <AvatarFallback>
-                        {comment.authorId?.slice(0, 2).toUpperCase() || "?"}
+                      <AvatarFallback className={isOwn ? "bg-blue-100 text-blue-700" : ""}>
+                        {getInitials(authorName)}
                       </AvatarFallback>
                     </Avatar>
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-1">
                         <span className="font-medium text-sm">
-                          {comment.authorId || "Unknown"}
+                          {authorName}
                         </span>
                         {comment.isInternal && (
                           <Badge
@@ -1511,7 +1955,8 @@ export default function TicketDetailPage() {
                     </div>
                   </div>
                 </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </CardContent>
