@@ -17,6 +17,7 @@ interface AIDetailsSectionProps {
   ticketDescription?: string;
   initialExpanded?: boolean;
   className?: string;
+  getCategoryName?: (id: string) => string;
 }
 
 /**
@@ -28,6 +29,7 @@ export function AIDetailsSection({
   ticketDescription,
   initialExpanded = false,
   className,
+  getCategoryName,
 }: AIDetailsSectionProps) {
   const [isExpanded, setIsExpanded] = useState(initialExpanded);
 
@@ -143,6 +145,7 @@ export function AIDetailsSection({
               aiDetails={aiDetails}
               ticketDescription={ticketDescription}
               showDetailed
+              getCategoryName={getCategoryName}
             />
           )}
         </CardContent>
