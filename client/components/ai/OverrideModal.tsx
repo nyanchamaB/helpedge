@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type FC } from 'react';
+import { useState, useEffect, type FC } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -39,13 +39,13 @@ import { overrideTicketClassification } from '@/lib/api/ai';
 import type { TicketAIDetails } from '@/lib/types/ai';
 
 const overrideSchema = z.object({
-  correctCategory: z.string().optional(),
+  correctCategory: z.string().min(1, 'Please select a category'),
   correctPriority: z.string().optional(),
   correctAssignee: z.string().optional(),
   reason: z
     .string()
-    .max(500, 'Reason must be 500 characters or less')
-    .optional(),
+    .min(10, 'Reason must be at least 10 characters')
+    .max(500, 'Reason must be 500 characters or less'),
 });
 
 type OverrideFormData = z.infer<typeof overrideSchema>;
@@ -82,17 +82,39 @@ export const OverrideModal: FC<OverrideModalProps> = ({
   const form = useForm<OverrideFormData>({
     resolver: zodResolver(overrideSchema),
     defaultValues: {
-      correctCategory: aiDetails.finalCategory || undefined,
+      correctCategory: undefined,
       correctPriority: aiDetails.finalPriority || undefined,
-      correctAssignee: aiDetails.finalAssignee || undefined,
+      correctAssignee: undefined,
       reason: '',
     },
   });
 
+  // Re-initialize form with resolved names whenever modal opens or lookup arrays load
+  useEffect(() => {
+    if (!isOpen) return;
+    const category = availableCategories.find(
+      (c) => c.id === aiDetails.finalCategory || c.name === aiDetails.finalCategory
+    )?.name;
+    const assignee = availableAssignees.find(
+      (a) => a.id === aiDetails.finalAssignee || a.name === aiDetails.finalAssignee
+    )?.name;
+    form.reset({
+      correctCategory: category || undefined,
+      correctPriority: aiDetails.finalPriority || undefined,
+      correctAssignee: assignee || undefined,
+      reason: '',
+    });
+  }, [isOpen, availableCategories, availableAssignees]);
+
   const handleSubmit = async (data: OverrideFormData) => {
     setIsSubmitting(true);
     try {
-      const response = await overrideTicketClassification(ticketId, data);
+      const response = await overrideTicketClassification(ticketId, {
+        category: data.correctCategory,
+        priority: data.correctPriority,
+        assignee: data.correctAssignee,
+        reason: data.reason,
+      });
 
       if (response.success) {
         toast.success('Classification corrected. Thank you for your feedback!', {
@@ -120,14 +142,16 @@ export const OverrideModal: FC<OverrideModalProps> = ({
     onClose();
   };
 
-  const selectedCategory = form.watch('correctCategory');
-  const selectedPriority = form.watch('correctPriority');
-  const selectedAssignee = form.watch('correctAssignee');
+  // Resolve IDs to display names using the provided lookup arrays
+  const resolveCategoryName = (idOrName: string | null | undefined) => {
+    if (!idOrName) return 'None';
+    return availableCategories.find((c) => c.id === idOrName || c.name === idOrName)?.name ?? idOrName;
+  };
 
-  const hasChanges =
-    selectedCategory !== aiDetails.finalCategory ||
-    selectedPriority !== aiDetails.finalPriority ||
-    selectedAssignee !== aiDetails.finalAssignee;
+  const resolveAssigneeName = (idOrName: string | null | undefined) => {
+    if (!idOrName) return 'None';
+    return availableAssignees.find((a) => a.id === idOrName || a.name === idOrName)?.name ?? idOrName;
+  };
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && handleCancel()}>
@@ -164,7 +188,7 @@ export const OverrideModal: FC<OverrideModalProps> = ({
                 <div className="rounded-lg border p-3 space-y-2">
                   <p className="text-xs text-muted-foreground">AI Suggested</p>
                   <p className="text-sm font-medium">
-                    {aiDetails.finalCategory || 'None'}
+                    {resolveCategoryName(aiDetails.finalCategory)}
                   </p>
                 </div>
                 <div className="flex items-center justify-center">
@@ -260,7 +284,7 @@ export const OverrideModal: FC<OverrideModalProps> = ({
                     <div className="rounded-lg border p-3 space-y-2">
                       <p className="text-xs text-muted-foreground">AI Suggested</p>
                       <p className="text-sm font-medium">
-                        {aiDetails.finalAssignee || 'None'}
+                        {resolveAssigneeName(aiDetails.finalAssignee)}
                       </p>
                     </div>
                     <div className="flex items-center justify-center">
@@ -308,17 +332,17 @@ export const OverrideModal: FC<OverrideModalProps> = ({
               name="reason"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Reason (Optional)</FormLabel>
+                  <FormLabel>Reason <span className="text-destructive">*</span></FormLabel>
                   <FormControl>
                     <Textarea
-                      placeholder="Why is this correction necessary? This helps improve the AI..."
+                      placeholder="Why is this correction necessary? (min. 10 characters)"
                       className="min-h-[100px] resize-none"
                       maxLength={500}
                       {...field}
                     />
                   </FormControl>
                   <FormDescription>
-                    {field.value?.length || 0}/500 characters
+                    {field.value?.length || 0}/500 · minimum 10 characters
                   </FormDescription>
                   <FormMessage />
                 </FormItem>
@@ -334,7 +358,7 @@ export const OverrideModal: FC<OverrideModalProps> = ({
               >
                 Cancel
               </Button>
-              <Button type="submit" disabled={isSubmitting || !hasChanges}>
+              <Button type="submit" disabled={isSubmitting}>
                 {isSubmitting ? 'Submitting...' : 'Submit Correction'}
               </Button>
             </DialogFooter>
