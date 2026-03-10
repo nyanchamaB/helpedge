@@ -1,5 +1,7 @@
 "use client";
 
+export const dynamic = 'force-dynamic';
+
 import { useState, useEffect } from 'react';
 import { useNavigation } from '@/contexts/NavigationContext';
 import RequestCategoryTable from '@/components/service-request-category/RequestCategoryTable';
