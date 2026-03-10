@@ -76,7 +76,7 @@ export default function ReviewQueuePage() {
     },
   });
 
-  const tickets = reviewQueueData?.data || [];
+  const tickets: ReviewQueueTicket[] = (reviewQueueData?.data as ReviewQueueTicket[] | undefined) || [];
   const stats = statsData?.data;
 
   // Filter tickets
