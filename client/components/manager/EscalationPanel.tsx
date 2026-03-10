@@ -14,6 +14,7 @@ const statusStyle: Record<TicketStatusString, string> = {
   Resolved: "bg-green-50 text-green-700 border-green-100",
   Closed: "bg-gray-50 text-gray-600 border-gray-100",
   OnHold: "bg-purple-50 text-purple-700 border-purple-100",
+  AwaitingInfo: "bg-teal-50 text-teal-700 border-teal-100",
 };
 
 const priorityStyle: Record<string, string> = {
