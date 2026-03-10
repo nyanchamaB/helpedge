@@ -11,7 +11,7 @@ export enum ClassificationMethod {
   RuleBased = 'RuleBased',
   MachineLearning = 'MachineLearning',
   Hybrid = 'Hybrid',
-  Manual = 'Manual',
+  ManualReview = 'ManualReview',
 }
 
 export enum OverrideType {
@@ -137,10 +137,10 @@ export interface AIPerformanceLog {
 // ============================================
 
 export interface OverrideRequest {
-  correctCategory?: string;
-  correctPriority?: string;
-  correctAssignee?: string;
-  reason?: string;
+  category?: string;
+  priority?: string;
+  assignee?: string;
+  reason: string;
 }
 
 export interface OverrideRecord {
