@@ -1,5 +1,7 @@
 "use client";
 
+export const dynamic = 'force-dynamic';
+
 import { useEffect, useState } from "react";
 import { TicketsTable } from "@/components/tickets/TicketsTable";
 import { getTicketsByCreator, Ticket } from "@/lib/api/tickets";
