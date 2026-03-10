@@ -70,14 +70,6 @@ export function Breadcrumbs({
   const pathname = usePathname();
   const [isMobile, setIsMobile] = useState(false);
 
-  // Check if current path should hide breadcrumbs
-  if (hiddenPaths.includes(pathname)) {
-    return null;
-  }
-
-  // Generate breadcrumb items
-  const breadcrumbs = generateBreadcrumbs(pathname, customLabels);
-
   // Handle responsive behavior
   useEffect(() => {
     const checkMobile = () => {
@@ -88,6 +80,14 @@ export function Breadcrumbs({
     window.addEventListener('resize', checkMobile);
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
+
+  // Check if current path should hide breadcrumbs
+  if (hiddenPaths.includes(pathname)) {
+    return null;
+  }
+
+  // Generate breadcrumb items
+  const breadcrumbs = generateBreadcrumbs(pathname, customLabels);
 
   // Collapse breadcrumbs on mobile if needed
   const { items: displayItems, hasEllipsis } = isMobile
