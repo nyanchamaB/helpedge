@@ -13,18 +13,27 @@ interface ConfidenceBadgeProps {
   className?: string;
 }
 
-const METHOD_ICONS = {
+// Maps both string and integer enum values (backend may return either)
+const METHOD_ICONS: Record<string, typeof Lightbulb> = {
   [ClassificationMethod.RuleBased]: Lightbulb,
   [ClassificationMethod.MachineLearning]: Brain,
   [ClassificationMethod.Hybrid]: Cpu,
-  [ClassificationMethod.Manual]: User,
+  [ClassificationMethod.ManualReview]: User,
+  '0': Lightbulb,
+  '1': Brain,
+  '2': Cpu,
+  '3': User,
 };
 
-const METHOD_LABELS = {
+const METHOD_LABELS: Record<string, string> = {
   [ClassificationMethod.RuleBased]: 'Rules',
-  [ClassificationMethod.MachineLearning]: 'ML',
+  [ClassificationMethod.MachineLearning]: 'TF-IDF',
   [ClassificationMethod.Hybrid]: 'Hybrid',
-  [ClassificationMethod.Manual]: 'Manual',
+  [ClassificationMethod.ManualReview]: 'Manual',
+  '0': 'Rules',
+  '1': 'TF-IDF',
+  '2': 'Hybrid',
+  '3': 'Manual',
 };
 
 /**
@@ -40,7 +49,8 @@ export const ConfidenceBadge: FC<ConfidenceBadgeProps> = ({
   className,
 }) => {
   const percentage = Math.round(confidence * 100);
-  const Icon = METHOD_ICONS[method] || HelpCircle; // Fallback to HelpCircle if method not found
+  const methodKey = method != null ? String(method) : '';
+  const Icon = METHOD_ICONS[methodKey] || HelpCircle;
 
   // Determine color variant based on confidence
   const getVariant = () => {
@@ -90,7 +100,7 @@ export const ConfidenceBadge: FC<ConfidenceBadgeProps> = ({
       {showLabel && (
         <>
           <span className="mx-1">•</span>
-          <span>{METHOD_LABELS[method] || 'Unknown'}</span>
+          <span>{METHOD_LABELS[methodKey] || methodKey || 'Hybrid'}</span>
         </>
       )}
       {needsReview && (
