@@ -6,10 +6,10 @@ import { Badge } from "@/components/ui/badge";
 import { DataTable, DataTableColumn, DataTableFilter, DataTableAction } from "@/components/data-table";
 import {
   Ticket,
-  TicketStatusString,
   TicketPriorityString,
-  getStatusString,
   getPriorityString,
+  getEffectiveStatusLabel,
+  getEffectiveStatusStyle,
 } from "@/lib/api/tickets";
 import { Eye, Ticket as TicketIcon, TrendingUp } from "lucide-react";
 
@@ -21,24 +21,6 @@ interface TicketsTableProps {
   title?: string;
   showFilters?: boolean;
   emptyMessage?: string;
-}
-
-// Status badge styling
-function getStatusBadgeStyle(status: TicketStatusString): string {
-  switch (status) {
-    case "Open":
-      return "bg-blue-100 text-blue-800 border-blue-200";
-    case "InProgress":
-      return "bg-yellow-100 text-yellow-800 border-yellow-200";
-    case "Resolved":
-      return "bg-green-100 text-green-800 border-green-200";
-    case "Closed":
-      return "bg-gray-100 text-gray-800 border-gray-200";
-    case "OnHold":
-      return "bg-purple-100 text-purple-800 border-purple-200";
-    default:
-      return "bg-gray-100 text-gray-800 border-gray-200";
-  }
 }
 
 // Priority badge styling
@@ -108,8 +90,8 @@ export function TicketsTable({
       label: "Status",
       sortable: true,
       render: (ticket) => (
-        <Badge variant="outline" className={getStatusBadgeStyle(ticket.status)}>
-          {getStatusString(ticket.status)}
+        <Badge variant="outline" className={getEffectiveStatusStyle(ticket.status, ticket.assignedToId)}>
+          {getEffectiveStatusLabel(ticket.status, ticket.assignedToId)}
         </Badge>
       ),
     },
@@ -151,6 +133,7 @@ export function TicketsTable({
             { value: "Resolved", label: "Resolved" },
             { value: "Closed", label: "Closed" },
             { value: "OnHold", label: "On Hold" },
+            { value: "AwaitingInfo", label: "Awaiting Info" },
           ],
         },
         {
