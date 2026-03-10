@@ -1,5 +1,7 @@
 "use client";
 
+export const dynamic = 'force-dynamic';
+
 import { useEffect, useMemo, useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigation } from "@/contexts/NavigationContext";
@@ -60,7 +62,7 @@ export default function AgentDashboard() {
       (t) => t.status === "Open" && !t.assignedToId
     );
     const mine = tickets.filter((t) => t.assignedToId === user?.id);
-    const waiting = tickets.filter((t) => t.status === "OnHold");
+    const waiting = tickets.filter((t) => t.status === "OnHold" || t.status === "AwaitingInfo");
     const recentNew = tickets.filter((t) => {
       const hoursAgo = (Date.now() - new Date(t.createdAt).getTime()) / 3_600_000;
       return t.status === "Open" && !t.assignedToId && hoursAgo < 24;
@@ -152,7 +154,7 @@ export default function AgentDashboard() {
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Agent Dashboard</h1>
           <p className="text-muted-foreground mt-1">
-            Welcome back{user?.firstName ? `, ${user.firstName}` : ""}. Here is
+            Welcome back{user?.name ? `, ${user.name.split(" ")[0]}` : ""}. Here is
             your queue overview.
           </p>
         </div>
