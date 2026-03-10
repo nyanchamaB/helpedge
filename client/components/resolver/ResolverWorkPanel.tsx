@@ -7,9 +7,12 @@ import { Badge } from "@/components/ui/badge";
 import {
   acknowledgeTicket,
   resolveTicket,
+  requestAwaitingInfo,
+  markInProgress,
   addTicketComment,
   Ticket,
-  getStatusString,
+  getEffectiveStatusLabel,
+  getEffectiveStatusStyle,
 } from "@/lib/api/tickets";
 import {
   Play,
@@ -24,12 +27,14 @@ import { cn } from "@/lib/utils";
 interface ResolverWorkPanelProps {
   ticket: Ticket;
   currentUserId: string;
+  currentUserRole?: string;
   onUpdate: () => void;
 }
 
 export function ResolverWorkPanel({
   ticket,
   currentUserId,
+  currentUserRole,
   onUpdate,
 }: ResolverWorkPanelProps) {
   const [isProcessing, setIsProcessing] = useState(false);
@@ -41,7 +46,11 @@ export function ResolverWorkPanel({
 
   async function handleStartWork() {
     setIsProcessing(true);
-    const res = await acknowledgeTicket(ticket.id);
+    // SystemAdmin uses /acknowledge (records acknowledgedAt); all other roles use /mark-in-progress
+    const res =
+      currentUserRole === "SystemAdmin"
+        ? await acknowledgeTicket(ticket.id)
+        : await markInProgress(ticket.id);
     if (res.success) {
       toast.success("Ticket moved to In Progress");
       onUpdate();
@@ -64,21 +73,37 @@ export function ResolverWorkPanel({
   }
 
   async function handleRequestInfo() {
-    if (!infoRequest.trim()) return;
     setIsProcessing(true);
-    // Add an external comment asking for more info
-    const res = await addTicketComment(ticket.id, {
-      content: infoRequest.trim(),
-      authorId: currentUserId,
-      isInternal: false,
-    });
+    // Change ticket status to AwaitingInfo
+    const statusRes = await requestAwaitingInfo(ticket.id);
+    if (!statusRes.success) {
+      toast.error("Failed to flag ticket as awaiting info");
+      setIsProcessing(false);
+      return;
+    }
+    // Optionally send a comment to the user explaining what's needed
+    if (infoRequest.trim()) {
+      await addTicketComment(ticket.id, {
+        content: infoRequest.trim(),
+        authorId: currentUserId,
+        isInternal: false,
+      });
+    }
+    toast.success("Ticket flagged as awaiting information");
+    setInfoRequest("");
+    setShowInfoForm(false);
+    onUpdate();
+    setIsProcessing(false);
+  }
+
+  async function handleResumeWork() {
+    setIsProcessing(true);
+    const res = await markInProgress(ticket.id);
     if (res.success) {
-      toast.success("Information request sent to user");
-      setInfoRequest("");
-      setShowInfoForm(false);
+      toast.success("Ticket resumed — back to In Progress");
       onUpdate();
     } else {
-      toast.error("Failed to send request");
+      toast.error("Failed to resume ticket");
     }
     setIsProcessing(false);
   }
@@ -90,16 +115,9 @@ export function ResolverWorkPanel({
         <p className="text-xs text-gray-500 mb-1.5">Current Status</p>
         <Badge
           variant="outline"
-          className={cn(
-            "text-sm",
-            ticket.status === "Open" && "bg-blue-50 text-blue-700 border-blue-200",
-            ticket.status === "InProgress" && "bg-yellow-50 text-yellow-700 border-yellow-200",
-            ticket.status === "OnHold" && "bg-purple-50 text-purple-700 border-purple-200",
-            ticket.status === "Resolved" && "bg-green-50 text-green-700 border-green-200",
-            ticket.status === "Closed" && "bg-gray-50 text-gray-600 border-gray-200"
-          )}
+          className={cn("text-sm", getEffectiveStatusStyle(ticket.status, ticket.assignedToId))}
         >
-          {getStatusString(ticket.status)}
+          {getEffectiveStatusLabel(ticket.status, ticket.assignedToId)}
         </Badge>
       </div>
 
@@ -125,7 +143,7 @@ export function ResolverWorkPanel({
         </Button>
       )}
 
-      {/* Request info */}
+      {/* Request info — flag as AwaitingInfo (from InProgress) */}
       {ticket.status === "InProgress" && canWork && (
         <div className="space-y-2">
           <Button
@@ -142,10 +160,10 @@ export function ResolverWorkPanel({
             <div className="space-y-2 p-3 bg-blue-50 rounded-xl border border-blue-100">
               <p className="text-xs text-blue-700 flex items-center gap-1.5">
                 <Info className="h-3 w-3" />
-                This message will be sent to the user
+                Ticket will be paused and marked as awaiting info. Optionally add a message for the user.
               </p>
               <Textarea
-                placeholder="Describe what additional information you need..."
+                placeholder="(Optional) Describe what additional information you need..."
                 value={infoRequest}
                 onChange={(e) => setInfoRequest(e.target.value)}
                 rows={3}
@@ -161,9 +179,10 @@ export function ResolverWorkPanel({
                 <Button
                   size="sm"
                   onClick={handleRequestInfo}
-                  disabled={!infoRequest.trim() || isProcessing}
+                  disabled={isProcessing}
                 >
-                  Send Request
+                  {isProcessing ? <Loader2 className="h-3 w-3 mr-1 animate-spin" /> : null}
+                  Confirm & Pause
                 </Button>
               </div>
             </div>
@@ -171,8 +190,25 @@ export function ResolverWorkPanel({
         </div>
       )}
 
+      {/* Resume Work — move AwaitingInfo/OnHold back to InProgress */}
+      {(ticket.status === "AwaitingInfo" || ticket.status === "OnHold") && canWork && (
+        <Button
+          variant="outline"
+          className="w-full border-blue-300 text-blue-700 hover:bg-blue-50"
+          onClick={handleResumeWork}
+          disabled={isProcessing}
+        >
+          {isProcessing ? (
+            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+          ) : (
+            <Play className="h-4 w-4 mr-2" />
+          )}
+          Resume Work
+        </Button>
+      )}
+
       {/* Mark resolved */}
-      {(ticket.status === "InProgress" || ticket.status === "OnHold") &&
+      {(ticket.status === "InProgress" || ticket.status === "OnHold" || ticket.status === "AwaitingInfo") &&
         canWork && (
           <Button
             variant="default"
