@@ -19,6 +19,12 @@ const STAGES: Stage[] = [
   { key: "closed", label: "Closed", description: "Ticket closed" },
 ];
 
+// Override description when a stage is the active (current) stage
+function getActiveDescription(stageKey: string): string {
+  if (stageKey === "assigned") return "Awaiting acknowledgement";
+  return STAGES.find((s) => s.key === stageKey)?.description ?? "";
+}
+
 function getActiveStageIndex(status: string, hasAssignee: boolean): number {
   switch (status) {
     case "Open":
@@ -26,6 +32,7 @@ function getActiveStageIndex(status: string, hasAssignee: boolean): number {
     case "InProgress":
       return 3;
     case "OnHold":
+    case "AwaitingInfo":
       return 4;
     case "Resolved":
       return 5;
@@ -88,7 +95,7 @@ export function TicketStatusTracker({
                     {stage.label}
                   </p>
                   <p className="text-xs text-gray-400 whitespace-nowrap mt-0.5">
-                    {stage.description}
+                    {isCurrent ? getActiveDescription(stage.key) : stage.description}
                   </p>
                 </div>
               </div>
