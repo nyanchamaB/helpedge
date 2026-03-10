@@ -1,5 +1,7 @@
 "use client";
 
+export const dynamic = 'force-dynamic';
+
 import { useEffect, useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigation } from "@/contexts/NavigationContext";
@@ -63,11 +65,12 @@ export default function PortalCreateTicket() {
       }
 
       navigateTo(`/portal/ticket/${ticket.id}`);
+      // Do NOT reset isSubmitting on success — keep button locked until navigation
+      // completes and component unmounts, preventing a second submission.
     } catch (err: unknown) {
       const message =
         err instanceof Error ? err.message : "Failed to submit ticket";
       toast.error(message);
-    } finally {
       setIsSubmitting(false);
     }
   }
