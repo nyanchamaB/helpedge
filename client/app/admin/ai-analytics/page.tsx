@@ -198,7 +198,7 @@ export default function AIAnalyticsDashboard() {
               <Filter className="h-5 w-5" />
               <CardTitle className="text-lg">Date Range</CardTitle>
             </div>
-            <Select value={dateRange} onValueChange={(v: string) => setDateRange(v)}>
+            <Select value={dateRange} onValueChange={(v) => setDateRange(v as '7' | '30' | '90')}>
               <SelectTrigger className="w-[180px]">
                 <SelectValue placeholder="Select range" />
               </SelectTrigger>
@@ -393,7 +393,7 @@ export default function AIAnalyticsDashboard() {
                     <th className="border p-2 bg-muted font-medium text-sm">
                       Predicted →<br />Actual ↓
                     </th>
-                    {confusionMatrix.categories.map((cat) => (
+                    {confusionMatrix.categories.map((cat: string) => (
                       <th
                         key={cat}
                         className="border p-2 bg-muted font-medium text-sm max-w-[100px] truncate"
@@ -405,12 +405,12 @@ export default function AIAnalyticsDashboard() {
                   </tr>
                 </thead>
                 <tbody>
-                  {confusionMatrix.categories.map((actualCat, i) => (
+                  {confusionMatrix.categories.map((actualCat: string, i: number) => (
                     <tr key={actualCat}>
                       <td className="border p-2 bg-muted font-medium text-sm max-w-[100px] truncate" title={actualCat}>
                         {actualCat}
                       </td>
-                      {confusionMatrix.matrix[i].map((count, j) => (
+                      {confusionMatrix.matrix[i].map((count: number, j: number) => (
                         <td
                           key={j}
                           className={cn(
