@@ -23,7 +23,7 @@ import type {
   BulkTrainingDataRequest,
   AIAnalyticsFilter,
 } from '@/lib/types/ai';
-import type { ApiResponse } from '@/lib/types/api';
+import type { ApiResponse } from '@/lib/api/client';
 
 // ============================================
 // Ticket AI Details & Classification
@@ -37,7 +37,7 @@ export async function getTicketAIDetails(
 ): Promise<ApiResponse<TicketAIDetails>> {
   return apiRequest<TicketAIDetails>(`/api/Tickets/${ticketId}/ai-details`, {
     method: 'GET',
-    credentials: 'include',
+    includeAuth: true,
   });
 }
 
@@ -54,7 +54,7 @@ export async function overrideTicketClassification(
       'Content-Type': 'application/json',
     },
     body: JSON.stringify(request),
-    credentials: 'include',
+    includeAuth: true,
   });
 }
 
@@ -66,7 +66,7 @@ export async function getTicketOverrides(
 ): Promise<ApiResponse<OverrideRecord[]>> {
   return apiRequest<OverrideRecord[]>(`/api/Tickets/${ticketId}/overrides`, {
     method: 'GET',
-    credentials: 'include',
+    includeAuth: true,
   });
 }
 
@@ -80,7 +80,7 @@ export async function getTicketOverrides(
 export async function getReviewQueue(): Promise<ApiResponse<ReviewQueueTicket[]>> {
   return apiRequest<ReviewQueueTicket[]>('/api/Tickets/review-queue', {
     method: 'GET',
-    credentials: 'include',
+    includeAuth: true,
   });
 }
 
@@ -90,7 +90,7 @@ export async function getReviewQueue(): Promise<ApiResponse<ReviewQueueTicket[]>
 export async function getReviewQueueStats(): Promise<ApiResponse<ReviewQueueStats>> {
   return apiRequest<ReviewQueueStats>('/api/Tickets/review-queue/stats', {
     method: 'GET',
-    credentials: 'include',
+    includeAuth: true,
   });
 }
 
@@ -102,7 +102,7 @@ export async function approveTicketClassification(
 ): Promise<ApiResponse<void>> {
   return apiRequest<void>(`/api/Tickets/${ticketId}/approve`, {
     method: 'POST',
-    credentials: 'include',
+    includeAuth: true,
   });
 }
 
@@ -124,7 +124,7 @@ export async function getAIPerformanceMetrics(
   const url = `/api/Analytics/ai-performance${params.toString() ? `?${params.toString()}` : ''}`;
   return apiRequest<AIPerformanceMetrics>(url, {
     method: 'GET',
-    credentials: 'include',
+    includeAuth: true,
   });
 }
 
@@ -141,7 +141,7 @@ export async function getAIPerformanceByCategory(
   const url = `/api/Analytics/ai-performance/by-category${params.toString() ? `?${params.toString()}` : ''}`;
   return apiRequest<CategoryPerformance[]>(url, {
     method: 'GET',
-    credentials: 'include',
+    includeAuth: true,
   });
 }
 
@@ -158,7 +158,7 @@ export async function getConfusionMatrix(
   const url = `/api/Analytics/ai-performance/confusion-matrix${params.toString() ? `?${params.toString()}` : ''}`;
   return apiRequest<ConfusionMatrix>(url, {
     method: 'GET',
-    credentials: 'include',
+    includeAuth: true,
   });
 }
 
@@ -178,7 +178,7 @@ export async function getAIPerformanceLogs(
   const url = `/api/Analytics/ai-performance/logs${params.toString() ? `?${params.toString()}` : ''}`;
   return apiRequest<AIPerformanceLog[]>(url, {
     method: 'GET',
-    credentials: 'include',
+    includeAuth: true,
   });
 }
 
@@ -195,7 +195,7 @@ export async function getAIAccuracy(
   const url = `/api/Analytics/ai-performance/accuracy${params.toString() ? `?${params.toString()}` : ''}`;
   return apiRequest<{ accuracy: number }>(url, {
     method: 'GET',
-    credentials: 'include',
+    includeAuth: true,
   });
 }
 
@@ -212,7 +212,7 @@ export async function getAIAutomationRate(
   const url = `/api/Analytics/ai-performance/automation-rate${params.toString() ? `?${params.toString()}` : ''}`;
   return apiRequest<{ automationRate: number }>(url, {
     method: 'GET',
-    credentials: 'include',
+    includeAuth: true,
   });
 }
 
@@ -226,7 +226,7 @@ export async function getAIAutomationRate(
 export async function getMLModels(): Promise<ApiResponse<MLModel[]>> {
   return apiRequest<MLModel[]>('/api/admin/MLModels', {
     method: 'GET',
-    credentials: 'include',
+    includeAuth: true,
   });
 }
 
@@ -236,7 +236,7 @@ export async function getMLModels(): Promise<ApiResponse<MLModel[]>> {
 export async function getActiveMLModel(): Promise<ApiResponse<MLModel>> {
   return apiRequest<MLModel>('/api/admin/MLModels/active', {
     method: 'GET',
-    credentials: 'include',
+    includeAuth: true,
   });
 }
 
@@ -246,7 +246,7 @@ export async function getActiveMLModel(): Promise<ApiResponse<MLModel>> {
 export async function getMLModelById(modelId: string): Promise<ApiResponse<MLModel>> {
   return apiRequest<MLModel>(`/api/admin/MLModels/${modelId}`, {
     method: 'GET',
-    credentials: 'include',
+    includeAuth: true,
   });
 }
 
@@ -256,7 +256,7 @@ export async function getMLModelById(modelId: string): Promise<ApiResponse<MLMod
 export async function getMLModelStats(): Promise<ApiResponse<MLModelStats>> {
   return apiRequest<MLModelStats>('/api/admin/MLModels/stats', {
     method: 'GET',
-    credentials: 'include',
+    includeAuth: true,
   });
 }
 
@@ -270,7 +270,7 @@ export async function checkRetrainingEligibility(): Promise<
     '/api/admin/MLModels/retraining/eligibility',
     {
       method: 'GET',
-      credentials: 'include',
+      includeAuth: true,
     }
   );
 }
@@ -287,7 +287,7 @@ export async function triggerModelRetraining(
       'Content-Type': 'application/json',
     },
     body: JSON.stringify(request || {}),
-    credentials: 'include',
+    includeAuth: true,
   });
 }
 
@@ -304,7 +304,7 @@ export async function activateMLModel(
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({ notes }),
-    credentials: 'include',
+    includeAuth: true,
   });
 }
 
@@ -314,7 +314,7 @@ export async function activateMLModel(
 export async function deleteMLModel(modelId: string): Promise<ApiResponse<void>> {
   return apiRequest<void>(`/api/admin/MLModels/${modelId}`, {
     method: 'DELETE',
-    credentials: 'include',
+    includeAuth: true,
   });
 }
 
@@ -326,7 +326,7 @@ export async function cleanupOldModels(): Promise<
 > {
   return apiRequest<{ deletedCount: number }>('/api/admin/MLModels/cleanup', {
     method: 'POST',
-    credentials: 'include',
+    includeAuth: true,
   });
 }
 
@@ -353,7 +353,7 @@ export async function getTrainingData(params?: {
   const url = `/api/admin/TrainingData${searchParams.toString() ? `?${searchParams.toString()}` : ''}`;
   return apiRequest<TrainingData[]>(url, {
     method: 'GET',
-    credentials: 'include',
+    includeAuth: true,
   });
 }
 
@@ -363,7 +363,7 @@ export async function getTrainingData(params?: {
 export async function getTrainingDataStats(): Promise<ApiResponse<TrainingDataStats>> {
   return apiRequest<TrainingDataStats>('/api/admin/TrainingData/stats', {
     method: 'GET',
-    credentials: 'include',
+    includeAuth: true,
   });
 }
 
@@ -375,7 +375,7 @@ export async function getTrainingDataByCategory(
 ): Promise<ApiResponse<TrainingData[]>> {
   return apiRequest<TrainingData[]>(`/api/admin/TrainingData/by-category/${category}`, {
     method: 'GET',
-    credentials: 'include',
+    includeAuth: true,
   });
 }
 
@@ -391,7 +391,7 @@ export async function addBulkTrainingData(
       'Content-Type': 'application/json',
     },
     body: JSON.stringify(request),
-    credentials: 'include',
+    includeAuth: true,
   });
 }
 
@@ -401,7 +401,7 @@ export async function addBulkTrainingData(
 export async function deleteTrainingData(id: string): Promise<ApiResponse<void>> {
   return apiRequest<void>(`/api/admin/TrainingData/${id}`, {
     method: 'DELETE',
-    credentials: 'include',
+    includeAuth: true,
   });
 }
 
@@ -415,7 +415,7 @@ export async function deleteTrainingData(id: string): Promise<ApiResponse<void>>
 export async function buildTfIdfIndex(): Promise<ApiResponse<void>> {
   return apiRequest<void>('/api/admin/TfIdf/build', {
     method: 'POST',
-    credentials: 'include',
+    includeAuth: true,
   });
 }
 
@@ -425,7 +425,7 @@ export async function buildTfIdfIndex(): Promise<ApiResponse<void>> {
 export async function rebuildTfIdfIndex(): Promise<ApiResponse<void>> {
   return apiRequest<void>('/api/admin/TfIdf/rebuild', {
     method: 'POST',
-    credentials: 'include',
+    includeAuth: true,
   });
 }
 
@@ -445,7 +445,7 @@ export async function getTfIdfStats(): Promise<
     lastBuildDate?: string;
   }>('/api/admin/TfIdf/stats', {
     method: 'GET',
-    credentials: 'include',
+    includeAuth: true,
   });
 }
 
@@ -457,7 +457,7 @@ export async function isTfIdfInitialized(): Promise<
 > {
   return apiRequest<{ isInitialized: boolean }>('/api/admin/TfIdf/initialized', {
     method: 'GET',
-    credentials: 'include',
+    includeAuth: true,
   });
 }
 
@@ -467,7 +467,7 @@ export async function isTfIdfInitialized(): Promise<
 export async function isTfIdfStale(): Promise<ApiResponse<{ isStale: boolean }>> {
   return apiRequest<{ isStale: boolean }>('/api/admin/TfIdf/is-stale', {
     method: 'GET',
-    credentials: 'include',
+    includeAuth: true,
   });
 }
 
@@ -483,7 +483,7 @@ export async function getAINotifications(): Promise<
 > {
   return apiRequest<import('@/lib/types/ai').AINotification[]>('/api/Notifications/ai', {
     method: 'GET',
-    credentials: 'include',
+    includeAuth: true,
   });
 }
 
@@ -495,7 +495,7 @@ export async function getUnreadNotificationCount(): Promise<
 > {
   return apiRequest<{ count: number }>('/api/Notifications/unread-count', {
     method: 'GET',
-    credentials: 'include',
+    includeAuth: true,
   });
 }
 
@@ -507,7 +507,7 @@ export async function markNotificationAsRead(
 ): Promise<ApiResponse<void>> {
   return apiRequest<void>(`/api/Notifications/${notificationId}/read`, {
     method: 'POST',
-    credentials: 'include',
+    includeAuth: true,
   });
 }
 
@@ -517,7 +517,7 @@ export async function markNotificationAsRead(
 export async function markAllNotificationsAsRead(): Promise<ApiResponse<void>> {
   return apiRequest<void>('/api/Notifications/mark-all-read', {
     method: 'POST',
-    credentials: 'include',
+    includeAuth: true,
   });
 }
 
@@ -529,6 +529,6 @@ export async function deleteNotification(
 ): Promise<ApiResponse<void>> {
   return apiRequest<void>(`/api/Notifications/${notificationId}`, {
     method: 'DELETE',
-    credentials: 'include',
+    includeAuth: true,
   });
 }
