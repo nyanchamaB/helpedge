@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useNavigation } from "@/contexts/NavigationContext";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
@@ -43,6 +44,7 @@ const DASHBOARD_STATS_ROLES = [
 
 export default function DashboardStats() {
   const { user } = useAuth();
+  const { navigateTo } = useNavigation();
 
   // State management
   const [stats, setStats] = useState<DashboardStatsType | null>(null);
@@ -471,12 +473,12 @@ export default function DashboardStats() {
               <TicketIcon className="h-12 w-12 mx-auto mb-4 opacity-50" />
               <p>{isEndUser ? "You haven't created any tickets yet" : "No tickets found"}</p>
               {isEndUser && (
-                <a
-                  href="/tickets/create-ticket"
+                <button
+                  onClick={() => navigateTo("/portal/create-ticket")}
                   className="inline-block mt-4 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
                 >
                   Create Your First Ticket
-                </a>
+                </button>
               )}
             </CardContent>
           </Card>
