@@ -1,5 +1,7 @@
 "use client";
 
+export const dynamic = 'force-dynamic';
+
 import { useEffect, useMemo, useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigation } from "@/contexts/NavigationContext";
@@ -51,7 +53,7 @@ export default function ResolverTickets() {
       case "inprogress":
         return myTickets.filter((t) => t.status === "InProgress");
       case "waiting":
-        return myTickets.filter((t) => t.status === "OnHold");
+        return myTickets.filter((t) => t.status === "OnHold" || t.status === "AwaitingInfo");
       case "resolved":
         return myTickets.filter(
           (t) => t.status === "Resolved" || t.status === "Closed"
@@ -66,7 +68,7 @@ export default function ResolverTickets() {
       all: myTickets.length,
       assigned: myTickets.filter((t) => t.status === "Open").length,
       inprogress: myTickets.filter((t) => t.status === "InProgress").length,
-      waiting: myTickets.filter((t) => t.status === "OnHold").length,
+      waiting: myTickets.filter((t) => t.status === "OnHold" || t.status === "AwaitingInfo").length,
       resolved: myTickets.filter(
         (t) => t.status === "Resolved" || t.status === "Closed"
       ).length,
