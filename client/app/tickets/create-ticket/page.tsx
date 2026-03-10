@@ -1,4 +1,6 @@
-"use client";  //create ticket page
+"use client";
+
+export const dynamic = 'force-dynamic';  //create ticket page
 import { useState } from "react";
 import { TicketForm } from "@/common/form/TicketForm";
 import { defaultValues } from "@/common/form/TicketSchema";
@@ -23,10 +25,10 @@ export default function CreateTicket() {
                 toast.info("Ticket created and queued for review");
             }
             navigateTo(`/tickets/${ticket.id}`);
+            // Keep isSubmitting true on success — button stays locked until navigation completes.
         } catch (error) {
             toast.error("Failed to create ticket");
             console.error(error);
-        } finally {
             setIsSubmitting(false);
         }
     };
