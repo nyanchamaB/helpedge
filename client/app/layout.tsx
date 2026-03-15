@@ -40,12 +40,14 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <ThemeProviders>
-          <AuthProvider>
-            {children}
-            <ScrollTop />
-            <Toaster />
-            <ConditionalFooter />
-          </AuthProvider>
+          <ReactQueryProvider>
+            <AuthProvider>
+              {children}
+              <ScrollTop />
+              <Toaster />
+              <ConditionalFooter />
+            </AuthProvider>
+          </ReactQueryProvider>
         </ThemeProviders>
       </body>
     </html>

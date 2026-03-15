@@ -46,14 +46,14 @@ function StatCard({
   iconBg,
 }: StatCardProps) {
   return (
-    <div className="flex items-center gap-3 p-4 rounded-xl border bg-white">
+    <div className="flex items-center gap-3 p-4 rounded-xl border bg-card">
       <div className={cn("p-2.5 rounded-xl", iconBg)}>
         <Icon className={cn("h-5 w-5", colorClass)} />
       </div>
       <div>
         <p className="text-2xl font-bold leading-none">{value}</p>
-        <p className="text-sm text-gray-500 mt-0.5">{label}</p>
-        {subLabel && <p className="text-xs text-gray-400 mt-0.5">{subLabel}</p>}
+        <p className="text-sm text-muted-foreground mt-0.5">{label}</p>
+        {subLabel && <p className="text-xs text-muted-foreground mt-0.5">{subLabel}</p>}
       </div>
     </div>
   );
@@ -101,44 +101,44 @@ export function TicketAnalyticsCards({
       icon: TicketIcon,
       label: "Total Tickets",
       value: stats.total,
-      colorClass: "text-blue-600",
-      iconBg: "bg-blue-50",
+      colorClass: "text-blue-600 dark:text-blue-400",
+      iconBg: "bg-blue-100 dark:bg-blue-900/30",
     },
     {
       icon: Clock,
       label: "Open",
       value: stats.open,
-      colorClass: "text-yellow-600",
-      iconBg: "bg-yellow-50",
+      colorClass: "text-yellow-600 dark:text-yellow-400",
+      iconBg: "bg-yellow-100 dark:bg-yellow-900/30",
     },
     {
       icon: TrendingUp,
       label: "In Progress",
       value: stats.inProgress,
-      colorClass: "text-purple-600",
-      iconBg: "bg-purple-50",
+      colorClass: "text-purple-600 dark:text-purple-400",
+      iconBg: "bg-purple-100 dark:bg-purple-900/30",
     },
     {
       icon: CheckCircle,
       label: "Resolved",
       value: stats.resolved,
       subLabel: `${stats.resolvedToday} today`,
-      colorClass: "text-green-600",
-      iconBg: "bg-green-50",
+      colorClass: "text-green-600 dark:text-green-400",
+      iconBg: "bg-green-100 dark:bg-green-900/30",
     },
     {
       icon: TrendingUp,
       label: "Escalated",
       value: stats.escalated,
-      colorClass: "text-orange-600",
-      iconBg: "bg-orange-50",
+      colorClass: "text-orange-600 dark:text-orange-400",
+      iconBg: "bg-orange-100 dark:bg-orange-900/30",
     },
     {
       icon: AlertTriangle,
       label: "SLA Breaches",
       value: stats.slaBreaches,
-      colorClass: stats.slaBreaches > 0 ? "text-red-600" : "text-gray-400",
-      iconBg: stats.slaBreaches > 0 ? "bg-red-50" : "bg-gray-50",
+      colorClass: stats.slaBreaches > 0 ? "text-red-600 dark:text-red-400" : "text-muted-foreground",
+      iconBg: stats.slaBreaches > 0 ? "bg-red-100 dark:bg-red-900/30" : "bg-muted",
     },
   ];
 

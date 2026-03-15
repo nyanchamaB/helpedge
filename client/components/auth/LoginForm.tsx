@@ -113,8 +113,8 @@ export default function LoginForm() {
 
   if (isPageLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <Loader2 className="h-10 w-10 animate-spin text-gray-600" />
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <Loader2 className="h-10 w-10 animate-spin text-muted-foreground" />
       </div>
     );
   }
@@ -130,24 +130,24 @@ export default function LoginForm() {
       />
 
       {/* Main Card */}
-      <Card className="relative z-10 w-full max-w-5xl overflow-hidden shadow-2xl border-0 backdrop-blur-md bg-white/80">
+      <Card className="relative z-10 w-full max-w-5xl overflow-hidden shadow-2xl border-0 backdrop-blur-md bg-card/80">
         <div className="grid grid-cols-1 lg:grid-cols-2 min-h-[600px]">
 
           {/* LEFT — LOGIN */}
-          <div className="flex items-center justify-center bg-white px-8 py-12">
+          <div className="flex items-center justify-center bg-card px-8 py-12">
             <div className="w-full max-w-sm space-y-6">
               <div className="text-center space-y-2">
                 <img src={siteConfig.logo} alt="HelpEdge" className="h-12 mx-auto" />
-                <h1 className="text-2xl font-semibold text-gray-800">
+                <h1 className="text-2xl font-semibold text-foreground">
                   Welcome back
                 </h1>
-                <p className="text-sm text-gray-500">
+                <p className="text-sm text-muted-foreground">
                   Sign in to continue
                 </p>
               </div>
 
               {errors.general && (
-                <div className="bg-red-50 text-red-600 text-sm px-4 py-3 rounded-md">
+                <div className="bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300 text-sm px-4 py-3 rounded-md">
                   {errors.general}
                 </div>
               )}
@@ -180,7 +180,7 @@ export default function LoginForm() {
                 <Button
                   type="submit"
                   disabled={isLoading}
-                  className="w-full h-11 bg-black hover:bg-gray-900"
+                  className="w-full h-11 bg-primary hover:bg-primary/90 text-primary-foreground"
                 >
                   {isLoading ? (
                     <>
@@ -193,7 +193,7 @@ export default function LoginForm() {
                 </Button>
               </form>
 
-              <p className="text-center text-sm text-gray-500">
+              <p className="text-center text-sm text-muted-foreground">
                 Need help?{" "}
                 <a
                   href="/auth/contact-support"

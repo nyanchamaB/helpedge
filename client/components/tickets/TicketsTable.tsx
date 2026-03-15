@@ -27,15 +27,15 @@ interface TicketsTableProps {
 function getPriorityBadgeStyle(priority: TicketPriorityString): string {
   switch (priority) {
     case "Low":
-      return "bg-gray-100 text-gray-700 border-gray-200";
+      return "bg-gray-100 text-gray-700 border-gray-200 dark:bg-gray-800/50 dark:text-gray-300 dark:border-gray-700";
     case "Medium":
-      return "bg-blue-100 text-blue-700 border-blue-200";
+      return "bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-900/30 dark:text-blue-300 dark:border-blue-800";
     case "High":
-      return "bg-orange-100 text-orange-700 border-orange-200";
+      return "bg-orange-100 text-orange-700 border-orange-200 dark:bg-orange-900/30 dark:text-orange-300 dark:border-orange-800";
     case "Critical":
-      return "bg-red-100 text-red-700 border-red-200";
+      return "bg-red-100 text-red-700 border-red-200 dark:bg-red-900/30 dark:text-red-300 dark:border-red-800";
     default:
-      return "bg-gray-100 text-gray-700 border-gray-200";
+      return "bg-gray-100 text-gray-700 border-gray-200 dark:bg-gray-800/50 dark:text-gray-300 dark:border-gray-700";
   }
 }
 
@@ -57,7 +57,7 @@ export function TicketsTable({
       label: "Ticket #",
       sortable: true,
       render: (ticket) => (
-        <span className="font-mono text-sm text-gray-600">
+        <span className="font-mono text-sm text-muted-foreground">
           {ticket.ticketNumber || "-"}
         </span>
       ),
@@ -69,17 +69,17 @@ export function TicketsTable({
       render: (ticket) => (
         <div className="max-w-md">
           <div className="flex items-center gap-2">
-            <p className="font-medium text-gray-900 truncate">
+            <p className="font-medium text-foreground truncate">
               {ticket.subject || "No Subject"}
             </p>
             {ticket.isEscalated && (
-              <Badge variant="outline" className="shrink-0 bg-orange-100 text-orange-700 border-orange-200">
+              <Badge variant="outline" className="shrink-0 bg-orange-100 text-orange-700 border-orange-200 dark:bg-orange-900/30 dark:text-orange-300 dark:border-orange-800">
                 <TrendingUp className="h-3 w-3 mr-1" />
                 Escalated
               </Badge>
             )}
           </div>
-          <p className="text-sm text-gray-500 truncate">
+          <p className="text-sm text-muted-foreground truncate">
             {ticket.description || "No description"}
           </p>
         </div>
@@ -110,10 +110,10 @@ export function TicketsTable({
       label: "Created",
       sortable: true,
       render: (ticket) => (
-        <div className="text-sm text-gray-600">
+        <div className="text-sm text-muted-foreground">
           {format(new Date(ticket.createdAt), "MMM d, yyyy")}
           <br />
-          <span className="text-xs text-gray-400">
+          <span className="text-xs text-muted-foreground/70">
             {format(new Date(ticket.createdAt), "h:mm a")}
           </span>
         </div>

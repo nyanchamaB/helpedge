@@ -311,7 +311,7 @@ export function DataTable<T>({
     return (
       <TableHead
         className={cn(
-          "cursor-pointer hover:bg-gray-50",
+          "cursor-pointer hover:bg-accent",
           column.className
         )}
         onClick={() => handleSort(column.key)}
@@ -334,8 +334,8 @@ export function DataTable<T>({
       <Card className={className}>
         <CardContent className="flex items-center justify-center h-64">
           <div className="flex flex-col items-center space-y-4">
-            <RefreshCw className="h-8 w-8 animate-spin text-gray-400" />
-            <p className="text-gray-500">Loading...</p>
+            <RefreshCw className="h-8 w-8 animate-spin text-muted-foreground" />
+            <p className="text-muted-foreground">Loading...</p>
           </div>
         </CardContent>
       </Card>
@@ -348,7 +348,7 @@ export function DataTable<T>({
         <CardContent className="p-6">
           {/* Bulk Actions Bar */}
           {selectable && selectedIds.length > 0 && bulkActions.length > 0 && (
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+            <div className="bg-blue-100 border border-blue-200 dark:bg-blue-900/20 dark:border-blue-800 rounded-lg p-4 mb-6">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div className="flex items-center space-x-2">
                   <CheckSquare className="h-5 w-5 text-blue-600" />
@@ -387,7 +387,7 @@ export function DataTable<T>({
             <div className="flex flex-col space-y-4 md:flex-row md:items-center md:space-x-4 md:space-y-0 mb-6">
               {searchable && (
                 <div className="relative flex-1">
-                  <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                  <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                   <Input
                     placeholder={searchPlaceholder}
                     value={searchTerm}
@@ -399,7 +399,7 @@ export function DataTable<T>({
 
               {filters.length > 0 && (
                 <div className="flex flex-wrap gap-2">
-                  <Filter className="h-4 w-4 text-gray-500 mt-2" />
+                  <Filter className="h-4 w-4 text-muted-foreground mt-2" />
                   {filters.map((filter) => (
                     <Select
                       key={filter.key}
@@ -427,7 +427,7 @@ export function DataTable<T>({
           )}
 
           {/* Results Count */}
-          <div className="mb-4 text-sm text-gray-500 flex justify-between items-center">
+          <div className="mb-4 text-sm text-muted-foreground flex justify-between items-center">
             <div>
               {paginationConfig ? (
                 <>
@@ -504,15 +504,15 @@ export function DataTable<T>({
                       {emptyState ? (
                         <div className="flex flex-col items-center justify-center space-y-4">
                           {emptyState.icon && (
-                            <div className="rounded-full bg-gray-100 p-4">
+                            <div className="rounded-full bg-muted p-4">
                               {emptyState.icon}
                             </div>
                           )}
                           <div>
-                            <p className="text-gray-500 font-medium">
+                            <p className="text-muted-foreground font-medium">
                               {emptyState.title}
                             </p>
-                            <p className="text-sm text-gray-400 mt-1">
+                            <p className="text-sm text-muted-foreground/70 mt-1">
                               {emptyState.description}
                             </p>
                           </div>
@@ -523,7 +523,7 @@ export function DataTable<T>({
                           )}
                         </div>
                       ) : (
-                        <p className="text-gray-500">No data available</p>
+                        <p className="text-muted-foreground">No data available</p>
                       )}
                     </TableCell>
                   </TableRow>
@@ -535,7 +535,7 @@ export function DataTable<T>({
                         key={itemId}
                         className={cn(
                           "transition-colors group",
-                          onRowClick && "hover:bg-gray-50 cursor-pointer"
+                          onRowClick && "hover:bg-accent cursor-pointer"
                         )}
                         onClick={() => onRowClick?.(item)}
                       >
@@ -611,7 +611,7 @@ export function DataTable<T>({
           {paginationConfig && totalPages > 1 && (
             <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-4 border-t">
               <div className="flex items-center space-x-2">
-                <p className="text-sm text-gray-700">
+                <p className="text-sm text-muted-foreground">
                   Page {currentPage} of {totalPages}
                 </p>
               </div>
@@ -620,7 +620,7 @@ export function DataTable<T>({
                 {/* Page size selector */}
                 {paginationConfig.showPageSizeSelector && (
                   <div className="flex items-center space-x-2">
-                    <span className="text-sm text-gray-700">Show:</span>
+                    <span className="text-sm text-muted-foreground">Show:</span>
                     <Select
                       value={String(pageSize)}
                       onValueChange={(value) => {

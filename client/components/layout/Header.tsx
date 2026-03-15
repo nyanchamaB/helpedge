@@ -27,18 +27,18 @@ export default function Header({ user }: HeaderProps) {
   };
 
   return (
-    <header className="bg-white shadow-sm border-b border-gray-200 px-6 py-4">
+    <header className="bg-background shadow-sm border-b border-border px-6 py-4">
       <div className="flex items-center justify-between gap-4">
         {/* Left: Breadcrumbs */}
-        
+
         {/* Search */}
         <div className="flex-1 max-w-md">
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
             <input
               type="text"
               placeholder="Search tickets, users, articles..."
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full pl-10 pr-4 py-2 border border-input bg-background text-foreground rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-ring/50 focus:border-transparent"
             />
           </div>
         </div>
@@ -59,7 +59,7 @@ export default function Header({ user }: HeaderProps) {
           <div className="relative">
             <button
               onClick={() => setShowUserMenu(!showUserMenu)}
-              className="flex items-center space-x-3 p-2 rounded-md hover:bg-gray-50 transition-colors"
+              className="flex items-center space-x-3 p-2 rounded-md hover:bg-accent transition-colors"
             >
               <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
                 <span className="text-white text-sm font-medium">
@@ -67,26 +67,26 @@ export default function Header({ user }: HeaderProps) {
                 </span>
               </div>
               <div className="text-left">
-                <p className="text-sm font-medium text-gray-900">{user.name}</p>
-                <p className="text-xs text-gray-500 capitalize">{user.role.replace('_', ' ')}</p>
+                <p className="text-sm font-medium text-foreground">{user.name}</p>
+                <p className="text-xs text-muted-foreground capitalize">{user.role.replace('_', ' ')}</p>
               </div>
             </button>
 
             {showUserMenu && (
-              <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg border border-gray-200 z-50">
+              <div className="absolute right-0 mt-2 w-48 bg-popover rounded-md shadow-lg border border-border z-50">
                 <div className="py-1">
-                  <button className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
+                  <button className="flex items-center w-full px-4 py-2 text-sm text-foreground hover:bg-accent">
                     <User className="w-4 h-4 mr-3" />
                     Profile
                   </button>
-                  <button className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
+                  <button className="flex items-center w-full px-4 py-2 text-sm text-foreground hover:bg-accent">
                     <Settings className="w-4 h-4 mr-3" />
                     Settings
                   </button>
-                  <hr className="my-1" />
-                  <button 
+                  <hr className="my-1 border-border" />
+                  <button
                     onClick={handleLogout}
-                    className="flex items-center w-full px-4 py-2 text-sm text-red-600 hover:bg-red-50"
+                    className="flex items-center w-full px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20"
                   >
                     <LogOut className="w-4 h-4 mr-3" />
                     Sign out

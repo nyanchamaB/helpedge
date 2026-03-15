@@ -22,13 +22,13 @@ function LoadBar({ value, max }: { value: number; max: number }) {
     pct > 80 ? "bg-red-400" : pct > 50 ? "bg-amber-400" : "bg-green-400";
   return (
     <div className="flex items-center gap-2">
-      <div className="flex-1 h-1.5 bg-gray-100 rounded-full overflow-hidden">
+      <div className="flex-1 h-1.5 bg-muted rounded-full overflow-hidden">
         <div
           className={cn("h-full rounded-full transition-all", color)}
           style={{ width: `${pct}%` }}
         />
       </div>
-      <span className="text-xs text-gray-400 w-6 text-right">{value}</span>
+      <span className="text-xs text-muted-foreground w-6 text-right">{value}</span>
     </div>
   );
 }
@@ -84,7 +84,7 @@ export function TeamWorkloadTable({
 
   if (agentLoads.length === 0) {
     return (
-      <p className="text-sm text-gray-400 text-center py-6">
+      <p className="text-sm text-muted-foreground text-center py-6">
         No staff members found
       </p>
     );
@@ -94,7 +94,7 @@ export function TeamWorkloadTable({
     <div className="overflow-x-auto">
       <table className="w-full text-sm">
         <thead>
-          <tr className="border-b text-xs text-gray-500">
+          <tr className="border-b text-xs text-muted-foreground">
             <th className="text-left pb-2 font-medium">Agent</th>
             <th className="text-center pb-2 font-medium w-16">Open</th>
             <th className="text-center pb-2 font-medium w-20">In Progress</th>
@@ -102,28 +102,28 @@ export function TeamWorkloadTable({
             <th className="text-left pb-2 font-medium pl-3 w-32">Load</th>
           </tr>
         </thead>
-        <tbody className="divide-y divide-gray-50">
+        <tbody className="divide-y divide-border">
           {agentLoads.map(({ user, open, inProgress, resolved, total }) => (
-            <tr key={user.id} className="hover:bg-gray-50 transition-colors">
+            <tr key={user.id} className="hover:bg-accent transition-colors">
               <td className="py-2.5 pr-3">
                 <div className="flex items-center gap-2">
                   <Avatar className="h-7 w-7 shrink-0">
-                    <AvatarFallback className="text-xs bg-indigo-100 text-indigo-700">
+                    <AvatarFallback className="text-xs bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300">
                       {(user.firstName?.[0] ?? "") + (user.lastName?.[0] ?? "")}
                     </AvatarFallback>
                   </Avatar>
                   <div>
-                    <p className="font-medium text-gray-800">
+                    <p className="font-medium text-foreground">
                       {getUserDisplayName(user)}
                     </p>
-                    <p className="text-xs text-gray-400">{user.role}</p>
+                    <p className="text-xs text-muted-foreground">{user.role}</p>
                   </div>
                 </div>
               </td>
               <td className="py-2.5 text-center">
                 <Badge
                   variant="outline"
-                  className="text-xs bg-blue-50 text-blue-600 border-blue-100"
+                  className="text-xs bg-blue-100 text-blue-600 border-blue-100 dark:bg-blue-900/30 dark:text-blue-300 dark:border-blue-800"
                 >
                   {open}
                 </Badge>
@@ -131,7 +131,7 @@ export function TeamWorkloadTable({
               <td className="py-2.5 text-center">
                 <Badge
                   variant="outline"
-                  className="text-xs bg-yellow-50 text-yellow-600 border-yellow-100"
+                  className="text-xs bg-yellow-100 text-yellow-600 border-yellow-100 dark:bg-yellow-900/30 dark:text-yellow-300 dark:border-yellow-800"
                 >
                   {inProgress}
                 </Badge>
@@ -139,7 +139,7 @@ export function TeamWorkloadTable({
               <td className="py-2.5 text-center">
                 <Badge
                   variant="outline"
-                  className="text-xs bg-green-50 text-green-600 border-green-100"
+                  className="text-xs bg-green-100 text-green-600 border-green-100 dark:bg-green-900/30 dark:text-green-300 dark:border-green-800"
                 >
                   {resolved}
                 </Badge>
