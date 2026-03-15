@@ -54,23 +54,23 @@ const PortalNotificationsContent = dynamic(() => import("@/app/portal/notificati
 });
 
 // Dynamically import all page components
-const DashboardContent = dynamic(() => import("@/app/dashboard/DashboardContent"), {
+const DashboardContent = dynamic(() => import("@/app/(dashboard)/dashboard/DashboardContent"), {
   loading: () => <PageSkeleton />,
 });
 
-const AllTicketsContent = dynamic(() => import("@/app/tickets/page"), {
+const AllTicketsContent = dynamic(() => import("@/app/(dashboard)/tickets/page"), {
   loading: () => <PageSkeleton />,
 });
 
-const AssignedTicketsContent = dynamic(() => import("@/app/tickets/assigned/page"), {
+const AssignedTicketsContent = dynamic(() => import("@/app/(dashboard)/tickets/assigned/page"), {
   loading: () => <PageSkeleton />,
 });
 
-const MyTicketsContent = dynamic(() => import("@/app/tickets/my-tickets/page"), {
+const MyTicketsContent = dynamic(() => import("@/app/(dashboard)/tickets/my-tickets/page"), {
   loading: () => <PageSkeleton />,
 });
 
-const CreateTicketContent = dynamic(() => import("@/app/tickets/create-ticket/page"), {
+const CreateTicketContent = dynamic(() => import("@/app/(dashboard)/tickets/create-ticket/page"), {
   loading: () => <PageSkeleton />,
 });
 
@@ -90,15 +90,15 @@ const CreateRequestContent = dynamic(() => import("@/app/service-requests/create
   loading: () => <PageSkeleton />,
 });
 
-const ServiceCategoriesContent = dynamic(() => import("@/app/service-categories/page"), {
+const ServiceCategoriesContent = dynamic(() => import("@/app/(dashboard)/service-categories/page"), {
   loading: () => <PageSkeleton />,
 });
 
-const CreateCategoryContent = dynamic(() => import("@/app/service-categories/create-category/page"), {
+const CreateCategoryContent = dynamic(() => import("@/app/(dashboard)/service-categories/create-category/page"), {
   loading: () => <PageSkeleton />,
 });
 
-const TeamMembersContent = dynamic(() => import("@/app/team/members/page"), {
+const TeamMembersContent = dynamic(() => import("@/app/(dashboard)/team/members/page"), {
   loading: () => <PageSkeleton />,
 });
 
@@ -110,7 +110,7 @@ const TeamPerformanceContent = dynamic(() => import("@/app/team/performance/page
   loading: () => <PageSkeleton />,
 });
 
-const ReportsContent = dynamic(() => import("@/app/reports/page"), {
+const ReportsContent = dynamic(() => import("@/app/reports/page"),{
   loading: () => <PageSkeleton />,
 });
 
@@ -162,15 +162,15 @@ const TrainingDataContent = dynamic(() => import("@/app/admin/training-data/page
   loading: () => <PageSkeleton />,
 });
 
-const KnowledgeBaseContent = dynamic(() => import("@/app/knowledge-base/page"), {
+const KnowledgeBaseContent = dynamic(() => import("@/app/(dashboard)/knowledge-base/page"), {
   loading: () => <PageSkeleton />,
 });
 
-const SettingsProfileContent = dynamic(() => import("@/app/settings/profile/page"), {
+const SettingsProfileContent = dynamic(() => import("@/app/(dashboard)/settings/profile/page"), {
   loading: () => <PageSkeleton />,
 });
 
-const SettingsTeamContent = dynamic(() => import("@/app/settings/team/page"), {
+const SettingsTeamContent = dynamic(() => import("@/app/(dashboard)/settings/team/page"), {
   loading: () => <PageSkeleton />,
 });
 
@@ -178,11 +178,11 @@ const SettingsSystemContent = dynamic(() => import("@/app/settings/system/page")
   loading: () => <PageSkeleton />,
 });
 
-const SettingsCronContent = dynamic(() => import("@/app/settings/cron-settings/page"), {
+const SettingsCronContent = dynamic(() => import("@/app/(dashboard)/settings/cron-settings/page"), {
   loading: () => <PageSkeleton />,
 });
 
-const SettingsPreferencesContent = dynamic(() => import("@/app/settings/preferences/page"), {
+const SettingsPreferencesContent = dynamic(() => import("@/app/(dashboard)/settings/preferences/page"), {
   loading: () => <PageSkeleton />,
 });
 
@@ -191,15 +191,15 @@ const SettingsNotificationsContent = dynamic(() => import("@/app/settings/notifi
 });
 
 // Dynamic detail pages
-const TicketDetailContent = dynamic(() => import("@/app/tickets/[id]/page"), {
+const TicketDetailContent = dynamic(() => import("@/app/(dashboard)/tickets/[id]/page"), {
   loading: () => <PageSkeleton />,
 });
 
-const ServiceCategoryDetailContent = dynamic(() => import("@/app/service-categories/[id]/page"), {
+const ServiceCategoryDetailContent = dynamic(() => import("@/app/(dashboard)/service-categories/[id]/page"), {
   loading: () => <PageSkeleton />,
 });
 
-const ServiceCategoryEditContent = dynamic(() => import("@/app/service-categories/[id]/edit/page"), {
+const ServiceCategoryEditContent = dynamic(() => import("@/app/(dashboard)/service-categories/[id]/edit/page"), {
   loading: () => <PageSkeleton />,
 });
 

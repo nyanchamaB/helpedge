@@ -5,6 +5,7 @@ import dynamic from "next/dynamic";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { ReactQueryProvider } from "./providers";
 import { Toaster } from "@/components/ui/sonner";
+import ThemeProviders from "@/components/theme-provider";
 
 
 // Lazy load non-critical components for better initial load performance
@@ -38,14 +39,14 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <ReactQueryProvider>
+        <ThemeProviders>
           <AuthProvider>
             {children}
             <ScrollTop />
             <Toaster />
             <ConditionalFooter />
           </AuthProvider>
-        </ReactQueryProvider>
+        </ThemeProviders>
       </body>
     </html>
   );

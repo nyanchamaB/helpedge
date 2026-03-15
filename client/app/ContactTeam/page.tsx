@@ -32,7 +32,7 @@ export default function ContactTeamPage() {
     <NavHeader />
     <div className="min-h-screen bg-gradient-to-b from-blue-50 via-white to-blue-50 p-6">
       <div className="max-w-4xl mx-auto pt-12">
-        <h1 className="text-4xl font-bold mb-6 text-center text-gray-900">Contact Our Sales Team</h1>
+        <h1 className="text-4xl font-bold mb-6 text-center text-gray-900">Contact Our Team</h1>
         <p className="text-center text-gray-600 mb-8">
           We are happy to answer questions and get you acquainted with HelpEdge.
         </p>
@@ -59,7 +59,7 @@ export default function ContactTeamPage() {
         </p>
 
         <Card className="p-8 shadow-xl bg-white/95 backdrop-blur-sm rounded-xl hover:shadow-2xl transition-shadow duration-300">
-          <form className="space-y-6">
+          <form className="space-y-6" action="/contact" method="POST">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* First Name & Last Name */}
               <div className="space-y-2">

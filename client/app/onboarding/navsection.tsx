@@ -133,7 +133,7 @@ export default function NavHeader() {
             Reach out to Us
           </button>
           </Link>
-          <Link href="/pricing/DetailsForm">
+          <Link href="/GetStarted" >
           <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-indigo-700">
             Get Started
           </button>

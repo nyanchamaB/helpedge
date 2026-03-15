@@ -1,10 +1,10 @@
 import RoleDashboard from '@/components/dashboard/RoleDashboard';
 
 /**
- * Dashboard Content Component
+ * Dashboard Page
  * Displays role-specific dashboard with relevant statistics
- * This is rendered when the user clicks "Dashboard" in the sidebar
+ * Redirects users to their role-appropriate dashboard view
  */
-export default function DashboardContent() {
+export default function DashboardPage() {
   return <RoleDashboard />;
 }

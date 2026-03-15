@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { Bell, Search, User, LogOut, Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { ModeToggle } from '@/components/mode-toggle';
 
 interface HeaderProps {
   user: {
@@ -10,6 +11,7 @@ interface HeaderProps {
     email: string;
     role: string;
   };
+  breadcrumbItems?: { label: string; href: string }[];
 }
 
 export default function Header({ user }: HeaderProps) {
@@ -26,7 +28,9 @@ export default function Header({ user }: HeaderProps) {
 
   return (
     <header className="bg-white shadow-sm border-b border-gray-200 px-6 py-4">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between gap-4">
+        {/* Left: Breadcrumbs */}
+        
         {/* Search */}
         <div className="flex-1 max-w-md">
           <div className="relative">
@@ -48,6 +52,8 @@ export default function Header({ user }: HeaderProps) {
               3
             </span>
           </Button>
+          {/* Theme Toggle */}
+          <ModeToggle />
 
           {/* User Menu */}
           <div className="relative">
