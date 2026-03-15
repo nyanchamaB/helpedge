@@ -6,6 +6,7 @@ import { ProtectedRoute } from '@/components/ProtectedRoute';
 import { Breadcrumb } from '@/components/layout/breadcrumb';
 import { Button } from '@/components/ui/button';
 import { Bell, Search } from 'lucide-react';
+import { NavigationProvider } from '@/contexts/NavigationContext';
 // modetoggle and session timer are client components, so we need to dynamically import them to avoid hydration issues
 const ModeToggle = dynamic(() => import('@/components/mode-toggle').then(mod => ({ default: mod.ModeToggle })));
 const AppSidebar = dynamic(() => import('@/components/app-sidebar').then(mod => ({ default: mod.AppSidebar })));
@@ -17,13 +18,14 @@ interface DashboardLayoutProps {
 
 export default function DashboardLayout({ children }: DashboardLayoutProps) {
     return (
+        <NavigationProvider>
         <ProtectedRoute>
             <SidebarProvider>
                 <AppSidebar />
                 
                 <SidebarInset>
                     {/* Header */}
-                    <header className="flex h-16 shrink-0 items-center gap-2 border-b bg-white dark:bg-gray-950 px-4">
+                    <header className="flex h-16 shrink-0 items-center gap-2 border-b bg-background px-4">
                        {/*} <SidebarTrigger className="-ml-1" />
                         <Separator orientation="vertical" className="mr-2 h-4" /> */}
 
@@ -59,5 +61,6 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                 <SessionAlert />
             </SidebarProvider>
         </ProtectedRoute>
+        </NavigationProvider>
     );
 }

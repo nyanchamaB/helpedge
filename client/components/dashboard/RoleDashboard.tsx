@@ -333,20 +333,20 @@ function TeamLeadDashboard() {
         </CardHeader>
         <CardContent>
           <div className="grid gap-2 md:grid-cols-4">
-            <div className="text-center p-4 bg-yellow-50 rounded-lg">
-              <div className="text-2xl font-bold text-yellow-600">{myStats?.assignedTickets.open ?? 0}</div>
+            <div className="text-center p-4 bg-yellow-100 dark:bg-yellow-900/20 rounded-lg">
+              <div className="text-2xl font-bold text-yellow-600 dark:text-yellow-400">{myStats?.assignedTickets.open ?? 0}</div>
               <div className="text-sm text-muted-foreground">Open</div>
             </div>
-            <div className="text-center p-4 bg-blue-50 rounded-lg">
-              <div className="text-2xl font-bold text-blue-600">{myStats?.assignedTickets.inProgress ?? 0}</div>
+            <div className="text-center p-4 bg-blue-100 dark:bg-blue-900/20 rounded-lg">
+              <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">{myStats?.assignedTickets.inProgress ?? 0}</div>
               <div className="text-sm text-muted-foreground">In Progress</div>
             </div>
-            <div className="text-center p-4 bg-green-50 rounded-lg">
-              <div className="text-2xl font-bold text-green-600">{myStats?.assignedTickets.resolved ?? 0}</div>
+            <div className="text-center p-4 bg-green-100 dark:bg-green-900/20 rounded-lg">
+              <div className="text-2xl font-bold text-green-600 dark:text-green-400">{myStats?.assignedTickets.resolved ?? 0}</div>
               <div className="text-sm text-muted-foreground">Resolved</div>
             </div>
-            <div className="text-center p-4 bg-gray-50 rounded-lg">
-              <div className="text-2xl font-bold text-gray-600">{myStats?.assignedTickets.total ?? 0}</div>
+            <div className="text-center p-4 bg-muted rounded-lg">
+              <div className="text-2xl font-bold text-foreground">{myStats?.assignedTickets.total ?? 0}</div>
               <div className="text-sm text-muted-foreground">Total</div>
             </div>
           </div>
@@ -526,20 +526,20 @@ function ServiceDeskDashboard() {
         </CardHeader>
         <CardContent>
           <div className="grid gap-2 md:grid-cols-4">
-            <div className="text-center p-4 bg-yellow-50 rounded-lg">
-              <div className="text-2xl font-bold text-yellow-600">{myStats?.assignedTickets.open ?? 0}</div>
+            <div className="text-center p-4 bg-yellow-100 dark:bg-yellow-900/20 rounded-lg">
+              <div className="text-2xl font-bold text-yellow-600 dark:text-yellow-400">{myStats?.assignedTickets.open ?? 0}</div>
               <div className="text-sm text-muted-foreground">Open</div>
             </div>
-            <div className="text-center p-4 bg-blue-50 rounded-lg">
-              <div className="text-2xl font-bold text-blue-600">{myStats?.assignedTickets.inProgress ?? 0}</div>
+            <div className="text-center p-4 bg-blue-100 dark:bg-blue-900/20 rounded-lg">
+              <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">{myStats?.assignedTickets.inProgress ?? 0}</div>
               <div className="text-sm text-muted-foreground">In Progress</div>
             </div>
-            <div className="text-center p-4 bg-green-50 rounded-lg">
-              <div className="text-2xl font-bold text-green-600">{myStats?.assignedTickets.resolved ?? 0}</div>
+            <div className="text-center p-4 bg-green-100 dark:bg-green-900/20 rounded-lg">
+              <div className="text-2xl font-bold text-green-600 dark:text-green-400">{myStats?.assignedTickets.resolved ?? 0}</div>
               <div className="text-sm text-muted-foreground">Resolved</div>
             </div>
-            <div className="text-center p-4 bg-gray-50 rounded-lg">
-              <div className="text-2xl font-bold text-gray-600">{myStats?.assignedTickets.closed ?? 0}</div>
+            <div className="text-center p-4 bg-muted rounded-lg">
+              <div className="text-2xl font-bold text-foreground">{myStats?.assignedTickets.closed ?? 0}</div>
               <div className="text-sm text-muted-foreground">Closed</div>
             </div>
           </div>
@@ -713,7 +713,7 @@ function EndUserDashboard() {
               {myTickets.recentTickets.map((ticket) => (
                 <div
                   key={ticket.id}
-                  className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
+                  className="flex items-center justify-between p-3 bg-muted rounded-lg"
                 >
                   <div>
                     <div className="font-medium">{ticket.title}</div>
@@ -743,11 +743,11 @@ function DashboardSkeleton() {
         {[1, 2, 3, 4].map((i) => (
           <Card key={i}>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <div className="h-4 w-24 bg-gray-200 rounded animate-pulse" />
-              <div className="h-8 w-8 bg-gray-200 rounded-full animate-pulse" />
+              <div className="h-4 w-24 bg-muted rounded animate-pulse" />
+              <div className="h-8 w-8 bg-muted rounded-full animate-pulse" />
             </CardHeader>
             <CardContent>
-              <div className="h-8 w-16 bg-gray-200 rounded animate-pulse" />
+              <div className="h-8 w-16 bg-muted rounded animate-pulse" />
             </CardContent>
           </Card>
         ))}

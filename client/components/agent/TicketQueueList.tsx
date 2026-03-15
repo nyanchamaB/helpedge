@@ -47,19 +47,19 @@ export function TicketQueueList({
               "flex flex-col items-start p-4 rounded-xl border text-left transition-all hover:shadow-md",
               isActive
                 ? cn(queue.colorClasses.bg, queue.colorClasses.border, "shadow-md")
-                : "bg-white border-gray-100 hover:border-gray-200"
+                : "bg-card border-border hover:border-border"
             )}
           >
             <div
               className={cn(
                 "p-2 rounded-lg mb-3",
-                isActive ? queue.colorClasses.iconBg : "bg-gray-100"
+                isActive ? queue.colorClasses.iconBg : "bg-muted"
               )}
             >
               <Icon
                 className={cn(
                   "h-4 w-4",
-                  isActive ? queue.colorClasses.iconText : "text-gray-500"
+                  isActive ? queue.colorClasses.iconText : "text-muted-foreground"
                 )}
               />
             </div>
@@ -67,12 +67,12 @@ export function TicketQueueList({
             <p
               className={cn(
                 "text-sm font-medium",
-                isActive ? queue.colorClasses.iconText : "text-gray-700"
+                isActive ? queue.colorClasses.iconText : "text-foreground"
               )}
             >
               {queue.label}
             </p>
-            <p className="text-xs text-gray-400 mt-0.5">{queue.description}</p>
+            <p className="text-xs text-muted-foreground mt-0.5">{queue.description}</p>
           </button>
         );
       })}

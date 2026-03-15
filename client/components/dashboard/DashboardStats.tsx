@@ -162,7 +162,7 @@ export default function DashboardStats() {
       <div className="flex items-center justify-center min-h-[400px]">
         <div className="flex flex-col items-center space-y-4">
           <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
-          <p className="text-gray-600">Loading dashboard data...</p>
+          <p className="text-muted-foreground">Loading dashboard data...</p>
         </div>
       </div>
     );
@@ -173,7 +173,7 @@ export default function DashboardStats() {
     return (
       <div className="p-6 space-y-6">
         <div className="flex items-center justify-between">
-          <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
+          <h1 className="text-3xl font-bold text-foreground">Dashboard</h1>
           <button
             onClick={fetchDashboardData}
             className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 flex items-center space-x-2"
@@ -183,24 +183,24 @@ export default function DashboardStats() {
           </button>
         </div>
 
-        <div className="bg-red-50 border border-red-200 rounded-lg p-6">
+        <div className="bg-red-100 border border-red-200 dark:bg-red-900/20 dark:border-red-800 rounded-lg p-6">
           <div className="flex items-start space-x-3">
-            <div className="text-red-600 text-2xl">⚠️</div>
+            <div className="text-red-600 dark:text-red-400 text-2xl">⚠️</div>
             <div className="flex-1 space-y-3">
-              <h2 className="text-xl font-bold text-red-900">
+              <h2 className="text-xl font-bold text-red-900 dark:text-red-100">
                 Error Loading Dashboard Data
               </h2>
-              <p className="text-red-800">{error}</p>
+              <p className="text-red-800 dark:text-red-200">{error}</p>
 
-              <div className="bg-white rounded-md p-4 text-sm">
-                <h3 className="font-semibold text-gray-900 mb-2">
+              <div className="bg-card rounded-md p-4 text-sm">
+                <h3 className="font-semibold text-foreground mb-2">
                   Troubleshooting Steps:
                 </h3>
-                <ol className="list-decimal list-inside space-y-1 text-gray-700">
+                <ol className="list-decimal list-inside space-y-1 text-foreground">
                   <li>Check that the backend API is running</li>
                   <li>
                     Verify the API URL:{" "}
-                    <code className="bg-gray-100 px-1 rounded">
+                    <code className="bg-muted px-1 rounded">
                       {process.env.NEXT_PUBLIC_API_BASE_URL ||
                         "https://helpedge-api.onrender.com"}
                     </code>
@@ -216,11 +216,11 @@ export default function DashboardStats() {
                 </ol>
               </div>
 
-              <details className="bg-white rounded-md p-4">
-                <summary className="cursor-pointer font-semibold text-gray-900 hover:text-gray-700">
+              <details className="bg-card rounded-md p-4">
+                <summary className="cursor-pointer font-semibold text-foreground hover:text-muted-foreground">
                   🔍 Technical Details (for developers)
                 </summary>
-                <div className="mt-3 space-y-2 text-sm text-gray-700">
+                <div className="mt-3 space-y-2 text-sm text-foreground">
                   <p>
                     <strong>API Base URL:</strong>{" "}
                     {process.env.NEXT_PUBLIC_API_BASE_URL ||
@@ -239,7 +239,7 @@ export default function DashboardStats() {
                       ? "✅ Yes"
                       : "❌ No"}
                   </p>
-                  <p className="text-xs text-gray-500 mt-2">
+                  <p className="text-xs text-muted-foreground mt-2">
                     Check the browser console for full error details and network
                     requests.
                   </p>
@@ -267,33 +267,33 @@ export default function DashboardStats() {
         {/* Show partial stats if available */}
         {(stats || statusCounts) && (
           <div>
-            <h2 className="text-xl font-semibold mb-4 text-gray-900">
+            <h2 className="text-xl font-semibold mb-4 text-foreground">
               Available Data (Partial)
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               {stats && (
                 <>
-                  <div className="bg-white border rounded-lg p-4">
-                    <p className="text-sm text-gray-600">Total Tickets</p>
+                  <div className="bg-card border rounded-lg p-4">
+                    <p className="text-sm text-muted-foreground">Total Tickets</p>
                     <p className="text-2xl font-bold">{stats.totalTickets}</p>
                   </div>
-                  <div className="bg-white border rounded-lg p-4">
-                    <p className="text-sm text-gray-600">Total Users</p>
+                  <div className="bg-card border rounded-lg p-4">
+                    <p className="text-sm text-muted-foreground">Total Users</p>
                     <p className="text-2xl font-bold">{stats.totalUsers}</p>
                   </div>
                 </>
               )}
               {statusCounts && (
                 <>
-                  <div className="bg-white border rounded-lg p-4">
-                    <p className="text-sm text-gray-600">Open</p>
-                    <p className="text-2xl font-bold text-blue-600">
+                  <div className="bg-card border rounded-lg p-4">
+                    <p className="text-sm text-muted-foreground">Open</p>
+                    <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">
                       {statusCounts.open}
                     </p>
                   </div>
-                  <div className="bg-white border rounded-lg p-4">
-                    <p className="text-sm text-gray-600">Resolved</p>
-                    <p className="text-2xl font-bold text-green-600">
+                  <div className="bg-card border rounded-lg p-4">
+                    <p className="text-sm text-muted-foreground">Resolved</p>
+                    <p className="text-2xl font-bold text-green-600 dark:text-green-400">
                       {statusCounts.resolved}
                     </p>
                   </div>
@@ -310,7 +310,7 @@ export default function DashboardStats() {
     <main className="p-6 space-y-8">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">{getDashboardTitle()}</h1>
+          <h1 className="text-3xl font-bold text-foreground">{getDashboardTitle()}</h1>
           {user && (
             <p className="text-sm text-muted-foreground mt-1">
               Welcome back, {user.name} ({user.role})
@@ -327,7 +327,7 @@ export default function DashboardStats() {
       </div>
 
       {error && (
-        <div className="bg-yellow-50 border border-yellow-200 text-yellow-800 px-4 py-3 rounded-md">
+        <div className="bg-yellow-100 border border-yellow-200 text-yellow-800 dark:bg-yellow-900/20 dark:border-yellow-800 dark:text-yellow-300 px-4 py-3 rounded-md">
           <p className="text-sm">
             <strong>Warning:</strong> {error}
           </p>
@@ -339,7 +339,7 @@ export default function DashboardStats() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
           <Card className="hover:shadow-lg transition">
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-gray-600 flex items-center gap-2">
+              <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
                 <TicketIcon className="h-4 w-4" />
                 Total Tickets
               </CardTitle>
@@ -351,7 +351,7 @@ export default function DashboardStats() {
 
           <Card className="hover:shadow-lg transition">
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-gray-600 flex items-center gap-2">
+              <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
                 <AlertTriangle className="h-4 w-4 text-blue-500" />
                 Open
               </CardTitle>
@@ -363,7 +363,7 @@ export default function DashboardStats() {
 
           <Card className="hover:shadow-lg transition">
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-gray-600 flex items-center gap-2">
+              <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
                 <Clock className="h-4 w-4 text-yellow-500" />
                 In Progress
               </CardTitle>
@@ -375,7 +375,7 @@ export default function DashboardStats() {
 
           <Card className="hover:shadow-lg transition">
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-gray-600 flex items-center gap-2">
+              <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
                 <CheckCircle className="h-4 w-4 text-green-500" />
                 Resolved
               </CardTitle>
@@ -387,7 +387,7 @@ export default function DashboardStats() {
 
           <Card className="hover:shadow-lg transition">
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-gray-600 flex items-center gap-2">
+              <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
                 <Users className="h-4 w-4 text-purple-500" />
                 Total Users
               </CardTitle>
@@ -399,7 +399,7 @@ export default function DashboardStats() {
 
           <Card className="hover:shadow-lg transition">
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-gray-600 flex items-center gap-2">
+              <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
                 <Calendar className="h-4 w-4 text-indigo-500" />
                 Today
               </CardTitle>
@@ -415,7 +415,7 @@ export default function DashboardStats() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
         <Card className="hover:shadow-lg transition border-l-4 border-l-blue-500">
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-gray-600">Open</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">Open</CardTitle>
           </CardHeader>
           <CardContent>
             <p className="text-2xl font-bold text-blue-600">{calculatedCounts.open}</p>
@@ -424,7 +424,7 @@ export default function DashboardStats() {
 
         <Card className="hover:shadow-lg transition border-l-4 border-l-yellow-500">
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-gray-600">In Progress</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">In Progress</CardTitle>
           </CardHeader>
           <CardContent>
             <p className="text-2xl font-bold text-yellow-600">{calculatedCounts.inProgress}</p>
@@ -433,7 +433,7 @@ export default function DashboardStats() {
 
         <Card className="hover:shadow-lg transition border-l-4 border-l-green-500">
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-gray-600">Resolved</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">Resolved</CardTitle>
           </CardHeader>
           <CardContent>
             <p className="text-2xl font-bold text-green-600">{calculatedCounts.resolved}</p>
@@ -442,7 +442,7 @@ export default function DashboardStats() {
 
         <Card className="hover:shadow-lg transition border-l-4 border-l-gray-500">
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-gray-600">Closed</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">Closed</CardTitle>
           </CardHeader>
           <CardContent>
             <p className="text-2xl font-bold text-gray-600">{calculatedCounts.closed}</p>
@@ -451,7 +451,7 @@ export default function DashboardStats() {
 
         <Card className="hover:shadow-lg transition border-l-4 border-l-red-500">
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-gray-600">Critical Priority</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">Critical Priority</CardTitle>
           </CardHeader>
           <CardContent>
             <p className="text-2xl font-bold text-red-600">{criticalTickets}</p>
@@ -469,7 +469,7 @@ export default function DashboardStats() {
         </h2>
         {tickets.length === 0 ? (
           <Card>
-            <CardContent className="p-8 text-center text-gray-500">
+            <CardContent className="p-8 text-center text-muted-foreground">
               <TicketIcon className="h-12 w-12 mx-auto mb-4 opacity-50" />
               <p>{isEndUser ? "You haven't created any tickets yet" : "No tickets found"}</p>
               {isEndUser && (
@@ -500,14 +500,14 @@ export default function DashboardStats() {
                       <h3 className="text-lg font-semibold truncate flex-1">
                         {ticket.subject || "No Subject"}
                       </h3>
-                      <span className="text-xs text-gray-500 ml-2">
+                      <span className="text-xs text-muted-foreground ml-2">
                         #{ticket.ticketNumber}
                       </span>
                     </div>
-                    <p className="text-sm text-gray-600 line-clamp-2">
+                    <p className="text-sm text-muted-foreground line-clamp-2">
                       {ticket.description || "No description provided"}
                     </p>
-                    <p className="text-xs text-gray-500">{formattedDate}</p>
+                    <p className="text-xs text-muted-foreground">{formattedDate}</p>
                     <div className="flex gap-2 mt-2 flex-wrap">
                       <Badge
                         variant="outline"

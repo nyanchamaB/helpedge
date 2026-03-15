@@ -17,15 +17,15 @@ import { cn } from "@/lib/utils";
 function getPriorityStyle(priority: TicketPriorityString): string {
   switch (priority) {
     case "Low":
-      return "bg-gray-50 text-gray-600 border-gray-200";
+      return "bg-gray-100 text-gray-700 border-gray-200 dark:bg-gray-800/50 dark:text-gray-300 dark:border-gray-700";
     case "Medium":
-      return "bg-blue-50 text-blue-600 border-blue-200";
+      return "bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-900/30 dark:text-blue-300 dark:border-blue-800";
     case "High":
-      return "bg-orange-50 text-orange-600 border-orange-200";
+      return "bg-orange-100 text-orange-700 border-orange-200 dark:bg-orange-900/30 dark:text-orange-300 dark:border-orange-800";
     case "Critical":
-      return "bg-red-50 text-red-600 border-red-200";
+      return "bg-red-100 text-red-700 border-red-200 dark:bg-red-900/30 dark:text-red-300 dark:border-red-800";
     default:
-      return "bg-gray-50 text-gray-600 border-gray-200";
+      return "bg-gray-100 text-gray-700 border-gray-200 dark:bg-gray-800/50 dark:text-gray-300 dark:border-gray-700";
   }
 }
 
@@ -54,23 +54,23 @@ export function TicketCard({ ticket }: TicketCardProps) {
               {ticket.isEscalated && (
                 <Badge
                   variant="outline"
-                  className="text-xs bg-orange-50 text-orange-600 border-orange-200 px-1.5 py-0"
+                  className="text-xs bg-orange-100 text-orange-700 border-orange-200 dark:bg-orange-900/30 dark:text-orange-300 dark:border-orange-800 px-1.5 py-0"
                 >
                   <TrendingUp className="h-2.5 w-2.5 mr-0.5" />
                   Escalated
                 </Badge>
               )}
             </div>
-            <h3 className="font-medium text-gray-900 truncate group-hover:text-blue-600 transition-colors">
+            <h3 className="font-medium text-foreground truncate group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
               {ticket.subject}
             </h3>
           </div>
-          <ArrowRight className="h-4 w-4 text-gray-300 group-hover:text-blue-400 transition-colors shrink-0 mt-1" />
+          <ArrowRight className="h-4 w-4 text-muted-foreground/50 group-hover:text-blue-400 transition-colors shrink-0 mt-1" />
         </div>
 
         {/* Description preview */}
         {ticket.description && (
-          <p className="text-sm text-gray-500 line-clamp-2">{ticket.description}</p>
+          <p className="text-sm text-muted-foreground line-clamp-2">{ticket.description}</p>
         )}
 
         {/* Footer */}
@@ -87,12 +87,12 @@ export function TicketCard({ ticket }: TicketCardProps) {
           >
             {ticket.priority}
           </Badge>
-          <div className="flex items-center gap-1 text-xs text-gray-400 ml-auto">
+          <div className="flex items-center gap-1 text-xs text-muted-foreground ml-auto">
             <Clock className="h-3 w-3" />
             <span>{format(new Date(ticket.updatedAt), "MMM d")}</span>
           </div>
           {commentCount > 0 && (
-            <div className="flex items-center gap-1 text-xs text-gray-400">
+            <div className="flex items-center gap-1 text-xs text-muted-foreground">
               <MessageSquare className="h-3 w-3" />
               <span>{commentCount}</span>
             </div>
