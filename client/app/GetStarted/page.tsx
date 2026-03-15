@@ -5,7 +5,9 @@ import Link from "next/link";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-
+import { siteConfig } from "@/config/site";
+import { FcGoogle } from "react-icons/fc" ;       
+import { FaMicrosoft } from "react-icons/fa";
 export default function GetStartedPage() {
   return (
     <>
@@ -15,8 +17,12 @@ export default function GetStartedPage() {
         <div className="relative w-full max-w-2xl bg-white/90 backdrop-blur-md p-12 md:p-16 rounded-3xl shadow-2xl border border-blue-100 transition-transform hover:scale-[1.01]">
           
           {/* Logo */}
-          <div className="mb-8 text-center">
-            <h1 className="text-4xl font-bold text-blue-900 tracking-tight">HelpEdge</h1>
+          <div className="mb-8 text-center flex justify-center">
+            <img
+              src={siteConfig.logo}
+              alt="HelpEdge Logo"
+              className="h-16 w-auto"
+            />
           </div>
 
           {/* Title & description */}
@@ -64,11 +70,13 @@ export default function GetStartedPage() {
           {/* Other options */}
           <div className="text-center text-sm text-gray-600">
             <div className="flex justify-center space-x-3 mt-4">
-              <Button variant="outline" className="px-4 py-2 rounded-md hover:bg-gray-100">
-                Sign in with Google
+              <Button variant="outline">
+                <FcGoogle className="mr-2 h-5 w-5" />
+                  Continue with Google
               </Button>
-              <Button variant="outline" className="px-4 py-2 rounded-md hover:bg-gray-100">
-                Sign in with Microsoft
+              <Button variant="outline">
+                <FaMicrosoft className="mr-2 h-5 w-5" />
+                  Continue with Microsoft
               </Button>
             </div>
             <div className="">

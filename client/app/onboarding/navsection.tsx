@@ -1,10 +1,11 @@
 "use client";
 
-import * as Icons from "@mui/icons-material";
+import { Globe, Search, X, Menu } from "lucide-react";
 import { navLinks } from "@/common";
 import Link from "next/link";
 import { useState, useRef, useEffect } from "react";
 import { usePathname } from "next/navigation";
+import { siteConfig } from "@/config/site";
 
 export default function NavHeader() {
   const pathname = usePathname();
@@ -32,8 +33,11 @@ export default function NavHeader() {
       <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
         {/* Left: Logo */}
         <Link href="/" className="flex items-center space-x-2">
-          <Icons.Public className="text-indigo-600 text-2xl" />
-          <span className="font-bold text-xl text-gray-800">HelpEdge</span>
+          <img
+            src={siteConfig.logo}
+            alt="HelpEdge Logo"
+            className="h-8 w-auto transition-transform duration-200 hover:scale-105"
+          />
         </Link>
 
         {/* Middle Nav (Desktop) */}
@@ -95,11 +99,11 @@ export default function NavHeader() {
                 onClick={() => setShowSearch(true)}
                 className="text-gray-700 hover:text-indigo-600"
               >
-                <Icons.Search />
+                <Search className="w-5 h-5" />
               </button>
             ) : (
               <div className="flex items-center border rounded-lg px-2">
-                <Icons.Search className="text-gray-500" />
+                <Search className="text-gray-500 w-5 h-5" />
                 <input
                   type="text"
                   placeholder="Search..."
@@ -110,7 +114,7 @@ export default function NavHeader() {
                   onClick={() => setShowSearch(false)}
                   className="ml-2 text-gray-500 hover:text-red-500"
                 >
-                  <Icons.Close />
+                  <X className="w-5 h-5" />
                 </button>
               </div>
             )}
@@ -124,12 +128,16 @@ export default function NavHeader() {
           >
             Login
           </Link>
+          <Link  href="/ContactTeam" >
           <button className="px-4 py-2 border border-indigo-400 text-indigo-600 rounded-lg hover:bg-indigo-50">
             Reach out to Us
           </button>
+          </Link>
+          <Link href="/GetStarted" >
           <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-indigo-700">
             Get Started
           </button>
+          </Link>
         </div>
 
         {/* Mobile Menu Button */}
@@ -137,7 +145,7 @@ export default function NavHeader() {
           className="md:hidden text-gray-700 hover:text-indigo-600"
           onClick={() => setMobileOpen(!mobileOpen)}
         >
-          {mobileOpen ? <Icons.Close /> : <Icons.Menu />}
+          {mobileOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
         </button>
       </div>
 
@@ -159,7 +167,7 @@ export default function NavHeader() {
               onClick={() => setMobileOpen(false)}
               className="flex items-center text-gray-700 hover:text-indigo-600"
             >
-              <Icons.Search className="mr-2" /> Search
+              <Search className="mr-2 w-5 h-5" /> Search
             </button>
            {/* <button className="text-gray-700 hover:text-indigo-600">Login</button> */}
             <Link 
@@ -168,14 +176,18 @@ export default function NavHeader() {
           >
             Login
           </Link>
+          <Link href="/ContactTeam" >
             <button className="px-4 py-2 border border-indigo-600 text-indigo-600 rounded-lg hover:bg-indigo-50">
               Reach out for support
             </button>
+          </Link>
+          <Link href="/pricing/DetailsForm" >
             <button className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">
               Get Started
             </button>
-          </nav>
-        </div>
+          </Link>
+        </nav>
+      </div>
       )}
     </header>
   );

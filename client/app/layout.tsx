@@ -1,9 +1,18 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import ScrollTop from "@/components/scrolltop";
-import Footer from "./onboarding/footer";
-import { AuthProvider } from "@/contexts/AuthContext"; 
+import dynamic from "next/dynamic";
+import { AuthProvider } from "@/contexts/AuthContext";
+import { ReactQueryProvider } from "./providers";
+import { Toaster } from "@/components/ui/sonner";
+import ThemeProviders from "@/components/theme-provider";
+
+
+// Lazy load non-critical components for better initial load performance
+// Note: In Next.js 15 App Router, default is Server Component, so we use dynamic imports
+// without ssr option (it will default to true for SEO benefits)
+const ScrollTop = dynamic(() => import("@/components/scrolltop"));
+const ConditionalFooter = dynamic(() => import("@/components/layout/ConditionalFooter"));
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -30,11 +39,14 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <AuthProvider>
-          {children}
-          <ScrollTop />
-          <Footer />
-        </AuthProvider>
+        <ThemeProviders>
+          <AuthProvider>
+            {children}
+            <ScrollTop />
+            <Toaster />
+            <ConditionalFooter />
+          </AuthProvider>
+        </ThemeProviders>
       </body>
     </html>
   );
