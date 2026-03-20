@@ -47,6 +47,7 @@ import {
   getAIPerformanceByCategory,
   getConfusionMatrix,
 } from '@/lib/api/ai';
+import { getAllCategories } from '@/lib/api/categories';
 import { format, subDays } from 'date-fns';
 import { cn } from '@/lib/utils';
 import type { AIAnalyticsFilter } from '@/lib/types/ai';
@@ -74,6 +75,7 @@ export default function AIAnalyticsDashboard() {
   const {
     data: metricsResponse,
     isLoading: isLoadingMetrics,
+    isFetching: isFetchingMetrics,
     error: metricsError,
     refetch: refetchMetrics,
   } = useQuery({
@@ -86,7 +88,9 @@ export default function AIAnalyticsDashboard() {
   const {
     data: categoryResponse,
     isLoading: isLoadingCategory,
+    isFetching: isFetchingCategory,
     error: categoryError,
+    refetch: refetchCategory,
   } = useQuery({
     queryKey: ['ai-performance-category', dateFilter],
     queryFn: () => getAIPerformanceByCategory(dateFilter),
@@ -97,20 +101,51 @@ export default function AIAnalyticsDashboard() {
   const {
     data: confusionResponse,
     isLoading: isLoadingConfusion,
+    isFetching: isFetchingConfusion,
     error: confusionError,
+    refetch: refetchConfusion,
   } = useQuery({
     queryKey: ['ai-confusion-matrix', dateFilter],
     queryFn: () => getConfusionMatrix(dateFilter),
     staleTime: 5 * 60 * 1000, // 5 minutes
   });
 
+  // Fetch categories for id→name lookup
+  const { data: categoriesResponse } = useQuery({
+    queryKey: ['categories'],
+    queryFn: getAllCategories,
+    staleTime: 10 * 60 * 1000,
+  });
+
+  const categoryNameMap = useMemo(() => {
+    const map: Record<string, string> = {};
+    (categoriesResponse?.data ?? []).forEach((c: any) => { map[c.id] = c.name; });
+    return map;
+  }, [categoriesResponse]);
+
+  const resolveCategory = (raw: string) => categoryNameMap[raw] ?? raw;
+
   const metrics = metricsResponse?.data;
-  const categoryPerformance = categoryResponse?.data || [];
-  const confusionMatrix = confusionResponse?.data;
+  const categoryPerformance = (Array.isArray(categoryResponse?.data) ? categoryResponse.data : []).map((item: any) => ({
+    ...item,
+    accuracyPct: item.accuracy != null ? parseFloat((item.accuracy * 100).toFixed(1)) : 0,
+    category: resolveCategory(item.categoryName ?? item.category ?? 'Unknown'),
+  }));
+  const rawConfusion = confusionResponse?.data;
+  const confusionMatrix = rawConfusion
+    ? {
+        ...rawConfusion,
+        categories: (rawConfusion.categories ?? []).map(resolveCategory),
+      }
+    : undefined;
+
+  const isRefreshing = isFetchingMetrics || isFetchingCategory || isFetchingConfusion;
 
   // Handle refresh all
   const handleRefreshAll = () => {
     refetchMetrics();
+    refetchCategory();
+    refetchConfusion();
   };
 
   // Export to CSV
@@ -176,10 +211,10 @@ export default function AIAnalyticsDashboard() {
           <Button
             variant="outline"
             onClick={handleRefreshAll}
-            disabled={isLoadingMetrics}
+            disabled={isRefreshing}
           >
             <RefreshCw
-              className={cn('h-4 w-4 mr-2', isLoadingMetrics && 'animate-spin')}
+              className={cn('h-4 w-4 mr-2', isRefreshing && 'animate-spin')}
             />
             Refresh
           </Button>
@@ -342,17 +377,19 @@ export default function AIAnalyticsDashboard() {
             <Skeleton className="h-96 w-full" />
           ) : categoryPerformance.length > 0 ? (
             <ResponsiveContainer width="100%" height={400}>
-              <BarChart data={categoryPerformance}>
+              <BarChart data={categoryPerformance} margin={{ bottom: 80 }}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis
                   dataKey="category"
                   angle={-45}
                   textAnchor="end"
+                  interval={0}
+                  tick={{ fontSize: 12 }}
                   height={100}
                 />
-                <YAxis yAxisId="left" orientation="left" stroke="#8884d8" />
-                <YAxis yAxisId="right" orientation="right" stroke="#82ca9d" />
-                <Tooltip />
+                <YAxis yAxisId="left" orientation="left" stroke="#8884d8" allowDecimals={false} />
+                <YAxis yAxisId="right" orientation="right" stroke="#82ca9d" tickFormatter={(v) => `${v}%`} domain={[0, 100]} />
+                <Tooltip formatter={(value, name) => name === 'Accuracy (%)' ? `${value}%` : value} />
                 <Legend />
                 <Bar
                   yAxisId="left"
@@ -362,9 +399,9 @@ export default function AIAnalyticsDashboard() {
                 />
                 <Bar
                   yAxisId="right"
-                  dataKey="accuracy"
+                  dataKey="accuracyPct"
                   fill="#82ca9d"
-                  name="Accuracy"
+                  name="Accuracy (%)"
                 />
               </BarChart>
             </ResponsiveContainer>
@@ -377,7 +414,7 @@ export default function AIAnalyticsDashboard() {
       </Card>
 
       {/* Confusion Matrix */}
-      {confusionMatrix && confusionMatrix.categories.length > 0 && (
+      {confusionMatrix && confusionMatrix.categories.length > 0 && Array.isArray(confusionMatrix.matrix) && (
         <Card>
           <CardHeader>
             <CardTitle>Confusion Matrix</CardTitle>
@@ -410,7 +447,7 @@ export default function AIAnalyticsDashboard() {
                       <td className="border p-2 bg-muted font-medium text-sm max-w-[100px] truncate" title={actualCat}>
                         {actualCat}
                       </td>
-                      {confusionMatrix.matrix[i].map((count: number, j: number) => (
+                      {(confusionMatrix.matrix[i] ?? []).map((count: number, j: number) => (
                         <td
                           key={j}
                           className={cn(

@@ -98,12 +98,18 @@ export async function getReviewQueueStats(): Promise<ApiResponse<ReviewQueueStat
  * Approve AI classification for a ticket (confirm AI suggestion)
  */
 export async function approveTicketClassification(
-  ticketId: string
+  ticketId: string,
+  notes?: string
 ): Promise<ApiResponse<void>> {
-  return apiRequest<void>(`/api/Tickets/${ticketId}/approve`, {
+  const response = await apiRequest<void>(`/api/Tickets/${ticketId}/approve`, {
     method: 'POST',
     includeAuth: true,
+    body: JSON.stringify({ notes: notes ?? 'Looks correct, approved' }),
   });
+  if (!response.success) {
+    throw new Error(response.error ?? 'Failed to approve ticket');
+  }
+  return response;
 }
 
 // ============================================
@@ -434,15 +440,21 @@ export async function rebuildTfIdfIndex(): Promise<ApiResponse<void>> {
  */
 export async function getTfIdfStats(): Promise<
   ApiResponse<{
-    documentCount: number;
-    vocabularySize: number;
-    lastBuildDate?: string;
+    totalTerms: number;
+    totalDocuments: number;
+    lastUpdated: string;
+    averageDocumentFrequency: number;
+    mostCommonTerms: string[];
+    isStale: boolean;
   }>
 > {
   return apiRequest<{
-    documentCount: number;
-    vocabularySize: number;
-    lastBuildDate?: string;
+    totalTerms: number;
+    totalDocuments: number;
+    lastUpdated: string;
+    averageDocumentFrequency: number;
+    mostCommonTerms: string[];
+    isStale: boolean;
   }>('/api/admin/TfIdf/stats', {
     method: 'GET',
     includeAuth: true,
@@ -469,6 +481,52 @@ export async function isTfIdfStale(): Promise<ApiResponse<{ isStale: boolean }>>
     method: 'GET',
     includeAuth: true,
   });
+}
+
+// ============================================
+// Case-Based Reasoning
+// ============================================
+
+export async function getCBRStats(): Promise<ApiResponse<{
+  totalHistoricalTickets: number;
+  indexedTickets: number;
+  lastIndexed: string;
+  averageSimilarityScore: number;
+  ticketsByCategory: Record<string, number>;
+  averageSearchTimeMs: number;
+}>> {
+  return apiRequest('/api/admin/CaseBasedReasoning/stats', { method: 'GET', includeAuth: true });
+}
+
+export async function isCBRInitialized(): Promise<ApiResponse<{ isInitialized: boolean }>> {
+  return apiRequest<{ isInitialized: boolean }>('/api/admin/CaseBasedReasoning/initialized', { method: 'GET', includeAuth: true });
+}
+
+export async function buildCBRIndex(): Promise<ApiResponse<void>> {
+  return apiRequest<void>('/api/admin/CaseBasedReasoning/build-index', { method: 'POST', includeAuth: true });
+}
+
+// ============================================
+// Rule Management
+// ============================================
+
+export async function getRulePriorityKeywords(): Promise<ApiResponse<Record<string, string[]>>> {
+  return apiRequest<Record<string, string[]>>('/api/admin/rules/priority-keywords', { method: 'GET', includeAuth: true });
+}
+
+export async function getRuleCategoryKeywords(): Promise<ApiResponse<Record<string, string[]>>> {
+  return apiRequest<Record<string, string[]>>('/api/admin/rules/category-keywords', { method: 'GET', includeAuth: true });
+}
+
+export async function getOrchestratorStats(): Promise<ApiResponse<{
+  totalClassifications: number;
+  countByMethod: Record<string, number>;
+  manualReviewRate: number;
+  averageConfidenceByMethod: Record<string, number>;
+  averageProcessingTimeMs: number;
+  agreementRate: number;
+}>> {
+  return apiRequest('/api/admin/rules/orchestrator-stats', { method: 'GET', includeAuth: true });
 }
 
 // ============================================

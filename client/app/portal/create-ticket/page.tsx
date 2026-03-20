@@ -2,7 +2,7 @@
 
 export const dynamic = 'force-dynamic';
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigation } from "@/contexts/NavigationContext";
 import { createTicket } from "@/lib/api/tickets";
@@ -20,6 +20,9 @@ export default function PortalCreateTicket() {
   const { navigateTo } = useNavigation();
   const [categories, setCategories] = useState<Category[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const submittingRef = useRef(false);
+  // One UUID per form session — prevents duplicate tickets if the request is sent twice
+  const idempotencyKeyRef = useRef<string>(crypto.randomUUID());
 
   useEffect(() => {
     loadCategories();
@@ -37,6 +40,9 @@ export default function PortalCreateTicket() {
       toast.error("You must be logged in to submit a ticket");
       return;
     }
+    // Synchronous ref guard — prevents double-submit before React state update propagates
+    if (submittingRef.current) return;
+    submittingRef.current = true;
 
     setIsSubmitting(true);
     try {
@@ -46,7 +52,7 @@ export default function PortalCreateTicket() {
         createdById: user.id,
         priority: data.priority,
         categoryId: data.categoryId,
-      });
+      }, idempotencyKeyRef.current);
 
       if (!response.success || !response.data) {
         throw new Error(response.error ?? "Failed to create ticket");
@@ -71,6 +77,9 @@ export default function PortalCreateTicket() {
       const message =
         err instanceof Error ? err.message : "Failed to submit ticket";
       toast.error(message);
+      // Rotate the key so a genuine retry after an error doesn't get blocked
+      idempotencyKeyRef.current = crypto.randomUUID();
+      submittingRef.current = false;
       setIsSubmitting(false);
     }
   }

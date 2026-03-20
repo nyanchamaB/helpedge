@@ -11,7 +11,7 @@ import {
   getEffectiveStatusLabel,
   getEffectiveStatusStyle,
 } from "@/lib/api/tickets";
-import { Eye, Ticket as TicketIcon, TrendingUp } from "lucide-react";
+import { Eye, Trash2, Ticket as TicketIcon, TrendingUp } from "lucide-react";
 
 interface TicketsTableProps {
   tickets: Ticket[];
@@ -21,6 +21,8 @@ interface TicketsTableProps {
   title?: string;
   showFilters?: boolean;
   emptyMessage?: string;
+  onDelete?: (ticket: Ticket) => void;
+  onBulkDelete?: (ids: string[]) => void;
 }
 
 // Priority badge styling
@@ -47,6 +49,8 @@ export function TicketsTable({
   title = "Tickets",
   showFilters = true,
   emptyMessage = "No tickets found",
+  onDelete,
+  onBulkDelete,
 }: TicketsTableProps) {
   const { navigateTo } = useNavigation();
 
@@ -156,7 +160,20 @@ export function TicketsTable({
       icon: <Eye className="h-4 w-4 mr-2" />,
       onClick: (ticket) => navigateTo(`/tickets/${ticket.id}`),
     },
+    ...(onDelete
+      ? [{
+          label: "Delete",
+          icon: <Trash2 className="h-4 w-4 mr-2" />,
+          onClick: onDelete,
+          variant: "destructive" as const,
+          separator: true,
+        }]
+      : []),
   ];
+
+  const bulkActions = onBulkDelete
+    ? [{ label: "Delete Selected", icon: <Trash2 className="h-4 w-4 mr-2" />, onClick: onBulkDelete, variant: "destructive" as const }]
+    : [];
 
   return (
     <DataTable<Ticket>
@@ -168,9 +185,15 @@ export function TicketsTable({
       searchKeys={["subject", "description", "ticketNumber"]}
       filters={filters}
       actions={actions}
+      selectable={!!onBulkDelete}
+      bulkActions={bulkActions}
       pagination={true}
       onRowClick={(ticket) => navigateTo(`/tickets/${ticket.id}`)}
       getItemId={(ticket) => ticket.id}
+      deleteConfirmation={onDelete ? {
+        title: "Delete ticket?",
+        description: (ticket) => `This will permanently delete "${ticket.subject}". This action cannot be undone.`,
+      } : undefined}
       emptyState={{
         icon: <TicketIcon className="h-8 w-8 text-gray-400" />,
         title: emptyMessage,

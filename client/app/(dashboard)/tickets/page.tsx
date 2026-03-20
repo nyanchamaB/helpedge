@@ -4,9 +4,10 @@ export const dynamic = 'force-dynamic';
 
 import { useEffect, useState } from "react";
 import { TicketsTable } from "@/components/tickets/TicketsTable";
-import { getAllTickets, Ticket } from "@/lib/api/tickets";
+import { getAllTickets, deleteTicket, Ticket } from "@/lib/api/tickets";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigation } from "@/contexts/NavigationContext";
+import { toast } from "sonner";
 
 /**
  * All Tickets Page
@@ -37,6 +38,32 @@ export default function AllTicketsPage() {
       fetchTickets();
     }
   }, [authLoading, user, navigateTo]);
+
+  async function handleDelete(ticket: Ticket) {
+    const response = await deleteTicket(ticket.id);
+    if (response.success) {
+      toast.success("Ticket deleted");
+      setTickets((prev) => prev.filter((t) => t.id !== ticket.id));
+    } else {
+      toast.error("Failed to delete ticket", { description: response.error });
+    }
+  }
+
+  async function handleBulkDelete(ids: string[]) {
+    const results = await Promise.allSettled(ids.map((id) => deleteTicket(id)));
+    const succeededIds = ids.filter((_, i) => {
+      const r = results[i];
+      return r.status === "fulfilled" && (r.value as any).success;
+    });
+    const failed = ids.length - succeededIds.length;
+    if (succeededIds.length > 0) {
+      setTickets((prev) => prev.filter((t) => !succeededIds.includes(t.id)));
+      toast.success(`${succeededIds.length} ticket${succeededIds.length !== 1 ? "s" : ""} deleted`);
+    }
+    if (failed > 0) {
+      toast.error(`${failed} ticket${failed !== 1 ? "s" : ""} could not be deleted`);
+    }
+  }
 
   async function fetchTickets() {
     setIsLoading(true);
@@ -86,6 +113,8 @@ export default function AllTicketsPage() {
         title="All Tickets"
         showFilters={true}
         emptyMessage="No tickets found in the system"
+        onDelete={handleDelete}
+        onBulkDelete={handleBulkDelete}
       />
     </div>
   );

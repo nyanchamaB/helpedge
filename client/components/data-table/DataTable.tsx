@@ -179,6 +179,12 @@ export function DataTable<T>({
     setFilterValues(initialFilters);
   }, [filters]);
 
+  // When items are removed from data (e.g. after delete), clear their IDs from selection
+  React.useEffect(() => {
+    const validIds = new Set(data.map(getItemId));
+    setSelectedIds((prev) => prev.filter((id) => validIds.has(id)));
+  }, [data]);
+
   // Filter and sort data
   const filteredAndSortedData = useMemo(() => {
     let result = [...data];

@@ -381,7 +381,7 @@ export default function DashboardStats() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-3xl font-bold text-green-600">{stats.rlvedTickets}</p>
+              <p className="text-3xl font-bold text-green-600">{stats.resolvedTickets ?? stats.rlvedTickets}</p>
             </CardContent>
           </Card>
 

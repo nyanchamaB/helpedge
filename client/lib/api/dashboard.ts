@@ -10,9 +10,11 @@ export interface DashboardStats {
   totalTickets: number;
   openTickets: number;
   inProgressTickets: number;
-  rlvedTickets: number; // Note: API returns "rlvedTickets" (resolved tickets)
+  resolvedTickets?: number; // standard field name
+  rlvedTickets?: number;    // legacy abbreviated field name
   totalUsers: number;
   todayTickets: number;
+  avgResolutionTime?: number | null;
 }
 
 export interface TicketStatusCounts {
@@ -125,15 +127,19 @@ export interface HealthStatus {
 }
 
 export interface DetailedHealthStatus {
-  status: string;
+  service?: string;
   timestamp?: string;
-  mongodb?: {
-    status: string;
-    collections?: string[];
-  };
-  configuration?: {
-    jwtConfigured: boolean;
-    corsConfigured: boolean;
+  version?: string;
+  environment?: string;
+  checks?: {
+    mongodb?: {
+      status: string;
+      collections?: string[];
+    };
+    configuration?: {
+      jwtConfigured: boolean;
+      corsConfigured: boolean;
+    };
   };
 }
 

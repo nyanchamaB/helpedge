@@ -15,6 +15,7 @@ import {
   ClipboardList,
   Brain,
   Database,
+  FolderOpen,
 } from "lucide-react";
 import { siteConfig } from "@/config/site";
 import { UserRole } from "@/lib/api/auth";
@@ -78,7 +79,7 @@ export const navData = {
         { title: "Submit Ticket", url: "/portal/create-ticket", roles: ["EndUser"] },
         { title: "Email Instructions", url: "/portal/email-ticket", roles: ["EndUser"] },
         { title: "Notifications", url: "/portal/notifications", roles: ["EndUser"] },
-        { title: "Create Ticket", url: "/tickets/create-ticket", roles: STAFF_ROLES },
+        { title: "Submit Ticket", url: "/portal/create-ticket", roles: STAFF_ROLES },
         { title: "From Email", url: "/tickets/from-email", roles: ["Admin", "ITManager", "ServiceDeskAgent"] },
         { title: "Queue", url: "/tickets/queue", roles: ["ServiceDeskAgent", "TeamLead"] },
       ],
@@ -151,15 +152,25 @@ export const navData = {
       ],
     },
     {
-      title: "AI & ML Admin",
+      title: "AI",
       url: "/admin",
       icon: Brain,
-      role: ["Admin", "ITManager"],
+      roles: ["Admin", "ITManager"],
       items: [
         { title: "AI Analytics", url: "/admin/ai-analytics", roles: ["Admin", "ITManager"] },
-        { title: "ML Models", url: "/admin/ml-models", roles: ["Admin"] },
-        { title: "Training Data", url: "/admin/training-data", roles: ["Admin"] },
+        { title: "TF-IDF", url: "/admin/ml-models", roles: ["Admin"] },
+        { title: "Case-Based Reasoning", url: "/admin/case-based-reasoning", roles: ["Admin"] },
+        { title: "Rule Management", url: "/admin/rule-management", roles: ["Admin", "ITManager"] },
         { title: "Review Queue", url: "/tickets/review-queue", roles: ["Admin", "ITManager", "TeamLead", "ServiceDeskAgent"] },
+      ],
+    },
+    {
+      title: "Categories",
+      url: "/admin/categories",
+      icon: FolderOpen,
+      roles: STAFF_ROLES,
+      items: [
+        { title: "All Categories", url: "/admin/categories", roles: STAFF_ROLES },
       ],
     },
     {

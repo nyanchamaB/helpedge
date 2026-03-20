@@ -70,9 +70,6 @@ const MyTicketsContent = dynamic(() => import("@/app/(dashboard)/tickets/my-tick
   loading: () => <PageSkeleton />,
 });
 
-const CreateTicketContent = dynamic(() => import("@/app/(dashboard)/tickets/create-ticket/page"), {
-  loading: () => <PageSkeleton />,
-});
 
 const ReviewQueueContent = dynamic(() => import("@/app/(protected)/tickets/review-queue/page"), {
   loading: () => <PageSkeleton />,
@@ -159,6 +156,18 @@ const MLModelsContent = dynamic(() => import("@/app/admin/ml-models/page"), {
 });
 
 const TrainingDataContent = dynamic(() => import("@/app/admin/training-data/page"), {
+  loading: () => <PageSkeleton />,
+});
+
+const CaseBasedReasoningContent = dynamic(() => import("@/app/admin/case-based-reasoning/page"), {
+  loading: () => <PageSkeleton />,
+});
+
+const RuleManagementContent = dynamic(() => import("@/app/admin/rule-management/page"), {
+  loading: () => <PageSkeleton />,
+});
+
+const CategoriesContent = dynamic(() => import("@/app/admin/categories/page"), {
   loading: () => <PageSkeleton />,
 });
 
@@ -275,7 +284,7 @@ export function MainContentRenderer() {
     if (activePage === '/tickets') return <AllTicketsContent />;
     if (activePage === '/tickets/assigned') return <AssignedTicketsContent />;
     if (activePage === '/tickets/my-tickets') return <MyTicketsContent />;
-    if (activePage === '/tickets/create-ticket') return <CreateTicketContent />;
+    if (activePage === '/tickets/create-ticket') return <PortalCreateTicketContent />;
     if (activePage === '/tickets/from-email') return <EmailTicketPage />;
     if (activePage === '/tickets/review-queue') return <ReviewQueueContent />;
 
@@ -359,6 +368,12 @@ export function MainContentRenderer() {
         return <MLModelsContent />;
       case '/admin/training-data':
         return <TrainingDataContent />;
+      case '/admin/case-based-reasoning':
+        return <CaseBasedReasoningContent />;
+      case '/admin/rule-management':
+        return <RuleManagementContent />;
+      case '/admin/categories':
+        return <CategoriesContent />;
 
       // Knowledge Base
       case '/knowledge-base':
