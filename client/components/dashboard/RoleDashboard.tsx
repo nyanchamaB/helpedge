@@ -13,6 +13,7 @@ import {
   getMyTicketsDashboard,
   getMyStats,
   getDetailedHealth,
+  getResolverKpis,
   type DashboardStats,
   type TicketStatusCounts,
   type TeamStats,
@@ -21,6 +22,7 @@ import {
   type MyStats,
   type DetailedHealthStatus,
 } from "@/lib/api/dashboard";
+import { getAssignableStaff } from "@/lib/api/users";
 import {
   LayoutDashboard,
   Ticket,
@@ -133,24 +135,33 @@ function StatCard({
 // Admin Dashboard
 function AdminDashboard() {
   const [stats, setStats] = useState<DashboardStats | null>(null);
-  const [statusCounts, setStatusCounts] = useState<TicketStatusCounts | null>(null);
-  const [teamStats, setTeamStats] = useState<TeamStats | null>(null);
   const [healthStatus, setHealthStatus] = useState<DetailedHealthStatus | null>(null);
+  const [staffCount, setStaffCount] = useState<number | null>(null);
+  const [avgResolutionHours, setAvgResolutionHours] = useState<string>("N/A");
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function fetchData() {
       setLoading(true);
-      const [statsRes, statusRes, teamRes, healthRes] = await Promise.all([
+      const [statsRes, healthRes, staffRes, kpisRes] = await Promise.all([
         getDashboardStats(),
-        getTicketStatusCounts(),
-        getTeamStats(),
         getDetailedHealth(),
+        getAssignableStaff(),
+        getResolverKpis(),
       ]);
       if (statsRes.success) setStats(statsRes.data!);
-      if (statusRes.success) setStatusCounts(statusRes.data!);
-      if (teamRes.success) setTeamStats(teamRes.data!);
       if (healthRes.success) setHealthStatus(healthRes.data!);
+      if (staffRes.success) setStaffCount(staffRes.data!.length);
+      if (kpisRes.success && kpisRes.data) {
+        const ttrs = kpisRes.data
+          .map((r) => r.avgTtrMinutes)
+          .filter((v): v is number => v != null && v > 0);
+        if (ttrs.length > 0) {
+          const avgMinutes = ttrs.reduce((a, b) => a + b, 0) / ttrs.length;
+          const hours = avgMinutes / 60;
+          setAvgResolutionHours(hours < 1 ? `${Math.round(avgMinutes)}m` : `${hours.toFixed(1)}h`);
+        }
+      }
       setLoading(false);
     }
     fetchData();
@@ -184,34 +195,34 @@ function AdminDashboard() {
         />
         <StatCard
           title="System Status"
-          value={healthStatus?.status === "Healthy" ? "Healthy" : "Issues"}
+          value={healthStatus?.checks != null ? "Healthy" : "Issues"}
           icon={<Server className="h-4 w-4" />}
-          color={healthStatus?.status === "Healthy" ? "bg-green-500" : "bg-red-500"}
+          color={healthStatus?.checks != null ? "bg-green-500" : "bg-red-500"}
         />
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <StatCard
           title="In Progress"
-          value={statusCounts?.inProgress ?? 0}
+          value={stats?.inProgressTickets ?? 0}
           icon={<Clock className="h-4 w-4" />}
           color="bg-blue-400"
         />
         <StatCard
           title="Resolved"
-          value={statusCounts?.resolved ?? 0}
+          value={stats?.resolvedTickets ?? stats?.rlvedTickets ?? 0}
           icon={<CheckCircle className="h-4 w-4" />}
           color="bg-green-400"
         />
         <StatCard
           title="Team Members"
-          value={teamStats?.totalUsers ?? 0}
+          value={staffCount ?? 0}
           icon={<UserCheck className="h-4 w-4" />}
           color="bg-purple-500"
         />
         <StatCard
           title="Avg Resolution"
-          value={stats?.avgResolutionTime ? `${stats.avgResolutionTime}h` : "N/A"}
+          value={avgResolutionHours}
           icon={<TrendingUp className="h-4 w-4" />}
           color="bg-indigo-500"
         />
@@ -401,9 +412,9 @@ function SystemAdminDashboard() {
         />
         <StatCard
           title="System Health"
-          value={healthStatus?.status === "Healthy" ? "OK" : "Issues"}
+          value={healthStatus?.checks != null ? "OK" : "Issues"}
           icon={<Server className="h-4 w-4" />}
-          color={healthStatus?.status === "Healthy" ? "bg-green-500" : "bg-red-500"}
+          color={healthStatus?.checks != null ? "bg-green-500" : "bg-red-500"}
         />
       </div>
 
@@ -442,20 +453,20 @@ function SystemAdminDashboard() {
             <div className="space-y-2">
               <div className="flex justify-between items-center">
                 <span className="text-sm">MongoDB</span>
-                <Badge className={healthStatus?.mongodb?.status === "Connected" ? "bg-green-500" : "bg-red-500"}>
-                  {healthStatus?.mongodb?.status ?? "Unknown"}
+                <Badge className={healthStatus?.checks?.mongodb != null ? "bg-green-500" : "bg-red-500"}>
+                  {healthStatus?.checks?.mongodb?.status ?? "Unknown"}
                 </Badge>
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-sm">JWT Auth</span>
-                <Badge className={healthStatus?.configuration?.jwtConfigured ? "bg-green-500" : "bg-red-500"}>
-                  {healthStatus?.configuration?.jwtConfigured ? "Configured" : "Not Set"}
+                <Badge className={healthStatus?.checks?.configuration?.jwtConfigured ? "bg-green-500" : "bg-red-500"}>
+                  {healthStatus?.checks?.configuration?.jwtConfigured ? "Configured" : "Not Set"}
                 </Badge>
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-sm">CORS</span>
-                <Badge className={healthStatus?.configuration?.corsConfigured ? "bg-green-500" : "bg-red-500"}>
-                  {healthStatus?.configuration?.corsConfigured ? "Configured" : "Not Set"}
+                <Badge className={healthStatus?.checks?.configuration?.corsConfigured ? "bg-green-500" : "bg-red-500"}>
+                  {healthStatus?.checks?.configuration?.corsConfigured ? "Configured" : "Not Set"}
                 </Badge>
               </div>
             </div>

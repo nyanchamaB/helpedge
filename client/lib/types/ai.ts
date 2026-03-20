@@ -166,26 +166,39 @@ export interface OverrideRecord {
 
 export interface ReviewQueueTicket {
   id: string;
-  ticketNumber: string;
-  subject: string;
-  description: string;
-  status: string;
+  ticketId: string;
   aiCategory?: string;
   aiPriority?: string;
   aiAssignee?: string;
-  aiConfidence?: number;
-  aiMethod?: ClassificationMethod;
-  createdAt: string;
-  createdBy?: string;
-  queuedAt: string;
+  aiCategoryConfidence?: number;
+  aiAssigneeConfidence?: number;
+  aiPriorityConfidence?: number;
+  queueStatus?: string;
+  reviewReason?: string;
+  addedToQueueAt: string;
+  reviewedById?: string;
+  reviewedAt?: string;
+  reviewNotes?: string;
+  ticketSummary?: {
+    id: string;
+    ticketNumber: string;
+    subject: string;
+    status?: string;
+    priority?: string;
+    categoryId?: string;
+    createdAt?: string;
+  };
 }
 
 export interface ReviewQueueStats {
-  totalInQueue: number;
-  averageConfidence: number;
-  oldestTicketAge: number;
-  byCategory?: Record<string, number>;
-  byPriority?: Record<string, number>;
+  pendingCount: number;
+  approvedCount: number;
+  overriddenCount: number;
+  expiredCount: number;
+  totalCount: number;
+  countByStatus?: Record<string, number>;
+  averageReviewTimeMinutes?: number;
+  oldestPendingEntryDate?: string;
 }
 
 // ============================================

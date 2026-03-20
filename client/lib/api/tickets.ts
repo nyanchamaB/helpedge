@@ -189,11 +189,15 @@ export async function getTicketsByCreator(creatorId: string): Promise<ApiRespons
  * @param ticket - Ticket creation data
  * @returns Created ticket object
  */
-export async function createTicket(ticket: CreateTicketRequest): Promise<ApiResponse<Ticket>> {
+export async function createTicket(
+  ticket: CreateTicketRequest,
+  idempotencyKey?: string
+): Promise<ApiResponse<Ticket>> {
   return apiRequest<Ticket>('/api/Tickets', {
     method: 'POST',
     body: ticket,
     includeAuth: true,
+    headers: idempotencyKey ? { 'Idempotency-Key': idempotencyKey } : undefined,
   });
 }
 

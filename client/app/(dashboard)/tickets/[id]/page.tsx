@@ -231,8 +231,8 @@ function TicketDetailSkeleton() {
 // Roles allowed to assign tickets
 const ASSIGN_ROLES = ["Admin", "ITManager", "TeamLead", "ServiceDeskAgent"];
 
-// Roles allowed to escalate tickets (backend: Admin, ITManager, TeamLead, Technician, SystemAdmin)
-const ESCALATE_ROLES = ["Admin", "ITManager", "TeamLead", "Technician", "SystemAdmin"];
+// Roles allowed to escalate tickets
+const ESCALATE_ROLES = ["Admin", "ITManager", "TeamLead", "Technician", "SystemAdmin", "ServiceDeskAgent"];
 
 // Roles allowed to view AI details and override classifications
 const AI_ROLES = ["Admin", "ITManager", "TeamLead", "ServiceDeskAgent"];

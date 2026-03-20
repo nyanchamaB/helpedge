@@ -66,16 +66,18 @@ export default function HomePage() {
           transition={{ duration: 0.8 }}
           className="relative z-10"
         >
-          <m.h1
-            key={currentPhrase}
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -30 }}
-            transition={{ duration: 0.7 }}
-            className="text-5xl md:text-7xl font-extrabold mb-6 leading-tight min-h-[4rem]"
-          >
-            {heroPhrases[currentPhrase]}
-          </m.h1>
+          <div className="h-[12rem] md:h-[13rem] flex items-center justify-center overflow-hidden mb-6">
+            <m.h1
+              key={currentPhrase}
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -30 }}
+              transition={{ duration: 0.7 }}
+              className="text-5xl md:text-7xl font-extrabold leading-tight"
+            >
+              {heroPhrases[currentPhrase]}
+            </m.h1>
+          </div>
 
           <m.p
             initial={{ opacity: 0 }}
