@@ -66,7 +66,7 @@ export default function HomePage() {
           transition={{ duration: 0.8 }}
           className="relative z-10"
         >
-          <div className="h-[12rem] md:h-[13rem] flex items-center justify-center overflow-hidden mb-6">
+          <div className="h-[18rem] sm:h-[15rem] md:h-[18rem] lg:h-[13rem] flex items-center justify-center overflow-hidden mb-6">
             <m.h1
               key={currentPhrase}
               initial={{ opacity: 0, y: 30 }}
