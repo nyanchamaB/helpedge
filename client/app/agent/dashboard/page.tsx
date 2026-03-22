@@ -148,11 +148,11 @@ export default function AgentDashboard() {
   ];
 
   return (
-    <div className="container py-6 space-y-6">
+    <div className="container mx-auto py-6 space-y-6">
       {/* Header */}
       <div className="flex items-start justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Agent Dashboard</h1>
+          <h1 className="text-2xl font-bold">Agent Dashboard</h1>
           <p className="text-muted-foreground mt-1">
             Welcome back{user?.name ? `, ${user.name.split(" ")[0]}` : ""}. Here is
             your queue overview.

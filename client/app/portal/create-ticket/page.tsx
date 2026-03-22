@@ -85,7 +85,7 @@ export default function PortalCreateTicket() {
   }
 
   return (
-    <div className="container max-w-2xl py-6 space-y-4">
+    <div className="container max-w-2xl mx-auto py-6 space-y-4">
       <Button
         variant="ghost"
         size="sm"

@@ -49,9 +49,6 @@ const PortalEmailTicketContent = dynamic(() => import("@/app/portal/email-ticket
   loading: () => <PageSkeleton />,
 });
 
-const PortalNotificationsContent = dynamic(() => import("@/app/portal/notifications/page"), {
-  loading: () => <PageSkeleton />,
-});
 
 // Dynamically import all page components
 const DashboardContent = dynamic(() => import("@/app/(dashboard)/dashboard/DashboardContent"), {
@@ -151,7 +148,7 @@ const AIAnalyticsContent = dynamic(() => import("@/app/admin/ai-analytics/page")
   loading: () => <PageSkeleton />,
 });
 
-const MLModelsContent = dynamic(() => import("@/app/admin/ml-models/page"), {
+const MLModelsContent = dynamic(() => import("@/app/admin/tfidf/page"), {
   loading: () => <PageSkeleton />,
 });
 
@@ -272,7 +269,7 @@ export function MainContentRenderer() {
     if (activePage === '/portal/my-tickets') return <PortalMyTicketsContent />;
     if (activePage === '/portal/create-ticket') return <PortalCreateTicketContent />;
     if (activePage === '/portal/email-ticket') return <PortalEmailTicketContent />;
-    if (activePage === '/portal/notifications') return <PortalNotificationsContent />;
+    if (activePage === '/portal/notifications') return <SettingsNotificationsContent />;
 
     // Portal ticket detail: /portal/ticket/[id]
     const portalTicketMatch = matchRoute(activePage, '/portal/ticket/[id]');
@@ -364,7 +361,7 @@ export function MainContentRenderer() {
       // AI & ML Admin
       case '/admin/ai-analytics':
         return <AIAnalyticsContent />;
-      case '/admin/ml-models':
+      case '/admin/tfidf':
         return <MLModelsContent />;
       case '/admin/training-data':
         return <TrainingDataContent />;

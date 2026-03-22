@@ -142,7 +142,7 @@ export default function ProfilePage() {
 
   if (loading) {
     return (
-      <div className="container max-w-4xl py-6">
+      <div className="container max-w-4xl mx-auto py-6">
         <h1 className="text-2xl font-bold mb-6">Profile</h1>
         <ProfileSkeleton />
       </div>
@@ -151,7 +151,7 @@ export default function ProfilePage() {
 
   if (error) {
     return (
-      <div className="container max-w-4xl py-6">
+      <div className="container max-w-4xl mx-auto py-6">
         <h1 className="text-2xl font-bold mb-6">Profile</h1>
         <Card>
           <CardContent className="py-10">
@@ -170,7 +170,7 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="container max-w-4xl py-6">
+    <div className="container max-w-4xl mx-auto py-6">
       <h1 className="text-2xl font-bold mb-6">Profile</h1>
 
       <div className="space-y-6">

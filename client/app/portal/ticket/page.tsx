@@ -154,7 +154,7 @@ export default function PortalTicketDetail() {
 
   if (isLoading) {
     return (
-      <div className="container max-w-4xl py-6 space-y-6">
+      <div className="container max-w-4xl mx-auto py-6 space-y-6">
         <Skeleton className="h-8 w-40" />
         <Skeleton className="h-28 w-full rounded-xl" />
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -170,7 +170,7 @@ export default function PortalTicketDetail() {
 
   if (!ticket) {
     return (
-      <div className="container max-w-4xl py-6">
+      <div className="container max-w-4xl mx-auto py-6">
         <Button
           variant="ghost"
           size="sm"
@@ -197,7 +197,7 @@ export default function PortalTicketDetail() {
   const isClosed = ticket.status === "Closed";
 
   return (
-    <div className="container max-w-4xl py-6 space-y-6">
+    <div className="container max-w-4xl mx-auto py-6 space-y-6">
       {/* Back button + refresh */}
       <div className="flex items-center justify-between">
         <Button

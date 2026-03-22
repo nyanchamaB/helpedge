@@ -75,7 +75,7 @@ export default function ManagerTickets() {
   );
 
   return (
-    <div className="container py-6 space-y-5">
+    <div className="container mx-auto py-6 space-y-5">
       <div className="flex items-start justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold">All Tickets</h1>

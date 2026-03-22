@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNavigation } from '@/contexts/NavigationContext';
+import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -21,6 +22,10 @@ import {
   Brain,
   RefreshCw,
   X,
+  MessageSquare,
+  CheckCircle,
+  Clock,
+  TrendingUp,
 } from 'lucide-react';
 import {
   getAINotifications,
@@ -29,10 +34,99 @@ import {
   markAllNotificationsAsRead,
   deleteNotification,
 } from '@/lib/api/ai';
+import { getTicketsByAssignee, getTicketsByCreator, Ticket } from '@/lib/api/tickets';
 import type { AINotification, AINotificationType } from '@/lib/types/ai';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { formatDistanceToNow } from 'date-fns';
+
+const STAFF_ROLES = ["Admin","ITManager","TeamLead","SystemAdmin","ServiceDeskAgent","Technician","SecurityAdmin"];
+const ONE_WEEK_MS = 7 * 24 * 60 * 60 * 1000;
+const READ_STORAGE_KEY = 'helpedge_read_notif_ids';
+
+function getReadIds(): Set<string> {
+  try {
+    const raw = localStorage.getItem(READ_STORAGE_KEY);
+    return raw ? new Set(JSON.parse(raw)) : new Set();
+  } catch { return new Set(); }
+}
+
+function persistReadIds(ids: Set<string>) {
+  try { localStorage.setItem(READ_STORAGE_KEY, JSON.stringify([...ids])); } catch {}
+}
+
+interface TicketNotification {
+  id: string;
+  type: 'reply' | 'resolved' | 'assigned' | 'escalated';
+  title: string;
+  message: string;
+  ticketId: string;
+  ticketNumber: string;
+  timestamp: string;
+  isRead: boolean;
+  actionUrl: string;
+  createdAt: string;
+}
+
+function deriveTicketNotifications(tickets: Ticket[], userId: string, isStaff: boolean): TicketNotification[] {
+  const notifs: TicketNotification[] = [];
+  const cutoff = Date.now() - ONE_WEEK_MS;
+
+  for (const ticket of tickets) {
+    const num = ticket.ticketNumber ?? ticket.id.slice(0, 8);
+    const url = isStaff ? `/tickets/${ticket.id}` : `/portal/ticket/${ticket.id}`;
+
+    for (const comment of ticket.comments ?? []) {
+      if (comment.isInternal || comment.authorId === userId) continue;
+      notifs.push({
+        id: `comment-${comment.id}`,
+        type: 'reply',
+        title: isStaff ? 'User replied to ticket' : 'Support agent replied',
+        message: `Re: ${ticket.subject} — "${comment.content.slice(0, 80)}${comment.content.length > 80 ? '…' : ''}"`,
+        ticketId: ticket.id,
+        ticketNumber: num,
+        timestamp: comment.createdAt,
+        isRead: new Date(comment.createdAt).getTime() <= cutoff,
+        actionUrl: url,
+        createdAt: comment.createdAt,
+      });
+    }
+
+    if (ticket.status === 'Resolved' && ticket.resolvedAt) {
+      notifs.push({
+        id: `resolved-${ticket.id}`,
+        type: 'resolved',
+        title: 'Ticket resolved',
+        message: `"${ticket.subject}" has been marked as resolved.`,
+        ticketId: ticket.id,
+        ticketNumber: num,
+        timestamp: ticket.resolvedAt,
+        isRead: new Date(ticket.resolvedAt).getTime() <= cutoff,
+        actionUrl: url,
+        createdAt: ticket.resolvedAt,
+      });
+    }
+
+    if (isStaff && ticket.isEscalated) {
+      notifs.push({
+        id: `escalated-${ticket.id}`,
+        type: 'escalated',
+        title: 'Ticket escalated',
+        message: `"${ticket.subject}" has been escalated and requires attention.`,
+        ticketId: ticket.id,
+        ticketNumber: num,
+        timestamp: ticket.updatedAt,
+        isRead: true,
+        actionUrl: url,
+        createdAt: ticket.updatedAt,
+      });
+    }
+  }
+
+  return notifs
+    .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
+    .slice(0, 20);
+}
 
 const POLL_INTERVAL = 60000; // 60 seconds
 
@@ -43,35 +137,78 @@ const POLL_INTERVAL = 60000; // 60 seconds
  */
 export function NotificationBell() {
   const { navigateTo } = useNavigation();
+  const { user } = useAuth();
   const queryClient = useQueryClient();
   const [isOpen, setIsOpen] = useState(false);
   const [desktopNotificationsEnabled, setDesktopNotificationsEnabled] = useState(false);
 
-  // Fetch unread count
-  const {
-    data: countResponse,
-    isLoading: isLoadingCount,
-  } = useQuery({
+  const isStaff = user ? STAFF_ROLES.includes(user.role) : false;
+  const [readIds, setReadIds] = useState<Set<string>>(() => {
+    if (typeof window === 'undefined') return new Set();
+    return getReadIds();
+  });
+
+  const markTicketNotifsRead = useCallback((ids: string[]) => {
+    setReadIds(prev => {
+      const next = new Set(prev);
+      ids.forEach(id => next.add(id));
+      persistReadIds(next);
+      return next;
+    });
+  }, []);
+
+  // Fetch AI unread count
+  const { data: countResponse } = useQuery({
     queryKey: ['notification-count'],
     queryFn: getUnreadNotificationCount,
     refetchInterval: POLL_INTERVAL,
     staleTime: 30 * 1000,
   });
 
-  // Fetch notifications
+  // Fetch AI notifications (only when open)
   const {
     data: notificationsResponse,
     isLoading: isLoadingNotifications,
-    refetch: refetchNotifications,
   } = useQuery({
     queryKey: ['ai-notifications'],
     queryFn: getAINotifications,
-    enabled: isOpen, // Only fetch when dropdown is open
+    enabled: isOpen,
     staleTime: 30 * 1000,
   });
 
-  const unreadCount = countResponse?.data?.count || 0;
-  const notifications = notificationsResponse?.data || [];
+  // Fetch ticket-derived notifications
+  const { data: ticketsResponse } = useQuery({
+    queryKey: ['notif-tickets', user?.id],
+    queryFn: () => user?.id
+      ? (isStaff ? getTicketsByAssignee(user.id) : getTicketsByCreator(user.id))
+      : Promise.resolve({ success: false, data: [] }),
+    enabled: !!user?.id,
+    refetchInterval: POLL_INTERVAL,
+    staleTime: 30 * 1000,
+  });
+
+  const ticketNotifications = useMemo(() => {
+    const tickets = (ticketsResponse as any)?.data ?? [];
+    return user ? deriveTicketNotifications(tickets, user.id, isStaff) : [];
+  }, [ticketsResponse, user, isStaff]);
+
+  const aiNotifications = notificationsResponse?.data || [];
+  const aiUnreadCount = countResponse?.data?.count || 0;
+  const ticketUnreadCount = ticketNotifications.filter(n => !n.isRead && !readIds.has(n.id)).length;
+  const unreadCount = aiUnreadCount + ticketUnreadCount;
+
+  // Combined notifications list sorted by time, with read state applied
+  const notifications = useMemo(() => {
+    const combined = [
+      ...aiNotifications.map(n => ({ ...n, source: 'ai' as const })),
+      ...ticketNotifications.map(n => ({
+        ...n,
+        isRead: n.isRead || readIds.has(n.id),
+        source: 'ticket' as const,
+      })),
+    ];
+    return combined.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()).slice(0, 30);
+  }, [aiNotifications, ticketNotifications, readIds]);
 
   // Mark as read mutation
   const markAsReadMutation = useMutation({
@@ -145,38 +282,51 @@ export function NotificationBell() {
   };
 
   // Handle notification click
-  const handleNotificationClick = (notification: AINotification) => {
-    // Mark as read
+  const handleNotificationClick = (notification: any) => {
     if (!notification.isRead) {
-      markAsReadMutation.mutate(notification.id);
+      if (notification.source === 'ai') {
+        markAsReadMutation.mutate(notification.id);
+      } else {
+        markTicketNotifsRead([notification.id]);
+      }
     }
-
-    // Navigate if there's an action URL
     if (notification.actionUrl) {
       navigateTo(notification.actionUrl);
       setIsOpen(false);
     }
   };
 
-  // Handle delete notification
+  // Handle delete notification (AI only)
   const handleDeleteNotification = (
     e: React.MouseEvent,
-    notificationId: string
+    notification: any
   ) => {
     e.stopPropagation();
-    deleteMutation.mutate(notificationId);
+    if (notification.source === 'ai') {
+      deleteMutation.mutate(notification.id);
+    }
   };
 
   // Handle mark all as read
   const handleMarkAllAsRead = () => {
-    if (notifications.length > 0) {
-      markAllAsReadMutation.mutate();
-    }
+    // Mark AI notifications via API
+    markAllAsReadMutation.mutate();
+    // Mark all ticket notifications in localStorage
+    const ticketIds = ticketNotifications.filter(n => !n.isRead && !readIds.has(n.id)).map(n => n.id);
+    if (ticketIds.length > 0) markTicketNotifsRead(ticketIds);
   };
 
-  // Get icon for notification type
-  const getNotificationIcon = (type: AINotificationType) => {
-    switch (type) {
+  // Get icon for any notification type
+  const getNotificationIcon = (notification: any) => {
+    if (notification.source === 'ticket') {
+      switch (notification.type) {
+        case 'reply': return <MessageSquare className="h-4 w-4 text-blue-500" />;
+        case 'resolved': return <CheckCircle className="h-4 w-4 text-green-500" />;
+        case 'assigned': return <Clock className="h-4 w-4 text-purple-500" />;
+        case 'escalated': return <TrendingUp className="h-4 w-4 text-orange-500" />;
+      }
+    }
+    switch (notification.type as AINotificationType) {
       case 'LowConfidence':
       case 'ReviewQueueAlert':
         return <AlertCircle className="h-4 w-4 text-yellow-600" />;
@@ -187,7 +337,7 @@ export function NotificationBell() {
       case 'TrainingDataAdded':
         return <RefreshCw className="h-4 w-4 text-blue-600" />;
       default:
-        return <Bell className="h-4 w-4 text-gray-600" />;
+        return <Bell className="h-4 w-4 text-muted-foreground" />;
     }
   };
 
@@ -221,7 +371,7 @@ export function NotificationBell() {
         <div className="flex items-center justify-between p-4 border-b">
           <div className="flex items-center gap-2">
             <Bell className="h-5 w-5" />
-            <h3 className="font-semibold">AI Notifications</h3>
+            <h3 className="font-semibold">Notifications</h3>
           </div>
           <div className="flex items-center gap-2">
             {!desktopNotificationsEnabled && 'Notification' in window && (
@@ -275,7 +425,7 @@ export function NotificationBell() {
                   <div className="flex gap-3 pl-4">
                     {/* Icon */}
                     <div className="shrink-0 mt-1">
-                      {getNotificationIcon(notification.type)}
+                      {getNotificationIcon(notification)}
                     </div>
 
                     {/* Content */}
@@ -289,15 +439,17 @@ export function NotificationBell() {
                         >
                           {notification.title}
                         </h4>
-                        {/* Delete button */}
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity shrink-0"
-                          onClick={(e) => handleDeleteNotification(e, notification.id)}
-                        >
-                          <X className="h-3 w-3" />
-                        </Button>
+                        {/* Delete button (AI notifications only) */}
+                        {notification.source === 'ai' && (
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity shrink-0"
+                            onClick={(e) => handleDeleteNotification(e, notification)}
+                          >
+                            <X className="h-3 w-3" />
+                          </Button>
+                        )}
                       </div>
                       <p className="text-sm text-muted-foreground line-clamp-2 mt-1">
                         {notification.message}

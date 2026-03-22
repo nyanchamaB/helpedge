@@ -162,7 +162,7 @@ export default function CronSettingsPage() {
 
   if (loading) {
     return (
-      <div className="container max-w-4xl py-6">
+      <div className="container max-w-4xl mx-auto py-6">
         <h1 className="text-2xl font-bold mb-6">Cron Settings</h1>
         <SettingsSkeleton />
       </div>
@@ -171,7 +171,7 @@ export default function CronSettingsPage() {
 
   if (error) {
     return (
-      <div className="container max-w-4xl py-6">
+      <div className="container max-w-4xl mx-auto py-6">
         <h1 className="text-2xl font-bold mb-6">Cron Settings</h1>
         <Card>
           <CardContent className="py-10">
@@ -191,7 +191,7 @@ export default function CronSettingsPage() {
   }
 
   return (
-    <div className="container max-w-4xl py-6">
+    <div className="container max-w-4xl mx-auto py-6">
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-2xl font-bold">Email Auto-Fetch Settings</h1>

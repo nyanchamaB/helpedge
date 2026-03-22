@@ -58,8 +58,8 @@ export const navData = {
       roles: ALL_ROLES,
       items: [
         { title: "Overview", url: "/dashboard", roles: ALL_ROLES },
-        { title: "Agent Queue", url: "/agent/dashboard", roles: ["ServiceDeskAgent"] },
-        { title: "My Work Queue", url: "/resolver/dashboard", roles: ["Technician", "SystemAdmin", "SecurityAdmin"] },
+        { title: "Agent Dashboard", url: "/agent/dashboard", roles: ["ServiceDeskAgent"] },
+        { title: "My Work Queue", url: "/resolver/dashboard", roles: ["Technician", "SystemAdmin", "SecurityAdmin", "TeamLead", "ServiceDeskAgent"] },
         { title: "Manager View", url: "/manager/dashboard", roles: ["Admin", "ITManager", "TeamLead"] },
       ],
       //roles: ALL_ROLES, 
@@ -68,27 +68,36 @@ export const navData = {
       title: "Tickets",
       url: "/tickets",
       icon: Ticket,
-      roles: ALL_ROLES, 
+      roles: ALL_ROLES,
       items: [
+        { title: "Review Queue", url: "/tickets/review-queue", roles: ["Admin", "ITManager", "TeamLead", "ServiceDeskAgent"] },
         { title: "All Tickets", url: "/tickets", roles: ["Admin", "ITManager", "TeamLead", "ServiceDeskAgent"] },
         { title: "Manager Tickets", url: "/manager/tickets", roles: ["Admin", "ITManager", "TeamLead"] },
-        { title: "My Queue", url: "/agent/tickets", roles: ["ServiceDeskAgent"] },
-        { title: "My Work", url: "/resolver/tickets", roles: ["Technician", "SystemAdmin", "SecurityAdmin"] },
-        { title: "Assigned to Me", url: "/tickets/assigned", roles: ["ServiceDeskAgent", "TeamLead"] },
-        { title: "My Tickets", url: "/portal/my-tickets", roles: ["EndUser"] },
+        { title: "Ticket Queue", url: "/agent/tickets", roles: ["ServiceDeskAgent"] },
+        { title: "My Work", url: "/resolver/tickets", roles: ["Technician", "SystemAdmin", "SecurityAdmin", "TeamLead", "ServiceDeskAgent"] },
+        { title: "Assigned to Me", url: "/tickets/assigned", roles: ["ServiceDeskAgent", "TeamLead", "SystemAdmin", "SecurityAdmin", "Technician"] },
+        { title: "My Tickets", url: "/portal/my-tickets", roles: ALL_ROLES },
         { title: "Submit Ticket", url: "/portal/create-ticket", roles: ["EndUser"] },
         { title: "Email Instructions", url: "/portal/email-ticket", roles: ["EndUser"] },
-        { title: "Notifications", url: "/portal/notifications", roles: ["EndUser"] },
-        { title: "Submit Ticket", url: "/portal/create-ticket", roles: STAFF_ROLES },
-        { title: "From Email", url: "/tickets/from-email", roles: ["Admin", "ITManager", "ServiceDeskAgent"] },
-        { title: "Queue", url: "/tickets/queue", roles: ["ServiceDeskAgent", "TeamLead"] },
+        { title: "Quick Submit", url: "/portal/create-ticket", roles: STAFF_ROLES },
+        { title: "Proxy Submission", url: "/tickets/from-email", roles: ["Admin", "ITManager", "TeamLead", "ServiceDeskAgent"] },
+
+      ],
+    },
+    {
+      title: "Ticket Categories",
+      url: "/admin/categories",
+      icon: FolderOpen,
+      roles: STAFF_ROLES,
+      items: [
+        { title: "All Categories", url: "/admin/categories", roles: STAFF_ROLES },
       ],
     },
     {
       title: "Service Requests",
       url: "/service-requests",
       icon: ClipboardList,
-      roles: ALL_ROLES, 
+      roles: ALL_ROLES,
       items: [
         { title: "Service Requests", url: "/service-requests", roles: ["Admin", "ITManager", "TeamLead", "ServiceDeskAgent"] },
         { title: "My Requests Details", url: "/service-requests/my-requests", roles: ALL_ROLES },
@@ -100,17 +109,16 @@ export const navData = {
       title: "Service Categories",
       url: "/service-categories",
       icon: UserCheck,
-      roles: ALL_ROLES, 
+      roles: STAFF_ROLES,
       items: [
-        { title: "View Categories", url: "/service-categories", roles: ["Admin", "ITManager", "TeamLead", "ServiceDeskAgent"] },
-        { title: "Create Category", url: "/service-categories/create-category", roles: ["Admin", "ITManager"] },
+        { title: "All Categories", url: "/service-categories", roles: STAFF_ROLES },
       ],
     },
     {
       title: "Team",
       url: "/team",
       icon: Users,
-      roles: MANAGEMENT_ROLES, 
+      roles: MANAGEMENT_ROLES,
       items: [
         { title: "Members", url: "/team/members", roles: MANAGEMENT_ROLES },
         { title: "Workload", url: "/team/workload", roles: ["TeamLead", "ITManager"] },
@@ -121,7 +129,7 @@ export const navData = {
       title: "Reports",
       url: "/reports",
       icon: TrendingUp,
-      roles: [...MANAGEMENT_ROLES, "ServiceDeskAgent", "Technician"], 
+      roles: [...MANAGEMENT_ROLES, "ServiceDeskAgent", "Technician"],
       items: [
         { title: "Overview", url: "/reports", roles: MANAGEMENT_ROLES },
         { title: "My Performance", url: "/reports/my-performance", roles: SUPPORT_ROLES },
@@ -133,7 +141,7 @@ export const navData = {
       title: "Systems",
       url: "/systems",
       icon: Server,
-      roles: ["Admin", "SystemAdmin"], 
+      roles: ["Admin", "SystemAdmin"],
       items: [
         { title: "Infrastructure", url: "/systems/infrastructure", roles: ["Admin", "SystemAdmin"] },
         { title: "Health Status", url: "/systems/health", roles: ["Admin", "SystemAdmin"] },
@@ -144,7 +152,7 @@ export const navData = {
       title: "Security",
       url: "/security",
       icon: Shield,
-      roles: ["Admin", "SecurityAdmin"], 
+      roles: ["Admin", "SecurityAdmin"],
       items: [
         { title: "Access Requests", url: "/security/access-requests", roles: ["Admin", "SecurityAdmin"] },
         { title: "Audit Log", url: "/security/audit", roles: ["Admin", "SecurityAdmin"] },
@@ -158,32 +166,22 @@ export const navData = {
       roles: ["Admin", "ITManager"],
       items: [
         { title: "AI Analytics", url: "/admin/ai-analytics", roles: ["Admin", "ITManager"] },
-        { title: "TF-IDF", url: "/admin/ml-models", roles: ["Admin"] },
+        { title: "TF-IDF", url: "/admin/tfidf", roles: ["Admin"] },
         { title: "Case-Based Reasoning", url: "/admin/case-based-reasoning", roles: ["Admin"] },
         { title: "Rule Management", url: "/admin/rule-management", roles: ["Admin", "ITManager"] },
-        { title: "Review Queue", url: "/tickets/review-queue", roles: ["Admin", "ITManager", "TeamLead", "ServiceDeskAgent"] },
-      ],
-    },
-    {
-      title: "Categories",
-      url: "/admin/categories",
-      icon: FolderOpen,
-      roles: STAFF_ROLES,
-      items: [
-        { title: "All Categories", url: "/admin/categories", roles: STAFF_ROLES },
       ],
     },
     {
       title: "Knowledge Base",
       url: "/knowledge-base",
       icon: BookOpen,
-      roles: ALL_ROLES, 
+      roles: ALL_ROLES,
     },
     {
       title: "Settings",
       url: "/settings",
       icon: Settings,
-      roles: ALL_ROLES, 
+      roles: ALL_ROLES,
       items: [
         { title: "Profile", url: "/settings/profile", roles: ALL_ROLES },
         { title: "Team Settings", url: "/settings/team", roles: MANAGEMENT_ROLES },
@@ -197,7 +195,7 @@ export const navData = {
       title: "Help",
       url: siteConfig.links.docs,
       icon: HelpCircle,
-      roles: ALL_ROLES, // ✅ Changed
+      roles: ALL_ROLES, // Changed
     },
   ],
 };

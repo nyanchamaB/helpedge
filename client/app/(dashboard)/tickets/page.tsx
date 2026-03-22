@@ -7,6 +7,10 @@ import { TicketsTable } from "@/components/tickets/TicketsTable";
 import { getAllTickets, deleteTicket, Ticket } from "@/lib/api/tickets";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigation } from "@/contexts/NavigationContext";
+import { PageContainer } from "@/components/layout/PageContainer";
+import { Button } from "@/components/ui/button";
+import { RefreshCw } from "lucide-react";
+import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 
 /**
@@ -83,19 +87,19 @@ export default function AllTicketsPage() {
   // Show loading while auth is checking
   if (authLoading) {
     return (
-      <div className="container py-6">
+      <PageContainer>
         <div className="flex items-center justify-center min-h-[400px]">
           <div className="flex flex-col items-center space-y-4">
             <div className="w-10 h-10 border-4 border-blue-600 border-t-transparent rounded-full animate-spin" />
-            <p className="text-gray-500">Checking authorization...</p>
+            <p className="text-muted-foreground">Checking authorization...</p>
           </div>
         </div>
-      </div>
+      </PageContainer>
     );
   }
 
   return (
-    <div className="container py-6 space-y-6">
+    <PageContainer>
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold">All Tickets</h1>
@@ -103,6 +107,15 @@ export default function AllTicketsPage() {
             View and manage all tickets in the system
           </p>
         </div>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={fetchTickets}
+          disabled={isLoading}
+        >
+          <RefreshCw className={cn("h-4 w-4 mr-1.5", isLoading && "animate-spin")} />
+          Refresh
+        </Button>
       </div>
 
       <TicketsTable
@@ -116,6 +129,6 @@ export default function AllTicketsPage() {
         onDelete={handleDelete}
         onBulkDelete={handleBulkDelete}
       />
-    </div>
+    </PageContainer>
   );
 }
