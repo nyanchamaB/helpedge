@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect } from "react";
-import { useRouter } from "next/navigation";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -21,7 +20,6 @@ interface SessionAlertProps {
 }
 
 export function SessionAlert({ onLogout }: SessionAlertProps) {
-  const router = useRouter();
   const {
     sessionState,
     refreshSession,
@@ -47,14 +45,14 @@ export function SessionAlert({ onLogout }: SessionAlertProps) {
     dismissExpiredAlert();
     dismissExpiryWarning();
     onLogout?.();
-    router.push("/auth/login");
+    window.location.href = "/auth/login";
   };
 
   // Handle expired - redirect to login
   const handleExpiredLogin = async () => {
     await endSession();
     dismissExpiredAlert();
-    router.push("/auth/login?expired=true");
+    window.location.href = "/auth/login?expired=true";
   };
 
   return (

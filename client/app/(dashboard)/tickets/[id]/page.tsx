@@ -112,6 +112,7 @@ import {
 import { AIDetailsSection } from "@/components/tickets/AIDetailsSection";
 import { OverrideModal } from "@/components/ai/OverrideModal";
 import { EscalateDialog } from "@/components/tickets/EscalateDialog";
+import { PageContainer } from "@/components/layout/PageContainer";
 import type { TicketAIDetails } from "@/lib/types/ai";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -226,6 +227,22 @@ function TicketDetailSkeleton() {
       </Card>
     </div>
   );
+}
+
+// Returns the correct "back" URL for a given role
+function getBackRoute(role?: string): string {
+  switch (role) {
+    case "Technician":
+    case "SystemAdmin":
+    case "SecurityAdmin":
+      return "/resolver/tickets";
+    case "ServiceDeskAgent":
+      return "/agent/tickets";
+    case "EndUser":
+      return "/portal/my-tickets";
+    default:
+      return "/tickets"; // Admin, ITManager, TeamLead
+  }
 }
 
 // Roles allowed to assign tickets
@@ -727,7 +744,7 @@ export default function TicketDetailPage() {
     const res = await deleteTicket(ticket.id);
     if (res.success) {
       toast.success("Ticket deleted");
-      navigateTo("/tickets");
+      navigateTo(getBackRoute(user?.role));
     } else {
       toast.error(res.error || "Failed to delete ticket");
       setIsDeleting(false);
@@ -760,15 +777,15 @@ export default function TicketDetailPage() {
 
   if (isLoading) {
     return (
-      <div className="container max-w-4xl py-6">
+      <PageContainer>
         <TicketDetailSkeleton />
-      </div>
+      </PageContainer>
     );
   }
 
   if (error) {
     return (
-      <div className="container max-w-4xl py-6">
+      <PageContainer>
         <Card>
           <CardContent className="py-10">
             <div className="text-center">
@@ -780,7 +797,7 @@ export default function TicketDetailPage() {
               <div className="flex justify-center gap-2">
                 <Button
                   variant="outline"
-                  onClick={() => navigateTo("/tickets")}
+                  onClick={() => navigateTo(getBackRoute(user?.role))}
                 >
                   <ArrowLeft className="h-4 w-4 mr-2" />
                   Go Back
@@ -790,7 +807,7 @@ export default function TicketDetailPage() {
             </div>
           </CardContent>
         </Card>
-      </div>
+      </PageContainer>
     );
   }
 
@@ -799,14 +816,14 @@ export default function TicketDetailPage() {
   }
 
   return (
-    <div className="container max-w-4xl py-6 space-y-6">
+    <PageContainer>
       {/* Header */}
       <div className="flex items-start justify-between">
         <div className="flex items-start gap-4">
           <Button
             variant="ghost"
             size="icon"
-            onClick={() => navigateTo("/tickets")}
+            onClick={() => navigateTo(getBackRoute(user?.role))}
             className="mt-1"
           >
             <ArrowLeft className="h-5 w-5" />
@@ -1849,11 +1866,11 @@ export default function TicketDetailPage() {
         <CardContent className="space-y-6">
           {/* Add Comment Form */}
           {user && ticket.status !== "Closed" && (
-            <div className="border rounded-lg p-4 bg-gray-50">
+            <div className="border rounded-lg p-4 bg-muted/50">
               <h4 className="text-sm font-medium mb-3">Add a Comment</h4>
 
               {commentError && (
-                <div className="bg-red-50 border border-red-200 text-red-700 px-3 py-2 rounded-md text-sm mb-3">
+                <div className="bg-red-500/10 border border-red-500/20 text-red-600 dark:text-red-400 px-3 py-2 rounded-md text-sm mb-3">
                   {commentError}
                 </div>
               )}
@@ -1872,10 +1889,10 @@ export default function TicketDetailPage() {
                     type="checkbox"
                     checked={isInternalComment}
                     onChange={(e) => setIsInternalComment(e.target.checked)}
-                    className="rounded border-gray-300"
+                    className="rounded border-border"
                   />
-                  <Lock className="h-4 w-4 text-yellow-600" />
-                  <span>Internal note (not visible to end user)</span>
+                  <Lock className="h-4 w-4 text-yellow-500" />
+                  <span className="text-foreground">Internal note (not visible to end user)</span>
                 </label>
 
                 <Button
@@ -1919,27 +1936,27 @@ export default function TicketDetailPage() {
                   key={comment.id}
                   className={`p-4 rounded-lg border ${
                     comment.isInternal
-                      ? "bg-yellow-50 border-yellow-200"
+                      ? "bg-yellow-500/10 border-yellow-500/20"
                       : isOwn
-                      ? "bg-blue-50 border-blue-200"
-                      : "bg-gray-50 border-gray-200"
+                      ? "bg-blue-500/10 border-blue-500/20"
+                      : "bg-muted/50 border-border"
                   }`}
                 >
                   <div className="flex items-start gap-3">
                     <Avatar className="h-8 w-8">
-                      <AvatarFallback className={isOwn ? "bg-blue-100 text-blue-700" : ""}>
+                      <AvatarFallback className={isOwn ? "bg-blue-500/20 text-blue-600 dark:text-blue-400" : ""}>
                         {getInitials(authorName)}
                       </AvatarFallback>
                     </Avatar>
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-1">
-                        <span className="font-medium text-sm">
+                        <span className="font-medium text-sm text-foreground">
                           {authorName}
                         </span>
                         {comment.isInternal && (
                           <Badge
                             variant="outline"
-                            className="text-xs bg-yellow-100"
+                            className="text-xs bg-yellow-500/20 text-yellow-700 dark:text-yellow-400 border-yellow-500/30"
                           >
                             <Lock className="h-3 w-3 mr-1" />
                             Internal
@@ -2007,6 +2024,6 @@ export default function TicketDetailPage() {
           toast.success("Ticket escalated successfully");
         }}
       />
-    </div>
+    </PageContainer>
   );
 }

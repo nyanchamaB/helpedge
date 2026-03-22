@@ -146,11 +146,11 @@ export default function PortalNotifications() {
   const newCount = notifications.filter((n) => n.isNew).length;
 
   return (
-    <div className="container max-w-2xl py-6 space-y-6">
+    <div className="container max-w-2xl mx-auto py-6 space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Notifications</h1>
+          <h1 className="text-2xl font-bold">Notifications</h1>
           <p className="text-muted-foreground mt-1">
             Updates and activity on your support tickets
           </p>

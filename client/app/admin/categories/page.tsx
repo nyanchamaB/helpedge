@@ -8,6 +8,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useAuth } from '@/contexts/AuthContext';
+import { useNavigation } from '@/contexts/NavigationContext';
 import {
   Card, CardContent, CardDescription, CardHeader, CardTitle,
 } from '@/components/ui/card';
@@ -307,9 +308,16 @@ function CategoryDialog({ open, onOpenChange, category, onSaved }: CategoryDialo
 
 // ─── Main page ────────────────────────────────────────────────────────────────
 export default function CategoriesPage() {
-  const { user } = useAuth();
+  const { user, isLoading: authLoading } = useAuth();
+  const { navigateTo } = useNavigation();
   const queryClient = useQueryClient();
   const role = user?.role ?? '';
+
+  useEffect(() => {
+    if (!authLoading && user?.role === 'EndUser') {
+      navigateTo('/portal/my-tickets');
+    }
+  }, [authLoading, user?.role]);
 
   const canEdit = ['Admin', 'ITManager'].includes(role);
   const canDelete = role === 'Admin';

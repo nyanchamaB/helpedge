@@ -71,7 +71,7 @@ export default function AssignedTicketsPage() {
   // Show loading while auth is checking
   if (authLoading) {
     return (
-      <div className="container py-6">
+      <div className="container mx-auto py-6">
         <div className="flex items-center justify-center min-h-[400px]">
           <div className="flex flex-col items-center space-y-4">
             <div className="w-10 h-10 border-4 border-blue-600 border-t-transparent rounded-full animate-spin" />
@@ -83,7 +83,7 @@ export default function AssignedTicketsPage() {
   }
 
   return (
-    <div className="container py-6 space-y-6">
+    <div className="container mx-auto py-6 space-y-6">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold">Assigned to Me</h1>

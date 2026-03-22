@@ -101,6 +101,8 @@ export interface DataTableProps<T> {
   searchKeys?: string[];
   filters?: DataTableFilter[];
   sortable?: boolean;
+  defaultSortField?: string;
+  defaultSortDirection?: "asc" | "desc";
   selectable?: boolean;
   pagination?: DataTablePagination | boolean;
   actions?: DataTableAction<T>[];
@@ -132,6 +134,8 @@ export function DataTable<T>({
   searchKeys = [],
   filters = [],
   sortable = true,
+  defaultSortField = "",
+  defaultSortDirection = "asc",
   selectable = false,
   pagination,
   actions = [],
@@ -144,8 +148,8 @@ export function DataTable<T>({
 }: DataTableProps<T>) {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterValues, setFilterValues] = useState<Record<string, string>>({});
-  const [sortField, setSortField] = useState<string>("");
-  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
+  const [sortField, setSortField] = useState<string>(defaultSortField);
+  const [sortDirection, setSortDirection] = useState<"asc" | "desc">(defaultSortDirection);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState<T | null>(null);

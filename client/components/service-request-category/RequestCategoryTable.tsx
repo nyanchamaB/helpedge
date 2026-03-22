@@ -195,13 +195,13 @@ export default function RequestCategoryTable({
   const getTierBadge = (tier?: SupportTier) => {
     if (!tier || tier === 'L1') {
       return (
-        <Badge variant="outline" className="text-xs bg-gray-100 text-gray-600 border-gray-200">
+        <Badge variant="outline" className="text-xs bg-muted text-muted-foreground">
           L1
         </Badge>
       );
     }
     return (
-      <Badge variant="outline" className="text-xs bg-purple-100 text-purple-700 border-purple-200">
+      <Badge variant="outline" className="text-xs bg-purple-500/10 text-purple-700 dark:text-purple-400 border-purple-200 dark:border-purple-800">
         L2
       </Badge>
     );
@@ -210,15 +210,15 @@ export default function RequestCategoryTable({
   const getRequestTypeColor = (type: string) => {
     switch (type) {
       case "Access":
-        return "bg-blue-100 text-blue-800 hover:bg-blue-200";
+        return "bg-blue-500/10 text-blue-700 dark:text-blue-400";
       case "Hardware":
-        return "bg-orange-100 text-orange-800 hover:bg-orange-200";
+        return "bg-orange-500/10 text-orange-700 dark:text-orange-400";
       case "Software":
-        return "bg-green-100 text-green-800 hover:bg-green-200";
+        return "bg-green-500/10 text-green-700 dark:text-green-400";
       case "Support":
-        return "bg-purple-100 text-purple-800 hover:bg-purple-200";
+        return "bg-purple-500/10 text-purple-700 dark:text-purple-400";
       default:
-        return "bg-gray-100 text-gray-800 hover:bg-gray-200";
+        return "bg-muted text-muted-foreground";
     }
   };
 
@@ -287,7 +287,7 @@ export default function RequestCategoryTable({
     children: React.ReactNode;
   }) => (
     <TableHead
-      className="cursor-pointer hover:bg-gray-50"
+      className="cursor-pointer hover:bg-muted/50"
       onClick={() => handleSort(field)}
     >
       <div className="flex items-center space-x-1">
@@ -325,8 +325,8 @@ export default function RequestCategoryTable({
       <Card>
         <CardContent className="flex items-center justify-center h-64">
           <div className="flex flex-col items-center space-y-4">
-            <RefreshCw className="h-8 w-8 animate-spin text-gray-400" />
-            <p className="text-gray-500">Loading categories...</p>
+            <RefreshCw className="h-8 w-8 animate-spin text-muted-foreground" />
+            <p className="text-muted-foreground">Loading categories...</p>
           </div>
         </CardContent>
       </Card>
@@ -339,7 +339,7 @@ export default function RequestCategoryTable({
         <CardContent className="p-6">
           {/* Bulk Actions Bar */}
           {selectedIds.length > 0 && (
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+            <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-4 mb-6">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div className="flex items-center space-x-2">
                   <CheckSquare className="h-5 w-5 text-blue-600" />
@@ -397,7 +397,7 @@ export default function RequestCategoryTable({
           {showFilters && (
             <div className="flex flex-col space-y-4 md:flex-row md:items-center md:space-x-4 md:space-y-0 mb-6">
               <div className="relative flex-1">
-                <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                 <Input
                   placeholder="Search by name, description, or keywords..."
                   value={searchTerm}
@@ -408,7 +408,7 @@ export default function RequestCategoryTable({
 
               <div className="flex flex-wrap gap-2">
                 <div className="flex items-center space-x-2">
-                  <Filter className="h-4 w-4 text-gray-500" />
+                  <Filter className="h-4 w-4 text-muted-foreground" />
                   <Select value={filterType} onValueChange={setFilterType}>
                     <SelectTrigger className="w-[140px]">
                       <SelectValue placeholder="Type" />
@@ -440,7 +440,7 @@ export default function RequestCategoryTable({
           )}
 
           {/* Results count */}
-          <div className="mb-4 text-sm text-gray-500 flex justify-between items-center">
+          <div className="mb-4 text-sm text-muted-foreground flex justify-between items-center">
             <div>
               Showing {filteredCategories.length} of {categories.length}{" "}
               categories
@@ -501,14 +501,14 @@ export default function RequestCategoryTable({
                       className="text-center py-12"
                     >
                       <div className="flex flex-col items-center justify-center space-y-4">
-                        <div className="rounded-full bg-gray-100 p-4">
-                          <Type className="h-8 w-8 text-gray-400" />
+                        <div className="rounded-full bg-muted p-4">
+                          <Type className="h-8 w-8 text-muted-foreground" />
                         </div>
                         <div>
-                          <p className="text-gray-500 font-medium">
+                          <p className="text-muted-foreground font-medium">
                             No categories found
                           </p>
-                          <p className="text-sm text-gray-400 mt-1">
+                          <p className="text-sm text-muted-foreground/70 mt-1">
                             {searchTerm
                               ? "Try a different search term"
                               : "Create your first category to get started"}
@@ -527,7 +527,7 @@ export default function RequestCategoryTable({
                   filteredCategories.map((category) => (
                     <TableRow
                       key={category.id}
-                      className="hover:bg-gray-50 cursor-pointer transition-colors group"
+                      className="hover:bg-muted/50 cursor-pointer transition-colors group"
                       onClick={() => onCategoryClick(category)}
                     >
                       <TableCell onClick={(e) => e.stopPropagation()}>
@@ -543,45 +543,33 @@ export default function RequestCategoryTable({
                       <TableCell className="font-medium">
                         <div className="flex items-center space-x-3">
                           <div
-                            className="flex items-center justify-center w-10 h-10 rounded-md"
+                            className="flex items-center justify-center w-9 h-9 rounded-lg text-sm font-bold shrink-0"
                             style={{
-                              backgroundColor: `${category.color}20`,
+                              backgroundColor: `${category.color}25`,
                               color: category.color,
                             }}
                           >
-                            <span className="text-lg">{category.icon}</span>
+                            {category.name.charAt(0).toUpperCase()}
                           </div>
-                          <div>
-                            <div className="flex items-center gap-2">
+                          <div className="min-w-0">
+                            <div className="flex items-center gap-2 flex-wrap">
                               <span className="font-medium">{category.name}</span>
                               {getTierBadge(category.supportTier)}
                             </div>
-                            {category.keywords &&
-                              category.keywords.length > 0 && (
-                                <div className="flex flex-wrap gap-1 mt-1">
-                                  {category.keywords
-                                    .slice(0, 2)
-                                    .map((keyword, idx) => (
-                                      <TooltipProvider key={idx}>
-                                        <Tooltip>
-                                          <TooltipTrigger asChild>
-                                            <span className="text-xs bg-gray-100 px-2 py-0.5 rounded cursor-help">
-                                              {keyword}
-                                            </span>
-                                          </TooltipTrigger>
-                                          <TooltipContent>
-                                            <p>{keyword}</p>
-                                          </TooltipContent>
-                                        </Tooltip>
-                                      </TooltipProvider>
-                                    ))}
-                                  {category.keywords.length > 2 && (
-                                    <span className="text-xs text-gray-500">
-                                      +{category.keywords.length - 2} more
-                                    </span>
-                                  )}
-                                </div>
-                              )}
+                            {category.keywords && category.keywords.length > 0 && (
+                              <div className="flex flex-wrap gap-1 mt-1">
+                                {category.keywords.slice(0, 2).map((keyword, idx) => (
+                                  <span key={idx} className="text-xs bg-muted text-muted-foreground px-2 py-0.5 rounded">
+                                    {keyword}
+                                  </span>
+                                ))}
+                                {category.keywords.length > 2 && (
+                                  <span className="text-xs text-muted-foreground">
+                                    +{category.keywords.length - 2} more
+                                  </span>
+                                )}
+                              </div>
+                            )}
                           </div>
                         </div>
                       </TableCell>
@@ -605,7 +593,7 @@ export default function RequestCategoryTable({
                               <Tooltip>
                                 <TooltipTrigger asChild>
                                   <div className="flex items-center space-x-1">
-                                    <Hash className="h-3 w-3 text-gray-400" />
+                                    <Hash className="h-3 w-3 text-muted-foreground" />
                                     <span className="text-sm">
                                       {category.requiredFields?.length || 0}
                                     </span>
@@ -621,7 +609,7 @@ export default function RequestCategoryTable({
                               <Tooltip>
                                 <TooltipTrigger asChild>
                                   <div className="flex items-center space-x-1">
-                                    <User className="h-3 w-3 text-gray-400" />
+                                    <User className="h-3 w-3 text-muted-foreground" />
                                     <span className="text-sm">
                                       {category.fulfillmentRoles?.length || 0}
                                     </span>
@@ -637,7 +625,7 @@ export default function RequestCategoryTable({
                               <Tooltip>
                                 <TooltipTrigger asChild>
                                   <div className="flex items-center space-x-1">
-                                    <Clock className="h-3 w-3 text-gray-400" />
+                                    <Clock className="h-3 w-3 text-muted-foreground" />
                                     <span className="text-sm">
                                       {category.estimatedFulfillmentDays || 0}
                                     </span>
@@ -667,27 +655,7 @@ export default function RequestCategoryTable({
                         </div>
                       </TableCell>
                       <TableCell>
-                        <div className="flex items-center space-x-2">
-                          {getStatusBadge(category)}
-                          <TooltipProvider>
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <div>
-                                  {category.isActive ? (
-                                    <ToggleRight className="h-4 w-4 text-green-500" />
-                                  ) : (
-                                    <ToggleLeft className="h-4 w-4 text-gray-400" />
-                                  )}
-                                </div>
-                              </TooltipTrigger>
-                              <TooltipContent>
-                                <p>
-                                  {category.isActive ? "Active" : "Inactive"}
-                                </p>
-                              </TooltipContent>
-                            </Tooltip>
-                          </TooltipProvider>
-                        </div>
+                        {getStatusBadge(category)}
                       </TableCell>
                       <TableCell>
                         <div className="text-sm">
@@ -697,7 +665,7 @@ export default function RequestCategoryTable({
                               "MMM d, yyyy"
                             )}
                           </div>
-                          <div className="text-gray-500 text-xs">
+                          <div className="text-muted-foreground text-xs">
                             {format(new Date(category.createdAt), "h:mm a")}
                           </div>
                         </div>

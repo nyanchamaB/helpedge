@@ -20,10 +20,8 @@ import {
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import {
-  LineChart,
-  Line,
-  BarChart,
-  Bar,
+  AreaChart,
+  Area,
   XAxis,
   YAxis,
   CartesianGrid,
@@ -123,19 +121,34 @@ export default function AIAnalyticsDashboard() {
     return map;
   }, [categoriesResponse]);
 
-  const resolveCategory = (raw: string) => categoryNameMap[raw] ?? raw;
+  // Resolve a raw category value (name string or ID) to a display name.
+  // If it looks like a MongoDB ObjectId (24 hex chars) and isn't in the map,
+  // it's an orphaned reference — skip it rather than showing the raw ID.
+  const isObjectId = (v: string) => /^[a-f0-9]{24}$/i.test(v);
+  const resolveCategory = (raw: string): string | null => {
+    if (!raw) return null;
+    if (categoryNameMap[raw]) return categoryNameMap[raw];
+    if (isObjectId(raw)) return null; // orphaned ID — filter out
+    return raw; // plain name string, use as-is
+  };
 
   const metrics = metricsResponse?.data;
-  const categoryPerformance = (Array.isArray(categoryResponse?.data) ? categoryResponse.data : []).map((item: any) => ({
-    ...item,
-    accuracyPct: item.accuracy != null ? parseFloat((item.accuracy * 100).toFixed(1)) : 0,
-    category: resolveCategory(item.categoryName ?? item.category ?? 'Unknown'),
-  }));
+  const categoryPerformance = (Array.isArray(categoryResponse?.data) ? categoryResponse.data : [])
+    .map((item: any) => {
+      const resolved = resolveCategory(item.categoryName ?? item.category ?? '');
+      if (!resolved) return null; // drop orphaned category entries
+      return {
+        ...item,
+        accuracyPct: item.accuracy != null ? parseFloat((item.accuracy * 100).toFixed(1)) : 0,
+        category: resolved,
+      };
+    })
+    .filter(Boolean);
   const rawConfusion = confusionResponse?.data;
   const confusionMatrix = rawConfusion
     ? {
         ...rawConfusion,
-        categories: (rawConfusion.categories ?? []).map(resolveCategory),
+        categories: (rawConfusion.categories ?? []).map(resolveCategory).filter(Boolean),
       }
     : undefined;
 
@@ -376,34 +389,102 @@ export default function AIAnalyticsDashboard() {
           {isLoadingCategory ? (
             <Skeleton className="h-96 w-full" />
           ) : categoryPerformance.length > 0 ? (
-            <ResponsiveContainer width="100%" height={400}>
-              <BarChart data={categoryPerformance} margin={{ bottom: 80 }}>
-                <CartesianGrid strokeDasharray="3 3" />
+            <ResponsiveContainer width="100%" height={420}>
+              <AreaChart data={categoryPerformance} margin={{ top: 10, right: 20, left: 0, bottom: 90 }}>
+                <defs>
+                  <linearGradient id="gradPredictions" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%"  stopColor="#818cf8" stopOpacity={0.5} />
+                    <stop offset="95%" stopColor="#818cf8" stopOpacity={0.03} />
+                  </linearGradient>
+                  <linearGradient id="gradAccuracy" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%"  stopColor="#34d399" stopOpacity={0.5} />
+                    <stop offset="95%" stopColor="#34d399" stopOpacity={0.03} />
+                  </linearGradient>
+                  <filter id="glowPurple">
+                    <feGaussianBlur stdDeviation="3" result="blur" />
+                    <feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
+                  </filter>
+                  <filter id="glowGreen">
+                    <feGaussianBlur stdDeviation="3" result="blur" />
+                    <feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
+                  </filter>
+                </defs>
+
+                <CartesianGrid strokeDasharray="4 4" stroke="currentColor" strokeOpacity={0.08} />
+
                 <XAxis
                   dataKey="category"
-                  angle={-45}
+                  angle={-40}
                   textAnchor="end"
                   interval={0}
-                  tick={{ fontSize: 12 }}
+                  tick={{ fontSize: 11, fill: 'currentColor', opacity: 0.7 }}
                   height={100}
+                  tickLine={false}
+                  axisLine={{ stroke: 'currentColor', strokeOpacity: 0.15 }}
                 />
-                <YAxis yAxisId="left" orientation="left" stroke="#8884d8" allowDecimals={false} />
-                <YAxis yAxisId="right" orientation="right" stroke="#82ca9d" tickFormatter={(v) => `${v}%`} domain={[0, 100]} />
-                <Tooltip formatter={(value, name) => name === 'Accuracy (%)' ? `${value}%` : value} />
-                <Legend />
-                <Bar
+
+                <YAxis
                   yAxisId="left"
-                  dataKey="totalPredictions"
-                  fill="#8884d8"
-                  name="Total Predictions"
+                  orientation="left"
+                  allowDecimals={false}
+                  tick={{ fontSize: 11, fill: '#818cf8' }}
+                  tickLine={false}
+                  axisLine={false}
+                  width={45}
                 />
-                <Bar
+                <YAxis
                   yAxisId="right"
-                  dataKey="accuracyPct"
-                  fill="#82ca9d"
-                  name="Accuracy (%)"
+                  orientation="right"
+                  tickFormatter={(v) => `${v}%`}
+                  domain={[0, 100]}
+                  tick={{ fontSize: 11, fill: '#34d399' }}
+                  tickLine={false}
+                  axisLine={false}
+                  width={48}
                 />
-              </BarChart>
+
+                <Tooltip
+                  contentStyle={{
+                    background: 'hsl(var(--card))',
+                    border: '1px solid hsl(var(--border))',
+                    borderRadius: '10px',
+                    boxShadow: '0 4px 24px rgba(0,0,0,0.18)',
+                    fontSize: 13,
+                  }}
+                  labelStyle={{ fontWeight: 600, marginBottom: 4 }}
+                  formatter={(value: any, name: string) =>
+                    name === 'Accuracy (%)' ? [`${value}%`, name] : [value, name]
+                  }
+                  cursor={{ stroke: 'currentColor', strokeOpacity: 0.15, strokeWidth: 1 }}
+                />
+                <Legend
+                  wrapperStyle={{ paddingTop: 8, fontSize: 13 }}
+                  iconType="circle"
+                />
+
+                <Area
+                  yAxisId="left"
+                  type="monotone"
+                  dataKey="totalPredictions"
+                  name="Total Predictions"
+                  stroke="#818cf8"
+                  strokeWidth={2.5}
+                  fill="url(#gradPredictions)"
+                  dot={{ r: 4, fill: '#818cf8', strokeWidth: 0 }}
+                  activeDot={{ r: 7, fill: '#818cf8', stroke: '#c7d2fe', strokeWidth: 2, filter: 'url(#glowPurple)' }}
+                />
+                <Area
+                  yAxisId="right"
+                  type="monotone"
+                  dataKey="accuracyPct"
+                  name="Accuracy (%)"
+                  stroke="#34d399"
+                  strokeWidth={2.5}
+                  fill="url(#gradAccuracy)"
+                  dot={{ r: 4, fill: '#34d399', strokeWidth: 0 }}
+                  activeDot={{ r: 7, fill: '#34d399', stroke: '#a7f3d0', strokeWidth: 2, filter: 'url(#glowGreen)' }}
+                />
+              </AreaChart>
             </ResponsiveContainer>
           ) : (
             <div className="text-center py-12 text-muted-foreground">

@@ -42,7 +42,7 @@ export function NavMainSPA({ items, userRole, onItemClick }: NavMainProps) {
 
   // Filter items based on role
   const filteredItems = items
-    .filter((item) => !item.role || item.role.includes(userRole as UserRole))
+    .filter((item) => !item.roles || item.roles.includes(userRole as UserRole))
     .map((item) => ({
       ...item,
       items: item.items

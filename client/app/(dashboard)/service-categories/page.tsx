@@ -4,6 +4,7 @@ export const dynamic = 'force-dynamic';
 
 import { useState, useEffect } from 'react';
 import { useNavigation } from '@/contexts/NavigationContext';
+import { useAuth } from '@/contexts/AuthContext';
 import RequestCategoryTable from '@/components/service-request-category/RequestCategoryTable';
 import { ServiceRequestCategory } from '@/lib/api/service-request-category';
 import {
@@ -16,8 +17,17 @@ import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Plus, RefreshCw, Download, Upload } from 'lucide-react';
 
+const STAFF_ROLES = ["Admin","ITManager","TeamLead","SystemAdmin","ServiceDeskAgent","Technician","SecurityAdmin"];
+
 export default function ServiceRequestCategoriesPage() {
   const { navigateTo } = useNavigation();
+  const { user, isLoading: authLoading } = useAuth();
+
+  useEffect(() => {
+    if (!authLoading && user && !STAFF_ROLES.includes(user.role)) {
+      navigateTo("/portal/my-tickets");
+    }
+  }, [authLoading, user]);
   const [categories, setCategories] = useState<ServiceRequestCategory[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -127,7 +137,7 @@ export default function ServiceRequestCategoriesPage() {
       <div className="flex flex-col space-y-4 md:flex-row md:items-center md:justify-between md:space-y-0 mb-8">
         <div>
           <h1 className="text-3xl font-bold">Service Request Categories</h1>
-          <p className="text-gray-500">
+          <p className="text-muted-foreground">
             Manage and organize different types of service requests
           </p>
         </div>

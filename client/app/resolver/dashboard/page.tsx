@@ -153,11 +153,11 @@ export default function ResolverDashboard() {
   ];
 
   return (
-    <div className="container py-6 space-y-6">
+    <div className="container mx-auto py-6 space-y-6">
       {/* Header */}
       <div className="flex items-start justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">My Work Queue</h1>
+          <h1 className="text-2xl font-bold">My Work Queue</h1>
           <p className="text-muted-foreground mt-1">
             {tickets.length} ticket{tickets.length !== 1 ? "s" : ""}{" "}
             assigned to you
@@ -202,7 +202,7 @@ export default function ResolverDashboard() {
               <Timer className="h-4 w-4 text-amber-500" />
               <span className="text-xs text-muted-foreground font-medium uppercase tracking-wide">Avg TTA</span>
             </div>
-            <p className="text-2xl font-bold text-gray-900">
+            <p className="text-2xl font-bold">
               {formatMinutes(slaStats.avgTtaMinutes)}
             </p>
             <p className="text-xs text-muted-foreground mt-0.5">Time to acknowledge</p>
@@ -212,7 +212,7 @@ export default function ResolverDashboard() {
               <TrendingUp className="h-4 w-4 text-blue-500" />
               <span className="text-xs text-muted-foreground font-medium uppercase tracking-wide">Avg TTR</span>
             </div>
-            <p className="text-2xl font-bold text-gray-900">
+            <p className="text-2xl font-bold">
               {formatMinutes(slaStats.avgTtrMinutes)}
             </p>
             <p className="text-xs text-muted-foreground mt-0.5">Time to resolve</p>
@@ -222,7 +222,7 @@ export default function ResolverDashboard() {
               <AlertTriangle className="h-4 w-4 text-red-500" />
               <span className="text-xs text-muted-foreground font-medium uppercase tracking-wide">SLA Breach</span>
             </div>
-            <p className={cn("text-2xl font-bold", slaStats.slaBreaching > 0 ? "text-red-600" : "text-gray-900")}>
+            <p className={cn("text-2xl font-bold", slaStats.slaBreaching > 0 ? "text-red-600" : "text-foreground")}>
               {slaStats.slaBreaching}
             </p>
             <p className="text-xs text-muted-foreground mt-0.5">Tickets breaching</p>
@@ -232,7 +232,7 @@ export default function ResolverDashboard() {
               <Clock className="h-4 w-4 text-orange-500" />
               <span className="text-xs text-muted-foreground font-medium uppercase tracking-wide">Near Breach</span>
             </div>
-            <p className={cn("text-2xl font-bold", slaStats.slaNearBreach > 0 ? "text-orange-600" : "text-gray-900")}>
+            <p className={cn("text-2xl font-bold", slaStats.slaNearBreach > 0 ? "text-orange-600" : "text-foreground")}>
               {slaStats.slaNearBreach}
             </p>
             <p className="text-xs text-muted-foreground mt-0.5">Due soon</p>

@@ -100,7 +100,7 @@ export default function PortalMyTickets() {
   if (authLoading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
-        <div className="flex flex-col items-center gap-3 text-gray-400">
+        <div className="flex flex-col items-center gap-3 text-muted-foreground">
           <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin" />
           <p className="text-sm">Loading...</p>
         </div>
@@ -109,11 +109,11 @@ export default function PortalMyTickets() {
   }
 
   return (
-    <div className="container py-6 space-y-6">
+    <div className="container max-w-5xl mx-auto py-6 space-y-6">
       {/* Header */}
       <div className="flex items-start justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">
+          <h1 className="text-2xl font-bold">
             My Support Tickets
           </h1>
           <p className="text-muted-foreground mt-1">
@@ -159,7 +159,7 @@ export default function PortalMyTickets() {
       {/* Filters */}
       <div className="flex flex-col sm:flex-row gap-3">
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
             placeholder="Search by ticket # or subject..."
             className="pl-9"
@@ -234,7 +234,7 @@ export default function PortalMyTickets() {
               >
                 Previous
               </Button>
-              <span className="text-sm text-gray-600">
+              <span className="text-sm text-muted-foreground">
                 Page {currentPage} of {totalPages}
               </span>
               <Button
@@ -265,20 +265,20 @@ function StatCard({
   color: "blue" | "yellow" | "orange" | "green";
 }) {
   const colorMap = {
-    blue: "bg-blue-50 text-blue-600",
-    yellow: "bg-yellow-50 text-yellow-600",
-    orange: "bg-orange-50 text-orange-600",
-    green: "bg-green-50 text-green-600",
+    blue: "bg-blue-500/10 text-blue-600 dark:text-blue-400",
+    yellow: "bg-yellow-500/10 text-yellow-600 dark:text-yellow-400",
+    orange: "bg-orange-500/10 text-orange-600 dark:text-orange-400",
+    green: "bg-green-500/10 text-green-600 dark:text-green-400",
   };
 
   return (
-    <div className="flex items-center gap-3 p-3 rounded-xl border bg-white">
+    <div className="flex items-center gap-3 p-3 rounded-xl border bg-card">
       <div className={cn("p-2 rounded-lg", colorMap[color])}>
         <Icon className="h-4 w-4" />
       </div>
       <div>
         <p className="text-xl font-bold leading-none">{value}</p>
-        <p className="text-xs text-gray-500 mt-0.5">{label}</p>
+        <p className="text-xs text-muted-foreground mt-0.5">{label}</p>
       </div>
     </div>
   );
@@ -293,22 +293,22 @@ function EmptyState({
 }) {
   return (
     <div className="flex flex-col items-center py-16 text-center">
-      <TicketIcon className="h-12 w-12 text-gray-200 mb-4" />
+      <TicketIcon className="h-12 w-12 text-muted-foreground/30 mb-4" />
       {hasFilters ? (
         <>
-          <h3 className="text-lg font-medium text-gray-700">
+          <h3 className="text-lg font-medium text-foreground">
             No tickets match your filters
           </h3>
-          <p className="text-gray-400 text-sm mt-1">
+          <p className="text-muted-foreground text-sm mt-1">
             Try adjusting your search or status filter.
           </p>
         </>
       ) : (
         <>
-          <h3 className="text-lg font-medium text-gray-700">
+          <h3 className="text-lg font-medium text-foreground">
             No tickets yet
           </h3>
-          <p className="text-gray-400 text-sm mt-1">
+          <p className="text-muted-foreground text-sm mt-1">
             Submit your first support request to get started.
           </p>
           <Button className="mt-4" onClick={onCreateNew}>

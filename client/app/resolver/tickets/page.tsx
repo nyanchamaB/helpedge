@@ -77,7 +77,7 @@ export default function ResolverTickets() {
   );
 
   return (
-    <div className="container py-6 space-y-4">
+    <div className="container mx-auto py-6 space-y-4">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold">My Tickets</h1>

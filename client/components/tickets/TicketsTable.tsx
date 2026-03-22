@@ -184,6 +184,8 @@ export function TicketsTable({
       searchPlaceholder="Search tickets..."
       searchKeys={["subject", "description", "ticketNumber"]}
       filters={filters}
+      defaultSortField="createdAt"
+      defaultSortDirection="desc"
       actions={actions}
       selectable={!!onBulkDelete}
       bulkActions={bulkActions}
