@@ -7,6 +7,7 @@ import { TicketsTable } from "@/components/tickets/TicketsTable";
 import { getTicketsByAssignee, Ticket } from "@/lib/api/tickets";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigation } from "@/contexts/NavigationContext";
+import { Spinner } from "@/components/ui/spinner";
 
 /**
  * Assigned Tickets Page
@@ -74,7 +75,7 @@ export default function AssignedTicketsPage() {
       <div className="container mx-auto py-6">
         <div className="flex items-center justify-center min-h-[400px]">
           <div className="flex flex-col items-center space-y-4">
-            <div className="w-10 h-10 border-4 border-blue-600 border-t-transparent rounded-full animate-spin" />
+            <Spinner size="lg" />
             <p className="text-gray-500">Checking authorization...</p>
           </div>
         </div>
