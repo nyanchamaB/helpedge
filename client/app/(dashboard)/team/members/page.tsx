@@ -36,6 +36,7 @@ import {
   AlertCircle, Plus, RefreshCw, Pencil, Trash2,
   ToggleLeft, ToggleRight, Users, Search,
 } from 'lucide-react';
+import { Spinner } from '@/components/ui/spinner';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import {
@@ -226,7 +227,7 @@ function CreateUserDialog({ open, onOpenChange, onSaved }: CreateDialogProps) {
             <DialogFooter>
               <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
               <Button type="submit" disabled={mutation.isPending}>
-                {mutation.isPending && <RefreshCw className="h-4 w-4 mr-2 animate-spin" />}
+                {mutation.isPending && <Spinner size="sm" className="mr-2" />}
                 Create User
               </Button>
             </DialogFooter>
@@ -386,7 +387,7 @@ function EditUserDialog({ open, onOpenChange, member, onSaved }: EditDialogProps
             <DialogFooter>
               <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
               <Button type="submit" disabled={mutation.isPending}>
-                {mutation.isPending && <RefreshCw className="h-4 w-4 mr-2 animate-spin" />}
+                {mutation.isPending && <Spinner size="sm" className="mr-2" />}
                 Save Changes
               </Button>
             </DialogFooter>
@@ -741,7 +742,7 @@ export default function TeamMembersPage() {
               onClick={() => deleteTarget && deleteMutation.mutate(deleteTarget.id)}
               disabled={deleteMutation.isPending}
             >
-              {deleteMutation.isPending && <RefreshCw className="h-4 w-4 mr-2 animate-spin" />}
+              {deleteMutation.isPending && <Spinner size="sm" className="mr-2" />}
               Delete
             </AlertDialogAction>
           </AlertDialogFooter>
