@@ -49,6 +49,7 @@ import {
   rebuildTfIdfIndex,
 } from "@/lib/api/ai";
 import { format } from "date-fns";
+import { Spinner } from "@/components/ui/spinner";
 import { cn } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
@@ -177,7 +178,7 @@ export default function MLModelManagementPage() {
           {isInitialized ? (
             <Button onClick={() => rebuildMutation.mutate()} disabled={isBusy}>
               {rebuildMutation.isPending ? (
-                <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                <Spinner size="sm" className="mr-2" />
               ) : (
                 <RefreshCw className="h-4 w-4 mr-2" />
               )}
@@ -186,7 +187,7 @@ export default function MLModelManagementPage() {
           ) : (
             <Button onClick={() => buildMutation.mutate()} disabled={isBusy}>
               {buildMutation.isPending ? (
-                <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                <Spinner size="sm" className="mr-2" />
               ) : (
                 <Power className="h-4 w-4 mr-2" />
               )}
