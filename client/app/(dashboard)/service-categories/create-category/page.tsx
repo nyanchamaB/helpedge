@@ -2,8 +2,9 @@
 
 export const dynamic = 'force-dynamic';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigation } from '@/contexts/NavigationContext';
+import { useAuth } from '@/contexts/AuthContext';
 import { CategoryForm } from '@/components/service-request-category/CategoryForm';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -13,7 +14,12 @@ import { toast } from 'sonner';
 
 export default function CreateCategoryPage() {
   const { navigateTo } = useNavigation();
+  const { user } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    if (!["Admin", "ITManager"].includes(user?.role ?? "")) navigateTo("/service-categories");
+  }, [user]);
 
   const handleSubmit = async (formData: any) => {
     setIsLoading(true);
