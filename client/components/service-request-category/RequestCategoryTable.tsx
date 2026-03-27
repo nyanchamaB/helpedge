@@ -43,7 +43,6 @@ import {
   CheckCircle,
   XCircle,
   AlertCircle,
-  RefreshCw,
   ChevronDown,
   ChevronUp,
   Download,
@@ -59,6 +58,7 @@ import {
   ToggleLeft,
   ToggleRight,
 } from "lucide-react";
+import { Spinner } from "@/components/ui/spinner";
 import { format } from "date-fns";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -89,6 +89,7 @@ interface RequestCategoryTableProps {
   isLoading?: boolean;
   showFilters?: boolean;
   showActions?: boolean;
+  selectable?: boolean;
 }
 
 type SortField =
@@ -114,6 +115,7 @@ export default function RequestCategoryTable({
   isLoading = false,
   showFilters = true,
   showActions = true,
+  selectable = true,
 }: RequestCategoryTableProps) {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterType, setFilterType] = useState<string>("all");
@@ -325,7 +327,7 @@ export default function RequestCategoryTable({
       <Card>
         <CardContent className="flex items-center justify-center h-64">
           <div className="flex flex-col items-center space-y-4">
-            <RefreshCw className="h-8 w-8 animate-spin text-muted-foreground" />
+            <Spinner size="lg" className="text-muted-foreground" />
             <p className="text-muted-foreground">Loading categories...</p>
           </div>
         </CardContent>
@@ -338,7 +340,7 @@ export default function RequestCategoryTable({
       <Card>
         <CardContent className="p-6">
           {/* Bulk Actions Bar */}
-          {selectedIds.length > 0 && (
+          {selectable && selectedIds.length > 0 && (
             <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-4 mb-6">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div className="flex items-center space-x-2">
@@ -451,7 +453,7 @@ export default function RequestCategoryTable({
               )}
             </div>
             <div className="flex items-center space-x-2">
-              {filteredCategories.length > 0 && (
+              {selectable && filteredCategories.length > 0 && (
                 <div className="flex items-center space-x-2">
                   <Checkbox
                     checked={
@@ -472,16 +474,18 @@ export default function RequestCategoryTable({
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="w-[50px]">
-                    <Checkbox
-                      checked={
-                        selectedIds.length === filteredCategories.length &&
-                        filteredCategories.length > 0
-                      }
-                      onCheckedChange={handleSelectAll}
-                      className="h-4 w-4"
-                    />
-                  </TableHead>
+                  {selectable && (
+                    <TableHead className="w-[50px]">
+                      <Checkbox
+                        checked={
+                          selectedIds.length === filteredCategories.length &&
+                          filteredCategories.length > 0
+                        }
+                        onCheckedChange={handleSelectAll}
+                        className="h-4 w-4"
+                      />
+                    </TableHead>
+                  )}
                   <SortableHeader field="name">Name</SortableHeader>
                   <TableHead>Description</TableHead>
                   <SortableHeader field="requestType">Type</SortableHeader>
@@ -530,16 +534,18 @@ export default function RequestCategoryTable({
                       className="hover:bg-muted/50 cursor-pointer transition-colors group"
                       onClick={() => onCategoryClick(category)}
                     >
-                      <TableCell onClick={(e) => e.stopPropagation()}>
-                        <Checkbox
-                          checked={selectedIds.includes(category.id)}
-                          onCheckedChange={() =>
-                            handleSelectCategory(category.id)
-                          }
-                          className="h-4 w-4"
-                          onClick={(e) => e.stopPropagation()}
-                        />
-                      </TableCell>
+                      {selectable && (
+                        <TableCell onClick={(e) => e.stopPropagation()}>
+                          <Checkbox
+                            checked={selectedIds.includes(category.id)}
+                            onCheckedChange={() =>
+                              handleSelectCategory(category.id)
+                            }
+                            className="h-4 w-4"
+                            onClick={(e) => e.stopPropagation()}
+                          />
+                        </TableCell>
+                      )}
                       <TableCell className="font-medium">
                         <div className="flex items-center space-x-3">
                           <div
