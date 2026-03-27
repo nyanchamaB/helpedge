@@ -128,17 +128,18 @@ export interface ApprovalStatusDto {
 }
 
 export interface ServiceRequestStats {
-  total: number;
-  draft: number;
-  pendingApproval: number;
-  approved: number;
-  inProgress: number;
-  fulfilled: number;
-  onHold: number;
-  closed: number;
-  rejected: number;
-  cancelled: number;
-  overdue: number;
+  totalRequests: number;
+  draftCount: number;
+  pendingApprovalCount: number;
+  approvedCount: number;
+  inProgressCount: number;
+  fulfilledCount: number;
+  closedCount: number;
+  rejectedCount: number;
+  cancelledCount: number;
+  overdueCount: number;
+  byPriority: Record<string, number>;
+  byType: Record<string, number>;
 }
 
 // ─── Request DTOs ─────────────────────────────────────────────────────────────
