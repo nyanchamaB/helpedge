@@ -31,6 +31,7 @@ import {
   Calendar,
   RefreshCw,
 } from "lucide-react";
+import { Spinner } from "@/components/ui/spinner";
 
 // Roles that can access /api/Dashboard/stats
 const DASHBOARD_STATS_ROLES = [
@@ -161,7 +162,7 @@ export default function DashboardStats() {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
         <div className="flex flex-col items-center space-y-4">
-          <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+          <Spinner size="lg" />
           <p className="text-muted-foreground">Loading dashboard data...</p>
         </div>
       </div>
@@ -381,7 +382,7 @@ export default function DashboardStats() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-3xl font-bold text-green-600">{stats.resolvedTickets ?? stats.rlvedTickets}</p>
+              <p className="text-3xl font-bold text-green-600">{stats.resolvedTickets ?? 0}</p>
             </CardContent>
           </Card>
 
