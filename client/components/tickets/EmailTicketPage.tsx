@@ -42,8 +42,8 @@ export default function EmailTicketPage() {
     return (
       <div className="flex min-h-screen items-center justify-center">
         <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-900">Access Denied</h1>
-          <p className="mt-2 text-gray-600">
+          <h1 className="text-2xl font-bold text-foreground">Access Denied</h1>
+          <p className="mt-2 text-muted-foreground">
             You do not have permission to access this page.
           </p>
         </div>
@@ -54,8 +54,8 @@ export default function EmailTicketPage() {
   return (
     <div className="container mx-auto py-8 px-4 max-w-4xl">
       <div className="mb-6">
-        <h1 className="text-3xl font-bold text-gray-900">Create Ticket from Email</h1>
-        <p className="mt-2 text-gray-600">
+        <h1 className="text-3xl font-bold text-foreground">Create Ticket from Email</h1>
+        <p className="mt-2 text-muted-foreground">
           Manually create a support ticket from email data. The system will automatically apply
           AI analysis to classify and suggest assignments.
         </p>
