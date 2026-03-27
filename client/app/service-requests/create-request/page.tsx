@@ -127,7 +127,7 @@ interface KVRow {
 }
 
 export default function CreateRequestPage() {
-  const { navigateTo } = useNavigation();
+  const { navigateTo, pageParams } = useNavigation();
   const createMutation = useCreateServiceRequest();
   const submitMutation = useSubmitServiceRequest();
   const categoriesQuery = useActiveCategories();
@@ -228,7 +228,7 @@ export default function CreateRequestPage() {
     <div className="max-w-2xl mx-auto space-y-6">
       {/* Header */}
       <div className="flex items-center gap-3">
-        <Button variant="ghost" size="sm" onClick={() => navigateTo("/service-requests/my-requests")}>
+        <Button variant="ghost" size="sm" onClick={() => navigateTo(pageParams?.from ?? "/service-requests/my-requests")}>
           <ArrowLeft className="h-4 w-4 mr-1" />
           Back
         </Button>
