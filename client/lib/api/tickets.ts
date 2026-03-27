@@ -446,6 +446,28 @@ export async function escalateTicket(
   });
 }
 
+/**
+ * Get all unassigned tickets
+ * Available to: Admin, ITManager, TeamLead, ServiceDeskAgent
+ */
+export async function getUnassignedTickets(): Promise<ApiResponse<Ticket[]>> {
+  return apiRequest<Ticket[]>('/api/Tickets/unassigned', {
+    method: 'GET',
+    includeAuth: true,
+  });
+}
+
+/**
+ * Get tickets assigned to the current authenticated user
+ * Available to: All staff roles
+ */
+export async function getMyAssignedTickets(): Promise<ApiResponse<Ticket[]>> {
+  return apiRequest<Ticket[]>('/api/Tickets/assigned/me', {
+    method: 'GET',
+    includeAuth: true,
+  });
+}
+
 // Helper functions to convert between frontend and backend formats
 
 /**
