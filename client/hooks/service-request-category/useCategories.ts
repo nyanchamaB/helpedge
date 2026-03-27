@@ -1,10 +1,11 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { 
-  getServiceRequestsCategories, 
+import {
+  getServiceRequestsCategories,
   getServiceRequestCategoryById,
   getActiveServiceRequestCategories,
-  getServiceRequestsCategoriesByType 
+  getCategoriesByType,
 } from '@/lib/api/service-request-category';
+import { ServiceRequestType } from '@/lib/api/service-request';
 
 export const useCategories = (options?: {
   enabled?: boolean;
@@ -25,10 +26,10 @@ export const useActiveCategories = () => {
   });
 };
 
-export const useCategoriesByType = (type: string) => {
+export const useCategoriesByType = (type?: ServiceRequestType) => {
   return useQuery({
     queryKey: ['service-request-categories', 'type', type],
-    queryFn: () => getServiceRequestsCategoriesByType(type),
+    queryFn: () => getCategoriesByType(type!),
     enabled: !!type,
   });
 };

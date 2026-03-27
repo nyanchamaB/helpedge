@@ -1,11 +1,11 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { 
+import {
   createServiceRequestCategory,
   updateServiceRequestCategory,
   deleteServiceRequestCategory,
   activateServiceRequestCategory,
   deactivateServiceRequestCategory,
-  ServiceRequestCategory
+  UpdateServiceRequestCategoryDto,
 } from '@/lib/api/service-request-category';
 import { toast } from 'sonner';
 
@@ -29,7 +29,7 @@ export const useUpdateCategory = () => {
   const queryClient = useQueryClient();
   
   return useMutation({
-    mutationFn: ({ id, data }: { id: string; data: Partial<ServiceRequestCategory> }) =>
+    mutationFn: ({ id, data }: { id: string; data: UpdateServiceRequestCategoryDto }) =>
       updateServiceRequestCategory(id, data),
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['service-request-categories'] });

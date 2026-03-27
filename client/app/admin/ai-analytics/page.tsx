@@ -452,7 +452,7 @@ export default function AIAnalyticsDashboard() {
                     fontSize: 13,
                   }}
                   labelStyle={{ fontWeight: 600, marginBottom: 4 }}
-                  formatter={(value: any, name: string) =>
+                  formatter={(value: any, name: string | undefined) =>
                     name === 'Accuracy (%)' ? [`${value}%`, name] : [value, name]
                   }
                   cursor={{ stroke: 'currentColor', strokeOpacity: 0.15, strokeWidth: 1 }}
@@ -511,11 +511,11 @@ export default function AIAnalyticsDashboard() {
                     <th className="border p-2 bg-muted font-medium text-sm">
                       Predicted →<br />Actual ↓
                     </th>
-                    {confusionMatrix.categories.map((cat: string) => (
+                    {confusionMatrix.categories.map((cat: string | null) => (
                       <th
-                        key={cat}
+                        key={cat ?? ''}
                         className="border p-2 bg-muted font-medium text-sm max-w-[100px] truncate"
-                        title={cat}
+                        title={cat ?? ''}
                       >
                         {cat}
                       </th>
@@ -523,9 +523,9 @@ export default function AIAnalyticsDashboard() {
                   </tr>
                 </thead>
                 <tbody>
-                  {confusionMatrix.categories.map((actualCat: string, i: number) => (
-                    <tr key={actualCat}>
-                      <td className="border p-2 bg-muted font-medium text-sm max-w-[100px] truncate" title={actualCat}>
+                  {confusionMatrix.categories.map((actualCat: string | null, i: number) => (
+                    <tr key={actualCat ?? i}>
+                      <td className="border p-2 bg-muted font-medium text-sm max-w-[100px] truncate" title={actualCat ?? undefined}>
                         {actualCat}
                       </td>
                       {(confusionMatrix.matrix[i] ?? []).map((count: number, j: number) => (

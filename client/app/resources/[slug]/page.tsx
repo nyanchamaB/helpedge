@@ -93,8 +93,9 @@ const docsContent: Record<string, { title: string; description: string; sections
   },
 };
 
-export default function DocSlugPage({ params }: { params: { slug: string } }) {
-  const doc = docsContent[params.slug];
+export default async function DocSlugPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+  const doc = docsContent[slug];
 
   if (!doc) return notFound();
 

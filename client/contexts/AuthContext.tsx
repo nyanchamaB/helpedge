@@ -83,7 +83,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         try {
           const response = await validateToken(token);
           // Backend returns { isValid: true } not { valid: true }
-          if (!response.success || (!response.data?.valid && !response.data?.isValid)) {
+          if (!response.success || !response.data?.valid) {
             console.warn('AuthContext: Backend token validation failed, but trusting client-side validation');
           } else {
             console.log('AuthContext: Backend token validation successful');

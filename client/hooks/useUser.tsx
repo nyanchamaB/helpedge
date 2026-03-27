@@ -6,8 +6,10 @@ import { decodeAndMapToken } from "@/lib/utils";
 import { Session } from "next-auth";
 import { AccessToken} from "@/lib/types";
 
+type ExtendedSession = Session & { error?: string; accessToken?: string };
+
 type UserData = {
-    session: Session;
+    session: ExtendedSession;
     decodedToken: AccessToken | null;
 }
 
@@ -34,7 +36,8 @@ const COOKIE_OPTIONS = {
 
 
 export function UserProvider ({ children}: {children: ReactNode}) {
-    const { data: session, status } = useSession();
+    const { data: sessionRaw, status } = useSession();
+    const session = sessionRaw as ExtendedSession | null;
     const [userData, setUserData] = useState<UserData | null>(null);
 
     useEffect(() => {

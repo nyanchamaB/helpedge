@@ -45,7 +45,7 @@ const UserTicketSchema = z.object({
     .min(20, "Please describe your issue in more detail (at least 20 characters)")
     .max(5000, "Description is too long"),
   categoryId: z.string().optional(),
-  priority: z.enum(["Low", "Medium", "High", "Critical"]).default("Medium"),
+  priority: z.enum(["Low", "Medium", "High", "Critical"]),
   contactEmail: z
     .string()
     .email("Enter a valid email address")

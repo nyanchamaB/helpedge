@@ -265,7 +265,7 @@ export default function DashboardStats() {
         </div>
 
         {/* Show partial stats if available */}
-        {(stats || statusCounts) && (
+        {(stats || calculatedCounts) && (
           <div>
             <h2 className="text-xl font-semibold mb-4 text-foreground">
               Available Data (Partial)
@@ -283,18 +283,18 @@ export default function DashboardStats() {
                   </div>
                 </>
               )}
-              {statusCounts && (
+              {calculatedCounts && (
                 <>
                   <div className="bg-card border rounded-lg p-4">
                     <p className="text-sm text-muted-foreground">Open</p>
                     <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">
-                      {statusCounts.open}
+                      {calculatedCounts.open}
                     </p>
                   </div>
                   <div className="bg-card border rounded-lg p-4">
                     <p className="text-sm text-muted-foreground">Resolved</p>
                     <p className="text-2xl font-bold text-green-600 dark:text-green-400">
-                      {statusCounts.resolved}
+                      {calculatedCounts.resolved}
                     </p>
                   </div>
                 </>

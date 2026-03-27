@@ -205,7 +205,31 @@ const ServiceCategoryDetailContent = dynamic(() => import("@/app/(dashboard)/ser
   loading: () => <PageSkeleton />,
 });
 
+const ServiceRequestDetailContent = dynamic(() => import("@/app/service-requests/[id]/page"), {
+  loading: () => <PageSkeleton />,
+});
+
+const ServiceRequestQueueContent = dynamic(() => import("@/app/service-requests/queue/page"), {
+  loading: () => <PageSkeleton />,
+});
+
 const ServiceCategoryEditContent = dynamic(() => import("@/app/(dashboard)/service-categories/[id]/edit/page"), {
+  loading: () => <PageSkeleton />,
+});
+
+const ApprovalWorkflowsContent = dynamic(() => import("@/app/approval-workflows/page"), {
+  loading: () => <PageSkeleton />,
+});
+
+const CreateApprovalWorkflowContent = dynamic(() => import("@/app/approval-workflows/create/page"), {
+  loading: () => <PageSkeleton />,
+});
+
+const ApprovalWorkflowDetailContent = dynamic(() => import("@/app/approval-workflows/[id]/page"), {
+  loading: () => <PageSkeleton />,
+});
+
+const ApprovalWorkflowEditContent = dynamic(() => import("@/app/approval-workflows/[id]/edit/page"), {
   loading: () => <PageSkeleton />,
 });
 
@@ -293,36 +317,48 @@ export function MainContentRenderer() {
       return <TicketDetailContent />;
     }
 
+    // Handle static service-request sub-routes BEFORE dynamic [id] match
+    if (activePage === '/service-requests') return <ServiceRequestsContent />;
+    if (activePage === '/service-requests/my-requests') return <MyRequestsContent />;
+    if (activePage === '/service-requests/create-request') return <CreateRequestContent />;
+    if (activePage === '/service-requests/queue') return <ServiceRequestQueueContent />;
+
+    // Service request detail: /service-requests/[id]
+    const srDetailMatch = matchRoute(activePage, '/service-requests/[id]');
+    if (srDetailMatch.match) {
+      return <ServiceRequestDetailContent />;
+    }
+
+    // Approval workflow static routes first
+    if (activePage === '/approval-workflows') return <ApprovalWorkflowsContent />;
+    if (activePage === '/approval-workflows/create') return <CreateApprovalWorkflowContent />;
+
+    const awEditMatch = matchRoute(activePage, '/approval-workflows/[id]/edit');
+    if (awEditMatch.match) return <ApprovalWorkflowEditContent />;
+
+    const awDetailMatch = matchRoute(activePage, '/approval-workflows/[id]');
+    if (awDetailMatch.match) return <ApprovalWorkflowDetailContent />;
+
+    // Service category static routes first (before dynamic [id] match)
+    if (activePage === '/service-categories') return <ServiceCategoriesContent />;
+    if (activePage === '/service-categories/create-category') return <CreateCategoryContent />;
+
+    // Service category edit: /service-categories/[id]/edit (before [id] to avoid false match)
+    const categoryEditMatch = matchRoute(activePage, '/service-categories/[id]/edit');
+    if (categoryEditMatch.match) {
+      return <ServiceCategoryEditContent />;
+    }
+
     // Service category detail: /service-categories/[id]
     const categoryMatch = matchRoute(activePage, '/service-categories/[id]');
     if (categoryMatch.match) {
       return <ServiceCategoryDetailContent />;
     }
 
-    // Service category edit: /service-categories/[id]/edit
-    const categoryEditMatch = matchRoute(activePage, '/service-categories/[id]/edit');
-    if (categoryEditMatch.match) {
-      return <ServiceCategoryEditContent />;
-    }
-
     // Handle static routes
     switch (activePage) {
       case '/dashboard':
         return <DashboardContent />;
-
-      // Service Requests
-      case '/service-requests':
-        return <ServiceRequestsContent />;
-      case '/service-requests/my-requests':
-        return <MyRequestsContent />;
-      case '/service-requests/create-request':
-        return <CreateRequestContent />;
-
-      // Service Categories
-      case '/service-categories':
-        return <ServiceCategoriesContent />;
-      case '/service-categories/create-category':
-        return <CreateCategoryContent />;
 
       // Team
       case '/team/members':

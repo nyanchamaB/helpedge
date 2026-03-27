@@ -23,6 +23,9 @@ function extractParamsFromPath(path: string): Record<string, string> {
     { pattern: /^\/portal\/ticket\/([^\/]+)$/, paramNames: ['id'] },
     { pattern: /^\/service-categories\/([^\/]+)\/edit$/, paramNames: ['id'] },
     { pattern: /^\/service-categories\/([^\/]+)$/, paramNames: ['id'] },
+    { pattern: /^\/service-requests\/([^\/]+)$/, paramNames: ['id'] },
+    { pattern: /^\/approval-workflows\/([^\/]+)\/edit$/, paramNames: ['id'] },
+    { pattern: /^\/approval-workflows\/([^\/]+)$/, paramNames: ['id'] },
   ];
 
   for (const { pattern, paramNames } of patterns) {

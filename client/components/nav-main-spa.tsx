@@ -25,6 +25,7 @@ interface NavItem {
   url: string;
   icon: React.ElementType;
   role?: string[] | UserRole[];
+  roles?: string[] | UserRole[];
   items?: NavSubItem[];
 }
 
@@ -42,7 +43,10 @@ export function NavMainSPA({ items, userRole, onItemClick }: NavMainProps) {
 
   // Filter items based on role
   const filteredItems = items
-    .filter((item) => !item.roles || item.roles.includes(userRole as UserRole))
+    .filter((item) => {
+      const allowedRoles = item.roles ?? item.role;
+      return !allowedRoles || allowedRoles.includes(userRole as UserRole);
+    })
     .map((item) => ({
       ...item,
       items: item.items

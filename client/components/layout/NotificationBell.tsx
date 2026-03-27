@@ -179,7 +179,7 @@ export function NotificationBell() {
   // Fetch ticket-derived notifications
   const { data: ticketsResponse } = useQuery({
     queryKey: ['notif-tickets', user?.id],
-    queryFn: () => user?.id
+    queryFn: (): Promise<any> => user?.id
       ? (isStaff ? getTicketsByAssignee(user.id) : getTicketsByCreator(user.id))
       : Promise.resolve({ success: false, data: [] }),
     enabled: !!user?.id,

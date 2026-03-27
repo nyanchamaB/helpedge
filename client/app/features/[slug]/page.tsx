@@ -1,7 +1,8 @@
 import NavHeader from "@/app/onboarding/navsection";
 
-export default function FeaturePage({ params }: { params: { slug: string } }) {
-  const title = params.slug
+export default async function FeaturePage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+  const title = slug
     .split("-")
     .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
     .join(" ");

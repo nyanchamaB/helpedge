@@ -12,7 +12,8 @@ import { Avatar, AvatarImage, AvatarFallback} from '@/components/ui/avatar';
 import { Dialog, DialogTrigger, DialogContent, DialogTitle, DialogDescription, DialogClose } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Home01Icon } from "hugeicons-react";
+import { Home } from "lucide-react";
+const Home01Icon = Home;
 
 function getInitials(firstName?: string, lastName?: string, fullName?: string): string {
   if (firstName && lastName) {

@@ -16,6 +16,7 @@ import {
   Brain,
   Database,
   FolderOpen,
+  GitBranch,
 } from "lucide-react";
 import { siteConfig } from "@/config/site";
 import { UserRole } from "@/lib/api/auth";
@@ -100,7 +101,7 @@ export const navData = {
       roles: ALL_ROLES,
       items: [
         { title: "Service Requests", url: "/service-requests", roles: ["Admin", "ITManager", "TeamLead", "ServiceDeskAgent"] },
-        { title: "My Requests Details", url: "/service-requests/my-requests", roles: ALL_ROLES },
+        { title: "My Requests", url: "/service-requests/my-requests", roles: ALL_ROLES },
         { title: "Raise Service Request", url: "/service-requests/create-request", roles: ALL_ROLES },
         { title: "Request Queue", url: "/service-requests/queue", roles: ["ServiceDeskAgent", "TeamLead", "ITManager", "Admin", "SystemAdmin", "Technician", "SecurityAdmin"] },
       ],
@@ -112,6 +113,16 @@ export const navData = {
       roles: STAFF_ROLES,
       items: [
         { title: "All Categories", url: "/service-categories", roles: STAFF_ROLES },
+      ],
+    },
+    {
+      title: "Approval Workflows",
+      url: "/approval-workflows",
+      icon: GitBranch,
+      roles: ["Admin", "ITManager"] as UserRole[],
+      items: [
+        { title: "All Workflows", url: "/approval-workflows", roles: ["Admin", "ITManager"] as UserRole[] },
+        { title: "New Workflow", url: "/approval-workflows/create", roles: ["Admin", "ITManager"] as UserRole[] },
       ],
     },
     {

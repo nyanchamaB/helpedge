@@ -287,7 +287,7 @@ export default function RuleManagementPage() {
                     <span>Threshold</span>
                     {(priorityResponse?.data as any)?.thresholdUnit && (
                       <span className="block text-xs font-normal text-muted-foreground normal-case">
-                        {(priorityResponse.data as any).thresholdUnit}
+                        {(priorityResponse?.data as any).thresholdUnit}
                       </span>
                     )}
                   </TableHead>
@@ -320,7 +320,7 @@ export default function RuleManagementPage() {
           )}
           {(priorityResponse?.data as any)?.thresholdExplanation && (
             <p className="text-xs text-muted-foreground mt-3">
-              <strong>Threshold:</strong> {(priorityResponse.data as any).thresholdExplanation}
+              <strong>Threshold:</strong> {(priorityResponse?.data as any).thresholdExplanation}
             </p>
           )}
         </CardContent>
