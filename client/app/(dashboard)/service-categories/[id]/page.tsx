@@ -1,28 +1,29 @@
 "use client";
-import { useParams } from 'next/navigation';
+import { useNavigation } from '@/contexts/NavigationContext';
 import { useCategory } from '@/hooks/service-request-category/useCategories';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import { 
-  ArrowLeft, 
-  Edit, 
-  CheckCircle, 
+import {
+  ArrowLeft,
+  Edit,
+  CheckCircle,
   XCircle,
   Users,
   Clock,
   Hash,
-  Calendar
+  Calendar,
 } from 'lucide-react';
-import Link from 'next/link';
 import { format } from 'date-fns';
+import { CategoryIcon } from '@/components/service-request-category/CategoryIcon';
 
 export default function CategoryDetailPage() {
-  const params = useParams();
-  const id = params.id as string;
+  const { activePage, pageParams, navigateTo } = useNavigation();
+  const id = pageParams?.id ?? activePage.split('/').pop() ?? '';
   
-  const { data: category, isLoading } = useCategory(id);
+  const { data: categoryResponse, isLoading } = useCategory(id);
+  const category = categoryResponse?.data;
 
   if (isLoading) {
     return (
@@ -40,9 +41,7 @@ export default function CategoryDetailPage() {
           <p className="text-gray-500 mt-2">
             The category you're looking for doesn't exist.
           </p>
-          <Link href="/service-request-categories">
-            <Button className="mt-4">Back to Categories</Button>
-          </Link>
+          <Button className="mt-4" onClick={() => navigateTo('/service-categories')}>Back to Categories</Button>
         </div>
       </div>
     );
@@ -51,31 +50,25 @@ export default function CategoryDetailPage() {
   return (
     <div className="container mx-auto py-8">
       <div className="flex items-center justify-between mb-6">
-        <Link href="/service-request-categories">
-          <Button variant="ghost" className="gap-2">
-            <ArrowLeft className="h-4 w-4" />
-            Back to Categories
-          </Button>
-        </Link>
-        
-        <Link href={`/service-request-categories/${id}/edit`}>
-          <Button variant="outline" className="gap-2">
-            <Edit className="h-4 w-4" />
-            Edit Category
-          </Button>
-        </Link>
+        <Button variant="ghost" className="gap-2" onClick={() => navigateTo('/service-categories')}>
+          <ArrowLeft className="h-4 w-4" />
+          Back to Categories
+        </Button>
+
+        <Button variant="outline" className="gap-2" onClick={() => navigateTo(`/service-categories/${id}/edit`)}>
+          <Edit className="h-4 w-4" />
+          Edit Category
+        </Button>
       </div>
 
       {/* Header */}
       <div className="mb-8">
         <div className="flex items-center space-x-4">
-          <div 
+          <div
             className="flex items-center justify-center w-12 h-12 rounded-lg"
             style={{ backgroundColor: `${category.color}20` }}
           >
-            <span className="text-2xl" style={{ color: category.color }}>
-              {category.icon}
-            </span>
+            <CategoryIcon icon={category.icon} color={category.color} />
           </div>
           <div>
             <h1 className="text-3xl font-bold">{category.name}</h1>

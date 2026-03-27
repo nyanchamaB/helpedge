@@ -25,6 +25,7 @@ import {
   type DetailedHealthStatus,
 } from "@/lib/api/dashboard";
 import { getAssignableStaff } from "@/lib/api/users";
+import { getMyServiceRequests } from "@/lib/api/service-request";
 import {
   LayoutDashboard,
   Ticket,
@@ -42,6 +43,7 @@ import {
   Mail,
   ChevronRight,
   FileText,
+  ClipboardList,
 } from "lucide-react";
 
 // Role-based dashboard configurations
@@ -782,136 +784,169 @@ function TicketPriorityBadge({ priority }: { priority: string }) {
 function EndUserDashboard() {
   const { user } = useAuth();
   const { navigateTo } = useNavigation();
-  const [myTickets, setMyTickets] = useState<MyTicketsDashboard | null>(null);
+  const [tickets, setTickets] = useState<import('@/lib/api/tickets').Ticket[]>([]);
+  const [isrs, setIsrs] = useState<import('@/lib/api/service-request').ServiceRequest[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    if (!user?.id) return;
     async function fetchData() {
       setLoading(true);
-      const res = await getMyTicketsDashboard();
-      if (res.success) setMyTickets(res.data!);
+      const [ticketsRes, isrRes] = await Promise.all([
+        import('@/lib/api/tickets').then(m => m.getTicketsByCreator(user!.id)),
+        getMyServiceRequests(),
+      ]);
+      if (ticketsRes.success && ticketsRes.data) setTickets(ticketsRes.data);
+      if (isrRes.success && isrRes.data) setIsrs(isrRes.data);
       setLoading(false);
     }
     fetchData();
-  }, []);
+  }, [user?.id]);
 
-  const firstName =
-    user?.name?.split(" ")[0] ?? user?.email?.split("@")[0] ?? "there";
-  const totalTickets =
-    (myTickets?.statusCounts?.open ?? 0) +
-    (myTickets?.statusCounts?.inProgress ?? 0) +
-    (myTickets?.statusCounts?.resolved ?? 0) +
-    (myTickets?.statusCounts?.closed ?? 0);
+  const firstName = user?.name?.split(" ")[0] ?? user?.email?.split("@")[0] ?? "there";
 
-  // ── Layout ──────────────────────────────────────────────────────────────────
-  // Row 1: Welcome banner — always full width
-  // Row 2: Stats (left col, 2×2) | Recent Tickets or Empty state (right cols)
-  //
-  // Desktop (lg+):
-  //   [ Welcome banner ─────────────────────────────── ]
-  //   [ Stats 2×2 ] [ Recent Tickets / Empty state     ]
-  //
-  // Mobile (stacked):
-  //   Welcome → Stats → Recent Tickets → Empty state
+  // ── Ticket counts (computed from real data) ──────────────────────────────
+  const ticketCounts = {
+    total: tickets.length,
+    open: tickets.filter(t => t.status === 'Open').length,
+    inProgress: tickets.filter(t => t.status === 'InProgress').length,
+    resolvedClosed: tickets.filter(t => t.status === 'Resolved' || t.status === 'Closed').length,
+  };
+
+  // ── ISR counts (computed from real data) ────────────────────────────────
+  const isrCounts = {
+    total: isrs.length,
+    pendingApproval: isrs.filter(r => r.status === 'PendingApproval').length,
+    active: isrs.filter(r => r.status === 'Approved' || r.status === 'InProgress' || r.status === 'OnHold').length,
+    fulfilledClosed: isrs.filter(r => r.status === 'Fulfilled' || r.status === 'Closed').length,
+  };
+
+  const recentTickets = [...tickets]
+    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+    .slice(0, 5);
+
+  const recentIsrs = [...isrs]
+    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+    .slice(0, 5);
 
   const statsColumn = (
-    <div className="grid grid-cols-2 gap-3">
-      <StatCard
-        title="Total"
-        value={totalTickets}
-        icon={<Ticket className="h-4 w-4" />}
-        color="bg-blue-500"
-      />
-      <StatCard
-        title="Open"
-        value={myTickets?.statusCounts?.open ?? 0}
-        icon={<AlertCircle className="h-4 w-4" />}
-        color="bg-yellow-500"
-      />
-      <StatCard
-        title="In Progress"
-        value={myTickets?.statusCounts?.inProgress ?? 0}
-        icon={<Clock className="h-4 w-4" />}
-        color="bg-orange-500"
-      />
-      <StatCard
-        title="Resolved"
-        value={(myTickets?.statusCounts?.resolved ?? 0) + (myTickets?.statusCounts?.closed ?? 0)}
-        icon={<CheckCircle className="h-4 w-4" />}
-        color="bg-green-500"
-      />
+    <div className="space-y-4">
+      {/* Tickets */}
+      <div>
+        <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-2">Support Tickets</p>
+        <div className="grid grid-cols-2 gap-3">
+          <StatCard title="Total" value={ticketCounts.total} icon={<Ticket className="h-4 w-4" />} color="bg-blue-500" />
+          <StatCard title="Open" value={ticketCounts.open} icon={<AlertCircle className="h-4 w-4" />} color="bg-yellow-500" />
+          <StatCard title="In Progress" value={ticketCounts.inProgress} icon={<Clock className="h-4 w-4" />} color="bg-orange-500" />
+          <StatCard title="Resolved / Closed" value={ticketCounts.resolvedClosed} icon={<CheckCircle className="h-4 w-4" />} color="bg-green-500" />
+        </div>
+      </div>
+
+      {/* Service Requests */}
+      <div>
+        <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-2">Service Requests</p>
+        <div className="grid grid-cols-2 gap-3">
+          <StatCard title="Total" value={isrCounts.total} icon={<ClipboardList className="h-4 w-4" />} color="bg-indigo-500" />
+          <StatCard title="Pending Approval" value={isrCounts.pendingApproval} icon={<AlertCircle className="h-4 w-4" />} color="bg-amber-500" />
+          <StatCard title="Active" value={isrCounts.active} icon={<Clock className="h-4 w-4" />} color="bg-orange-500" />
+          <StatCard title="Fulfilled / Closed" value={isrCounts.fulfilledClosed} icon={<CheckCircle className="h-4 w-4" />} color="bg-emerald-500" />
+        </div>
+      </div>
     </div>
   );
 
-  const recentTicketsCard =
-    !loading && myTickets?.recentTickets && myTickets.recentTickets.length > 0 ? (
-      <Card className="h-full flex flex-col">
+  const rightPanel = !loading && (
+    <div className="space-y-4">
+      {/* Recent Tickets */}
+      <Card>
         <CardHeader className="flex flex-row items-center justify-between pb-3 shrink-0">
           <CardTitle className="text-base">Recent Tickets</CardTitle>
-          <Button
-            variant="ghost"
-            size="sm"
-            className="text-xs text-muted-foreground gap-1"
-            onClick={() => navigateTo("/portal/my-tickets")}
-          >
-            View all
-            <ChevronRight className="h-3 w-3" />
+          <Button variant="ghost" size="sm" className="text-xs text-muted-foreground gap-1" onClick={() => navigateTo("/portal/my-tickets")}>
+            View all <ChevronRight className="h-3 w-3" />
           </Button>
         </CardHeader>
         <CardContent className="pt-0">
-          <div className="space-y-1.5">
-            {myTickets.recentTickets.map((ticket) => (
-              <button
-                key={ticket.id}
-                className="w-full flex items-center justify-between gap-3 p-3 rounded-lg bg-muted/40 hover:bg-muted transition-colors text-left"
-                onClick={() => navigateTo(`/portal/ticket/${ticket.id}`)}
-              >
-                <div className="min-w-0 flex-1">
-                  <p className="font-medium text-sm truncate">{ticket.title}</p>
-                  <p className="text-xs text-muted-foreground mt-0.5">
-                    {new Date(ticket.createdAt).toLocaleDateString(undefined, {
-                      year: "numeric",
-                      month: "short",
-                      day: "numeric",
-                    })}
-                  </p>
-                </div>
-                <div className="flex items-center gap-2 shrink-0">
-                  <TicketStatusBadge status={ticket.status} />
-                  <TicketPriorityBadge priority={ticket.priority} />
-                  <ChevronRight className="h-4 w-4 text-muted-foreground/50" />
-                </div>
-              </button>
-            ))}
-          </div>
+          {recentTickets.length === 0 ? (
+            <div className="flex flex-col items-center py-6 text-center text-muted-foreground">
+              <Ticket className="h-8 w-8 mb-2 opacity-40" />
+              <p className="text-sm">No tickets yet</p>
+              <Button size="sm" className="mt-3" onClick={() => navigateTo("/portal/create-ticket")}>
+                <Plus className="h-3 w-3 mr-1" /> Submit a Ticket
+              </Button>
+            </div>
+          ) : (
+            <div className="space-y-1.5">
+              {recentTickets.map((ticket) => (
+                <button
+                  key={ticket.id}
+                  className="w-full flex items-center justify-between gap-3 p-3 rounded-lg bg-muted/40 hover:bg-muted transition-colors text-left"
+                  onClick={() => navigateTo(`/portal/ticket/${ticket.id}`)}
+                >
+                  <div className="min-w-0 flex-1">
+                    <p className="font-medium text-sm truncate">{ticket.subject ?? ticket.description}</p>
+                    <p className="text-xs text-muted-foreground mt-0.5">
+                      {new Date(ticket.createdAt).toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" })}
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-2 shrink-0">
+                    <TicketStatusBadge status={ticket.status} />
+                    <TicketPriorityBadge priority={ticket.priority} />
+                    <ChevronRight className="h-4 w-4 text-muted-foreground/50" />
+                  </div>
+                </button>
+              ))}
+            </div>
+          )}
         </CardContent>
       </Card>
-    ) : null;
 
-  const emptyStateCard = !loading && totalTickets === 0 ? (
-    <Card className="flex flex-col justify-center h-full">
-      <CardContent className="flex flex-col items-center py-12 text-center">
-        <div className="p-4 rounded-full bg-blue-500/10 mb-4">
-          <Ticket className="h-8 w-8 text-blue-600 dark:text-blue-400" />
-        </div>
-        <h3 className="text-base font-semibold">No tickets yet</h3>
-        <p className="text-sm text-muted-foreground mt-1 max-w-xs">
-          Submit your first support request and we&apos;ll take it from there.
-        </p>
-        <Button className="mt-5" onClick={() => navigateTo("/portal/create-ticket")}>
-          <Plus className="h-4 w-4 mr-2" />
-          Submit a Ticket
-        </Button>
-      </CardContent>
-    </Card>
-  ) : null;
-
-  // The right panel is recent tickets when available, empty state when no tickets, nothing while loading.
-  const rightPanel = recentTicketsCard ?? emptyStateCard;
+      {/* Recent Service Requests */}
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between pb-3 shrink-0">
+          <CardTitle className="text-base">Recent Service Requests</CardTitle>
+          <Button variant="ghost" size="sm" className="text-xs text-muted-foreground gap-1" onClick={() => navigateTo("/service-requests/my-requests")}>
+            View all <ChevronRight className="h-3 w-3" />
+          </Button>
+        </CardHeader>
+        <CardContent className="pt-0">
+          {recentIsrs.length === 0 ? (
+            <div className="flex flex-col items-center py-6 text-center text-muted-foreground">
+              <ClipboardList className="h-8 w-8 mb-2 opacity-40" />
+              <p className="text-sm">No service requests yet</p>
+              <Button size="sm" className="mt-3" onClick={() => navigateTo("/service-requests/create-request")}>
+                <Plus className="h-3 w-3 mr-1" /> Raise a Request
+              </Button>
+            </div>
+          ) : (
+            <div className="space-y-1.5">
+              {recentIsrs.map((isr) => (
+                <button
+                  key={isr.id}
+                  className="w-full flex items-center justify-between gap-3 p-3 rounded-lg bg-muted/40 hover:bg-muted transition-colors text-left"
+                  onClick={() => navigateTo(`/service-requests/${isr.id}`)}
+                >
+                  <div className="min-w-0 flex-1">
+                    <p className="font-medium text-sm truncate">{isr.subject}</p>
+                    <p className="text-xs text-muted-foreground mt-0.5">
+                      #{isr.requestNumber} · {new Date(isr.createdAt).toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" })}
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-2 shrink-0">
+                    <Badge variant="outline" className="text-xs">{isr.status}</Badge>
+                    <ChevronRight className="h-4 w-4 text-muted-foreground/50" />
+                  </div>
+                </button>
+              ))}
+            </div>
+          )}
+        </CardContent>
+      </Card>
+    </div>
+  );
 
   return (
     <div className="space-y-6">
-      {/* Row 1 — Welcome banner, full width */}
+      {/* Row 1 — Welcome banner */}
       <div className="rounded-xl border bg-gradient-to-br from-blue-500/10 via-blue-500/5 to-transparent p-6">
         <h2 className="text-xl font-bold">Welcome back, {firstName}!</h2>
         <p className="text-muted-foreground text-sm mt-1">
@@ -930,18 +965,20 @@ function EndUserDashboard() {
             <Mail className="h-4 w-4 mr-2" />
             Submit via Email
           </Button>
+          <Button variant="outline" onClick={() => navigateTo("/service-requests/create-request")}>
+            <ClipboardList className="h-4 w-4 mr-2" />
+            Raise Service Request
+          </Button>
         </div>
       </div>
 
-      {/* Row 2 — Stats (left) + Recent tickets or Empty state (right) */}
+      {/* Row 2 — Stats + Recent activity */}
       {loading ? (
         <DashboardSkeleton />
       ) : (
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch">
-          {/* Left: 2×2 stats grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
           <div className="lg:col-span-1">{statsColumn}</div>
-          {/* Right: recent tickets or empty state */}
-          {rightPanel && <div className="lg:col-span-2">{rightPanel}</div>}
+          <div className="lg:col-span-2">{rightPanel}</div>
         </div>
       )}
     </div>

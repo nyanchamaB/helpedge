@@ -59,7 +59,8 @@ import {
   deleteTrainingData,
 } from '@/lib/api/ai';
 import { getServiceRequestsCategories } from '@/lib/api/service-request-category';
-import type { TrainingData, TrainingDataSource } from '@/lib/types/ai';
+import type { TrainingData } from '@/lib/types/ai';
+import { TrainingDataSource } from '@/lib/types/ai';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
@@ -202,7 +203,7 @@ export default function TrainingDataManagerPage() {
 
       bulkAddMutation.mutate({
         examples,
-        source: 'Import',
+        source: TrainingDataSource.Import,
       });
     } catch (error) {
       toast.error('Failed to parse CSV. Please check format.');
@@ -232,7 +233,7 @@ export default function TrainingDataManagerPage() {
           priority: manualForm.priority || undefined,
         },
       ],
-      source: 'Manual',
+      source: TrainingDataSource.Manual,
     });
   };
 

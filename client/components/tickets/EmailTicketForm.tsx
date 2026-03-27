@@ -93,10 +93,10 @@ export function EmailTicketForm({ defaultCreatorId, onSuccess, onCancel }: Email
         // Delay navigation slightly to show success message
         setTimeout(() => {
           if (onSuccess) {
-            onSuccess(result.data.id);
+            onSuccess(result.data!.id);
           } else {
             // Use hash-based SPA navigation
-            navigateTo(`/tickets/${result.data.id}`);
+            navigateTo(`/tickets/${result.data!.id}`);
           }
         }, 1500);
       } else {

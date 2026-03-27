@@ -21,6 +21,7 @@ import {
 } from '@/components/ui/select';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ConfidenceBadge } from '@/components/ai/ConfidenceBadge';
+import { ClassificationMethod } from '@/lib/types/ai';
 import {
   AlertCircle,
   CheckCircle,
@@ -391,7 +392,7 @@ function TicketReviewCard({ ticket, onApprove, onView, isApproving, resolveCat, 
             {ticket.aiCategoryConfidence !== undefined && (
               <ConfidenceBadge
                 confidence={ticket.aiCategoryConfidence}
-                method="tfidf"
+                method={ClassificationMethod.MachineLearning}
                 needsReview
                 size="sm"
               />

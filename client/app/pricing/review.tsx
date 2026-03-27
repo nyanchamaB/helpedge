@@ -1,45 +1,36 @@
 "use client";
 import React from "react";
-import {Typography, Paper, Divider} from '@mui/material';
 import { Card } from '@/components/ui/card';
+
 export default function Review() {
   return (
-    <><div>
-        <Card className="p-6">
-            <Typography variant="h6" gutterBottom>
-                Review Your Information
-            </Typography>
-            <Paper variant="outlined" sx={{ p: 2, mb: 2 }}>
-                <Typography variant="subtitle1" gutterBottom>
-                    User Information
-                </Typography>
-                <Divider sx={{ my: 1 }} />
-                <Typography>Name: John Doe</Typography>
-                <Typography>Email: john.doe@example.com</Typography>
-                <Typography>Phone: +1234567890</Typography>
-                <Typography>Company: Example Inc.</Typography>
-            </Paper>
-            <Paper variant="outlined" sx={{ p: 2, mb: 2 }}>
-                <Typography variant="subtitle1" gutterBottom>
-                    Address Information
-                </Typography>
-                <Divider sx={{ my: 1 }} />
-                <Typography>Street: 123 Main St</Typography>
-                <Typography>City: Anytown</Typography>
-                <Typography>State: CA</Typography>
-                <Typography>Zip: 12345</Typography>
-            </Paper>
-            <Paper variant="outlined" sx={{ p: 2 }}>
-                <Typography variant="subtitle1" gutterBottom>
-                    Payment Information
-                </Typography>
-                <Divider sx={{ my: 1 }} />
-                <Typography>Card Number: **** **** **** 1234</Typography>
-                <Typography>Expiry Date: 12/25</Typography>
-                <Typography>CVV: ***</Typography>
-            </Paper>
-        </Card>
+    <div>
+      <Card className="p-6 space-y-4">
+        <h2 className="text-lg font-semibold">Review Your Information</h2>
+        <div className="border rounded p-4 space-y-2">
+          <h3 className="font-medium">User Information</h3>
+          <hr />
+          <p>Name: John Doe</p>
+          <p>Email: john.doe@example.com</p>
+          <p>Phone: +1234567890</p>
+          <p>Company: Example Inc.</p>
+        </div>
+        <div className="border rounded p-4 space-y-2">
+          <h3 className="font-medium">Address Information</h3>
+          <hr />
+          <p>Street: 123 Main St</p>
+          <p>City: Anytown</p>
+          <p>State: CA</p>
+          <p>Zip: 12345</p>
+        </div>
+        <div className="border rounded p-4 space-y-2">
+          <h3 className="font-medium">Payment Information</h3>
+          <hr />
+          <p>Card Number: **** **** **** 1234</p>
+          <p>Expiry Date: 12/25</p>
+          <p>CVV: ***</p>
+        </div>
+      </Card>
     </div>
-</>
-    );
+  );
 }

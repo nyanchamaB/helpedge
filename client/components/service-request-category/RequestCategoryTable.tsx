@@ -554,7 +554,6 @@ export default function RequestCategoryTable({
                           <div className="min-w-0">
                             <div className="flex items-center gap-2 flex-wrap">
                               <span className="font-medium">{category.name}</span>
-                              {getTierBadge(category.supportTier)}
                             </div>
                             {category.keywords && category.keywords.length > 0 && (
                               <div className="flex flex-wrap gap-1 mt-1">
