@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import { validateStoredToken, clearInvalidToken } from '@/lib/auth/tokenValidator';
+import { Spinner } from '@/components/ui/spinner';
 
 /**
  * PublicRoute Component
@@ -63,7 +64,7 @@ export default function PublicRoute({ children }: PublicRouteProps) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="flex flex-col items-center space-y-4">
-          <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+          <Spinner size="lg" />
           <p className="text-gray-600">Loading...</p>
         </div>
       </div>
