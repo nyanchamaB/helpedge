@@ -414,7 +414,7 @@ export function MainContentRenderer() {
 
       // Settings
       case '/settings/profile':
-        return <SettingsProfileContent />;
+        return <SettingsPreferencesContent />;
       case '/settings/team':
         return <SettingsTeamContent />;
       case '/settings/system':
