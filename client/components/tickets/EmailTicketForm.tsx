@@ -152,7 +152,7 @@ export function EmailTicketForm({ defaultCreatorId, onSuccess, onCancel }: Email
               placeholder="e.g., test-msg-001@helpedge.com"
               error={errors.emailMessageId?.message}
             />
-            <p className="text-xs text-gray-500">
+            <p className="text-xs text-muted-foreground">
               Unique identifier for the email message
             </p>
           </div>
@@ -176,7 +176,7 @@ export function EmailTicketForm({ defaultCreatorId, onSuccess, onCancel }: Email
               onChange={(e) => setRecipients(e.target.value)}
               placeholder="recipient1@example.com, recipient2@example.com"
             />
-            <p className="text-xs text-gray-500">
+            <p className="text-xs text-muted-foreground">
               Comma-separated list of recipient email addresses
             </p>
             {validationError && validationError.includes('recipient') && (
@@ -192,7 +192,7 @@ export function EmailTicketForm({ defaultCreatorId, onSuccess, onCancel }: Email
               placeholder="User ID of the ticket creator"
               error={errors.createdById?.message}
             />
-            <p className="text-xs text-gray-500">
+            <p className="text-xs text-muted-foreground">
               ID of the user creating this ticket
             </p>
           </div>
