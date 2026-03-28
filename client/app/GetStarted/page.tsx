@@ -1,6 +1,6 @@
 "use client";
 import NavHeader from "@/app/onboarding/navsection";
-import React from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -8,7 +8,24 @@ import { Card } from "@/components/ui/card";
 import { siteConfig } from "@/config/site";
 import { FcGoogle } from "react-icons/fc" ;       
 import { FaMicrosoft } from "react-icons/fa";
+import { useRouter } from "next/navigation";
 export default function GetStartedPage() {
+  const router = useRouter();
+  const [email, setEmail] = useState("");
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      router.replace("/dashboard");
+    }
+  }, []);
+
+  const handleContinue = () => {
+    if (!email || !email.includes("@")) return;
+    sessionStorage.setItem("register_email", email);
+    router.push("/auth/register");
+  };
+
   return (
     <>
       <NavHeader />
@@ -27,27 +44,27 @@ export default function GetStartedPage() {
 
           {/* Title & description */}
           <h2 className="text-2xl font-semibold text-gray-800 mb-3 text-center">
-            Enter your email to sign in
+            Enter your email to Sign up
           </h2>
           <p className="text-sm text-gray-500 mb-8 text-center">
             Or choose another option below.
           </p>
-
           {/* Email input and button */}
-         <div className="space-y-4 flex flex-col items-center">
-            <Input 
-            type="email"
-            placeholder="name@work-email.com"
-            className="text-center sm:w-80 px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            required
+           <div className="space-y-4 flex flex-col items-center">
+            <Input
+              type="email"
+              placeholder="name@work-email.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="text-center sm:w-80 px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
-           <Button
-           type="submit"
-           className="sm:w-80 px-4 py-3 bg-blue-600 text-white font-bold rounded-md hover:bg-blue-700 transition"
-           >
-           Continue
-          </Button>
-         </div>
+            <Button
+              onClick={handleContinue}
+              className="sm:w-80 px-4 py-3 bg-blue-600 text-white font-bold rounded-md hover:bg-blue-700 transition"
+            >
+              Continue
+            </Button>
+          </div>
 
           <div className="text-center text-sm text-gray-600 mt-4">
             <p>

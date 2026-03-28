@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect} from "react";
 import { useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -77,18 +77,20 @@ export default function RegisterForm() {
     }
 
     try {
+      setIsLoading(true);
       const result = await register(formData);
 
       if (result.success) {
         // Redirect to dashboard on successful registration
         // Use window.location.href for full page reload to ensure auth state is initialized
-        window.location.href = "/dashboard";
+        sessionStorage.removeItem("register_email");
+        router.push("/auth/login");
       } else {
         setErrors({
           general: result.error || "Registration failed. Please try again.",
         });
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Registration error:", error);
       setErrors({
         general: "An unexpected error occurred. Please try again.",
@@ -106,6 +108,15 @@ export default function RegisterForm() {
       [e.target.name]: e.target.value,
     });
   };
+
+  useEffect(() => {
+    const savedEmail = sessionStorage.getItem("register_email");
+    if (!savedEmail) {
+      router.replace("/onboarding");
+      return;
+    }
+    setFormData((prev) => ({ ...prev, email: savedEmail }));
+  }, []);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
@@ -132,7 +143,7 @@ export default function RegisterForm() {
               required
               error={errors.name}
             />
-            <Input
+            {/* <Input
               label="Email"
               type="email"
               name="email"
@@ -140,7 +151,31 @@ export default function RegisterForm() {
               onChange={handleChange}
               required
               error={errors.email}
-            />
+              autoComplete="off"
+            /> */}
+
+            <div className="space-y-1">
+  <label className="text-sm font-medium">Email</label>
+  <div className="flex items-center justify-between px-4 py-2 border border-blue-300 bg-blue-50 rounded-md">
+    <div className="flex items-center gap-2">
+      <span className="text-blue-500 text-sm">✉</span>
+      <span className="text-sm text-gray-700 font-medium">{formData.email}</span>
+    </div>
+    <button
+      type="button"
+      onClick={() => {
+        sessionStorage.removeItem("register_email");
+        router.push("/GetStarted");
+      }}
+      className="text-xs text-blue-600 hover:underline font-medium"
+    >
+      Change
+    </button>
+  </div>
+  {/* Hidden so email is still included in formData submit */}
+  <input type="hidden" name="email" value={formData.email} />
+  {errors.email && <p className="text-sm text-red-500">{errors.email}</p>}
+</div>
             <Input
               label="Password"
               type="password"
@@ -149,6 +184,7 @@ export default function RegisterForm() {
               onChange={handleChange}
               required
               error={errors.password}
+              autoComplete="new-password"
             />
             <Input
               label="Department (Optional)"

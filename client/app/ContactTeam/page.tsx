@@ -6,7 +6,10 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import {Select,SelectContent,SelectItem,SelectTrigger,SelectValue} from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import React from "react";
+import React, { useEffect } from "react"; 
+import { useForm, ValidationError } from '@formspree/react';
+import { HugeiconsIcon } from '@hugeicons/react';
+import { Cancel01Icon, CheckmarkCircle03Icon } from '@hugeicons/core-free-icons';
 
 const companySizes = [
   "1-10 employees",
@@ -27,6 +30,18 @@ const inquiryTypes = [
 ];
 
 export default function ContactTeamPage() {
+  const [state, handleSubmit] = useForm("mwvwvwrb");
+  useEffect(() => {
+  if (state.succeeded) {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+    
+    const timer = setTimeout(() => {
+      window.location.href = "/ContactTeam";
+    }, 3000);
+
+    return () => clearTimeout(timer);
+  }
+}, [state.succeeded]);
   return (
     <>
     <NavHeader />
@@ -59,52 +74,68 @@ export default function ContactTeamPage() {
         </p>
 
         <Card className="p-8 shadow-xl bg-white/95 backdrop-blur-sm rounded-xl hover:shadow-2xl transition-shadow duration-300">
-          <form className="space-y-6" action="/contact" method="POST">
+          <form className="space-y-6" action="https://formspree.io/f/mwvwvwrb" method="POST" onSubmit={handleSubmit}>
+          {/* Success banner */}
+  {state.succeeded && (
+    <div className="flex items-center gap-3 bg-green-50 border border-green-300 text-green-700 px-4 py-3 rounded-md text-sm">
+      <span className="text-lg">
+      <HugeiconsIcon icon={CheckmarkCircle03Icon} size={24} className="text-teal-400" strokeWidth={1.5} />
+      </span>
+      <div>
+        <p className="font-semibold">Inquiry submitted successfully!</p>
+        <p className="text-green-600 text-xs mt-0.5">Our team will be in touch shortly. Redirecting you back...</p>
+      </div>
+    </div>
+  )}
+
+  {/* Error banner */}
+  {state.errors && Object.keys(state.errors).length > 0 && !state.succeeded && (
+    <div className="flex items-center gap-3 bg-red-50 border border-red-300 text-red-700 px-4 py-3 rounded-md text-sm">
+      <span className="text-lg">
+        <HugeiconsIcon icon={Cancel01Icon} size={24} className="text-red-400" strokeWidth={1.5} />
+        </span>
+      <div>
+        <p className="font-semibold">Submission failed.</p>
+        <p className="text-red-600 text-xs mt-0.5">Please check your details and try again.</p>
+      </div>
+    </div>
+  )}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* First Name & Last Name */}
               <div className="space-y-2">
                 <Label htmlFor="firstName">First Name</Label>
-                <Input id="firstName" placeholder="John" required />
+                <Input id="firstName" name="firstName" placeholder="John" required />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="lastName">Last Name</Label>
-                <Input id="lastName" placeholder="Doe" required />
+                <Input id="lastName" name="lastName" placeholder="Doe" required />
               </div>
 
               {/* Company Email & Role */}
               <div className="space-y-2">
                 <Label htmlFor="email">Company Email</Label>
-                <Input id="email" type="email" placeholder="john@company.com" required />
+                <Input id="email" type="email" name="email" placeholder="john@company.com" required />
+                <ValidationError prefix="Email" field="email" errors={state.errors} />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="role">Role</Label>
-                <Input id="role" placeholder="Senior Manager" required />
+                <Input id="role" name="role" placeholder="Senior Manager" required />
               </div>
 
               {/* Country & Phone */}
               <div className="space-y-2">
                 <Label htmlFor="country">Country</Label>
-                <Select>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select country" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="us">United States</SelectItem>
-                    <SelectItem value="uk">United Kingdom</SelectItem>
-                    <SelectItem value="ca">Canada</SelectItem>
-                    {/* Add more countries as needed */}
-                  </SelectContent>
-                </Select>
+                <Input id="country" name="country" type="country" placeholder="i.e. Spain"/>
               </div>
               <div className="space-y-2">
                 <Label htmlFor="phone">Phone Number</Label>
-                <Input id="phone" type="tel" placeholder="+1 (555) 000-0000" />
+                <Input id="phone" name="phone" type="tel" placeholder="+1 (555) 000-0000" />
               </div>
 
               {/* Company Name & Size */}
               <div className="space-y-2">
                 <Label htmlFor="companyName">Company Name</Label>
-                <Input id="companyName" placeholder="Acme Inc." required />
+                <Input id="companyName" name="companyName" placeholder="Acme Inc." required />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="companySize">Company Size</Label>
@@ -144,9 +175,11 @@ export default function ContactTeamPage() {
                 <Label htmlFor="additionalInfo">Additional Information (Optional)</Label>
                 <Textarea
                   id="additionalInfo"
+                  name="additionalInfo"
                   placeholder="Tell us more about your needs..."
                   className="min-h-[100px]"
                 />
+               <ValidationError prefix="additionalInfo" field="additionalInfo" errors={state.errors} />
               </div>
             </div>
 
@@ -155,6 +188,7 @@ export default function ContactTeamPage() {
               <Button 
                 type="submit" 
                 className="px-8 py-2 bg-blue-600 hover:bg-blue-700 text-white"
+                disabled = {state.submitting}
               >
                 Submit Inquiry
               </Button>
