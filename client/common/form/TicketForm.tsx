@@ -38,10 +38,10 @@ export function TicketForm({
   onCancel,
   className,
   isEditing,
-  isDisabled,
+  isDisabled: _isDisabled,
   isLoading,
 }: TicketFormProps) {
-  const router = useRouter();
+  const _router = useRouter();
   const form = useForm<Ticket>({
     resolver: zodResolver(TicketSchema),
     defaultValues,
@@ -49,33 +49,33 @@ export function TicketForm({
 
   const { isSubmitting, isValid } = form.formState;
 
-  const [category, setCategory] = useState(defaultValues?.category || '');
-  const [priority, setPriority] = useState(defaultValues?.priority || '');
-  const [assignedTo, setAssignedTo] = useState(defaultValues?.assignedTo || '');
-  const [department, setDepartment] = useState(defaultValues?.department || '');
-  const [source, setSource] = useState(defaultValues?.source || '');
+  const [_category, setCategory] = useState(defaultValues?.category || '');
+  const [_priority, setPriority] = useState(defaultValues?.priority || '');
+  const [_assignedTo, setAssignedTo] = useState(defaultValues?.assignedTo || '');
+  const [_department, setDepartment] = useState(defaultValues?.department || '');
+  const [_source, setSource] = useState(defaultValues?.source || '');
 
-  const handleCategoryChange = (value: string) => {
+  const _handleCategoryChange = (value: string) => {
     setCategory(value);
     form.setValue('category', value);
   };
 
-  const handlePriorityChange = (value: string) => {
+  const _handlePriorityChange = (value: string) => {
     setPriority(value);
     form.setValue('priority', value);
   };
 
-  const handleAssignedToChange = (value: string) => {
+  const _handleAssignedToChange = (value: string) => {
     setAssignedTo(value);
     form.setValue('assignedTo', value);
   };
 
-  const handleDepartmentChange = (value: string) => {
+  const _handleDepartmentChange = (value: string) => {
     setDepartment(value);
     form.setValue('department', value);
   };
 
-  const handleSourceChange = (value: string) => {
+  const _handleSourceChange = (value: string) => {
     setSource(value);
     form.setValue('source', value);
   };
