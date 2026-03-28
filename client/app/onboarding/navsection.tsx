@@ -1,14 +1,15 @@
 'use client';
 
-import { Globe, Search, X, Menu } from 'lucide-react';
+import { Search, X, Menu } from 'lucide-react';
 import { navLinks } from '@/common';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useState, useRef, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 import { siteConfig } from '@/config/site';
 
 export default function NavHeader() {
-  const pathname = usePathname();
+  const _pathname = usePathname();
   const [showSearch, setShowSearch] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
@@ -31,10 +32,13 @@ export default function NavHeader() {
       <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
         {/* Left: Logo */}
         <Link href="/" className="flex items-center space-x-2">
-          <img
+          <Image
             src={siteConfig.logo}
             alt="HelpEdge Logo"
-            className="h-8 w-auto transition-transform duration-200 hover:scale-105"
+            width={32}
+            height={32}
+            style={{ width: 'auto', height: '2rem' }}
+            className="transition-transform duration-200 hover:scale-105"
           />
         </Link>
 
