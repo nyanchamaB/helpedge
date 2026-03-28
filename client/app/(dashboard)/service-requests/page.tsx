@@ -270,7 +270,7 @@ export default function ServiceRequestsPage() {
               )}
             >
               {tab.label}
-              {count != null && (
+              {count !== null && count !== undefined && (
                 <span
                   className={cn(
                     'inline-flex items-center justify-center rounded-full text-xs font-semibold min-w-[18px] h-[18px] px-1',
