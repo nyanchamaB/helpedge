@@ -30,17 +30,18 @@ export default function AgentTickets() {
 
   const activeQueue = (pageParams.queue as Queue) || 'all';
 
-  useEffect(() => {
-    fetchTickets();
-  }, []);
-
-  async function fetchTickets() {
+  const fetchTickets = async () => {
     setIsLoading(true);
     const res = await getAllTickets();
 
     if (res.success && res.data) {setTickets(res.data);}
     setIsLoading(false);
-  }
+  };
+
+  useEffect(() => {
+    async function run() { await fetchTickets(); }
+    void run();
+  }, []);
 
   const filtered = useMemo(() => {
     switch (activeQueue) {
