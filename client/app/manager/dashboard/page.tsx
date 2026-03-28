@@ -41,7 +41,7 @@ import {
 import { cn } from '@/lib/utils';
 
 function formatMinutes(mins: number | null | undefined): string {
-  if (mins == null) {return '—';}
+  if (mins === null || mins === undefined) {return '—';}
   if (mins < 60) {return `${Math.round(mins)}m`;}
   const h = Math.floor(mins / 60);
   const m = Math.round(mins % 60);
@@ -93,11 +93,7 @@ export default function ManagerDashboard() {
   const [kpiPage, setKpiPage] = useState(0);
   const KPI_PAGE_SIZE = 15;
 
-  useEffect(() => {
-    fetchAll();
-  }, []);
-
-  async function fetchAll() {
+  const fetchAll = async () => {
     setIsLoading(true);
     const [
       statsRes,
@@ -131,7 +127,12 @@ export default function ManagerDashboard() {
     if (srStatsRes.success && srStatsRes.data) {setSrStats(srStatsRes.data);}
     if (reviewRes.success && reviewRes.data) {setReviewStats(reviewRes.data);}
     setIsLoading(false);
-  }
+  };
+
+  useEffect(() => {
+    async function run() { await fetchAll(); }
+    void run();
+  }, []);
 
   // Join category counts with category names
   const categoryRows = useMemo(() => {
