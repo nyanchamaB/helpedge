@@ -72,15 +72,15 @@ const ReviewQueueContent = dynamic(() => import("@/app/(protected)/tickets/revie
   loading: () => <PageSkeleton />,
 });
 
-const ServiceRequestsContent = dynamic(() => import("@/app/service-requests/page"), {
+const ServiceRequestsContent = dynamic(() => import("@/app/(dashboard)/service-requests/page"), {
   loading: () => <PageSkeleton />,
 });
 
-const MyRequestsContent = dynamic(() => import("@/app/service-requests/my-requests/page"), {
+const MyRequestsContent = dynamic(() => import("@/app/(dashboard)/service-requests/my-requests/page"), {
   loading: () => <PageSkeleton />,
 });
 
-const CreateRequestContent = dynamic(() => import("@/app/service-requests/create-request/page"), {
+const CreateRequestContent = dynamic(() => import("@/app/(dashboard)/service-requests/create-request/page"), {
   loading: () => <PageSkeleton />,
 });
 
@@ -92,7 +92,7 @@ const CreateCategoryContent = dynamic(() => import("@/app/(dashboard)/service-ca
   loading: () => <PageSkeleton />,
 });
 
-const TeamMembersContent = dynamic(() => import("@/app/(dashboard)/team/members/page"), {
+const TeamMembersContent = dynamic(() => import("@/app/(dashboard)/settings/team/page"), {
   loading: () => <PageSkeleton />,
 });
 
@@ -205,11 +205,11 @@ const ServiceCategoryDetailContent = dynamic(() => import("@/app/(dashboard)/ser
   loading: () => <PageSkeleton />,
 });
 
-const ServiceRequestDetailContent = dynamic(() => import("@/app/service-requests/[id]/page"), {
+const ServiceRequestDetailContent = dynamic(() => import("@/app/(dashboard)/service-requests/[id]/page"), {
   loading: () => <PageSkeleton />,
 });
 
-const ServiceRequestQueueContent = dynamic(() => import("@/app/service-requests/queue/page"), {
+const ServiceRequestQueueContent = dynamic(() => import("@/app/(dashboard)/service-requests/queue/page"), {
   loading: () => <PageSkeleton />,
 });
 
