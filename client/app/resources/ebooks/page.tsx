@@ -2,41 +2,28 @@
 import { useState, useEffect } from 'react';
 import {
   Search,
-  Filter,
   Download,
   FileText,
   BookOpen,
   TrendingUp,
   Users,
-  Settings,
   Star,
   Clock,
   ArrowRight,
-  Menu,
   X,
-  ChevronDown,
-  Tag,
-  Calendar,
   Eye,
   Play,
   Share,
   Heart,
-  Bookmark,
-  ExternalLink,
-  ThumbsUp,
-  BarChart3,
-  Zap,
-  Globe,
   Lock,
-  Unlock,
 } from 'lucide-react';
 import { LazyMotion, domAnimation, m, AnimatePresence } from 'framer-motion';
 import NavHeader from '@/app/onboarding/navsection';
 import { ebooks } from '@/common/index';
 
 export default function EbooksPage() {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
+  const [_isMenuOpen, _setIsMenuOpen] = useState(false);
+  const [_scrolled, setScrolled] = useState(false);
   const [activeFilter, setActiveFilter] = useState('All');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedEbook, setSelectedEbook] = useState<(typeof ebooks)[number] | null>(null);
@@ -86,7 +73,7 @@ export default function EbooksPage() {
   });
 
   const featuredEbooks = sortedEbooks.filter((ebook) => ebook.rating >= 4.5).slice(0, 6);
-  const regularEbooks = sortedEbooks.filter((ebook) => !ebook.rating || ebook.rating < 4.5);
+  const _regularEbooks = sortedEbooks.filter((ebook) => !ebook.rating || ebook.rating < 4.5);
 
   // Modal functions
   const openModal = (ebook: (typeof ebooks)[number]) => {
@@ -278,7 +265,7 @@ export default function EbooksPage() {
                 whileInView="visible"
                 className="grid md:grid-cols-2 lg:grid-cols-3 gap-8"
               >
-                {featuredEbooks.map((ebook, idx) => (
+                {featuredEbooks.map((ebook, _idx) => (
                   <m.div
                     key={ebook.id}
                     variants={itemVariants}
@@ -402,7 +389,7 @@ export default function EbooksPage() {
                   viewMode === 'grid' ? 'grid md:grid-cols-2 lg:grid-cols-3 gap-8' : 'space-y-6'
                 }
               >
-                {sortedEbooks.map((ebook, idx) => (
+                {sortedEbooks.map((ebook, _idx) => (
                   <m.div
                     key={ebook.id}
                     variants={itemVariants}
