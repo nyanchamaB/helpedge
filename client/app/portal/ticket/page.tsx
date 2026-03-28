@@ -131,6 +131,7 @@ export default function PortalTicketDetail() {
     }
 
     void loadTicket();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ticketId]);
 
   async function handleReply(content: string) {
