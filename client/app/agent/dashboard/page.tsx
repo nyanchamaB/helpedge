@@ -43,6 +43,8 @@ import {
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
 
+const PAGE_LOAD_TIME = Date.now();
+
 const SLA_WARN_HOURS: Record<string, number> = {
   Critical: 1,
   High: 4,
@@ -70,11 +72,7 @@ export default function AgentDashboard() {
   const [pendingApprovalSRs, setPendingApprovalSRs] = useState<ServiceRequest[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    fetchAll();
-  }, []);
-
-  async function fetchAll() {
+  const fetchAll = async () => {
     setIsLoading(true);
     const [
       myRes,
@@ -103,12 +101,17 @@ export default function AgentDashboard() {
     if (pendingApprovalRes.success && pendingApprovalRes.data)
       {setPendingApprovalSRs(pendingApprovalRes.data);}
     setIsLoading(false);
-  }
+  };
+
+  useEffect(() => {
+    async function run() { await fetchAll(); }
+    void run();
+  }, []);
 
   const queues = useMemo(() => {
     const waiting = myTickets.filter((t) => t.status === 'OnHold' || t.status === 'AwaitingInfo');
     const recentNew = unassigned.filter((t) => {
-      const hoursAgo = (Date.now() - new Date(t.createdAt).getTime()) / 3_600_000;
+      const hoursAgo = (PAGE_LOAD_TIME - new Date(t.createdAt).getTime()) / 3_600_000;
 
       return hoursAgo < 24;
     });
