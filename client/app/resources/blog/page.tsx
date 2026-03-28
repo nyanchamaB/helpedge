@@ -5,14 +5,13 @@ import Link from 'next/link';
 import {
   Search,
   Clock,
-  User,
   ArrowRight,
   X,
   BookOpen,
   TrendingUp,
-  ChevronRight,
   Check,
 } from 'lucide-react';
+import Image from 'next/image';
 import { siteConfig } from '@/config/site';
 import NavHeader from '@/app/onboarding/navsection';
 
@@ -460,7 +459,7 @@ export default function BlogPage() {
         {/* ── Page Header ── */}
         <div className="text-center space-y-4">
           <span className="text-xs font-semibold uppercase tracking-widest text-blue-600">
-            <img src={siteConfig.logo} className="h-15 inline-block mr-1" />
+            <Image src={siteConfig.logo} alt="HelpEdge Logo" width={60} height={60} style={{ height: '3.75rem', width: 'auto' }} className="inline-block mr-1" />
           </span>
           <h1 className="text-4xl md:text-5xl font-bold tracking-tight">
             Insights for modern IT teams
