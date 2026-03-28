@@ -36,20 +36,7 @@ export default function AssignedTicketsPage() {
     'ITManager',
   ];
 
-  useEffect(() => {
-    // Check authorization after auth loading completes
-    if (!authLoading && user) {
-      if (!allowedRoles.includes(user.role)) {
-        // Redirect unauthorized users to their tickets
-        navigateTo('/tickets/my-tickets');
-
-        return;
-      }
-      fetchAssignedTickets();
-    }
-  }, [authLoading, user, navigateTo]);
-
-  async function fetchAssignedTickets() {
+  const fetchAssignedTickets = async () => {
     if (!user?.id) {
       setError('User ID not found');
       setIsLoading(false);
@@ -69,7 +56,22 @@ export default function AssignedTicketsPage() {
     }
 
     setIsLoading(false);
-  }
+  };
+
+  useEffect(() => {
+    // Check authorization after auth loading completes
+    if (!authLoading && user) {
+      if (!allowedRoles.includes(user.role)) {
+        // Redirect unauthorized users to their tickets
+        navigateTo('/tickets/my-tickets');
+
+        return;
+      }
+      async function run() { await fetchAssignedTickets(); }
+      void run();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [authLoading, user, navigateTo]);
 
   // Show loading while auth is checking
   if (authLoading) {
