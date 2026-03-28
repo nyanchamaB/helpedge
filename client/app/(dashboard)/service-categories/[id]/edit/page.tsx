@@ -24,7 +24,7 @@ export default function EditCategoryPage() {
   const router = useRouter();
 
   useEffect(() => {
-    if (!["Admin", "ITManager"].includes(user?.role ?? "")) navigateTo("/service-categories");
+    if (!["Admin", "ITManager"].includes(user?.role ?? "")) router.push("/service-categories");
   }, [user]);
   const id = pageParams?.id ?? activePage.split('/').filter(Boolean).at(-2) ?? '';
 

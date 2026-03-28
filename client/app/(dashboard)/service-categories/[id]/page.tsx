@@ -20,7 +20,7 @@ import { CategoryIcon } from '@/components/service-request-category/CategoryIcon
 import { Spinner } from '@/components/ui/spinner';
 import { useRouter } from 'next/navigation';
 export default function CategoryDetailPage() {
-  const { activePage, pageParams, navigateTo } = useNavigation();
+  const { activePage, pageParams} = useNavigation();
   const id = pageParams?.id ?? activePage.split('/').pop() ?? '';
   const router = useRouter();
   const { data: categoryResponse, isLoading } = useCategory(id);
