@@ -13,6 +13,7 @@ import {
   createServiceRequestCategory,
   CreateServiceRequestCategoryDto,
 } from '@/lib/api/service-request-category';
+import { ServiceRequestType } from '@/lib/api/service-request';
 import { toast } from 'sonner';
 
 export default function CreateCategoryPage() {
@@ -22,23 +23,24 @@ export default function CreateCategoryPage() {
 
   useEffect(() => {
     if (!['Admin', 'ITManager'].includes(user?.role ?? '')) {navigateTo('/service-categories');}
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
 
-  const handleSubmit = async (formData: any) => {
+  const handleSubmit = async (formData: Record<string, unknown>) => {
     setIsLoading(true);
     try {
       const dto: CreateServiceRequestCategoryDto = {
-        name: formData.name,
-        requestType: formData.requestType,
-        description: formData.description,
-        color: formData.color,
-        icon: formData.icon,
-        requiresApproval: formData.requiresApproval,
-        defaultWorkflowId: formData.defaultWorkflowId || undefined,
-        fulfillmentRoles: formData.fulfillmentRoles,
-        estimatedFulfillmentDays: formData.estimatedFulfillmentDays,
-        requiredFields: formData.requiredFields,
-        keywords: formData.keywords,
+        name: formData.name as string,
+        requestType: formData.requestType as ServiceRequestType,
+        description: formData.description as string,
+        color: formData.color as string,
+        icon: formData.icon as string,
+        requiresApproval: formData.requiresApproval as boolean,
+        defaultWorkflowId: (formData.defaultWorkflowId as string) || undefined,
+        fulfillmentRoles: formData.fulfillmentRoles as string[],
+        estimatedFulfillmentDays: formData.estimatedFulfillmentDays as number,
+        requiredFields: formData.requiredFields as CreateServiceRequestCategoryDto['requiredFields'],
+        keywords: formData.keywords as string[],
       };
       const response = await createServiceRequestCategory(dto);
 
@@ -49,8 +51,8 @@ export default function CreateCategoryPage() {
       }
       toast.success('Category created successfully');
       navigateTo('/service-categories');
-    } catch (error: any) {
-      toast.error(error.message || 'Failed to create category');
+    } catch (error: unknown) {
+      toast.error(error instanceof Error ? error.message : 'Failed to create category');
     } finally {
       setIsLoading(false);
     }
