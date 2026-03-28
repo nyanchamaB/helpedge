@@ -604,13 +604,13 @@ function ISRAIPanel({ req }: { req: ServiceRequest }) {
 
 // ─── Workflow action buttons ───────────────────────────────────────────────────
 
-function WorkflowActions({ req, role, onUpdate }: { req: ServiceRequest; role: UserRole | string | undefined; onUpdate: () => void }) {
+function WorkflowActions({ req, role, isOwner, onUpdate }: { req: ServiceRequest; role: UserRole | string | undefined; isOwner: boolean; onUpdate: () => void }) {
   const submit = useSubmitServiceRequest();
   const approve = useApproveServiceRequest();
   const start = useStartServiceRequest();
   const close = useCloseServiceRequest();
   const deleteMut = useDeleteServiceRequest();
-  const { navigateTo } = useNavigation();
+  const { navigateTo, pageParams } = useNavigation();
 
   const [showReject, setShowReject] = useState(false);
   const [showCancel, setShowCancel] = useState(false);
@@ -651,19 +651,24 @@ function WorkflowActions({ req, role, onUpdate }: { req: ServiceRequest; role: U
   const isAssigner = hasRole(role, ASSIGNER_ROLES);
   const isFulfiller = hasRole(role, FULFILLER_ROLES);
 
-  const canCancel = !["Closed", "Rejected", "Cancelled"].includes(status);
+  // Cancel: draft = owner only; submitted = any non-terminal actor
+  const canCancel = !["Closed", "Rejected", "Cancelled"].includes(status) &&
+    (status !== "Draft" || isOwner);
+
+  // If no actions apply at all, show nothing
+  const hasDraftActions = status === "Draft" && isOwner;
 
   return (
     <>
       <div className="flex flex-wrap gap-2">
-        {/* Draft actions */}
-        {status === "Draft" && (
+        {/* Draft actions — owner only */}
+        {hasDraftActions && (
           <>
             <Button size="sm" onClick={async () => { await submit.mutateAsync(id); onUpdate(); }}>
               <Send className="h-4 w-4 mr-1" />
               Submit for Approval
             </Button>
-            <Button size="sm" variant="destructive" onClick={async () => { await deleteMut.mutateAsync(id); navigateTo("/service-requests/my-requests"); }}>
+            <Button size="sm" variant="destructive" onClick={async () => { await deleteMut.mutateAsync(id); navigateTo(pageParams?.from ?? "/service-requests/my-requests"); }}>
               <Trash2 className="h-4 w-4 mr-1" />
               Delete Draft
             </Button>
@@ -809,6 +814,7 @@ export default function ServiceRequestDetailPage() {
   const [fulfilledByName, setFulfilledByName] = useState<string | null>(null);
 
   const isStaff = user?.role !== "EndUser";
+  const isOwner = !!user?.id && user.id === req?.requesterId;
 
   // Resolve fulfilledById → name when the backend doesn't return a name
   useEffect(() => {
@@ -841,9 +847,26 @@ export default function ServiceRequestDetailPage() {
       <div className="flex flex-col items-center justify-center py-20 gap-3 text-muted-foreground">
         <AlertTriangle className="h-10 w-10 opacity-40" />
         <p>Service request not found</p>
-        <Button variant="outline" size="sm" onClick={() => navigateTo("/service-requests/my-requests")}>
+        <Button variant="outline" size="sm" onClick={() => navigateTo(pageParams?.from ?? "/service-requests/my-requests")}>
           <ArrowLeft className="h-4 w-4 mr-1" />
-          Back to My Requests
+          Back
+        </Button>
+      </div>
+    );
+  }
+
+  // Draft requests are private — only the requester may view them
+  if (req.status === "Draft" && !isOwner) {
+    return (
+      <div className="flex flex-col items-center justify-center py-20 gap-3 text-muted-foreground">
+        <Lock className="h-10 w-10 opacity-40" />
+        <p className="font-medium">Access restricted</p>
+        <p className="text-sm text-center max-w-xs">
+          This request is a draft and can only be viewed by its creator.
+        </p>
+        <Button variant="outline" size="sm" onClick={() => navigateTo(pageParams?.from ?? (isStaff ? "/service-requests" : "/service-requests/my-requests"))}>
+          <ArrowLeft className="h-4 w-4 mr-1" />
+          Back
         </Button>
       </div>
     );
@@ -852,7 +875,7 @@ export default function ServiceRequestDetailPage() {
   return (
     <div className="max-w-4xl mx-auto space-y-6">
       {/* Back */}
-      <Button variant="ghost" size="sm" onClick={() => navigateTo(isStaff ? "/service-requests" : "/service-requests/my-requests")}>
+      <Button variant="ghost" size="sm" onClick={() => navigateTo(pageParams?.from ?? (isStaff ? "/service-requests" : "/service-requests/my-requests"))}>
         <ArrowLeft className="h-4 w-4 mr-1" />
         Back
       </Button>
@@ -897,7 +920,7 @@ export default function ServiceRequestDetailPage() {
       {user && (
         <div className="rounded-lg border bg-card p-4">
           <h3 className="font-semibold text-sm mb-3">Actions</h3>
-          <WorkflowActions req={req} role={user.role} onUpdate={() => refetch()} />
+          <WorkflowActions req={req} role={user.role} isOwner={isOwner} onUpdate={() => refetch()} />
         </div>
       )}
 

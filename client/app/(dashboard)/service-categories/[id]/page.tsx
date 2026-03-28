@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { CategoryIcon } from '@/components/service-request-category/CategoryIcon';
+import { Spinner } from '@/components/ui/spinner';
 
 export default function CategoryDetailPage() {
   const { activePage, pageParams, navigateTo } = useNavigation();
@@ -28,7 +29,7 @@ export default function CategoryDetailPage() {
   if (isLoading) {
     return (
       <div className="container mx-auto py-8 flex items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-gray-400 border-t-transparent" />
+        <Spinner size="lg" />
       </div>
     );
   }
@@ -41,7 +42,7 @@ export default function CategoryDetailPage() {
           <p className="text-gray-500 mt-2">
             The category you're looking for doesn't exist.
           </p>
-          <Button className="mt-4" onClick={() => navigateTo('/service-categories')}>Back to Categories</Button>
+          <Button className="mt-4" onClick={() => navigateTo(pageParams?.from ?? '/service-categories')}>Back to Categories</Button>
         </div>
       </div>
     );
@@ -50,7 +51,7 @@ export default function CategoryDetailPage() {
   return (
     <div className="container mx-auto py-8">
       <div className="flex items-center justify-between mb-6">
-        <Button variant="ghost" className="gap-2" onClick={() => navigateTo('/service-categories')}>
+        <Button variant="ghost" className="gap-2" onClick={() => navigateTo(pageParams?.from ?? '/service-categories')}>
           <ArrowLeft className="h-4 w-4" />
           Back to Categories
         </Button>
