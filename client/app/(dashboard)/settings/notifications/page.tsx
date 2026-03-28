@@ -10,8 +10,8 @@ import { Breadcrumb } from '@/components/layout/breadcrumb';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
 export default function NotificationsSettingsPage() {
-  const router = useRouter();
-  const [profile, setProfile] = useState<UserProfile | null>(null);
+  const _router = useRouter();
+  const [_profile, setProfile] = useState<UserProfile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [notificationSettings, setNotificationSettings] = useState({
