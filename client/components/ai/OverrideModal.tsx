@@ -105,6 +105,7 @@ export const OverrideModal: FC<OverrideModalProps> = ({
       correctAssignee: assignee || undefined,
       reason: '',
     });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen, availableCategories, availableAssignees]);
 
   const handleSubmit = async (data: OverrideFormData) => {
@@ -129,7 +130,7 @@ export const OverrideModal: FC<OverrideModalProps> = ({
           description: response.error || 'Please try again.',
         });
       }
-    } catch (error) {
+    } catch (_error) {
       toast.error('Failed to override classification', {
         description: 'An unexpected error occurred.',
       });
