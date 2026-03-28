@@ -96,27 +96,27 @@ const TeamMembersContent = dynamic(() => import("@/app/(dashboard)/team/members/
   loading: () => <PageSkeleton />,
 });
 
-const TeamWorkloadContent = dynamic(() => import("@/app/team/workload/page"), {
+const TeamWorkloadContent = dynamic(() => import("@/app/(dashboard)/team/workload/page"), {
   loading: () => <PageSkeleton />,
 });
 
-const TeamPerformanceContent = dynamic(() => import("@/app/team/performance/page"), {
+const TeamPerformanceContent = dynamic(() => import("@/app/(dashboard)/team/performance/page"), {
   loading: () => <PageSkeleton />,
 });
 
-const ReportsContent = dynamic(() => import("@/app/reports/page"),{
+const ReportsContent = dynamic(() => import("@/app/(dashboard)/reports/page"),{
   loading: () => <PageSkeleton />,
 });
 
-const MyPerformanceContent = dynamic(() => import("@/app/reports/my-performance/page"), {
+const MyPerformanceContent = dynamic(() => import("@/app/(dashboard)/reports/my-performance/page"), {
   loading: () => <PageSkeleton />,
 });
 
-const SLAReportContent = dynamic(() => import("@/app/reports/sla/page"), {
+const SLAReportContent = dynamic(() => import("@/app/(dashboard)/reports/sla/page"), {
   loading: () => <PageSkeleton />,
 });
 
-const AnalyticsContent = dynamic(() => import("@/app/reports/analytics/page"), {
+const AnalyticsContent = dynamic(() => import("@/app/(dashboard)/reports/analytics/page"), {
   loading: () => <PageSkeleton />,
 });
 
@@ -180,7 +180,7 @@ const SettingsTeamContent = dynamic(() => import("@/app/(dashboard)/settings/tea
   loading: () => <PageSkeleton />,
 });
 
-const SettingsSystemContent = dynamic(() => import("@/app/settings/system/page"), {
+const SettingsSystemContent = dynamic(() => import("@/app/(dashboard)/settings/system/page"), {
   loading: () => <PageSkeleton />,
 });
 
@@ -192,7 +192,7 @@ const SettingsPreferencesContent = dynamic(() => import("@/app/(dashboard)/setti
   loading: () => <PageSkeleton />,
 });
 
-const SettingsNotificationsContent = dynamic(() => import("@/app/settings/notifications/page"), {
+const SettingsNotificationsContent = dynamic(() => import("@/app/(dashboard)/settings/notifications/page"), {
   loading: () => <PageSkeleton />,
 });
 
