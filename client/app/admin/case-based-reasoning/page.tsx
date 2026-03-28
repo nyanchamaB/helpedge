@@ -59,7 +59,7 @@ export default function CaseBasedReasoningPage() {
     typeof initializedRaw === 'boolean'
       ? initializedRaw
       : (initializedRaw?.isInitialized ??
-        (stats?.indexedTickets != null && stats.indexedTickets > 0));
+        (stats?.indexedTickets !== null && stats?.indexedTickets !== undefined && stats.indexedTickets > 0));
 
   const handleRefresh = () => {
     refetchStats();
@@ -182,7 +182,7 @@ export default function CaseBasedReasoningPage() {
             </CardHeader>
             <CardContent>
               <div className="text-3xl font-bold">
-                {stats?.averageSimilarityScore != null
+                {stats?.averageSimilarityScore !== null && stats?.averageSimilarityScore !== undefined
                   ? `${(stats.averageSimilarityScore * 100).toFixed(1)}%`
                   : '—'}
               </div>
@@ -199,7 +199,7 @@ export default function CaseBasedReasoningPage() {
             </CardHeader>
             <CardContent>
               <div className="text-3xl font-bold">
-                {stats?.averageSearchTimeMs != null ? `${stats.averageSearchTimeMs}ms` : '—'}
+                {stats?.averageSearchTimeMs !== null && stats?.averageSearchTimeMs !== undefined ? `${stats.averageSearchTimeMs}ms` : '—'}
               </div>
               <p className="text-xs text-muted-foreground mt-2">Per classification</p>
             </CardContent>
