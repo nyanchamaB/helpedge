@@ -1,6 +1,7 @@
 'use client';
 import NavHeader from '../onboarding/navsection';
 import Link from 'next/link';
+import Image from 'next/image';
 
 export default function Pricing() {
   const plans = [
@@ -244,9 +245,11 @@ export default function Pricing() {
                 {/* Image Right */}
                 <div className="order-first md:order-last">
                   <div className="bg-white rounded-xl shadow-lg p-8 aspect-square flex items-center justify-center">
-                    <img
+                    <Image
                       src="/images/infrastructure-illustration.png"
                       alt="Infrastructure illustration"
+                      width={400}
+                      height={400}
                       className="w-full h-full object-contain"
                     />
                   </div>
