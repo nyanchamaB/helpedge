@@ -1,6 +1,7 @@
 'use client';
 import NavHeader from '@/app/onboarding/navsection';
 import React, { useState, useEffect } from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -19,6 +20,7 @@ export default function GetStartedPage() {
     if (token) {
       router.push('/dashboard');
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleContinue = () => {
@@ -35,7 +37,7 @@ export default function GetStartedPage() {
         <div className="relative w-full max-w-2xl bg-white/90 backdrop-blur-md p-12 md:p-16 rounded-3xl shadow-2xl border border-blue-100 transition-transform hover:scale-[1.01]">
           {/* Logo */}
           <div className="mb-8 text-center flex justify-center">
-            <img src={siteConfig.logo} alt="HelpEdge Logo" className="h-16 w-auto" />
+            <Image src={siteConfig.logo} alt="HelpEdge Logo" width={64} height={64} style={{ width: 'auto', height: '4rem' }} />
           </div>
 
           {/* Title & description */}
