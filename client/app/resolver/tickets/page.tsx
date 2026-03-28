@@ -24,7 +24,7 @@ const QUEUE_LABELS: Record<Queue, string> = {
 const ALERT_QUEUES = new Set<Queue>(['assigned', 'waiting']);
 
 export default function MyWorkPage() {
-  const { user } = useAuth();
+  const { user: _user } = useAuth();
   const { pageParams, navigateTo } = useNavigation();
   const [tickets, setTickets] = useState<Ticket[]>([]);
   const [isLoading, setIsLoading] = useState(true);
