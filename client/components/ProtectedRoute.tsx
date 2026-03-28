@@ -29,21 +29,21 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
       const validation = validateStoredToken();
 
       if (!validation.isValid) {
-        console.log('ProtectedRoute: Token validation failed:', validation.error);
+        console.warn('ProtectedRoute: Token validation failed:', validation.error);
 
         // Clear invalid or expired token
         clearInvalidToken();
 
         // If token is invalid and user is authenticated in context, trigger logout
         if (isAuthenticated) {
-          console.log('ProtectedRoute: Logging out due to invalid token');
+          console.warn('ProtectedRoute: Logging out due to invalid token');
           logout();
         }
 
         // Don't redirect here - let the useEffect handle it after AuthContext finishes loading
         // This prevents race conditions on page refresh
       } else {
-        console.log('ProtectedRoute: Token is valid');
+        console.warn('ProtectedRoute: Token is valid');
       }
 
       setTokenValidated(true);
@@ -61,6 +61,7 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
     }
 
     void validate();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pathname]);
 
   // Second layer: Monitor AuthContext state
@@ -69,7 +70,7 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
       // Redirect to login with the current path as redirect parameter
       const redirectUrl = encodeURIComponent(pathname);
 
-      console.log('ProtectedRoute: Not authenticated, redirecting to login');
+      console.warn('ProtectedRoute: Not authenticated, redirecting to login');
       router.replace(`/auth/login?redirect=${redirectUrl}`);
     }
   }, [isAuthenticated, isLoading, tokenValidated, router, pathname]);
