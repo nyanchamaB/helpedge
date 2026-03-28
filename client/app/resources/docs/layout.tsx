@@ -1,5 +1,3 @@
-import Link from 'next/link';
-import { redirect } from 'next/navigation';
 import { DocsSidebarLink } from '@/components/docs-sidebar-links';
 import DocsHeader from '@/components/docs-header';
 const sidebarSections = [
