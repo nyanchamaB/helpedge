@@ -7,8 +7,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useNavigation } from '@/contexts/NavigationContext';
-import { useCreateServiceRequest } from '@/hooks/service-requests/useServiceRequestMutations';
-import { useSubmitServiceRequest } from '@/hooks/service-requests/useServiceRequestMutations';
+import { useCreateServiceRequest, useSubmitServiceRequest } from '@/hooks/service-requests/useServiceRequestMutations';
 import { useActiveCategories } from '@/hooks/service-request-category/useCategories';
 import {
   CreateServiceRequestDto,
@@ -185,6 +184,7 @@ export default function CreateRequestPage() {
     defaultValues: { priority: 'Normal' as const },
   });
 
+  // eslint-disable-next-line react-hooks/incompatible-library
   const watchedType = watch('requestType');
 
   const filteredCategories = categories.filter(
