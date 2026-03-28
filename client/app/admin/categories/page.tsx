@@ -195,7 +195,7 @@ function CategoryDialog({ open, onOpenChange, category, onSaved }: CategoryDialo
         supportTier: category?.supportTier ?? 'L1',
         assignableRoles: category?.assignableRoles ?? [],
       });
-      setKeywords(category?.keywords ?? []);
+      void Promise.resolve().then(() => setKeywords(category?.keywords ?? []));
     }
   }, [open, category]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -395,7 +395,7 @@ function CategoryDialog({ open, onOpenChange, category, onSaved }: CategoryDialo
 // ─── Main page ────────────────────────────────────────────────────────────────
 export default function CategoriesPage() {
   const { user, isLoading: authLoading } = useAuth();
-  const { navigateTo } = useNavigation();
+  const { navigateTo: _navigateTo } = useNavigation();
   const queryClient = useQueryClient();
   const role = user?.role ?? '';
   const router = useRouter();
@@ -404,6 +404,7 @@ export default function CategoriesPage() {
     if (!authLoading && user?.role === 'EndUser') {
       router.push('/portal/my-tickets');
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [authLoading, user?.role]);
 
   const canEdit = ['Admin', 'ITManager'].includes(role);
