@@ -102,6 +102,7 @@ export default function ResolverDashboard() {
     }
 
     void loadAll();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const queues = useMemo(
