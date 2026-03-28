@@ -24,7 +24,7 @@ export default function MyTicketsPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  async function fetchMyTickets() {
+  const fetchMyTickets = async () => {
     if (!user?.id) {
       setError('User ID not found');
       setIsLoading(false);
@@ -44,12 +44,14 @@ export default function MyTicketsPage() {
     }
 
     setIsLoading(false);
-  }
+  };
 
   useEffect(() => {
     if (!authLoading && user) {
-      fetchMyTickets();
+      async function run() { await fetchMyTickets(); }
+      void run();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [authLoading, user]);
 
   // Show loading while auth is checking
