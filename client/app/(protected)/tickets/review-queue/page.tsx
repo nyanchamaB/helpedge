@@ -3,7 +3,7 @@
 import { useState, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNavigation } from '@/contexts/NavigationContext';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
@@ -17,7 +17,7 @@ import {
 import { Skeleton } from '@/components/ui/skeleton';
 import { Separator } from '@/components/ui/separator';
 import { ConfidenceBadge } from '@/components/ai/ConfidenceBadge';
-import { ClassificationMethod } from '@/lib/types/ai';
+import { ClassificationMethod, type ReviewQueueTicket, type ReviewQueueStats } from '@/lib/types/ai';
 import {
   AlertCircle,
   CheckCircle2,
@@ -40,13 +40,12 @@ import { getReviewQueue, getReviewQueueStats, approveTicketClassification } from
 import { getAllCategories } from '@/lib/api/categories';
 import { getAssignableStaff } from '@/lib/api/users';
 import { formatDistanceToNow } from 'date-fns';
-import type { ReviewQueueTicket, ReviewQueueStats } from '@/lib/types/ai';
 import { cn } from '@/lib/utils';
 
 // ─── helpers ────────────────────────────────────────────────────────────────
 
 function confidenceBorderClass(confidence?: number) {
-  if (confidence == null) {return 'border-l-muted';}
+  if (confidence === null || confidence === undefined) {return 'border-l-muted';}
   if (confidence < 0.4) {return 'border-l-red-500';}
   if (confidence < 0.6) {return 'border-l-orange-400';}
 
@@ -54,7 +53,7 @@ function confidenceBorderClass(confidence?: number) {
 }
 
 function confidenceBarClass(confidence?: number) {
-  if (confidence == null) {return 'bg-muted';}
+  if (confidence === null || confidence === undefined) {return 'bg-muted';}
   if (confidence < 0.4) {return 'bg-red-500';}
   if (confidence < 0.6) {return 'bg-orange-400';}
 
@@ -94,7 +93,7 @@ function matchesConfFilter(ticket: ReviewQueueTicket, filter: string) {
   const c = ticket.aiCategoryConfidence;
 
   if (filter === 'all') {return true;}
-  if (c == null) {return false;}
+  if (c === null || c === undefined) {return false;}
   if (filter === 'critical') {return c < 0.4;}
   if (filter === 'low') {return c >= 0.4 && c < 0.6;}
   if (filter === 'medium') {return c >= 0.6 && c < 0.8;}
@@ -103,6 +102,8 @@ function matchesConfFilter(ticket: ReviewQueueTicket, filter: string) {
 }
 
 // ─── page ───────────────────────────────────────────────────────────────────
+
+const PAGE_LOAD_TIME = Date.now();
 
 export default function ReviewQueuePage() {
   const { navigateTo } = useNavigation();
@@ -149,7 +150,7 @@ export default function ReviewQueuePage() {
   const categoryMap = useMemo(() => {
     const m: Record<string, string> = {};
 
-    (categoriesData?.data ?? []).forEach((c: any) => {
+    (categoriesData?.data ?? []).forEach((c: { id: string; name: string }) => {
       m[c.id] = c.name;
     });
 
@@ -159,8 +160,8 @@ export default function ReviewQueuePage() {
   const userMap = useMemo(() => {
     const m: Record<string, string> = {};
 
-    (staffData?.data ?? []).forEach((u: any) => {
-      m[u.id] = u.fullName || `${u.firstName} ${u.lastName}`.trim();
+    (staffData?.data ?? []).forEach((u: { id: string; fullName?: string; firstName?: string; lastName?: string }) => {
+      m[u.id] = u.fullName || `${u.firstName ?? ''} ${u.lastName ?? ''}`.trim();
     });
 
     return m;
@@ -173,7 +174,7 @@ export default function ReviewQueuePage() {
   const approveMutation = useMutation({
     mutationFn: (ticketId: string) => approveTicketClassification(ticketId),
     onSuccess: (_, ticketId) => {
-      queryClient.setQueryData(['review-queue'], (old: any) => {
+      queryClient.setQueryData(['review-queue'], (old: { data?: ReviewQueueTicket[] } | undefined) => {
         if (!old?.data) {return old;}
 
         return { ...old, data: old.data.filter((t: ReviewQueueTicket) => t.ticketId !== ticketId) };
@@ -192,7 +193,7 @@ export default function ReviewQueuePage() {
   // ── raw list ──
   const tickets: ReviewQueueTicket[] = (
     Array.isArray(queueData?.data) ? queueData.data : []
-  ).filter((t: ReviewQueueTicket) => t.ticketSummary != null);
+  ).filter((t: ReviewQueueTicket) => t.ticketSummary !== null && t.ticketSummary !== undefined);
 
   const stats: ReviewQueueStats | undefined = statsData?.data;
 
@@ -263,7 +264,7 @@ export default function ReviewQueuePage() {
   }, [tickets, catFilter, priFilter, confFilter, search, sort]);
 
   const oldestMinutes = stats?.oldestPendingEntryDate
-    ? Math.round((Date.now() - new Date(stats.oldestPendingEntryDate).getTime()) / 60000)
+    ? Math.round((PAGE_LOAD_TIME - new Date(stats.oldestPendingEntryDate).getTime()) / 60000)
     : null;
 
   if (error) {
@@ -322,14 +323,14 @@ export default function ReviewQueuePage() {
             icon={<ShieldAlert className="h-4 w-4 text-amber-600" />}
             label="Pending Review"
             value={stats.pendingCount ?? '—'}
-            sub={stats.totalCount != null ? `${stats.totalCount} total processed` : undefined}
+            sub={stats.totalCount !== null && stats.totalCount !== undefined ? `${stats.totalCount} total processed` : undefined}
             accent="amber"
           />
           <StatCard
             icon={<Clock className="h-4 w-4 text-blue-600" />}
             label="Avg. Review Time"
             value={
-              stats.averageReviewTimeMinutes != null
+              stats.averageReviewTimeMinutes !== null && stats.averageReviewTimeMinutes !== undefined
                 ? `${Math.round(stats.averageReviewTimeMinutes)}m`
                 : '—'
             }
@@ -339,7 +340,7 @@ export default function ReviewQueuePage() {
           <StatCard
             icon={<TrendingDown className="h-4 w-4 text-violet-600" />}
             label="Oldest Waiting"
-            value={oldestMinutes != null ? `${oldestMinutes}m` : '—'}
+            value={oldestMinutes !== null && oldestMinutes !== undefined ? `${oldestMinutes}m` : '—'}
             sub="time in queue"
             accent="violet"
           />
@@ -594,7 +595,7 @@ function TicketReviewCard({
       : `#${ticket.ticketId.slice(-6).toUpperCase()}`;
 
   const conf = ticket.aiCategoryConfidence;
-  const confPct = conf != null ? Math.round(conf * 100) : null;
+  const _confPct = conf !== null && conf !== undefined ? Math.round(conf * 100) : null;
 
   const queuedAt =
     ticket.addedToQueueAt && !isNaN(new Date(ticket.addedToQueueAt).getTime())
@@ -616,7 +617,7 @@ function TicketReviewCard({
               <span className="font-mono text-xs text-muted-foreground bg-muted px-1.5 py-0.5 rounded">
                 {displayNumber}
               </span>
-              {conf != null && (
+              {conf !== null && conf !== undefined && (
                 <ConfidenceBadge
                   confidence={conf}
                   method={ClassificationMethod.MachineLearning}
@@ -728,7 +729,7 @@ function AISuggestionCell({
   confidence?: number;
   confClass: string;
 }) {
-  const pct = confidence != null ? Math.round(confidence * 100) : null;
+  const pct = confidence !== null && confidence !== undefined ? Math.round(confidence * 100) : null;
 
   return (
     <div className="space-y-1">
@@ -738,7 +739,7 @@ function AISuggestionCell({
       <p className="text-sm font-medium leading-snug line-clamp-1" title={value}>
         {value}
       </p>
-      {pct != null && (
+      {pct !== null && pct !== undefined && (
         <div className="flex items-center gap-1.5">
           <div className="flex-1 h-1 rounded-full bg-muted overflow-hidden">
             <div
