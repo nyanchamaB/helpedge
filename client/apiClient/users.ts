@@ -48,7 +48,7 @@ const handleResponse = async (response: Response) => {
 };
 
 // Fetch users
-export const fetchUsers = async (page: number, pageSize: number): Promise<User[]> => {
+export const fetchUsers = async (_page: number, _pageSize: number): Promise<User[]> => {
   const response = await fetch(`https://helpedge-api.onrender.com/api/Auth/Users`, {
     credentials: 'include',
   });
