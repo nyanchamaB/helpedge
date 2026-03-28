@@ -192,7 +192,6 @@ export default function ApprovalWorkflowsPage() {
   );
 }
 
-// ─── WorkflowCard ─────────────────────────────────────────────────────────────
 
 function WorkflowCard({ workflow: wf, onNavigate, onToggle, onDelete, isToggling }: {
   workflow: ApprovalWorkflow;
@@ -314,7 +313,6 @@ function WorkflowCard({ workflow: wf, onNavigate, onToggle, onDelete, isToggling
   );
 }
 
-// ─── StepChain ────────────────────────────────────────────────────────────────
 
 function StepChain({ steps }: { steps: ApprovalStep[] }) {
   const sorted = [...steps].sort((a, b) => a.order - b.order);
@@ -390,7 +388,7 @@ function EmptyState({ onCreateNew }: { onCreateNew: () => void }) {
       <div>
         <h3 className="font-semibold text-lg">No approval workflows yet</h3>
         <p className="text-sm text-muted-foreground mt-1 max-w-xs mx-auto">
-          Create workflows to define who must approve service requests before they're fulfilled.
+          Create workflows to define who must approve service requests before they&rsquo;re fulfilled.
         </p>
       </div>
       <Button onClick={onCreateNew}>

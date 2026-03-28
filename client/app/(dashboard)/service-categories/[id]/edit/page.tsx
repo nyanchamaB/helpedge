@@ -16,13 +16,15 @@ import {
   UpdateServiceRequestCategoryDto,
 } from '@/lib/api/service-request-category';
 import { toast } from 'sonner';
+import { useRouter } from 'next/navigation';
 
 export default function EditCategoryPage() {
   const { activePage, pageParams, navigateTo } = useNavigation();
   const { user } = useAuth();
+  const router = useRouter();
 
   useEffect(() => {
-    if (!["Admin", "ITManager"].includes(user?.role ?? "")) navigateTo("/service-categories");
+    if (!["Admin", "ITManager"].includes(user?.role ?? "")) router.push("/service-categories");
   }, [user]);
   const id = pageParams?.id ?? activePage.split('/').filter(Boolean).at(-2) ?? '';
 
@@ -85,7 +87,7 @@ export default function EditCategoryPage() {
       <div className="container mx-auto py-8 text-center">
         <h2 className="text-2xl font-bold">Category not found</h2>
         <p className="text-muted-foreground mt-2">The category you are trying to edit does not exist.</p>
-        <Button className="mt-4" onClick={() => navigateTo('/service-categories')}>
+        <Button className="mt-4" onClick={() => router.push('/service-categories')}>
           Back to Categories
         </Button>
       </div>
@@ -95,7 +97,7 @@ export default function EditCategoryPage() {
   return (
     <div className="container mx-auto py-8">
       <div className="mb-6">
-        <Button variant="ghost" className="gap-2" onClick={() => navigateTo('/service-categories')}>
+        <Button variant="ghost" className="gap-2" onClick={() => router.push('/service-categories')}>
           <ArrowLeft className="h-4 w-4" />
           Back to Categories
         </Button>

@@ -133,7 +133,7 @@ export default function TeamSettingsPage() {
           <div>
             <h1 className="text-2xl font-bold">Team Settings</h1>
             <p className="text-sm text-muted-foreground mt-0.5">
-              Overview of your team's composition and member status
+              Overview of your team&rsquo;s composition and member status
             </p>
           </div>
         </div>

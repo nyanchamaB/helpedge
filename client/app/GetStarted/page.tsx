@@ -16,7 +16,7 @@ export default function GetStartedPage() {
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (token) {
-      router.replace("/dashboard");
+      router.push("/dashboard");
     }
   }, []);
 

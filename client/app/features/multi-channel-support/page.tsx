@@ -207,7 +207,7 @@ function InboxMock() {
               <div className="flex gap-2">
                 <div className="w-5 h-5 rounded-full bg-muted shrink-0" />
                 <div className="bg-background rounded-lg px-2.5 py-1.5 text-[10px] max-w-[80%]">
-                  Hi, I can't seem to access the shared drive. Getting a permission error since this morning.
+                  Hi, I can&rsquo;t seem to access the shared drive. Getting a permission error since this morning.
                 </div>
               </div>
               <div className="flex gap-2 justify-end">
@@ -449,7 +449,7 @@ export default function MultiChannelSupportPage() {
       {/* ── Testimonial ── */}
       <section className="bg-muted/30 border-y border-border py-24">
         <div className="max-w-3xl mx-auto px-6 text-center">
-          <div className="text-5xl text-emerald-200 dark:text-emerald-900 font-serif mb-6">"</div>
+          <div className="text-5xl text-emerald-200 dark:text-emerald-900 font-serif mb-6">&ldquo;</div>
           <p className="text-xl md:text-2xl font-semibold leading-snug mb-8 italic">{TESTIMONIAL.quote}</p>
           <div className="flex items-center justify-center gap-3">
             <div className="w-10 h-10 rounded-full bg-emerald-600 text-white font-bold flex items-center justify-center text-sm">

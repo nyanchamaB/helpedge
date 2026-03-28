@@ -9,38 +9,35 @@ import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
 import { Spinner } from '@/components/ui/spinner';
 import { CreateApprovalWorkflowDto } from '@/lib/api/approval-workflow';
+import { useRouter } from 'next/navigation';
 
 export default function EditApprovalWorkflowPage() {
-  const { activePage, pageParams, navigateTo } = useNavigation();
+  const { activePage, pageParams} = useNavigation();
   const id = pageParams?.id ?? activePage.split('/').filter(Boolean).at(-2) ?? '';
-
+  const router = useRouter();
   const { data: workflow, isLoading } = useApprovalWorkflow(id);
   const updateMutation = useUpdateApprovalWorkflow(id);
-
   const handleSubmit = async (data: CreateApprovalWorkflowDto) => {
-    const result = await updateMutation.mutateAsync(data);
+  const result = await updateMutation.mutateAsync(data);
     if (result.success) {
-      navigateTo(`/approval-workflows/${id}`);
+      router.push(`/approval-workflows/${id}`);
     }
   };
-
   if (isLoading) {
     return <div className="container mx-auto py-8 flex justify-center"><Spinner size="lg" /></div>;
   }
-
   if (!workflow) {
     return (
       <div className="container mx-auto py-8 text-center">
         <h2 className="text-2xl font-bold">Workflow not found</h2>
-        <Button className="mt-4" onClick={() => navigateTo('/approval-workflows')}>Back to Workflows</Button>
+        <Button className="mt-4" onClick={() => router.push('/approval-workflows')}>Back to Workflows</Button>
       </div>
     );
   }
-
   return (
     <div className="container mx-auto py-8">
       <div className="mb-6">
-        <Button variant="ghost" className="gap-2" onClick={() => navigateTo(`/approval-workflows/${id}`)}>
+        <Button variant="ghost" className="gap-2" onClick={() => router.push(`/approval-workflows/${id}`)}>
           <ArrowLeft className="h-4 w-4" /> Back to Workflow
         </Button>
       </div>
@@ -53,7 +50,7 @@ export default function EditApprovalWorkflowPage() {
           <WorkflowForm
             initialData={workflow}
             onSubmit={handleSubmit}
-            onCancel={() => navigateTo(`/approval-workflows/${id}`)}
+            onCancel={() => router.push(`/approval-workflows/${id}`)}
             isLoading={updateMutation.isPending}
             isEditing
           />
