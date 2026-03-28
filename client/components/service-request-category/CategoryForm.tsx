@@ -63,6 +63,7 @@ import {
   ChevronDown,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Spinner } from "@/components/ui/spinner";
 import { CategoryIcon } from "@/components/service-request-category/CategoryIcon";
 
 // ─── Field type definitions aligned with API FieldType enum ───────────────────
@@ -782,7 +783,7 @@ export function CategoryForm({
           <Button type="submit" disabled={isLoading} className="min-w-[140px]">
             {isLoading ? (
               <>
-                <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent mr-2" />
+                <Spinner size="sm" className="mr-2" />
                 {isEditing ? "Updating..." : "Creating..."}
               </>
             ) : isEditing ? "Update Category" : "Create Category"}

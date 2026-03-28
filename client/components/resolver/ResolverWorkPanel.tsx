@@ -18,9 +18,9 @@ import {
   Play,
   CheckCircle2,
   MessageSquare,
-  Loader2,
   Info,
 } from "lucide-react";
+import { Spinner } from '@/components/ui/spinner';
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
@@ -135,7 +135,7 @@ export function ResolverWorkPanel({
           disabled={isProcessing}
         >
           {isProcessing ? (
-            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+            <Spinner size="sm" className="mr-2" />
           ) : (
             <Play className="h-4 w-4 mr-2" />
           )}
@@ -181,7 +181,7 @@ export function ResolverWorkPanel({
                   onClick={handleRequestInfo}
                   disabled={isProcessing}
                 >
-                  {isProcessing ? <Loader2 className="h-3 w-3 mr-1 animate-spin" /> : null}
+                  {isProcessing ? <Spinner size="xs" className="mr-1" /> : null}
                   Confirm & Pause
                 </Button>
               </div>
@@ -199,7 +199,7 @@ export function ResolverWorkPanel({
           disabled={isProcessing}
         >
           {isProcessing ? (
-            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+            <Spinner size="sm" className="mr-2" />
           ) : (
             <Play className="h-4 w-4 mr-2" />
           )}
@@ -217,7 +217,7 @@ export function ResolverWorkPanel({
             disabled={isProcessing}
           >
             {isProcessing ? (
-              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+              <Spinner size="sm" className="mr-2" />
             ) : (
               <CheckCircle2 className="h-4 w-4 mr-2" />
             )}

@@ -174,7 +174,7 @@ export default function PortalTicketDetail() {
         <Button
           variant="ghost"
           size="sm"
-          onClick={() => navigateTo("/portal/my-tickets")}
+          onClick={() => navigateTo(pageParams?.from ?? "/portal/my-tickets")}
           className="-ml-2 mb-4"
         >
           <ArrowLeft className="h-4 w-4 mr-1.5" />
@@ -203,7 +203,7 @@ export default function PortalTicketDetail() {
         <Button
           variant="ghost"
           size="sm"
-          onClick={() => navigateTo("/portal/my-tickets")}
+          onClick={() => navigateTo(pageParams?.from ?? "/portal/my-tickets")}
           className="-ml-2"
         >
           <ArrowLeft className="h-4 w-4 mr-1.5" />

@@ -51,4 +51,5 @@ CLAUDE.md
 *.md
 
 #postman
-/Postman_Collection.json
+/postman_Collection.json
+smart_commit.ps1

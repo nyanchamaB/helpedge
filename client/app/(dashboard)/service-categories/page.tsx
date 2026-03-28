@@ -18,10 +18,11 @@ import { Button } from '@/components/ui/button';
 import { Plus, RefreshCw, Download, Upload } from 'lucide-react';
 
 const STAFF_ROLES = ["Admin","ITManager","TeamLead","SystemAdmin","ServiceDeskAgent","Technician","SecurityAdmin"];
-
 export default function ServiceRequestCategoriesPage() {
   const { navigateTo } = useNavigation();
   const { user, isLoading: authLoading } = useAuth();
+  const canWrite  = ["Admin", "ITManager"].includes(user?.role ?? ""); // edit + create
+  const canDelete = user?.role === "Admin";                             // delete + multiselect
 
   useEffect(() => {
     if (!authLoading && user && !STAFF_ROLES.includes(user.role)) {
@@ -51,11 +52,11 @@ export default function ServiceRequestCategoriesPage() {
   }, []);
 
   const handleView = (category: ServiceRequestCategory) => {
-    navigateTo(`/service-categories/${category.id}`);
+    navigateTo(`/service-categories/${category.id}`, { from: '/service-categories' });
   };
 
   const handleEdit = (category: ServiceRequestCategory) => {
-    navigateTo(`/service-categories/${category.id}/edit`);
+    navigateTo(`/service-categories/${category.id}/edit`, { from: '/service-categories' });
   };
 
   const handleDelete = async (categoryId: string) => {
@@ -143,9 +144,8 @@ export default function ServiceRequestCategoriesPage() {
         </div>
         
         <div className="flex flex-wrap gap-2">
-          {/* Refresh Button */}
-          <Button 
-            variant="outline" 
+          <Button
+            variant="outline"
             onClick={handleRefresh}
             disabled={isRefreshing}
             className="gap-2"
@@ -153,32 +153,23 @@ export default function ServiceRequestCategoriesPage() {
             <RefreshCw className={`h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`} />
             {isRefreshing ? 'Refreshing...' : 'Refresh'}
           </Button>
-          
-          {/* Export Button */}
-          <Button 
-            variant="outline" 
-            onClick={handleExport}
-            className="gap-2"
-          >
-            <Download className="h-4 w-4" />
-            Export
-          </Button>
-          
-          {/* Import Button */}
-          <Button 
-            variant="outline" 
-            onClick={handleImport}
-            className="gap-2"
-          >
-            <Upload className="h-4 w-4" />
-            Import
-          </Button>
-          
-          {/* Create Button */}
-          <Button onClick={handleCreate} className="gap-2">
-            <Plus className="h-4 w-4" />
-            Add Category
-          </Button>
+
+          {canWrite && (
+            <>
+              <Button variant="outline" onClick={handleExport} className="gap-2">
+                <Download className="h-4 w-4" />
+                Export
+              </Button>
+              <Button variant="outline" onClick={handleImport} className="gap-2">
+                <Upload className="h-4 w-4" />
+                Import
+              </Button>
+              <Button onClick={handleCreate} className="gap-2">
+                <Plus className="h-4 w-4" />
+                Add Category
+              </Button>
+            </>
+          )}
         </div>
       </div>
 
@@ -187,16 +178,17 @@ export default function ServiceRequestCategoriesPage() {
         categories={categories}
         isLoading={isLoading || isRefreshing}
         onCategoryClick={handleView}
-        onEdit={handleEdit}
-        onDelete={handleDelete}
-        onCreate={handleCreate}
-        onExport={handleExport}
-        onImport={handleImport}
-        onBulkDelete={handleBulkDelete}
-        onBulkActivate={handleBulkActivate}
-        onBulkDeactivate={handleBulkDeactivate}
+        onEdit={canWrite ? handleEdit : undefined}
+        onDelete={canDelete ? handleDelete : undefined}
+        onCreate={canWrite ? handleCreate : undefined}
+        onExport={canWrite ? handleExport : undefined}
+        onImport={canWrite ? handleImport : undefined}
+        onBulkDelete={canDelete ? handleBulkDelete : undefined}
+        onBulkActivate={canWrite ? handleBulkActivate : undefined}
+        onBulkDeactivate={canWrite ? handleBulkDeactivate : undefined}
         showFilters={true}
-        showActions={true}
+        showActions={canWrite}
+        selectable={canDelete}
       />
     </div>
   );

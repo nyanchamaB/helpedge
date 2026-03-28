@@ -52,7 +52,7 @@ export function TicketsTable({
   onDelete,
   onBulkDelete,
 }: TicketsTableProps) {
-  const { navigateTo } = useNavigation();
+  const { navigateTo, activePage } = useNavigation();
 
   // Define columns
   const columns: DataTableColumn<Ticket>[] = [
@@ -158,7 +158,7 @@ export function TicketsTable({
     {
       label: "View Details",
       icon: <Eye className="h-4 w-4 mr-2" />,
-      onClick: (ticket) => navigateTo(`/tickets/${ticket.id}`),
+      onClick: (ticket) => navigateTo(`/tickets/${ticket.id}`, { from: activePage }),
     },
     ...(onDelete
       ? [{
@@ -190,7 +190,7 @@ export function TicketsTable({
       selectable={!!onBulkDelete}
       bulkActions={bulkActions}
       pagination={true}
-      onRowClick={(ticket) => navigateTo(`/tickets/${ticket.id}`)}
+      onRowClick={(ticket) => navigateTo(`/tickets/${ticket.id}`, { from: activePage })}
       getItemId={(ticket) => ticket.id}
       deleteConfirmation={onDelete ? {
         title: "Delete ticket?",

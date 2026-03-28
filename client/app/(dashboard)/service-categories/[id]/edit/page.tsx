@@ -4,9 +4,11 @@ export const dynamic = 'force-dynamic';
 
 import { useState, useEffect } from 'react';
 import { useNavigation } from '@/contexts/NavigationContext';
+import { useAuth } from '@/contexts/AuthContext';
 import { CategoryForm } from '@/components/service-request-category/CategoryForm';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { ArrowLeft, Loader2 } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
+import { Spinner } from '@/components/ui/spinner';
 import { Button } from '@/components/ui/button';
 import {
   getServiceRequestCategoryById,
@@ -17,6 +19,11 @@ import { toast } from 'sonner';
 
 export default function EditCategoryPage() {
   const { activePage, pageParams, navigateTo } = useNavigation();
+  const { user } = useAuth();
+
+  useEffect(() => {
+    if (!["Admin", "ITManager"].includes(user?.role ?? "")) navigateTo("/service-categories");
+  }, [user]);
   const id = pageParams?.id ?? activePage.split('/').filter(Boolean).at(-2) ?? '';
 
   const [category, setCategory] = useState<any>(null);
@@ -68,7 +75,7 @@ export default function EditCategoryPage() {
   if (isFetching) {
     return (
       <div className="container mx-auto py-8 flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin" />
+        <Spinner size="lg" />
       </div>
     );
   }

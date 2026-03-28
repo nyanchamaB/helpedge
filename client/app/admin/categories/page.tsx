@@ -38,6 +38,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import {
   AlertCircle, Plus, RefreshCw, Pencil, Trash2, ToggleLeft, ToggleRight, Tag,
 } from 'lucide-react';
+import { Spinner } from '@/components/ui/spinner';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import {
@@ -295,7 +296,7 @@ function CategoryDialog({ open, onOpenChange, category, onSaved }: CategoryDialo
                 Cancel
               </Button>
               <Button type="submit" disabled={saveMutation.isPending}>
-                {saveMutation.isPending && <RefreshCw className="h-4 w-4 mr-2 animate-spin" />}
+                {saveMutation.isPending && <Spinner size="sm" className="mr-2" />}
                 {isEdit ? 'Save Changes' : 'Create Category'}
               </Button>
             </DialogFooter>
@@ -601,7 +602,7 @@ export default function CategoriesPage() {
               onClick={() => deleteTarget && deleteMutation.mutate(deleteTarget.id)}
               disabled={deleteMutation.isPending}
             >
-              {deleteMutation.isPending && <RefreshCw className="h-4 w-4 mr-2 animate-spin" />}
+              {deleteMutation.isPending && <Spinner size="sm" className="mr-2" />}
               Delete
             </AlertDialogAction>
           </AlertDialogFooter>

@@ -17,7 +17,7 @@ import { ArrowLeft } from "lucide-react";
 
 export default function PortalCreateTicket() {
   const { user } = useAuth();
-  const { navigateTo } = useNavigation();
+  const { navigateTo, pageParams } = useNavigation();
   const [categories, setCategories] = useState<Category[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const submittingRef = useRef(false);
@@ -89,7 +89,7 @@ export default function PortalCreateTicket() {
       <Button
         variant="ghost"
         size="sm"
-        onClick={() => navigateTo("/portal/my-tickets")}
+        onClick={() => navigateTo(pageParams?.from ?? "/portal/my-tickets")}
         className="-ml-2"
       >
         <ArrowLeft className="h-4 w-4 mr-1.5" />

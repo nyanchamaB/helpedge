@@ -33,6 +33,7 @@ import {
 import { toast } from 'sonner';
 import { getCBRStats, isCBRInitialized, buildCBRIndex } from '@/lib/api/ai';
 import { format } from 'date-fns';
+import { Spinner } from '@/components/ui/spinner';
 import { cn } from '@/lib/utils';
 
 export const dynamic = 'force-dynamic';
@@ -118,7 +119,7 @@ export default function CaseBasedReasoningPage() {
           </Button>
           <Button onClick={() => buildMutation.mutate()} disabled={buildMutation.isPending}>
             {buildMutation.isPending ? (
-              <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+              <Spinner size="sm" className="mr-2" />
             ) : (
               <Database className="h-4 w-4 mr-2" />
             )}

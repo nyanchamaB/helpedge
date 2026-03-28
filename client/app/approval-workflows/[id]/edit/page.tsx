@@ -6,7 +6,8 @@ import { useApprovalWorkflow, useUpdateApprovalWorkflow } from '@/hooks/approval
 import { WorkflowForm } from '@/components/approval-workflows/WorkflowForm';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Loader2 } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
+import { Spinner } from '@/components/ui/spinner';
 import { CreateApprovalWorkflowDto } from '@/lib/api/approval-workflow';
 
 export default function EditApprovalWorkflowPage() {
@@ -24,7 +25,7 @@ export default function EditApprovalWorkflowPage() {
   };
 
   if (isLoading) {
-    return <div className="container mx-auto py-8 flex justify-center"><Loader2 className="h-8 w-8 animate-spin" /></div>;
+    return <div className="container mx-auto py-8 flex justify-center"><Spinner size="lg" /></div>;
   }
 
   if (!workflow) {

@@ -213,6 +213,24 @@ export async function deleteUser(userId: string): Promise<ApiResponse<void>> {
   });
 }
 
+export interface SystemAdminAvailability {
+  userId: string;
+  name: string;
+  isAvailable: boolean;
+  activeTickets: number;
+}
+
+/**
+ * Get availability status of all SystemAdmin users
+ * Available to: Admin, SystemAdmin
+ */
+export async function getSystemAdminAvailability(): Promise<ApiResponse<SystemAdminAvailability[]>> {
+  return apiRequest<SystemAdminAvailability[]>('/api/Users/system-admins/availability', {
+    method: 'GET',
+    includeAuth: true,
+  });
+}
+
 // Helper functions
 
 /**

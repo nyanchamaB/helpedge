@@ -35,7 +35,6 @@ import {
   Search,
   MoreHorizontal,
   Filter,
-  RefreshCw,
   ChevronDown,
   ChevronUp,
   CheckSquare,
@@ -47,6 +46,7 @@ import {
   ChevronsLeft,
   ChevronsRight,
 } from "lucide-react";
+import { Spinner } from "@/components/ui/spinner";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
   Select,
@@ -344,7 +344,7 @@ export function DataTable<T>({
       <Card className={className}>
         <CardContent className="flex items-center justify-center h-64">
           <div className="flex flex-col items-center space-y-4">
-            <RefreshCw className="h-8 w-8 animate-spin text-muted-foreground" />
+            <Spinner size="lg" className="text-muted-foreground" />
             <p className="text-muted-foreground">Loading...</p>
           </div>
         </CardContent>

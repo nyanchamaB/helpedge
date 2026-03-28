@@ -5,7 +5,8 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { format } from "date-fns";
-import { Send, MessageSquare, Loader2 } from "lucide-react";
+import { Send, MessageSquare } from "lucide-react";
+import { Spinner } from '@/components/ui/spinner';
 import { TicketComment } from "@/lib/api/tickets";
 import { cn } from "@/lib/utils";
 
@@ -136,7 +137,7 @@ export function TicketConversationThread({
             >
               {isReplying ? (
                 <>
-                  <Loader2 className="h-3.5 w-3.5 mr-1.5 animate-spin" />
+                  <Spinner size="xs" className="mr-1.5" />
                   Sending...
                 </>
               ) : (

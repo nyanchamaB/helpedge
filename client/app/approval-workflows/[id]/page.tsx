@@ -10,6 +10,7 @@ import { Separator } from '@/components/ui/separator';
 import { ArrowLeft, Edit, Trash2, CheckCircle, XCircle, Clock, Layers, ChevronRight, Users, ToggleRight, ToggleLeft } from 'lucide-react';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { format } from 'date-fns';
+import { Spinner } from '@/components/ui/spinner';
 
 const APPROVER_TYPE_LABELS: Record<string, string> = {
   SpecificUser: 'Specific User',
@@ -30,7 +31,7 @@ export default function ApprovalWorkflowDetailPage() {
   const toggleMutation = useToggleApprovalWorkflow();
 
   if (isLoading) {
-    return <div className="container mx-auto py-8 flex justify-center"><div className="h-8 w-8 animate-spin rounded-full border-2 border-gray-400 border-t-transparent" /></div>;
+    return <div className="container mx-auto py-8 flex justify-center"><Spinner size="lg" /></div>;
   }
 
   if (!workflow) {

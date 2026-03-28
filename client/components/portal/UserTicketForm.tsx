@@ -33,7 +33,8 @@ import {
 import { FileUploader } from "./FileUploader";
 import { TicketPriority } from "@/lib/api/tickets";
 import { Category } from "@/lib/api/categories";
-import { Loader2, Send } from "lucide-react";
+import { Send } from "lucide-react";
+import { Spinner } from '@/components/ui/spinner';
 
 const UserTicketSchema = z.object({
   subject: z
@@ -271,7 +272,7 @@ export function UserTicketForm({
               >
                 {isSubmitting ? (
                   <>
-                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    <Spinner size="sm" className="mr-2" />
                     Submitting...
                   </>
                 ) : (

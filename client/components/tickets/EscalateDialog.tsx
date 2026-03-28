@@ -18,7 +18,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
-import { Loader2, TrendingUp } from "lucide-react";
+import { TrendingUp } from "lucide-react";
+import { Spinner } from '@/components/ui/spinner';
 import { escalateTicket } from "@/lib/api/tickets";
 import { getAssignableStaff, User, getUserDisplayName } from "@/lib/api/users";
 
@@ -153,7 +154,7 @@ export function EscalateDialog({
             className="bg-orange-600 hover:bg-orange-700"
           >
             {isSubmitting ? (
-              <Loader2 className="h-4 w-4 animate-spin mr-2" />
+              <Spinner size="sm" className="mr-2" />
             ) : (
               <TrendingUp className="h-4 w-4 mr-2" />
             )}

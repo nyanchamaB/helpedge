@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -10,6 +10,7 @@ import { UserRole, ROLE_DESCRIPTIONS } from "@/lib/api/auth";
 import {
   getDashboardStats,
   getTicketStatusCounts,
+  getCategoryTicketCounts,
   getTeamStats,
   getMySLA,
   getMyTicketsDashboard,
@@ -18,13 +19,17 @@ import {
   getResolverKpis,
   type DashboardStats,
   type TicketStatusCounts,
+  type CategoryTicketCount,
   type TeamStats,
+  type ResolverKpis,
   type SLAStats,
   type MyTicketsDashboard,
   type MyStats,
   type DetailedHealthStatus,
 } from "@/lib/api/dashboard";
 import { getAssignableStaff } from "@/lib/api/users";
+import { getAIAutomationRate, isTfIdfStale } from "@/lib/api/ai";
+import { getActiveCategories, type Category } from "@/lib/api/categories";
 import { getMyServiceRequests } from "@/lib/api/service-request";
 import {
   LayoutDashboard,
@@ -44,6 +49,10 @@ import {
   ChevronRight,
   FileText,
   ClipboardList,
+  Bot,
+  BarChart2,
+  Timer,
+  Zap,
 } from "lucide-react";
 
 // Role-based dashboard configurations
@@ -148,23 +157,27 @@ function StatCard({
 
 // Admin Dashboard
 function AdminDashboard() {
+  const { navigateTo } = useNavigation();
   const [stats, setStats] = useState<DashboardStats | null>(null);
-  const [healthStatus, setHealthStatus] = useState<DetailedHealthStatus | null>(
-    null,
-  );
+  const [healthStatus, setHealthStatus] = useState<DetailedHealthStatus | null>(null);
   const [staffCount, setStaffCount] = useState<number | null>(null);
   const [avgResolutionHours, setAvgResolutionHours] = useState<string>("N/A");
+  const [automationRate, setAutomationRate] = useState<number | null>(null);
+  const [tfIdfStale, setTfIdfStale] = useState<boolean | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function fetchData() {
       setLoading(true);
-      const [statsRes, healthRes, staffRes, kpisRes] = await Promise.all([
-        getDashboardStats(),
-        getDetailedHealth(),
-        getAssignableStaff(),
-        getResolverKpis(),
-      ]);
+      const [statsRes, healthRes, staffRes, kpisRes, automationRes, staleRes] =
+        await Promise.all([
+          getDashboardStats(),
+          getDetailedHealth(),
+          getAssignableStaff(),
+          getResolverKpis(),
+          getAIAutomationRate(),
+          isTfIdfStale(),
+        ]);
       if (statsRes.success) setStats(statsRes.data!);
       if (healthRes.success) setHealthStatus(healthRes.data!);
       if (staffRes.success) setStaffCount(staffRes.data!.length);
@@ -176,9 +189,17 @@ function AdminDashboard() {
           const avgMinutes = ttrs.reduce((a, b) => a + b, 0) / ttrs.length;
           const hours = avgMinutes / 60;
           setAvgResolutionHours(
-            hours < 1 ? `${Math.round(avgMinutes)}m` : `${hours.toFixed(1)}h`,
+            hours < 1 ? `${Math.round(avgMinutes)}m` : `${hours.toFixed(1)}h`
           );
         }
+      }
+      if (automationRes.success && automationRes.data != null) {
+        const raw = automationRes.data as number | { automationRate?: number };
+        const rate = typeof raw === "number" ? raw : raw.automationRate;
+        if (rate != null) setAutomationRate(Math.round(rate * 100));
+      }
+      if (staleRes.success && staleRes.data != null) {
+        setTfIdfStale((staleRes.data as { isStale?: boolean })?.isStale ?? null);
       }
       setLoading(false);
     }
@@ -190,90 +211,8 @@ function AdminDashboard() {
   }
 
   return (
-    <Card className="space-y-6">
-      <div className="">
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-          <StatCard
-            title="Total Tickets"
-            value={stats?.totalTickets ?? 0}
-            icon={<Ticket className="h-4 w-4" />}
-            color="bg-blue-500"
-          />
-          <StatCard
-            title="Open Tickets"
-            value={stats?.openTickets ?? 0}
-            icon={<AlertCircle className="h-4 w-4" />}
-            color="bg-yellow-500"
-          />
-          <StatCard
-            title="Total Users"
-            value={stats?.totalUsers ?? 0}
-            icon={<Users className="h-4 w-4" />}
-            color="bg-green-500"
-          />
-          <StatCard
-            title="System Status"
-            value={healthStatus?.checks != null ? "Healthy" : "Issues"}
-            icon={<Server className="h-4 w-4" />}
-            color={healthStatus?.checks != null ? "bg-green-500" : "bg-red-500"}
-          />
-        </div>
-
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-          <StatCard
-            title="In Progress"
-            value={stats?.inProgressTickets ?? 0}
-            icon={<Clock className="h-4 w-4" />}
-            color="bg-blue-400"
-          />
-          <StatCard
-            title="Resolved"
-            value={stats?.resolvedTickets ?? stats?.rlvedTickets ?? 0}
-            icon={<CheckCircle className="h-4 w-4" />}
-            color="bg-green-400"
-          />
-          <StatCard
-            title="Team Members"
-            value={staffCount ?? 0}
-            icon={<UserCheck className="h-4 w-4" />}
-            color="bg-purple-500"
-          />
-          <StatCard
-            title="Avg Resolution"
-            value={avgResolutionHours}
-            icon={<TrendingUp className="h-4 w-4" />}
-            color="bg-indigo-500"
-          />
-        </div>
-      </div>
-    </Card>
-  );
-}
-
-// IT Manager Dashboard
-function ITManagerDashboard() {
-  const [stats, setStats] = useState<DashboardStats | null>(null);
-  const [teamStats, setTeamStats] = useState<TeamStats | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    async function fetchData() {
-      setLoading(true);
-      const [statsRes, teamRes] = await Promise.all([
-        getDashboardStats(),
-        getTeamStats(),
-      ]);
-      if (statsRes.success) setStats(statsRes.data!);
-      if (teamRes.success) setTeamStats(teamRes.data!);
-      setLoading(false);
-    }
-    fetchData();
-  }, []);
-
-  if (loading) return <DashboardSkeleton />;
-
-  return (
-    <div className="space-y-6">
+    <div className="space-y-4">
+      {/* Ticket stats */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <StatCard
           title="Total Tickets"
@@ -282,10 +221,184 @@ function ITManagerDashboard() {
           color="bg-blue-500"
         />
         <StatCard
-          title="Team Performance"
+          title="Open Tickets"
+          value={stats?.openTickets ?? 0}
+          icon={<AlertCircle className="h-4 w-4" />}
+          color="bg-yellow-500"
+        />
+        <StatCard
+          title="Total Users"
+          value={stats?.totalUsers ?? 0}
+          icon={<Users className="h-4 w-4" />}
+          color="bg-green-500"
+        />
+        <StatCard
+          title="System Status"
+          value={healthStatus?.checks != null ? "Healthy" : "Issues"}
+          icon={<Server className="h-4 w-4" />}
+          color={healthStatus?.checks != null ? "bg-green-500" : "bg-red-500"}
+        />
+      </div>
+
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <StatCard
+          title="In Progress"
+          value={stats?.inProgressTickets ?? 0}
+          icon={<Clock className="h-4 w-4" />}
+          color="bg-blue-400"
+        />
+        <StatCard
+          title="Resolved"
+          value={stats?.resolvedTickets ?? 0}
+          icon={<CheckCircle className="h-4 w-4" />}
+          color="bg-green-400"
+        />
+        <StatCard
+          title="Team Members"
+          value={staffCount ?? 0}
+          icon={<UserCheck className="h-4 w-4" />}
+          color="bg-purple-500"
+        />
+        <StatCard
+          title="Avg Resolution"
+          value={avgResolutionHours}
+          icon={<TrendingUp className="h-4 w-4" />}
+          color="bg-indigo-500"
+        />
+      </div>
+
+      {/* AI pipeline stats */}
+      <Card>
+        <CardHeader className="flex flex-row items-center gap-2 pb-3">
+          <Bot className="h-4 w-4 text-violet-500" />
+          <CardTitle className="text-sm">AI Classification Pipeline</CardTitle>
+          <button
+            onClick={() => navigateTo("/ai/analytics")}
+            className="ml-auto text-xs text-blue-500 hover:underline"
+          >
+            View details
+          </button>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-3 gap-4">
+            <div className="text-center">
+              <div className="flex items-center justify-center gap-1.5 mb-1">
+                <Zap className="h-3.5 w-3.5 text-violet-500" />
+                <span className="text-xs text-muted-foreground font-medium uppercase tracking-wide">
+                  Automation Rate
+                </span>
+              </div>
+              <p className="text-2xl font-bold">
+                {automationRate != null ? `${automationRate}%` : "—"}
+              </p>
+            </div>
+            <div className="text-center border-x">
+              <div className="flex items-center justify-center gap-1.5 mb-1">
+                <Bot className="h-3.5 w-3.5 text-indigo-500" />
+                <span className="text-xs text-muted-foreground font-medium uppercase tracking-wide">
+                  TF-IDF Model
+                </span>
+              </div>
+              <Badge
+                className={
+                  tfIdfStale === null
+                    ? "bg-gray-400"
+                    : tfIdfStale
+                    ? "bg-orange-500"
+                    : "bg-green-500"
+                }
+              >
+                {tfIdfStale === null ? "Unknown" : tfIdfStale ? "Stale" : "Current"}
+              </Badge>
+            </div>
+            <div className="text-center">
+              <div className="flex items-center justify-center gap-1.5 mb-1">
+                <Activity className="h-3.5 w-3.5 text-green-500" />
+                <span className="text-xs text-muted-foreground font-medium uppercase tracking-wide">
+                  MongoDB
+                </span>
+              </div>
+              <Badge
+                className={
+                  healthStatus?.checks?.mongodb?.status === "Healthy"
+                    ? "bg-green-500"
+                    : "bg-red-500"
+                }
+              >
+                {healthStatus?.checks?.mongodb?.status ?? "Unknown"}
+              </Badge>
+            </div>
+          </div>
+          {tfIdfStale && (
+            <p className="text-xs text-orange-600 text-center mt-3">
+              TF-IDF model is stale — consider rebuilding in AI Settings.
+            </p>
+          )}
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
+
+// IT Manager Dashboard
+const KPI_PAGE_SIZE = 15;
+
+function ITManagerDashboard() {
+  const { navigateTo } = useNavigation();
+  const [stats, setStats] = useState<DashboardStats | null>(null);
+  const [teamStats, setTeamStats] = useState<TeamStats | null>(null);
+  const [resolverKpis, setResolverKpis] = useState<ResolverKpis[]>([]);
+  const [categoryCounts, setCategoryCounts] = useState<CategoryTicketCount[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [kpiPage, setKpiPage] = useState(0);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchData() {
+      setLoading(true);
+      const [statsRes, teamRes, kpisRes, categoryRes, categoriesRes] = await Promise.all([
+        getDashboardStats(),
+        getTeamStats(),
+        getResolverKpis(),
+        getCategoryTicketCounts(),
+        getActiveCategories(),
+      ]);
+      if (statsRes.success) setStats(statsRes.data!);
+      if (teamRes.success) setTeamStats(teamRes.data!);
+      if (kpisRes.success && kpisRes.data) setResolverKpis(kpisRes.data);
+      if (categoryRes.success && categoryRes.data) setCategoryCounts(categoryRes.data);
+      if (categoriesRes.success && categoriesRes.data) setCategories(categoriesRes.data);
+      setLoading(false);
+    }
+    fetchData();
+  }, []);
+
+  const categoryRows = useMemo(() => {
+    const nameMap = new Map(categories.map((c) => [c.id, c.name]));
+    return categoryCounts
+      .map((c) => ({ ...c, name: nameMap.get(c.categoryId) ?? `…${c.categoryId.slice(-4)}` }))
+      .sort((a, b) => b.count - a.count);
+  }, [categoryCounts, categories]);
+
+  if (loading) return <DashboardSkeleton />;
+
+  const totalUnacked = resolverKpis.reduce((s, r) => s + (r.unacknowledgedCount ?? 0), 0);
+
+  return (
+    <div className="space-y-6">
+      {/* Stats row */}
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <StatCard
+          title="Total Tickets"
+          value={stats?.totalTickets ?? 0}
+          icon={<Ticket className="h-4 w-4" />}
+          color="bg-blue-500"
+        />
+        <StatCard
+          title="Resolved"
           value={teamStats?.resolvedTickets ?? 0}
           icon={<TrendingUp className="h-4 w-4" />}
-          description="Tickets resolved"
+          description="Team total"
           color="bg-green-500"
         />
         <StatCard
@@ -295,12 +408,14 @@ function ITManagerDashboard() {
           color="bg-purple-500"
         />
         <StatCard
-          title="Open Issues"
-          value={teamStats?.openTickets ?? 0}
+          title="Unacknowledged"
+          value={totalUnacked}
           icon={<AlertTriangle className="h-4 w-4" />}
-          color="bg-yellow-500"
+          color={totalUnacked > 0 ? "bg-red-500" : "bg-gray-400"}
+          description="Assigned but not opened"
         />
       </div>
+
     </div>
   );
 }
@@ -422,7 +537,7 @@ function SystemAdminDashboard() {
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <StatCard
           title="Assigned Tickets"
-          value={slaStats?.assignedTickets ?? 0}
+          value={slaStats?.totalAssigned ?? 0}
           icon={<Ticket className="h-4 w-4" />}
           color="bg-blue-500"
         />
@@ -617,9 +732,9 @@ function ServiceDeskDashboard() {
             </div>
             <div className="text-center p-4 bg-muted rounded-lg">
               <div className="text-2xl font-bold text-foreground">
-                {myStats?.assignedTickets.closed ?? 0}
+                {myStats?.assignedTickets.onHold ?? 0}
               </div>
-              <div className="text-sm text-muted-foreground">Closed</div>
+              <div className="text-sm text-muted-foreground">On Hold</div>
             </div>
           </div>
         </CardContent>
@@ -870,7 +985,7 @@ function EndUserDashboard() {
             <div className="flex flex-col items-center py-6 text-center text-muted-foreground">
               <Ticket className="h-8 w-8 mb-2 opacity-40" />
               <p className="text-sm">No tickets yet</p>
-              <Button size="sm" className="mt-3" onClick={() => navigateTo("/portal/create-ticket")}>
+              <Button size="sm" className="mt-3" onClick={() => navigateTo("/portal/create-ticket", { from: '/dashboard' })}>
                 <Plus className="h-3 w-3 mr-1" /> Submit a Ticket
               </Button>
             </div>
@@ -880,7 +995,7 @@ function EndUserDashboard() {
                 <button
                   key={ticket.id}
                   className="w-full flex items-center justify-between gap-3 p-3 rounded-lg bg-muted/40 hover:bg-muted transition-colors text-left"
-                  onClick={() => navigateTo(`/portal/ticket/${ticket.id}`)}
+                  onClick={() => navigateTo(`/portal/ticket/${ticket.id}`, { from: '/dashboard' })}
                 >
                   <div className="min-w-0 flex-1">
                     <p className="font-medium text-sm truncate">{ticket.subject ?? ticket.description}</p>
@@ -913,7 +1028,7 @@ function EndUserDashboard() {
             <div className="flex flex-col items-center py-6 text-center text-muted-foreground">
               <ClipboardList className="h-8 w-8 mb-2 opacity-40" />
               <p className="text-sm">No service requests yet</p>
-              <Button size="sm" className="mt-3" onClick={() => navigateTo("/service-requests/create-request")}>
+              <Button size="sm" className="mt-3" onClick={() => navigateTo("/service-requests/create-request", { from: '/dashboard' })}>
                 <Plus className="h-3 w-3 mr-1" /> Raise a Request
               </Button>
             </div>
@@ -923,7 +1038,7 @@ function EndUserDashboard() {
                 <button
                   key={isr.id}
                   className="w-full flex items-center justify-between gap-3 p-3 rounded-lg bg-muted/40 hover:bg-muted transition-colors text-left"
-                  onClick={() => navigateTo(`/service-requests/${isr.id}`)}
+                  onClick={() => navigateTo(`/service-requests/${isr.id}`, { from: '/dashboard' })}
                 >
                   <div className="min-w-0 flex-1">
                     <p className="font-medium text-sm truncate">{isr.subject}</p>
@@ -953,7 +1068,7 @@ function EndUserDashboard() {
           Need IT support? Submit a ticket and our team will get back to you shortly.
         </p>
         <div className="flex flex-wrap gap-3 mt-5">
-          <Button onClick={() => navigateTo("/portal/create-ticket")}>
+          <Button onClick={() => navigateTo("/portal/create-ticket", { from: '/dashboard' })}>
             <Plus className="h-4 w-4 mr-2" />
             Submit a Ticket
           </Button>
@@ -965,7 +1080,7 @@ function EndUserDashboard() {
             <Mail className="h-4 w-4 mr-2" />
             Submit via Email
           </Button>
-          <Button variant="outline" onClick={() => navigateTo("/service-requests/create-request")}>
+          <Button variant="outline" onClick={() => navigateTo("/service-requests/create-request", { from: '/dashboard' })}>
             <ClipboardList className="h-4 w-4 mr-2" />
             Raise Service Request
           </Button>

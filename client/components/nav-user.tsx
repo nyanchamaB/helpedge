@@ -16,8 +16,8 @@ import {
   HelpCircle,
   LogOut,
   ChevronsUpDown,
-  Loader2,
 } from "lucide-react";
+import { Spinner } from '@/components/ui/spinner';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -132,7 +132,7 @@ export function NavUser() {
               disabled={isLoggingOut}
             >
               {isLoggingOut ? (
-                <Loader2 className="animate-spin" />
+                <Spinner />
               ) : (
                 <LogOut />
               )}

@@ -204,7 +204,8 @@ export const breadcrumbConfig: BreadcrumbConfigMap = {
     icon: Calendar,
   },
   '/settings/preferences': {
-    label: 'Preferences',
+    label: 'Profile & Preferences',
+    icon: User,
   },
   '/settings/notifications': {
     label: 'Notifications',

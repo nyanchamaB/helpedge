@@ -4,11 +4,11 @@ export const dynamic = "force-dynamic";
 
 import { useState, useMemo } from "react";
 import { useNavigation } from "@/contexts/NavigationContext";
+import { useAuth } from "@/contexts/AuthContext";
 import { useAllServiceRequests, usePendingApprovalForMe, useOverdueServiceRequests } from "@/hooks/service-requests/useServiceRequests";
 import {
   ServiceRequest,
   ServiceRequestStatus,
-  ServiceRequestType,
   getSRStatusLabel,
   getSRStatusStyle,
   getSRPriorityStyle,
@@ -18,99 +18,61 @@ import {
 } from "@/lib/api/service-request";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { Skeleton } from "@/components/ui/skeleton";
-import { ClipboardList, Plus, Search, RefreshCw, AlertCircle } from "lucide-react";
+import { DataTable, DataTableColumn, DataTableFilter, DataTableAction } from "@/components/data-table";
+import { ClipboardList, Plus, RefreshCw, Eye, AlertCircle } from "lucide-react";
+import { format } from "date-fns";
+import { cn } from "@/lib/utils";
 
 type TabKey = "all" | "pending" | "active" | "overdue";
 
 const TABS: { key: TabKey; label: string }[] = [
-  { key: "all", label: "All Requests" },
+  { key: "all",     label: "All Requests" },
   { key: "pending", label: "Pending Approval" },
-  { key: "active", label: "Active" },
+  { key: "active",  label: "Active" },
   { key: "overdue", label: "Overdue" },
 ];
 
 const ACTIVE_STATUSES: ServiceRequestStatus[] = ["Approved", "InProgress", "OnHold"];
 
-function SRStatusBadge({ status }: { status: ServiceRequestStatus }) {
-  return (
-    <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium border ${getSRStatusStyle(status)}`}>
-      {getSRStatusLabel(status)}
-    </span>
-  );
-}
-
-function SRPriorityBadge({ priority }: { priority: ServiceRequest["priority"] }) {
-  return (
-    <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium border ${getSRPriorityStyle(priority)}`}>
-      {priority}
-    </span>
-  );
-}
-
-function TableSkeleton() {
-  return (
-    <div className="space-y-2">
-      {Array.from({ length: 6 }).map((_, i) => (
-        <Skeleton key={i} className="h-12 w-full" />
-      ))}
-    </div>
-  );
+function formatDate(d?: string | null) {
+  if (!d) return "—";
+  try { return format(new Date(d), "MMM d, yyyy"); } catch { return "—"; }
 }
 
 export default function ServiceRequestsPage() {
   const { navigateTo } = useNavigation();
+  const { user } = useAuth();
   const [activeTab, setActiveTab] = useState<TabKey>("all");
-  const [search, setSearch] = useState("");
-  const [statusFilter, setStatusFilter] = useState<string>("all");
-  const [typeFilter, setTypeFilter] = useState<string>("all");
 
-  const allQuery = useAllServiceRequests();
+  const allQuery     = useAllServiceRequests();
   const pendingQuery = usePendingApprovalForMe();
   const overdueQuery = useOverdueServiceRequests();
 
-  const baseData = useMemo(() => {
+  // Exclude Draft requests that belong to other users — drafts are private to their creator
+  const visibleAll = useMemo(
+    () => (allQuery.data ?? []).filter(r => r.status !== "Draft" || r.requesterId === user?.id),
+    [allQuery.data, user?.id]
+  );
+
+  const tabCounts = useMemo<Record<TabKey, number | null>>(() => ({
+    all:     allQuery.data  ? visibleAll.length : null,
+    pending: pendingQuery.data ? pendingQuery.data.length : null,
+    active:  allQuery.data  ? visibleAll.filter(r => ACTIVE_STATUSES.includes(r.status)).length : null,
+    overdue: overdueQuery.data ? overdueQuery.data.length : null,
+  }), [visibleAll, pendingQuery.data, overdueQuery.data, allQuery.data]);
+
+  const tableData = useMemo(() => {
     if (activeTab === "pending") return pendingQuery.data ?? [];
     if (activeTab === "overdue") return overdueQuery.data ?? [];
-    const all = allQuery.data ?? [];
-    if (activeTab === "active") return all.filter(r => ACTIVE_STATUSES.includes(r.status));
-    return all;
-  }, [activeTab, allQuery.data, pendingQuery.data, overdueQuery.data]);
+    if (activeTab === "active") return visibleAll.filter(r => ACTIVE_STATUSES.includes(r.status));
+    return visibleAll;
+  }, [activeTab, visibleAll, pendingQuery.data, overdueQuery.data]);
 
   const isLoading =
-    (activeTab === "all" && allQuery.isLoading) ||
-    (activeTab === "pending" && pendingQuery.isLoading) ||
-    (activeTab === "overdue" && overdueQuery.isLoading) ||
-    (activeTab === "active" && allQuery.isLoading);
-
-  const filtered = useMemo(() => {
-    return baseData.filter((r) => {
-      const matchSearch =
-        !search ||
-        r.subject.toLowerCase().includes(search.toLowerCase()) ||
-        r.requestNumber.toLowerCase().includes(search.toLowerCase()) ||
-        (r.requesterName ?? "").toLowerCase().includes(search.toLowerCase());
-      const matchStatus = statusFilter === "all" || r.status === statusFilter;
-      const matchType = typeFilter === "all" || r.requestType === typeFilter;
-      return matchSearch && matchStatus && matchType;
-    });
-  }, [baseData, search, statusFilter, typeFilter]);
+    (activeTab === "all"     && allQuery.isLoading)     ||
+    (activeTab === "pending" && pendingQuery.isLoading)  ||
+    (activeTab === "overdue" && overdueQuery.isLoading)  ||
+    (activeTab === "active"  && allQuery.isLoading);
 
   function handleRefresh() {
     allQuery.refetch();
@@ -118,10 +80,116 @@ export default function ServiceRequestsPage() {
     overdueQuery.refetch();
   }
 
-  function formatDate(d?: string | null) {
-    if (!d) return "—";
-    return new Date(d).toLocaleDateString();
-  }
+  // ── Columns ──
+  const columns: DataTableColumn<ServiceRequest>[] = [
+    {
+      key: "requestNumber",
+      label: "Request #",
+      sortable: true,
+      render: (r) => (
+        <span className="font-mono text-sm text-muted-foreground whitespace-nowrap">
+          {r.requestNumber}
+        </span>
+      ),
+    },
+    {
+      key: "subject",
+      label: "Subject",
+      sortable: true,
+      render: (r) => (
+        <div className="max-w-[280px]">
+          <div className="flex items-center gap-2">
+            <p className="font-medium text-foreground truncate">{r.subject}</p>
+            {r.isOverdue && (
+              <Badge variant="destructive" className="shrink-0 text-xs">Overdue</Badge>
+            )}
+          </div>
+          <p className="text-xs text-muted-foreground truncate">{getSRTypeLabel(r.requestType)}</p>
+        </div>
+      ),
+    },
+    {
+      key: "status",
+      label: "Status",
+      sortable: true,
+      render: (r) => (
+        <span className={cn("inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium border", getSRStatusStyle(r.status))}>
+          {getSRStatusLabel(r.status)}
+        </span>
+      ),
+    },
+    {
+      key: "priority",
+      label: "Priority",
+      sortable: true,
+      render: (r) => (
+        <span className={cn("inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium border", getSRPriorityStyle(r.priority))}>
+          {r.priority}
+        </span>
+      ),
+    },
+    {
+      key: "requesterName",
+      label: "Requester",
+      sortable: true,
+      render: (r) => <span className="text-sm">{r.requesterName ?? "—"}</span>,
+    },
+    {
+      key: "assignedToName",
+      label: "Assigned To",
+      sortable: true,
+      render: (r) => <span className="text-sm">{r.assignedToName ?? "—"}</span>,
+    },
+    {
+      key: "requiredByDate",
+      label: "Required By",
+      sortable: true,
+      render: (r) => <span className="text-sm whitespace-nowrap">{formatDate(r.requiredByDate)}</span>,
+    },
+    {
+      key: "createdAt",
+      label: "Created",
+      sortable: true,
+      render: (r) => (
+        <div className="text-sm text-muted-foreground whitespace-nowrap">
+          {formatDate(r.createdAt)}
+        </div>
+      ),
+    },
+  ];
+
+  // ── Filters ──
+  const filters: DataTableFilter[] = [
+    {
+      key: "status",
+      label: "Status",
+      options: SERVICE_REQUEST_STATUSES.map(s => ({ value: s, label: getSRStatusLabel(s) })),
+    },
+    {
+      key: "requestType",
+      label: "Type",
+      options: SERVICE_REQUEST_TYPES.map(t => ({ value: t, label: getSRTypeLabel(t) })),
+    },
+    {
+      key: "priority",
+      label: "Priority",
+      options: [
+        { value: "Low",      label: "Low" },
+        { value: "Medium",   label: "Medium" },
+        { value: "High",     label: "High" },
+        { value: "Critical", label: "Critical" },
+      ],
+    },
+  ];
+
+  // ── Actions ──
+  const actions: DataTableAction<ServiceRequest>[] = [
+    {
+      label: "View Details",
+      icon: <Eye className="h-4 w-4 mr-2" />,
+      onClick: (r) => navigateTo(`/service-requests/${r.id}`, { from: '/service-requests' }),
+    },
+  ];
 
   return (
     <div className="space-y-6">
@@ -136,128 +204,73 @@ export default function ServiceRequestsPage() {
         </div>
         <div className="flex gap-2">
           <Button variant="outline" size="sm" onClick={handleRefresh}>
-            <RefreshCw className="h-4 w-4 mr-1" />
-            Refresh
+            <RefreshCw className="h-4 w-4 mr-1.5" /> Refresh
           </Button>
-          <Button size="sm" onClick={() => navigateTo("/service-requests/create-request")}>
-            <Plus className="h-4 w-4 mr-1" />
-            New Request
+          <Button size="sm" onClick={() => navigateTo("/service-requests/create-request", { from: '/service-requests' })}>
+            <Plus className="h-4 w-4 mr-1.5" /> New Request
           </Button>
         </div>
       </div>
 
       {/* Tabs */}
       <div className="flex gap-1 border-b">
-        {TABS.map((tab) => (
-          <button
-            key={tab.key}
-            onClick={() => setActiveTab(tab.key)}
-            className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
-              activeTab === tab.key
-                ? "border-primary text-primary"
-                : "border-transparent text-muted-foreground hover:text-foreground"
-            }`}
-          >
-            {tab.label}
-          </button>
-        ))}
+        {TABS.map((tab) => {
+          const count = tabCounts[tab.key];
+          const isActive = activeTab === tab.key;
+          return (
+            <button
+              key={tab.key}
+              onClick={() => setActiveTab(tab.key)}
+              className={cn(
+                "flex items-center gap-1.5 px-4 py-2 text-sm font-medium border-b-2 transition-colors",
+                isActive
+                  ? "border-primary text-primary"
+                  : "border-transparent text-muted-foreground hover:text-foreground"
+              )}
+            >
+              {tab.label}
+              {count != null && (
+                <span className={cn(
+                  "inline-flex items-center justify-center rounded-full text-xs font-semibold min-w-[18px] h-[18px] px-1",
+                  isActive
+                    ? "bg-primary/10 text-primary"
+                    : count > 0
+                      ? tab.key === "overdue"
+                        ? "bg-red-100 text-red-600"
+                        : tab.key === "pending"
+                          ? "bg-amber-100 text-amber-700"
+                          : "bg-muted text-muted-foreground"
+                      : "bg-muted text-muted-foreground"
+                )}>
+                  {count}
+                </span>
+              )}
+            </button>
+          );
+        })}
       </div>
 
-      {/* Filters */}
-      <div className="flex flex-wrap gap-3">
-        <div className="relative flex-1 min-w-[200px]">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input
-            placeholder="Search by subject, number, or requester..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="pl-9"
-          />
-        </div>
-        <Select value={statusFilter} onValueChange={setStatusFilter}>
-          <SelectTrigger className="w-[160px]">
-            <SelectValue placeholder="Status" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Statuses</SelectItem>
-            {SERVICE_REQUEST_STATUSES.map((s) => (
-              <SelectItem key={s} value={s}>{getSRStatusLabel(s)}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        <Select value={typeFilter} onValueChange={setTypeFilter}>
-          <SelectTrigger className="w-[160px]">
-            <SelectValue placeholder="Type" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Types</SelectItem>
-            {SERVICE_REQUEST_TYPES.map((t) => (
-              <SelectItem key={t} value={t}>{getSRTypeLabel(t)}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
-
-      {/* Count */}
-      {!isLoading && (
-        <p className="text-sm text-muted-foreground">
-          {filtered.length} request{filtered.length !== 1 ? "s" : ""}
-        </p>
-      )}
-
-      {/* Table */}
-      {isLoading ? (
-        <TableSkeleton />
-      ) : filtered.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-16 text-muted-foreground gap-2">
-          <AlertCircle className="h-10 w-10 opacity-30" />
-          <p className="text-sm">No requests found</p>
-        </div>
-      ) : (
-        <div className="rounded-md border overflow-x-auto">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Request #</TableHead>
-                <TableHead>Subject</TableHead>
-                <TableHead>Type</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Priority</TableHead>
-                <TableHead>Requester</TableHead>
-                <TableHead>Assigned To</TableHead>
-                <TableHead>Required By</TableHead>
-                <TableHead>Created</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filtered.map((req) => (
-                <TableRow
-                  key={req.id}
-                  className="cursor-pointer hover:bg-muted/50"
-                  onClick={() => navigateTo(`/service-requests/${req.id}`)}
-                >
-                  <TableCell className="font-mono text-xs text-muted-foreground whitespace-nowrap">
-                    {req.requestNumber}
-                  </TableCell>
-                  <TableCell className="font-medium max-w-[260px] truncate">
-                    {req.subject}
-                    {req.isOverdue && (
-                      <Badge variant="destructive" className="ml-2 text-xs">Overdue</Badge>
-                    )}
-                  </TableCell>
-                  <TableCell className="text-sm">{getSRTypeLabel(req.requestType)}</TableCell>
-                  <TableCell><SRStatusBadge status={req.status} /></TableCell>
-                  <TableCell><SRPriorityBadge priority={req.priority} /></TableCell>
-                  <TableCell className="text-sm">{req.requesterName ?? "—"}</TableCell>
-                  <TableCell className="text-sm">{req.assignedToName ?? "—"}</TableCell>
-                  <TableCell className="text-sm whitespace-nowrap">{formatDate(req.requiredByDate)}</TableCell>
-                  <TableCell className="text-sm whitespace-nowrap">{formatDate(req.createdAt)}</TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </div>
-      )}
+      {/* DataTable */}
+      <DataTable<ServiceRequest>
+        data={tableData}
+        columns={columns}
+        isLoading={isLoading}
+        searchable={true}
+        searchPlaceholder="Search by subject, request #, or requester…"
+        searchKeys={["subject", "requestNumber", "requesterName"]}
+        filters={filters}
+        defaultSortField="createdAt"
+        defaultSortDirection="desc"
+        actions={actions}
+        pagination={true}
+        onRowClick={(r) => navigateTo(`/service-requests/${r.id}`, { from: '/service-requests' })}
+        getItemId={(r) => r.id}
+        emptyState={{
+          icon: <AlertCircle className="h-8 w-8 text-muted-foreground/40" />,
+          title: "No service requests found",
+          description: "Try adjusting your search or filter criteria",
+        }}
+      />
     </div>
   );
 }

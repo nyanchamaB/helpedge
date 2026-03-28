@@ -72,6 +72,7 @@ function EnumReference() {
   );
 }
 import { cn } from '@/lib/utils';
+import { Spinner } from '@/components/ui/spinner';
 
 const STAFF_ROLES = ['Admin', 'ITManager', 'TeamLead', 'SystemAdmin', 'ServiceDeskAgent', 'Technician', 'SecurityAdmin'];
 
@@ -433,7 +434,7 @@ export function WorkflowForm({ initialData, onSubmit, onCancel, isLoading, isEdi
           <Button type="button" variant="outline" onClick={onCancel} disabled={isLoading}>Cancel</Button>
           <Button type="submit" disabled={isLoading} className="min-w-[140px]">
             {isLoading ? (
-              <><div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent mr-2" />{isEditing ? 'Saving...' : 'Creating...'}</>
+              <><Spinner size="sm" className="mr-2" />{isEditing ? 'Saving...' : 'Creating...'}</>
             ) : isEditing ? 'Save Changes' : 'Create Workflow'}
           </Button>
         </div>

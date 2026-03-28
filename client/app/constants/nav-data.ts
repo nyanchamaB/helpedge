@@ -61,7 +61,7 @@ export const navData = {
         { title: "Overview", url: "/dashboard", roles: ALL_ROLES },
         { title: "Agent Dashboard", url: "/agent/dashboard", roles: ["ServiceDeskAgent"] },
         { title: "My Work Queue", url: "/resolver/dashboard", roles: ["Technician", "SystemAdmin", "SecurityAdmin", "TeamLead", "ServiceDeskAgent"] },
-        { title: "Manager View", url: "/manager/dashboard", roles: ["Admin", "ITManager", "TeamLead"] },
+        { title: "Operations Center", url: "/manager/dashboard", roles: ["Admin", "ITManager", "TeamLead"] },
       ],
       //roles: ALL_ROLES, 
     },
@@ -73,10 +73,7 @@ export const navData = {
       items: [
         { title: "Review Queue", url: "/tickets/review-queue", roles: ["Admin", "ITManager", "TeamLead", "ServiceDeskAgent"] },
         { title: "All Tickets", url: "/tickets", roles: ["Admin", "ITManager", "TeamLead", "ServiceDeskAgent"] },
-        { title: "Manager Tickets", url: "/manager/tickets", roles: ["Admin", "ITManager", "TeamLead"] },
-        { title: "Ticket Queue", url: "/agent/tickets", roles: ["ServiceDeskAgent"] },
         { title: "My Work", url: "/resolver/tickets", roles: ["Technician", "SystemAdmin", "SecurityAdmin", "TeamLead", "ServiceDeskAgent"] },
-        { title: "Assigned to Me", url: "/tickets/assigned", roles: ["ServiceDeskAgent", "TeamLead", "SystemAdmin", "SecurityAdmin", "Technician"] },
         { title: "My Tickets", url: "/portal/my-tickets", roles: ALL_ROLES },
         { title: "Submit Ticket", url: "/portal/create-ticket", roles: ["EndUser"] },
         { title: "Email Instructions", url: "/portal/email-ticket", roles: ["EndUser"] },
@@ -86,33 +83,15 @@ export const navData = {
       ],
     },
     {
-      title: "Ticket Categories",
-      url: "/admin/categories",
-      icon: FolderOpen,
-      roles: STAFF_ROLES,
-      items: [
-        { title: "All Categories", url: "/admin/categories", roles: STAFF_ROLES },
-      ],
-    },
-    {
       title: "Service Requests",
       url: "/service-requests",
       icon: ClipboardList,
       roles: ALL_ROLES,
       items: [
-        { title: "Service Requests", url: "/service-requests", roles: ["Admin", "ITManager", "TeamLead", "ServiceDeskAgent"] },
+        { title: "Request Queue", url: "/service-requests/queue", roles: ["ServiceDeskAgent", "TeamLead", "ITManager", "Admin", "SystemAdmin", "Technician", "SecurityAdmin"] },
+        { title: "All Service Requests", url: "/service-requests", roles: ["Admin", "ITManager", "TeamLead", "ServiceDeskAgent"] },
         { title: "My Requests", url: "/service-requests/my-requests", roles: ALL_ROLES },
         { title: "Raise Service Request", url: "/service-requests/create-request", roles: ALL_ROLES },
-        { title: "Request Queue", url: "/service-requests/queue", roles: ["ServiceDeskAgent", "TeamLead", "ITManager", "Admin", "SystemAdmin", "Technician", "SecurityAdmin"] },
-      ],
-    },
-    {
-      title: "Service Categories",
-      url: "/service-categories",
-      icon: UserCheck,
-      roles: STAFF_ROLES,
-      items: [
-        { title: "All Categories", url: "/service-categories", roles: STAFF_ROLES },
       ],
     },
     {
@@ -122,7 +101,16 @@ export const navData = {
       roles: ["Admin", "ITManager"] as UserRole[],
       items: [
         { title: "All Workflows", url: "/approval-workflows", roles: ["Admin", "ITManager"] as UserRole[] },
-        { title: "New Workflow", url: "/approval-workflows/create", roles: ["Admin", "ITManager"] as UserRole[] },
+      ],
+    },
+    {
+      title: "Categories",
+      url: "/admin/categories",
+      icon: FolderOpen,
+      roles: STAFF_ROLES,
+      items: [
+        { title: "Ticket Categories", url: "/admin/categories", roles: STAFF_ROLES },
+        { title: "Service Categories", url: "/service-categories", roles: STAFF_ROLES },
       ],
     },
     {
@@ -194,11 +182,10 @@ export const navData = {
       icon: Settings,
       roles: ALL_ROLES,
       items: [
-        { title: "Profile", url: "/settings/profile", roles: ALL_ROLES },
+        { title: "Profile & Preferences", url: "/settings/preferences", roles: ALL_ROLES },
         { title: "Team Settings", url: "/settings/team", roles: MANAGEMENT_ROLES },
         { title: "System Settings", url: "/settings/system", roles: ["Admin"] },
         { title: "Cron Settings", url: "/settings/cron-settings", roles: ["Admin", "ITManager"] },
-        { title: "Preferences", url: "/settings/preferences", roles: ALL_ROLES },
         { title: "Notifications", url: "/settings/notifications", roles: ALL_ROLES },
       ],
     },

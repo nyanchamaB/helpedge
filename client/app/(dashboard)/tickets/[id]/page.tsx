@@ -93,7 +93,6 @@ import {
   Hash,
   UserPlus,
   UserMinus,
-  Loader2,
   Play,
   CheckCircle2,
   XCircle,
@@ -109,6 +108,7 @@ import {
   ArrowLeftRight,
   Trash2,
 } from "lucide-react";
+import { Spinner } from '@/components/ui/spinner';
 import { AIDetailsSection } from "@/components/tickets/AIDetailsSection";
 import { OverrideModal } from "@/components/ai/OverrideModal";
 import { EscalateDialog } from "@/components/tickets/EscalateDialog";
@@ -744,7 +744,7 @@ export default function TicketDetailPage() {
     const res = await deleteTicket(ticket.id);
     if (res.success) {
       toast.success("Ticket deleted");
-      navigateTo(getBackRoute(user?.role));
+      navigateTo(pageParams?.from ?? getBackRoute(user?.role));
     } else {
       toast.error(res.error || "Failed to delete ticket");
       setIsDeleting(false);
@@ -797,7 +797,7 @@ export default function TicketDetailPage() {
               <div className="flex justify-center gap-2">
                 <Button
                   variant="outline"
-                  onClick={() => navigateTo(getBackRoute(user?.role))}
+                  onClick={() => navigateTo(pageParams?.from ?? getBackRoute(user?.role))}
                 >
                   <ArrowLeft className="h-4 w-4 mr-2" />
                   Go Back
@@ -823,7 +823,7 @@ export default function TicketDetailPage() {
           <Button
             variant="ghost"
             size="icon"
-            onClick={() => navigateTo(getBackRoute(user?.role))}
+            onClick={() => navigateTo(pageParams?.from ?? getBackRoute(user?.role))}
             className="mt-1"
           >
             <ArrowLeft className="h-5 w-5" />
@@ -878,7 +878,7 @@ export default function TicketDetailPage() {
                   disabled={isDeleting}
                 >
                   {isDeleting ? (
-                    <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                    <Spinner size="sm" className="mr-2" />
                   ) : (
                     <Trash2 className="h-4 w-4 mr-2" />
                   )}
@@ -1093,7 +1093,7 @@ export default function TicketDetailPage() {
                     </label>
                     {isLoadingCategories ? (
                       <div className="flex items-center justify-center py-4">
-                        <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+                        <Spinner className="text-muted-foreground" />
                         <span className="ml-2 text-sm text-muted-foreground">
                           Loading categories...
                         </span>
@@ -1141,7 +1141,7 @@ export default function TicketDetailPage() {
                     </label>
                     {isLoadingUsers ? (
                       <div className="flex items-center justify-center py-4">
-                        <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+                        <Spinner className="text-muted-foreground" />
                         <span className="ml-2 text-sm text-muted-foreground">
                           Loading users...
                         </span>
@@ -1188,7 +1188,7 @@ export default function TicketDetailPage() {
                       disabled={isAssigning || isTriaging}
                     >
                       {isAssigning ? (
-                        <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                        <Spinner size="sm" className="mr-2" />
                       ) : (
                         <UserMinus className="h-4 w-4 mr-2" />
                       )}
@@ -1213,7 +1213,7 @@ export default function TicketDetailPage() {
                           className="bg-purple-600 hover:bg-purple-700"
                         >
                           {isTriaging ? (
-                            <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                            <Spinner size="sm" className="mr-2" />
                           ) : (
                             <Check className="h-4 w-4 mr-2" />
                           )}
@@ -1227,7 +1227,7 @@ export default function TicketDetailPage() {
                           variant="outline"
                         >
                           {isTriaging ? (
-                            <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                            <Spinner size="sm" className="mr-2" />
                           ) : (
                             <Edit2 className="h-4 w-4 mr-2" />
                           )}
@@ -1241,7 +1241,7 @@ export default function TicketDetailPage() {
                         disabled={!selectedUserId || isAssigning}
                       >
                         {isAssigning ? (
-                          <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                          <Spinner size="sm" className="mr-2" />
                         ) : (
                           <UserPlus className="h-4 w-4 mr-2" />
                         )}
@@ -1288,7 +1288,7 @@ export default function TicketDetailPage() {
                   className="bg-blue-600 hover:bg-blue-700"
                 >
                   {isProcessing ? (
-                    <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                    <Spinner size="sm" className="mr-2" />
                   ) : (
                     <Play className="h-4 w-4 mr-2" />
                   )}
@@ -1304,7 +1304,7 @@ export default function TicketDetailPage() {
                   className="bg-green-600 hover:bg-green-700"
                 >
                   {isProcessing ? (
-                    <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                    <Spinner size="sm" className="mr-2" />
                   ) : (
                     <CheckCircle2 className="h-4 w-4 mr-2" />
                   )}
@@ -1320,7 +1320,7 @@ export default function TicketDetailPage() {
                   variant="outline"
                 >
                   {isProcessing ? (
-                    <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                    <Spinner size="sm" className="mr-2" />
                   ) : (
                     <XCircle className="h-4 w-4 mr-2" />
                   )}
@@ -1336,7 +1336,7 @@ export default function TicketDetailPage() {
                   variant="outline"
                 >
                   {isProcessing ? (
-                    <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                    <Spinner size="sm" className="mr-2" />
                   ) : (
                     <RotateCcw className="h-4 w-4 mr-2" />
                   )}
@@ -1368,7 +1368,7 @@ export default function TicketDetailPage() {
                   variant="outline"
                 >
                   {isProcessing ? (
-                    <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                    <Spinner size="sm" className="mr-2" />
                   ) : (
                     <HelpCircle className="h-4 w-4 mr-2" />
                   )}
@@ -1389,7 +1389,7 @@ export default function TicketDetailPage() {
                   variant={ticket.status === "Open" ? "default" : "outline"}
                 >
                   {isProcessing ? (
-                    <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                    <Spinner size="sm" className="mr-2" />
                   ) : (
                     <Play className="h-4 w-4 mr-2" />
                   )}
@@ -1494,7 +1494,7 @@ export default function TicketDetailPage() {
               disabled={!transferTargetId || isTransferring}
             >
               {isTransferring ? (
-                <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                <Spinner size="sm" className="mr-2" />
               ) : (
                 <ArrowLeftRight className="h-4 w-4 mr-2" />
               )}
@@ -1901,7 +1901,7 @@ export default function TicketDetailPage() {
                   size="sm"
                 >
                   {isAddingComment ? (
-                    <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                    <Spinner size="sm" className="mr-2" />
                   ) : (
                     <Send className="h-4 w-4 mr-2" />
                   )}

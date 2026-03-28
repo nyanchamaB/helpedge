@@ -44,7 +44,7 @@ const TIPS = [
 ];
 
 export default function PortalEmailTicket() {
-  const { navigateTo } = useNavigation();
+  const { navigateTo, pageParams } = useNavigation();
 
   const handleCopy = () => {
     navigator.clipboard.writeText(SUPPORT_EMAIL).then(() => {
@@ -57,7 +57,7 @@ export default function PortalEmailTicket() {
       <Button
         variant="ghost"
         size="sm"
-        onClick={() => navigateTo("/portal/my-tickets")}
+        onClick={() => navigateTo(pageParams?.from ?? "/portal/my-tickets")}
         className="-ml-2"
       >
         <ArrowLeft className="h-4 w-4 mr-1.5" />

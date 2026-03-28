@@ -208,7 +208,7 @@ export default function PortalNotifications() {
               <button
                 key={notification.id}
                 onClick={() =>
-                  navigateTo(`/portal/ticket/${notification.ticketId}`)
+                  navigateTo(`/portal/ticket/${notification.ticketId}`, { from: '/portal/notifications' })
                 }
                 className={cn(
                   "w-full flex items-start gap-3 p-4 rounded-xl border text-left transition-colors",

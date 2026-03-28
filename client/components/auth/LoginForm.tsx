@@ -9,7 +9,8 @@ import { Label } from "@/components/ui/label";
 import { useAuth } from "@/contexts/AuthContext";
 import { getRedirectUrl } from "@/lib/utils/redirect";
 import { siteConfig } from "@/config/site";
-import { Loader2, Sparkles } from "lucide-react";
+import { Sparkles } from "lucide-react";
+import { Spinner } from '@/components/ui/spinner';
 import Image from "next/image";
 
 export default function LoginForm() {
@@ -114,7 +115,7 @@ export default function LoginForm() {
   if (isPageLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
-        <Loader2 className="h-10 w-10 animate-spin text-muted-foreground" />
+        <Spinner size="lg" className="text-muted-foreground" />
       </div>
     );
   }
@@ -184,7 +185,7 @@ export default function LoginForm() {
                 >
                   {isLoading ? (
                     <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      <Spinner size="sm" className="mr-2" />
                       Signing in
                     </>
                   ) : (

@@ -4,7 +4,7 @@ export const dynamic = "force-dynamic";
 
 import { useState, useMemo } from "react";
 import { useNavigation } from "@/contexts/NavigationContext";
-import { useMyServiceRequests, useMyServiceRequestStats } from "@/hooks/service-requests/useServiceRequests";
+import { useMyServiceRequests } from "@/hooks/service-requests/useServiceRequests";
 import {
   ServiceRequest,
   getSRStatusLabel,
@@ -91,9 +91,23 @@ function RequestCard({ req, onClick }: { req: ServiceRequest; onClick: () => voi
 export default function MyRequestsPage() {
   const { navigateTo } = useNavigation();
   const { data: requests = [], isLoading } = useMyServiceRequests();
-  const { data: stats } = useMyServiceRequestStats();
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("all");
+
+  const stats = useMemo(() => ({
+    totalRequests: requests.length,
+    pendingApprovalCount: requests.filter(r => r.status === "PendingApproval").length,
+    inProgressCount: requests.filter(r => r.status === "InProgress").length,
+    fulfilledCount: requests.filter(r => r.status === "Fulfilled").length,
+  }), [requests]);
+
+  const tabCounts = useMemo(() => ({
+    all: requests.length,
+    active: requests.filter(r => ["Draft", "PendingApproval", "Approved", "InProgress", "OnHold"].includes(r.status)).length,
+    Draft: requests.filter(r => r.status === "Draft").length,
+    PendingApproval: requests.filter(r => r.status === "PendingApproval").length,
+    closed: requests.filter(r => ["Fulfilled", "Closed", "Rejected", "Cancelled"].includes(r.status)).length,
+  }), [requests]);
 
   const filterTabs = [
     { key: "all", label: "All" },
@@ -116,20 +130,6 @@ export default function MyRequestsPage() {
     });
   }, [requests, search, filter]);
 
-  if (isLoading) {
-    return (
-      <div className="space-y-4">
-        <Skeleton className="h-10 w-64" />
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          {Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="h-20" />)}
-        </div>
-        <div className="grid gap-3">
-          {Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="h-32" />)}
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -140,20 +140,24 @@ export default function MyRequestsPage() {
             <p className="text-sm text-muted-foreground">Track the requests you have submitted</p>
           </div>
         </div>
-        <Button size="sm" onClick={() => navigateTo("/service-requests/create-request")}>
+        <Button size="sm" onClick={() => navigateTo("/service-requests/create-request", { from: '/service-requests/my-requests' })}>
           <Plus className="h-4 w-4 mr-1" />
           New Request
         </Button>
       </div>
 
-      {stats && (
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <StatCard label="Total" value={stats.total} color="text-foreground" />
-          <StatCard label="Pending Approval" value={stats.pendingApproval} color="text-amber-600" />
-          <StatCard label="In Progress" value={stats.inProgress} color="text-yellow-600" />
-          <StatCard label="Fulfilled" value={stats.fulfilled} color="text-green-600" />
-        </div>
-      )}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        {isLoading ? (
+          Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="h-20" />)
+        ) : (
+          <>
+            <StatCard label="Total" value={stats.totalRequests} color="text-foreground" />
+            <StatCard label="Pending Approval" value={stats.pendingApprovalCount} color="text-amber-600" />
+            <StatCard label="In Progress" value={stats.inProgressCount} color="text-yellow-600" />
+            <StatCard label="Fulfilled" value={stats.fulfilledCount} color="text-green-600" />
+          </>
+        )}
+      </div>
 
       <div className="flex flex-wrap gap-3 items-center">
         <div className="relative flex-1 min-w-[200px]">
@@ -166,25 +170,44 @@ export default function MyRequestsPage() {
           />
         </div>
         <div className="flex gap-1 border rounded-md p-1">
-          {filterTabs.map((t) => (
-            <button
-              key={t.key}
-              onClick={() => setFilter(t.key)}
-              className={`px-3 py-1 text-xs rounded transition-colors ${
-                filter === t.key ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"
-              }`}
-            >
-              {t.label}
-            </button>
-          ))}
+          {filterTabs.map((t) => {
+            const count = tabCounts[t.key as keyof typeof tabCounts];
+            const isActive = filter === t.key;
+            return (
+              <button
+                key={t.key}
+                onClick={() => setFilter(t.key)}
+                className={`flex items-center gap-1.5 px-3 py-1 text-xs rounded transition-colors ${
+                  isActive ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                {t.label}
+                {!isLoading && count > 0 && (
+                  <span className={`inline-flex items-center justify-center rounded-full text-xs font-semibold min-w-[16px] h-[16px] px-1 ${
+                    isActive
+                      ? "bg-primary-foreground/20 text-primary-foreground"
+                      : t.key === "PendingApproval"
+                        ? "bg-amber-100 text-amber-700"
+                        : "bg-muted text-muted-foreground"
+                  }`}>
+                    {count}
+                  </span>
+                )}
+              </button>
+            );
+          })}
         </div>
       </div>
 
-      {filtered.length === 0 ? (
+      {isLoading ? (
+        <div className="grid gap-3">
+          {Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="h-32" />)}
+        </div>
+      ) : filtered.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-16 text-muted-foreground gap-3">
           <AlertCircle className="h-10 w-10 opacity-30" />
           <p className="text-sm">No requests found</p>
-          <Button variant="outline" size="sm" onClick={() => navigateTo("/service-requests/create-request")}>
+          <Button variant="outline" size="sm" onClick={() => navigateTo("/service-requests/create-request", { from: '/service-requests/my-requests' })}>
             <Plus className="h-4 w-4 mr-1" />
             Raise a Request
           </Button>
@@ -192,7 +215,7 @@ export default function MyRequestsPage() {
       ) : (
         <div className="grid gap-3">
           {filtered.map((req) => (
-            <RequestCard key={req.id} req={req} onClick={() => navigateTo(`/service-requests/${req.id}`)} />
+            <RequestCard key={req.id} req={req} onClick={() => navigateTo(`/service-requests/${req.id}`, { from: '/service-requests/my-requests' })} />
           ))}
         </div>
       )}
