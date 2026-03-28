@@ -7,7 +7,7 @@ export default function IncidentManagement() {
         <NavHeader />
       <h1 className="text-3xl font-bold text-gray-800 mb-4">Incident Management</h1>
       <p className="text-gray-600 mb-6">
-        Streamline your incident response with HelpEdge's powerful management tools.
+        Streamline your incident response with HelpEdge&rsquo;s powerful management tools.
       </p>
         <section className="mt-8">
             <h2 className="text-xl font-semibold mb-2">Key Features</h2>

@@ -3,6 +3,7 @@
 export const dynamic = 'force-dynamic';
 
 import { useState, useEffect, KeyboardEvent } from 'react';
+import { useRouter } from 'next/navigation';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -313,10 +314,11 @@ export default function CategoriesPage() {
   const { navigateTo } = useNavigation();
   const queryClient = useQueryClient();
   const role = user?.role ?? '';
+  const router = useRouter();
 
   useEffect(() => {
     if (!authLoading && user?.role === 'EndUser') {
-      navigateTo('/portal/my-tickets');
+      router.push('/portal/my-tickets');
     }
   }, [authLoading, user?.role]);
 
@@ -589,7 +591,7 @@ export default function CategoriesPage() {
       <AlertDialog open={!!deleteTarget} onOpenChange={(v) => !v && setDeleteTarget(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete "{deleteTarget?.name}"?</AlertDialogTitle>
+            <AlertDialogTitle>Delete &quot;{deleteTarget?.name}&quot;?</AlertDialogTitle>
             <AlertDialogDescription>
               This permanently removes the category and all its keyword rules. Existing tickets assigned
               to this category will not be affected. This action cannot be undone.

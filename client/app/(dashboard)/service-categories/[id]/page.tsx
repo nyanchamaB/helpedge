@@ -18,11 +18,11 @@ import {
 import { format } from 'date-fns';
 import { CategoryIcon } from '@/components/service-request-category/CategoryIcon';
 import { Spinner } from '@/components/ui/spinner';
-
+import { useRouter } from 'next/navigation';
 export default function CategoryDetailPage() {
   const { activePage, pageParams, navigateTo } = useNavigation();
   const id = pageParams?.id ?? activePage.split('/').pop() ?? '';
-  
+  const router = useRouter();
   const { data: categoryResponse, isLoading } = useCategory(id);
   const category = categoryResponse?.data;
 
@@ -40,9 +40,9 @@ export default function CategoryDetailPage() {
         <div className="text-center">
           <h2 className="text-2xl font-bold">Category not found</h2>
           <p className="text-gray-500 mt-2">
-            The category you're looking for doesn't exist.
+            The category you&rsquo;re looking for doesn&rsquo;t exist.
           </p>
-          <Button className="mt-4" onClick={() => navigateTo(pageParams?.from ?? '/service-categories')}>Back to Categories</Button>
+          <Button className="mt-4" onClick={() => router.push(pageParams?.from ?? '/service-categories')}>Back to Categories</Button>
         </div>
       </div>
     );
@@ -51,12 +51,12 @@ export default function CategoryDetailPage() {
   return (
     <div className="container mx-auto py-8">
       <div className="flex items-center justify-between mb-6">
-        <Button variant="ghost" className="gap-2" onClick={() => navigateTo(pageParams?.from ?? '/service-categories')}>
+        <Button variant="ghost" className="gap-2" onClick={() => router.push(pageParams?.from ?? '/service-categories')}>
           <ArrowLeft className="h-4 w-4" />
           Back to Categories
         </Button>
 
-        <Button variant="outline" className="gap-2" onClick={() => navigateTo(`/service-categories/${id}/edit`)}>
+        <Button variant="outline" className="gap-2" onClick={() => router.push(`/service-categories/${id}/edit`)}>
           <Edit className="h-4 w-4" />
           Edit Category
         </Button>
