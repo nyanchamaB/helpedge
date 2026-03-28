@@ -88,7 +88,7 @@ export default function MLModelManagementPage() {
     typeof initializedRaw === 'boolean'
       ? initializedRaw
       : (initializedRaw?.isInitialized ??
-        (stats?.totalDocuments != null && stats.totalDocuments > 0));
+        (stats?.totalDocuments !== null && stats?.totalDocuments !== undefined && stats.totalDocuments > 0));
   const staleRaw = staleResponse?.data;
   const isStale =
     typeof staleRaw === 'boolean' ? staleRaw : (staleRaw?.isStale ?? stats?.isStale ?? false);
@@ -338,7 +338,7 @@ export default function MLModelManagementPage() {
                     <TableCell>{stats?.totalTerms?.toLocaleString() ?? '—'}</TableCell>
                     <TableCell>{stats?.totalDocuments?.toLocaleString() ?? '—'}</TableCell>
                     <TableCell>
-                      {stats?.averageDocumentFrequency != null
+                      {stats?.averageDocumentFrequency !== null && stats?.averageDocumentFrequency !== undefined
                         ? stats.averageDocumentFrequency.toFixed(4)
                         : '—'}
                     </TableCell>
@@ -405,7 +405,7 @@ export default function MLModelManagementPage() {
               <div>
                 <p className="text-sm font-medium">Avg Document Frequency</p>
                 <p className="text-2xl font-bold">
-                  {stats?.averageDocumentFrequency != null
+                  {stats?.averageDocumentFrequency !== null && stats?.averageDocumentFrequency !== undefined
                     ? stats.averageDocumentFrequency.toFixed(4)
                     : '—'}
                 </p>
