@@ -2,7 +2,7 @@
 
 export const dynamic = 'force-dynamic';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useNavigation } from '@/contexts/NavigationContext';
 import {
   getResolverKpis,
@@ -36,6 +36,37 @@ import {
 import { cn } from '@/lib/utils';
 
 const PAGE_SIZE = 15;
+
+function SortTh({
+  col,
+  children,
+  className,
+  active,
+  sortAsc,
+  onToggle,
+}: {
+  col: keyof ResolverKpis;
+  children: React.ReactNode;
+  className?: string;
+  active: boolean;
+  sortAsc: boolean;
+  onToggle: (col: keyof ResolverKpis) => void;
+}) {
+  return (
+    <th
+      className={cn(
+        'pb-2 font-medium cursor-pointer select-none hover:text-foreground transition-colors',
+        className,
+      )}
+      onClick={() => onToggle(col)}
+    >
+      <span className="inline-flex items-center gap-1">
+        {children}
+        {active && <span className="text-[10px]">{sortAsc ? '▲' : '▼'}</span>}
+      </span>
+    </th>
+  );
+}
 
 function fmt(mins: number | null | undefined): string {
   if (mins === null || mins === undefined) {return '—';}
@@ -156,33 +187,6 @@ export default function TeamPerformancePage() {
     setPage(0);
   }
 
-  function SortTh({
-    col,
-    children,
-    className,
-  }: {
-    col: keyof ResolverKpis;
-    children: React.ReactNode;
-    className?: string;
-  }) {
-    const active = sortCol === col;
-
-    return (
-      <th
-        className={cn(
-          'pb-2 font-medium cursor-pointer select-none hover:text-foreground transition-colors',
-          className,
-        )}
-        onClick={() => toggleSort(col)}
-      >
-        <span className="inline-flex items-center gap-1">
-          {children}
-          {active && <span className="text-[10px]">{sortAsc ? '▲' : '▼'}</span>}
-        </span>
-      </th>
-    );
-  }
-
   return (
     <div className="container mx-auto py-6 space-y-6">
       {/* Header */}
@@ -235,7 +239,7 @@ export default function TeamPerformancePage() {
           title="SLA Breaches"
           value={isLoading ? '—' : totalSlaBreaches}
           icon={<AlertTriangle className="h-4 w-4" />}
-          sub={avgTtr != null ? `Avg TTR: ${fmt(avgTtr)}` : 'Across all resolvers'}
+          sub={avgTtr !== null && avgTtr !== undefined ? `Avg TTR: ${fmt(avgTtr)}` : 'Across all resolvers'}
           highlight={totalSlaBreaches > 0}
         />
       </div>
@@ -285,32 +289,32 @@ export default function TeamPerformancePage() {
                     <table className="w-full text-sm">
                       <thead>
                         <tr className="text-xs text-muted-foreground border-b">
-                          <SortTh col="resolverName" className="text-left">
+                          <SortTh col="resolverName" className="text-left" active={sortCol === 'resolverName'} sortAsc={sortAsc} onToggle={toggleSort}>
                             Resolver
                           </SortTh>
-                          <SortTh col="totalAssigned" className="text-right">
+                          <SortTh col="totalAssigned" className="text-right" active={sortCol === 'totalAssigned'} sortAsc={sortAsc} onToggle={toggleSort}>
                             Assigned
                           </SortTh>
-                          <SortTh col="inProgressCount" className="text-right">
+                          <SortTh col="inProgressCount" className="text-right" active={sortCol === 'inProgressCount'} sortAsc={sortAsc} onToggle={toggleSort}>
                             Active
                           </SortTh>
-                          <SortTh col="resolvedCount" className="text-right">
+                          <SortTh col="resolvedCount" className="text-right" active={sortCol === 'resolvedCount'} sortAsc={sortAsc} onToggle={toggleSort}>
                             Resolved
                           </SortTh>
-                          <SortTh col="unacknowledgedCount" className="text-right">
+                          <SortTh col="unacknowledgedCount" className="text-right" active={sortCol === 'unacknowledgedCount'} sortAsc={sortAsc} onToggle={toggleSort}>
                             Unacked
                           </SortTh>
-                          <SortTh col="avgTtaMinutes" className="text-right">
+                          <SortTh col="avgTtaMinutes" className="text-right" active={sortCol === 'avgTtaMinutes'} sortAsc={sortAsc} onToggle={toggleSort}>
                             <span className="flex items-center justify-end gap-1">
                               <Timer className="h-3 w-3" /> Avg TTA
                             </span>
                           </SortTh>
-                          <SortTh col="avgTtrMinutes" className="text-right">
+                          <SortTh col="avgTtrMinutes" className="text-right" active={sortCol === 'avgTtrMinutes'} sortAsc={sortAsc} onToggle={toggleSort}>
                             <span className="flex items-center justify-end gap-1">
                               <Timer className="h-3 w-3" /> Avg TTR
                             </span>
                           </SortTh>
-                          <SortTh col="slaBreaching" className="text-right">
+                          <SortTh col="slaBreaching" className="text-right" active={sortCol === 'slaBreaching'} sortAsc={sortAsc} onToggle={toggleSort}>
                             SLA
                           </SortTh>
                         </tr>
