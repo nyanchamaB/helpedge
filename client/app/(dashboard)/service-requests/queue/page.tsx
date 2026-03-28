@@ -99,7 +99,7 @@ export default function ServiceRequestQueuePage() {
       'pending-approval': pendingQuery.data ? pendingQuery.data.length : null,
       overdue: overdueQuery.data ? overdueQuery.data.length : null,
     }),
-    [unassignedData, mineQuery.data, pendingQuery.data, overdueQuery.data],
+    [unassignedData, mineQuery.data, pendingQuery.data, overdueQuery.data, allQuery.data],
   );
 
   const tableData = useMemo(() => {
@@ -320,7 +320,7 @@ export default function ServiceRequestQueuePage() {
               )}
             >
               {tab.label}
-              {count != null && (
+              {count !== null && count !== undefined && (
                 <span
                   className={cn(
                     'inline-flex items-center justify-center rounded-full text-xs font-semibold min-w-[18px] h-[18px] px-1',
