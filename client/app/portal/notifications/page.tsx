@@ -128,6 +128,7 @@ export default function PortalNotifications() {
 
       void loadData();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [authLoading, user]);
 
   const notifications = useMemo(
