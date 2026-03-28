@@ -6,8 +6,8 @@ import { useState, useEffect } from 'react';
 import { useNavigation } from '@/contexts/NavigationContext';
 import { useAuth } from '@/contexts/AuthContext';
 import RequestCategoryTable from '@/components/service-request-category/RequestCategoryTable';
-import { ServiceRequestCategory } from '@/lib/api/service-request-category';
 import {
+  ServiceRequestCategory,
   getServiceRequestsCategories,
   deleteServiceRequestCategory,
   activateServiceRequestCategory,
@@ -37,6 +37,7 @@ export default function ServiceRequestCategoriesPage() {
     if (!authLoading && user && !STAFF_ROLES.includes(user.role)) {
       navigateTo('/portal/my-tickets');
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [authLoading, user]);
   const [categories, setCategories] = useState<ServiceRequestCategory[]>([]);
   const [isLoading, setIsLoading] = useState(true);
