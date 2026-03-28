@@ -120,27 +120,27 @@ const AnalyticsContent = dynamic(() => import("@/app/(dashboard)/reports/analyti
   loading: () => <PageSkeleton />,
 });
 
-const SystemsInfrastructureContent = dynamic(() => import("@/app/systems/infrastructure/page"), {
+const SystemsInfrastructureContent = dynamic(() => import("@/app/(dashboard)/systems/infrastructure/page"), {
   loading: () => <PageSkeleton />,
 });
 
-const SystemsHealthContent = dynamic(() => import("@/app/systems/health/page"), {
+const SystemsHealthContent = dynamic(() => import("@/app/(dashboard)/systems/health/page"), {
   loading: () => <PageSkeleton />,
 });
 
-const SystemsSLAContent = dynamic(() => import("@/app/systems/sla/page"), {
+const SystemsSLAContent = dynamic(() => import("@/app/(dashboard)/systems/sla/page"), {
   loading: () => <PageSkeleton />,
 });
 
-const SecurityAccessRequestsContent = dynamic(() => import("@/app/security/access-requests/page"), {
+const SecurityAccessRequestsContent = dynamic(() => import("@/app/(dashboard)/security/access-requests/page"), {
   loading: () => <PageSkeleton />,
 });
 
-const SecurityAuditContent = dynamic(() => import("@/app/security/audit/page"), {
+const SecurityAuditContent = dynamic(() => import("@/app/(dashboard)/security/audit/page"), {
   loading: () => <PageSkeleton />,
 });
 
-const SecurityPermissionsContent = dynamic(() => import("@/app/security/permissions/page"), {
+const SecurityPermissionsContent = dynamic(() => import("@/app/(dashboard)/security/permissions/page"), {
   loading: () => <PageSkeleton />,
 });
 
@@ -217,19 +217,19 @@ const ServiceCategoryEditContent = dynamic(() => import("@/app/(dashboard)/servi
   loading: () => <PageSkeleton />,
 });
 
-const ApprovalWorkflowsContent = dynamic(() => import("@/app/approval-workflows/page"), {
+const ApprovalWorkflowsContent = dynamic(() => import("@/app/(dashboard)/approval-workflows/page"), {
   loading: () => <PageSkeleton />,
 });
 
-const CreateApprovalWorkflowContent = dynamic(() => import("@/app/approval-workflows/create/page"), {
+const CreateApprovalWorkflowContent = dynamic(() => import("@/app/(dashboard)/approval-workflows/create/page"), {
   loading: () => <PageSkeleton />,
 });
 
-const ApprovalWorkflowDetailContent = dynamic(() => import("@/app/approval-workflows/[id]/page"), {
+const ApprovalWorkflowDetailContent = dynamic(() => import("@/app/(dashboard)/approval-workflows/[id]/page"), {
   loading: () => <PageSkeleton />,
 });
 
-const ApprovalWorkflowEditContent = dynamic(() => import("@/app/approval-workflows/[id]/edit/page"), {
+const ApprovalWorkflowEditContent = dynamic(() => import("@/app/(dashboard)/approval-workflows/[id]/edit/page"), {
   loading: () => <PageSkeleton />,
 });
 
