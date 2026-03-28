@@ -73,26 +73,6 @@ export default function TicketsPage() {
   const canDelete = DELETE_ROLES.includes(user?.role ?? '');
   const visibleTabs = isManager ? MANAGER_TABS : AGENT_TABS;
 
-  async function fetchTickets() {
-    setIsLoading(true);
-    setError(null);
-    if (isManager) {
-      const res = await getAllTickets();
-
-      if (res.success && res.data) {setTickets(res.data);}
-      else {setError(res.error ?? 'Failed to load tickets');}
-    } else {
-      const [myRes, unassignedRes] = await Promise.all([
-        getMyAssignedTickets(),
-        getUnassignedTickets(),
-      ]);
-
-      if (myRes.success && myRes.data) {setMyTickets(myRes.data);}
-      if (unassignedRes.success && unassignedRes.data) {setUnassignedTickets(unassignedRes.data);}
-    }
-    setIsLoading(false);
-  }
-
   const activeQueue = useMemo(() => {
     const q = pageParams.queue as Queue | undefined;
 
@@ -100,11 +80,7 @@ export default function TicketsPage() {
     return q && visibleTabs.includes(q) ? q : 'all';
   }, [pageParams.queue, visibleTabs]);
 
-  useEffect(() => {
-    fetchTickets();
-  }, [user?.role]);
-
-  async function fetchTickets() {
+  const fetchTickets = async () => {
     setIsLoading(true);
     setError(null);
     if (isManager) {
@@ -122,7 +98,13 @@ export default function TicketsPage() {
       if (unassignedRes.success && unassignedRes.data) {setUnassignedTickets(unassignedRes.data);}
     }
     setIsLoading(false);
-  }
+  };
+
+  useEffect(() => {
+    async function run() { await fetchTickets(); }
+    void run();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.role]);
 
   const allAvailable = useMemo(
     () => (isManager ? tickets : [...myTickets, ...unassignedTickets]),
