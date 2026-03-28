@@ -9,7 +9,7 @@ export default function Home() {
 
 // Runs ONLY on the server for every request
 export const getServerSideProps: GetServerSideProps = async (context) => {
-  const { req, res } = context;
+  const { req, res: _res } = context;
 
   const token = req.cookies?.token; // here to replace with your auth logic
 
