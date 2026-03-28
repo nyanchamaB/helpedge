@@ -87,29 +87,30 @@ export default function CronSettingsPage() {
   const hasPermission = user?.role === 'Admin' || user?.role === 'ITManager';
 
   useEffect(() => {
-    async function fetchSettings() {
-      setLoading(true);
-      setError(null);
+    async function run() {
+      if (hasPermission) {
+        setLoading(true);
+        setError(null);
 
-      const response = await getCronSettings();
+        const response = await getCronSettings();
 
-      if (response.success && response.data) {
-        setSettings(response.data);
-        setAutoFetchEnabled(response.data.autoFetchEnabled);
-        setIntervalMinutes(response.data.intervalMinutes);
+        if (response.success && response.data) {
+          setSettings(response.data);
+          setAutoFetchEnabled(response.data.autoFetchEnabled);
+          setIntervalMinutes(response.data.intervalMinutes);
+        } else {
+          setError(response.error || 'Failed to load cron settings');
+        }
+
+        setLoading(false);
       } else {
-        setError(response.error || 'Failed to load cron settings');
+        await Promise.resolve();
+        setLoading(false);
+        setError('You do not have permission to view this page');
       }
-
-      setLoading(false);
     }
 
-    if (hasPermission) {
-      fetchSettings();
-    } else {
-      setLoading(false);
-      setError('You do not have permission to view this page');
-    }
+    void run();
   }, [hasPermission]);
 
   // Track changes
@@ -119,7 +120,7 @@ export default function CronSettingsPage() {
         autoFetchEnabled !== settings.autoFetchEnabled ||
         intervalMinutes !== settings.intervalMinutes;
 
-      setHasChanges(changed);
+      void Promise.resolve().then(() => setHasChanges(changed));
     }
   }, [autoFetchEnabled, intervalMinutes, settings]);
 
