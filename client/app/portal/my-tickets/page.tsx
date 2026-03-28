@@ -71,11 +71,7 @@ export default function PortalMyTickets() {
   const [sort, setSort] = useState('updated-desc');
   const [page, setPage] = useState(1);
 
-  useEffect(() => {
-    if (!authLoading && user) {fetchTickets();}
-  }, [authLoading, user]);
-
-  async function fetchTickets() {
+  const fetchTickets = async () => {
     if (!user?.id) {return;}
     setIsLoading(true);
     setError(null);
@@ -84,7 +80,15 @@ export default function PortalMyTickets() {
     if (res.success && res.data) {setTickets(res.data);}
     else {setError(res.error ?? 'Failed to load tickets');}
     setIsLoading(false);
-  }
+  };
+
+  useEffect(() => {
+    if (!authLoading && user) {
+      async function run() { await fetchTickets(); }
+      void run();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [authLoading, user]);
 
   // Counts per status tab
   const tabCounts = useMemo(() => {
@@ -174,12 +178,12 @@ export default function PortalMyTickets() {
         <div className="flex items-center gap-3">
           <Avatar className="h-10 w-10 border">
             <AvatarFallback className="bg-primary/10 text-primary font-semibold text-sm">
-              {getInitials(user?.firstName, user?.lastName)}
+              {getInitials(user?.name?.split(' ')[0], user?.name?.split(' ')[1])}
             </AvatarFallback>
           </Avatar>
           <div>
             <h1 className="text-xl font-bold leading-tight">
-              {user?.firstName ? `Welcome back, ${user.firstName}` : 'My Support Tickets'}
+              {user?.name ? `Welcome back, ${user.name}` : 'My Support Tickets'}
             </h1>
             <p className="text-sm text-muted-foreground">Track and manage your support requests</p>
           </div>
