@@ -192,7 +192,6 @@ export default function ApprovalWorkflowsPage() {
   );
 }
 
-// ─── WorkflowCard ─────────────────────────────────────────────────────────────
 
 function WorkflowCard({ workflow: wf, onNavigate, onToggle, onDelete, isToggling }: {
   workflow: ApprovalWorkflow;
@@ -314,7 +313,6 @@ function WorkflowCard({ workflow: wf, onNavigate, onToggle, onDelete, isToggling
   );
 }
 
-// ─── StepChain ────────────────────────────────────────────────────────────────
 
 function StepChain({ steps }: { steps: ApprovalStep[] }) {
   const sorted = [...steps].sort((a, b) => a.order - b.order);
