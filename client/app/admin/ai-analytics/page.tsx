@@ -92,7 +92,7 @@ export default function AIAnalyticsDashboard() {
   // Fetch confusion matrix
   const {
     data: confusionResponse,
-    isLoading: isLoadingConfusion,
+    isLoading: _isLoadingConfusion,
     isFetching: isFetchingConfusion,
     error: confusionError,
     refetch: refetchConfusion,
@@ -112,7 +112,7 @@ export default function AIAnalyticsDashboard() {
   const categoryNameMap = useMemo(() => {
     const map: Record<string, string> = {};
 
-    (categoriesResponse?.data ?? []).forEach((c: any) => {
+    (categoriesResponse?.data ?? []).forEach((c: { id: string; name: string }) => {
       map[c.id] = c.name;
     });
 
@@ -133,8 +133,8 @@ export default function AIAnalyticsDashboard() {
 
   const metrics = metricsResponse?.data;
   const categoryPerformance = (Array.isArray(categoryResponse?.data) ? categoryResponse.data : [])
-    .map((item: any) => {
-      const resolved = resolveCategory(item.categoryName ?? item.category ?? '');
+    .map((item) => {
+      const resolved = resolveCategory(item.category ?? '');
 
       if (!resolved) {return null;} // drop orphaned category entries
 
@@ -445,7 +445,8 @@ export default function AIAnalyticsDashboard() {
                     fontSize: 13,
                   }}
                   labelStyle={{ fontWeight: 600, marginBottom: 4 }}
-                  formatter={(value: any, name: string | undefined) =>
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                  formatter={(value: any, name: string | number | undefined) =>
                     name === 'Accuracy (%)' ? [`${value}%`, name] : [value, name]
                   }
                   cursor={{ stroke: 'currentColor', strokeOpacity: 0.15, strokeWidth: 1 }}
