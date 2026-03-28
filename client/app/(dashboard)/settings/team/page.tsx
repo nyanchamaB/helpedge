@@ -62,16 +62,17 @@ export default function TeamSettingsPage() {
   const [search, setSearch] = useState('');
   const [roleFilter, setRoleFilter] = useState<string>('all');
 
-  async function fetchUsers() {
+  const fetchUsers = async () => {
     setLoading(true);
     const res = await getAllUsers();
 
     if (res.success && res.data) {setUsers(res.data);}
     setLoading(false);
-  }
+  };
 
   useEffect(() => {
-    void fetchUsers();
+    async function run() { await fetchUsers(); }
+    void run();
   }, []);
 
   // Stats
@@ -217,9 +218,11 @@ export default function TeamSettingsPage() {
                           variant="outline"
                           className={cn(
                             'text-[10px] px-1.5 py-0 border',
+                            // eslint-disable-next-line @typescript-eslint/no-explicit-any
                             getRoleBadgeColor(r as any),
                           )}
                         >
+                          {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
                           {getRoleDisplayString(r as any)} ({count})
                         </Badge>
                       );
@@ -288,6 +291,7 @@ export default function TeamSettingsPage() {
                       : 'text-muted-foreground hover:bg-muted',
                   )}
                 >
+                  {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
                   {getRoleDisplayString(r as any)}
                 </button>
               ))}
