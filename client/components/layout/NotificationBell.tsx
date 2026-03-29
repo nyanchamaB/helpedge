@@ -160,7 +160,12 @@ export function NotificationBell() {
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const [isOpen, setIsOpen] = useState(false);
-  const [desktopNotificationsEnabled, setDesktopNotificationsEnabled] = useState(false);
+  const [desktopNotificationsEnabled, setDesktopNotificationsEnabled] = useState(
+    () =>
+      typeof window !== 'undefined' &&
+      'Notification' in window &&
+      Notification.permission === 'granted',
+  );
 
   const isStaff = user ? STAFF_ROLES.includes(user.role) : false;
   const [readIds, setReadIds] = useState<Set<string>>(() => {
@@ -269,13 +274,6 @@ export function NotificationBell() {
       queryClient.invalidateQueries({ queryKey: ['ai-notifications'] });
     },
   });
-
-  // Request desktop notification permission
-  useEffect(() => {
-    if ('Notification' in window && Notification.permission === 'granted') {
-      setDesktopNotificationsEnabled(true);
-    }
-  }, []);
 
   // Show desktop notification for new notifications
   const showDesktopNotification = useCallback(

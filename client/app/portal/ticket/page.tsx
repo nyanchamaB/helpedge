@@ -12,6 +12,7 @@ import {
   getPriorityString,
   getEffectiveStatusLabel,
   getEffectiveStatusStyle,
+  type TicketPriorityString,
 } from '@/lib/api/tickets';
 import { getCategoryById } from '@/lib/api/categories';
 import { getUserById } from '@/lib/api/users';
@@ -27,7 +28,6 @@ import { format } from 'date-fns';
 import { ArrowLeft, Calendar, RefreshCw, Tag, TrendingUp, User } from 'lucide-react';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
-import type { TicketPriorityString } from '@/lib/api/tickets';
 
 function getPriorityBadgeStyle(priority: TicketPriorityString): string {
   switch (priority) {
@@ -75,12 +75,6 @@ export default function PortalTicketDetail() {
   const [isReplying, setIsReplying] = useState(false);
   const [authorNames, setAuthorNames] = useState<Record<string, string>>({});
 
-  useEffect(() => {
-    if (ticketId) {
-      fetchTicket();
-    }
-  }, [ticketId]);
-
   async function fetchTicket() {
     setIsLoading(true);
     const response = await getTicketById(ticketId);
@@ -100,6 +94,12 @@ export default function PortalTicketDetail() {
     }
     setIsLoading(false);
   }
+
+  useEffect(() => {
+    if (ticketId) {
+      void fetchTicket();
+    }
+  }, [ticketId]);
 
   async function resolveAuthorNames(t: Ticket) {
     const uniqueIds = [...new Set((t.comments ?? []).map((c) => c.authorId))];

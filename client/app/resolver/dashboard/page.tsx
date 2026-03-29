@@ -77,10 +77,6 @@ export default function ResolverDashboard() {
   const [health, setHealth] = useState<DetailedHealthStatus | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    fetchAll();
-  }, []);
-
   async function fetchAll() {
     setIsLoading(true);
     const noOp = Promise.resolve({ success: false as const, data: null, error: undefined });
@@ -99,6 +95,10 @@ export default function ResolverDashboard() {
     if (healthRes.success && healthRes.data) {setHealth(healthRes.data as DetailedHealthStatus);}
     setIsLoading(false);
   }
+
+  useEffect(() => {
+    void fetchAll();
+  }, []);
 
   const queues = useMemo(
     () => ({
@@ -235,7 +235,7 @@ export default function ResolverDashboard() {
       <TicketQueueList queues={queueItems} isLoading={isLoading} />
 
       {/* SLA summary bar */}
-      {slaStats && (slaStats.avgTtaMinutes != null || slaStats.avgTtrMinutes != null) && (
+      {slaStats && (slaStats.avgTtaMinutes !== null || slaStats.avgTtrMinutes !== null) && (
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           <Card className="p-4">
             <div className="flex items-center gap-2 mb-1">

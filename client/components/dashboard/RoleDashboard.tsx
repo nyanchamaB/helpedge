@@ -180,7 +180,7 @@ function AdminDashboard() {
       if (kpisRes.success && kpisRes.data) {
         const ttrs = kpisRes.data
           .map((r) => r.avgTtrMinutes)
-          .filter((v): v is number => v != null && v > 0);
+          .filter((v): v is number => v !== null && v > 0);
 
         if (ttrs.length > 0) {
           const avgMinutes = ttrs.reduce((a, b) => a + b, 0) / ttrs.length;
@@ -189,13 +189,15 @@ function AdminDashboard() {
           setAvgResolutionHours(hours < 1 ? `${Math.round(avgMinutes)}m` : `${hours.toFixed(1)}h`);
         }
       }
-      if (automationRes.success && automationRes.data != null) {
+      if (automationRes.success && automationRes.data !== null) {
         const raw = automationRes.data as number | { automationRate?: number };
         const rate = typeof raw === 'number' ? raw : raw.automationRate;
 
-        if (rate != null) {setAutomationRate(Math.round(rate * 100));}
+        if (typeof rate === 'number') {
+          setAutomationRate(Math.round(rate * 100));
+        }
       }
-      if (staleRes.success && staleRes.data != null) {
+      if (staleRes.success && staleRes.data !== null) {
         setTfIdfStale((staleRes.data as { isStale?: boolean })?.isStale ?? null);
       }
       setLoading(false);
@@ -231,9 +233,9 @@ function AdminDashboard() {
         />
         <StatCard
           title="System Status"
-          value={healthStatus?.checks != null ? 'Healthy' : 'Issues'}
+          value={healthStatus?.checks !== null ? 'Healthy' : 'Issues'}
           icon={<Server className="h-4 w-4" />}
-          color={healthStatus?.checks != null ? 'bg-green-500' : 'bg-red-500'}
+          color={healthStatus?.checks !== null ? 'bg-green-500' : 'bg-red-500'}
         />
       </div>
 
@@ -286,7 +288,7 @@ function AdminDashboard() {
                 </span>
               </div>
               <p className="text-2xl font-bold">
-                {automationRate != null ? `${automationRate}%` : '—'}
+                {automationRate !== null ? `${automationRate}%` : '—'}
               </p>
             </div>
             <div className="text-center border-x">
@@ -547,9 +549,9 @@ function SystemAdminDashboard() {
         />
         <StatCard
           title="System Health"
-          value={healthStatus?.checks != null ? 'OK' : 'Issues'}
+          value={healthStatus?.checks !== null ? 'OK' : 'Issues'}
           icon={<Server className="h-4 w-4" />}
-          color={healthStatus?.checks != null ? 'bg-green-500' : 'bg-red-500'}
+          color={healthStatus?.checks !== null ? 'bg-green-500' : 'bg-red-500'}
         />
       </div>
 
@@ -589,7 +591,7 @@ function SystemAdminDashboard() {
               <div className="flex justify-between items-center">
                 <span className="text-sm">MongoDB</span>
                 <Badge
-                  className={healthStatus?.checks?.mongodb != null ? 'bg-green-500' : 'bg-red-500'}
+                  className={healthStatus?.checks?.mongodb !== null ? 'bg-green-500' : 'bg-red-500'}
                 >
                   {healthStatus?.checks?.mongodb?.status ?? 'Unknown'}
                 </Badge>

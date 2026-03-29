@@ -16,23 +16,31 @@ import { siteConfig } from '@/config/site';
 import LogoImage from './public/globe.svg'; //LogoImage from "@/public/globe.svg";
 import Image from 'next/image';
 import { IconType } from 'react-icons';
-import { SiOpenai } from 'react-icons/si';
-import { FaGoogle } from 'react-icons/fa';
 import { TbBrandVercel } from 'react-icons/tb';
-import { SiNextdotjs } from 'react-icons/si';
-import { SiTailwindcss } from 'react-icons/si';
-import { SiTypescript } from 'react-icons/si';
-import { SiReact } from 'react-icons/si';
-import { SiNodedotjs } from 'react-icons/si';
-import { SiJavascript } from 'react-icons/si';
-import { SiExpress } from 'react-icons/si';
-import { SiMongodb } from 'react-icons/si';
-import { SiPrisma } from 'react-icons/si';
-import { SiPostgresql } from 'react-icons/si';
-import { SiRedis } from 'react-icons/si';
-import { SiDocker } from 'react-icons/si';
-import { SiKubernetes } from 'react-icons/si';
-import { FaHome, FaRegLightbulb, FaBookOpen, FaLifeRing, FaUserPlus } from 'react-icons/fa';
+import {
+  SiOpenai,
+  SiNextdotjs,
+  SiTailwindcss,
+  SiTypescript,
+  SiReact,
+  SiNodedotjs,
+  SiJavascript,
+  SiExpress,
+  SiMongodb,
+  SiPrisma,
+  SiPostgresql,
+  SiRedis,
+  SiDocker,
+  SiKubernetes,
+} from 'react-icons/si';
+import {
+  FaGoogle,
+  FaHome,
+  FaRegLightbulb,
+  FaBookOpen,
+  FaLifeRing,
+  FaUserPlus,
+} from 'react-icons/fa';
 export type Icons = LucideIcon | IconType;
 
 export function Icons(props: { icon: Icons; className?: string }) {

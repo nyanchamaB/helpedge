@@ -43,40 +43,43 @@ function extractParamsFromPath(path: string): Record<string, string> {
   return params;
 }
 
+function getInitialNavigationState(): { page: string; params: Record<string, string> } {
+  if (typeof window === 'undefined') {
+    return { page: '/dashboard', params: {} };
+  }
+
+  const hash = window.location.hash.slice(1);
+  if (!hash) {
+    return { page: '/dashboard', params: {} };
+  }
+
+  const [route, queryString] = hash.split('?');
+  const params: Record<string, string> = {};
+
+  if (queryString) {
+    queryString.split('&').forEach((pair) => {
+      const [key, value] = pair.split('=');
+
+      if (key && value) {
+        params[key] = decodeURIComponent(value);
+      }
+    });
+  }
+
+  const extractedParams = extractParamsFromPath(route);
+  return {
+    page: route || '/dashboard',
+    params: { ...extractedParams, ...params },
+  };
+}
+
 export function NavigationProvider({ children }: { children: React.ReactNode }) {
-  const [activePage, setActivePage] = useState('/dashboard');
-  const [pageParams, setPageParams] = useState<Record<string, string>>({});
+  const initialNavigationState = getInitialNavigationState();
+  const [activePage, setActivePage] = useState(initialNavigationState.page);
+  const [pageParams, setPageParams] = useState<Record<string, string>>(initialNavigationState.params);
   const [pageTitle, setPageTitle] = useState('Dashboard');
   const [pageDescription, setPageDescription] = useState('Overview of your help desk metrics');
 
-  // Initialize from URL hash on mount
-  useEffect(() => {
-    const hash = window.location.hash.slice(1); // Remove #
-
-    if (hash) {
-      // Parse route and params from hash (e.g., #/tickets/123?param=value)
-      const [route, queryString] = hash.split('?');
-      const params: Record<string, string> = {};
-
-      // Extract params from query string
-      if (queryString) {
-        queryString.split('&').forEach((pair) => {
-          const [key, value] = pair.split('=');
-
-          if (key && value) {
-            params[key] = decodeURIComponent(value);
-          }
-        });
-      }
-
-      // Also extract params from dynamic route segments (e.g., /tickets/123 -> {id: '123'})
-      const extractedParams = extractParamsFromPath(route);
-      const mergedParams = { ...extractedParams, ...params }; // Query params override path params
-
-      setActivePage(route || '/dashboard');
-      setPageParams(mergedParams);
-    }
-  }, []);
 
   const navigateTo = useCallback((page: string, params?: Record<string, string>) => {
     setActivePage(page);

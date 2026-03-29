@@ -38,16 +38,6 @@ export function EscalateDialog({ isOpen, onClose, ticketId, onSuccess }: Escalat
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (isOpen) {
-      loadUsers();
-    } else {
-      setReason('');
-      setTargetUserId('');
-      setError(null);
-    }
-  }, [isOpen]);
-
   async function loadUsers() {
     setIsLoadingUsers(true);
     const response = await getAssignableStaff();
@@ -57,6 +47,16 @@ export function EscalateDialog({ isOpen, onClose, ticketId, onSuccess }: Escalat
     }
     setIsLoadingUsers(false);
   }
+
+  useEffect(() => {
+    if (isOpen) {
+      void loadUsers();
+    } else {
+      setReason('');
+      setTargetUserId('');
+      setError(null);
+    }
+  }, [isOpen]);
 
   async function handleSubmit() {
     if (!reason.trim()) {return;}

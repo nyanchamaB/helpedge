@@ -96,6 +96,36 @@ type SortField =
   | 'estimatedFulfillmentDays';
 type SortDirection = 'asc' | 'desc';
 
+interface SortableHeaderProps {
+  field: SortField;
+  children: React.ReactNode;
+  sortField: SortField;
+  sortDirection: SortDirection;
+  onSort: (field: SortField) => void;
+}
+
+function SortableHeader({
+  field,
+  children,
+  sortField,
+  sortDirection,
+  onSort,
+}: SortableHeaderProps) {
+  return (
+    <TableHead className="cursor-pointer hover:bg-muted/50" onClick={() => onSort(field)}>
+      <div className="flex items-center space-x-1">
+        <span>{children}</span>
+        {sortField === field &&
+          (sortDirection === 'asc' ? (
+            <ChevronUp className="h-4 w-4" />
+          ) : (
+            <ChevronDown className="h-4 w-4" />
+          ))}
+      </div>
+    </TableHead>
+  );
+}
+
 export default function RequestCategoryTable({
   categories,
   onCategoryClick,
@@ -274,20 +304,6 @@ export default function RequestCategoryTable({
     }
   };
 
-  const SortableHeader = ({ field, children }: { field: SortField; children: React.ReactNode }) => (
-    <TableHead className="cursor-pointer hover:bg-muted/50" onClick={() => handleSort(field)}>
-      <div className="flex items-center space-x-1">
-        <span>{children}</span>
-        {sortField === field &&
-          (sortDirection === 'asc' ? (
-            <ChevronUp className="h-4 w-4" />
-          ) : (
-            <ChevronDown className="h-4 w-4" />
-          ))}
-      </div>
-    </TableHead>
-  );
-
   const getStatusBadge = (category: ServiceRequestCategory) => {
     if (category.isActive) {
       return (
@@ -465,12 +481,40 @@ export default function RequestCategoryTable({
                       />
                     </TableHead>
                   )}
-                  <SortableHeader field="name">Name</SortableHeader>
+                  <SortableHeader
+                    field="name"
+                    sortField={sortField}
+                    sortDirection={sortDirection}
+                    onSort={handleSort}
+                  >
+                    Name
+                  </SortableHeader>
                   <TableHead>Description</TableHead>
-                  <SortableHeader field="requestType">Type</SortableHeader>
+                  <SortableHeader
+                    field="requestType"
+                    sortField={sortField}
+                    sortDirection={sortDirection}
+                    onSort={handleSort}
+                  >
+                    Type
+                  </SortableHeader>
                   <TableHead>Configuration</TableHead>
-                  <SortableHeader field="isActive">Status</SortableHeader>
-                  <SortableHeader field="createdAt">Created</SortableHeader>
+                  <SortableHeader
+                    field="isActive"
+                    sortField={sortField}
+                    sortDirection={sortDirection}
+                    onSort={handleSort}
+                  >
+                    Status
+                  </SortableHeader>
+                  <SortableHeader
+                    field="createdAt"
+                    sortField={sortField}
+                    sortDirection={sortDirection}
+                    onSort={handleSort}
+                  >
+                    Created
+                  </SortableHeader>
                   {showActions && <TableHead className="text-right">Actions</TableHead>}
                 </TableRow>
               </TableHeader>

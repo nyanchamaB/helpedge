@@ -109,12 +109,6 @@ export default function PortalNotifications() {
   const [tickets, setTickets] = useState<Ticket[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    if (!authLoading && user) {
-      fetchData();
-    }
-  }, [authLoading, user]);
-
   async function fetchData() {
     if (!user?.id) {return;}
     setIsLoading(true);
@@ -125,6 +119,12 @@ export default function PortalNotifications() {
     }
     setIsLoading(false);
   }
+
+  useEffect(() => {
+    if (!authLoading && user) {
+      void fetchData();
+    }
+  }, [authLoading, user]);
 
   const notifications = useMemo(
     () => (user ? deriveNotifications(tickets, user.id) : []),
