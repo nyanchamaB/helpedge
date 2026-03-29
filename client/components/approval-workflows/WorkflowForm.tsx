@@ -3,7 +3,7 @@ import { useForm, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { ApprovalWorkflow, ApproverType, CreateApprovalWorkflowDto } from '@/lib/api/approval-workflow';
-import { SERVICE_REQUEST_TYPES } from '@/lib/api/service-request';
+import { SERVICE_REQUEST_TYPES, ServiceRequestType } from '@/lib/api/service-request';
 import { useActiveCategories } from '@/hooks/service-request-category/useCategories';
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -97,11 +97,13 @@ const stepSchema = z.object({
   timeoutHours: z.number().nullable().optional(),
   autoApproveOnTimeout: z.boolean(),
 });
-
+const requestTypeEnum = z.enum(
+  SERVICE_REQUEST_TYPES as [typeof SERVICE_REQUEST_TYPES[number], ...typeof SERVICE_REQUEST_TYPES]
+);
 const schema = z.object({
   name: z.string().min(1, 'Name is required'),
   description: z.string().optional(),
-  requestTypes: z.array(z.string()).min(1, 'Select at least one request type'),
+  requestTypes: z.array(requestTypeEnum).min(1, 'Select at least one request type'),
   categoryIds: z.array(z.string()),
   autoApproveBelow: z.number().nullable().optional(),
   escalationTimeoutHours: z.number().int().min(1),
@@ -168,13 +170,13 @@ export function WorkflowForm({ initialData, onSubmit, onCancel, isLoading, isEdi
   const handleSubmit = async (values: FormValues) => {
     const payload: CreateApprovalWorkflowDto = {
       ...values,
-      requestTypes: values.requestTypes as any,
+      requestTypes: values.requestTypes,
       steps: values.steps.map((s, i) => ({ ...s, order: i + 1 })),
     };
     await onSubmit(payload);
   };
 
-  const toggleRequestType = (type: string) => {
+  const toggleRequestType = (type: ServiceRequestType) => {
     const current = form.getValues('requestTypes');
     form.setValue('requestTypes', current.includes(type) ? current.filter(t => t !== type) : [...current, type], { shouldValidate: true });
   };

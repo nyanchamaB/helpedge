@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
-import { Search, Clock, User, ArrowRight, X, BookOpen, TrendingUp, ChevronRight } from "lucide-react";
+import { Search, Clock, User, ArrowRight, X, BookOpen, TrendingUp, ChevronRight, Check } from "lucide-react";
 import { siteConfig } from "@/config/site";
 import NavHeader from "@/app/onboarding/navsection";
 
@@ -326,7 +326,7 @@ function Newsletter() {
       </p>
       {submitted ? (
         <div className="text-emerald-600 font-semibold text-sm">
-          ✓ You're subscribed! Check your inbox for a confirmation.
+          <Check className="w-4 h-4 text-teal-400 mr-2 inline" /> You&rsquo;re subscribed! Check your inbox for a confirmation.
         </div>
       ) : (
         <form

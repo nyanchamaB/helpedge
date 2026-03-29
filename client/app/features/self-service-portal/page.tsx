@@ -281,7 +281,36 @@ function PortalMock() {
     </div>
   );
 }
-
+interface StaticCardItem {
+  icon: React.ReactNode;
+  title: string;
+  sub: string;
+}
+const HIGHLIGHTS = [
+  { icon: <Users className="w-5 h-5 text-blue-600" />, title: "1,200+ employees onboarded", sub: "Savanna Financial — Day 1" },
+  { icon: <Zap className="w-5 h-5 text-amber-500" />, title: "Auto-resolved in 47 seconds", sub: "Password reset via automation" },
+  { icon: <CheckCircle2 className="w-5 h-5 text-emerald-500" />, title: "4.9 / 5 satisfaction score", sub: "Q1 2026 · 2,400 responses" },
+  { icon: <BarChart2 className="w-5 h-5 text-violet-500" />, title: "68% fewer tickets logged", sub: "3 months post-deployment" },
+];
+function HighlightCard({ item, index }: { item: StaticCardItem; index: number }) {
+  const { ref, visible } = useFadeIn();  
+  return (
+    <div
+      ref={ref}
+      style={{ transitionDelay: `${index * 100}ms` }}
+      className={`flex items-center gap-4 rounded-2xl border border-border bg-card p-4 shadow-sm
+        transition-all duration-600 ${visible ? "opacity-100 translate-x-0" : "opacity-0 translate-x-8"}`}
+    >
+      <div className="w-10 h-10 rounded-xl bg-muted flex items-center justify-center shrink-0">
+        {item.icon}
+      </div>
+      <div>
+        <p className="text-sm font-semibold">{item.title}</p>
+        <p className="text-xs text-muted-foreground">{item.sub}</p>
+      </div>
+    </div>
+  );
+}
 export default function SelfServicePortalPage() {
   return (
     <>
@@ -299,7 +328,7 @@ export default function SelfServicePortalPage() {
           </span>
 
           <h1 className="text-4xl md:text-5xl font-black leading-tight tracking-tight">
-            IT help that doesn't<br />
+            IT help that doesn&rsquo;t<br />
             <span className="text-blue-600">need an agent.</span>
           </h1>
 
@@ -349,7 +378,7 @@ export default function SelfServicePortalPage() {
       {/* ── Capabilities ── */}
       <section className="max-w-7xl mx-auto px-6 py-24">
         <div className="text-center mb-14">
-          <h2 className="text-3xl md:text-4xl font-black mb-3">Everything employees need. Nothing they don't.</h2>
+          <h2 className="text-3xl md:text-4xl font-black mb-3">Everything employees need. Nothing they don&rsquo;t.</h2>
           <p className="text-muted-foreground max-w-xl mx-auto">
             A focused, powerful set of tools that makes self-service actually work — not just exist.
           </p>
@@ -374,36 +403,16 @@ export default function SelfServicePortalPage() {
 
           {/* Visual aside */}
           <div className="space-y-4">
-            {[
-              { icon: <Users className="w-5 h-5 text-blue-600" />, title: "1,200+ employees onboarded", sub: "Savanna Financial — Day 1" },
-              { icon: <Zap className="w-5 h-5 text-amber-500" />, title: "Auto-resolved in 47 seconds", sub: "Password reset via automation" },
-              { icon: <CheckCircle2 className="w-5 h-5 text-emerald-500" />, title: "4.9 / 5 satisfaction score", sub: "Q1 2026 · 2,400 responses" },
-              { icon: <BarChart2 className="w-5 h-5 text-violet-500" />, title: "68% fewer tickets logged", sub: "3 months post-deployment" },
-            ].map((item, i) => {
-              const { ref, visible } = useFadeIn();
-              return (
-                <div
-                  key={item.title}
-                  ref={ref}
-                  style={{ transitionDelay: `${i * 100}ms` }}
-                  className={`flex items-center gap-4 rounded-2xl border border-border bg-card p-4 shadow-sm
-                    transition-all duration-600 ${visible ? "opacity-100 translate-x-0" : "opacity-0 translate-x-8"}`}
-                >
-                  <div className="w-10 h-10 rounded-xl bg-muted flex items-center justify-center shrink-0">{item.icon}</div>
-                  <div>
-                    <p className="text-sm font-semibold">{item.title}</p>
-                    <p className="text-xs text-muted-foreground">{item.sub}</p>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
+  {HIGHLIGHTS.map((item, i) => (
+    <HighlightCard key={item.title} item={item} index={i} />  // ✅ hook in component
+  ))}
+</div>
         </div>
       </section>
 
       {/* ── Testimonial ── */}
       <section className="max-w-3xl mx-auto px-6 py-24 text-center">
-        <div className="text-5xl text-blue-200 dark:text-blue-900 font-serif mb-6">"</div>
+        <div className="text-5xl text-blue-200 dark:text-blue-900 font-serif mb-6">&ldquo;</div>
         <p className="text-xl md:text-2xl font-semibold leading-snug mb-8 italic">
           {TESTIMONIAL.quote}
         </p>

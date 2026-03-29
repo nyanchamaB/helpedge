@@ -159,7 +159,7 @@ export const OverrideModal: FC<OverrideModalProps> = ({
         <DialogHeader>
           <DialogTitle>Override AI Classification</DialogTitle>
           <DialogDescription>
-            Correct the AI's classification with the accurate values. Your feedback helps
+            Correct the AI&rsquo;s classification with the accurate values. Your feedback helps
             improve future predictions.
           </DialogDescription>
         </DialogHeader>

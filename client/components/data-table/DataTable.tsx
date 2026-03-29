@@ -54,7 +54,7 @@ import {
 import { cn } from "@/lib/utils";
 
 export interface DataTableColumn<T> {
-  key: string;
+  key: keyof T;
   label: string;
   sortable?: boolean;
   render?: (item: T) => React.ReactNode;
@@ -219,7 +219,7 @@ export function DataTable<T>({
       result.sort((a, b) => {
         const rawA = (a as Record<string, unknown>)[sortField];
         const rawB = (b as Record<string, unknown>)[sortField];
-        
+
         const aValue = rawA !== null && rawA !== undefined ? String(rawA) : '';
         const bValue = rawB !== null && rawB !== undefined ? String(rawB) : '';
         const comparison = aValue.localeCompare(bValue);
@@ -319,7 +319,7 @@ export function DataTable<T>({
           "cursor-pointer hover:bg-accent",
           column.className
         )}
-        onClick={() => handleSort(column.key)}
+        onClick={() => handleSort(column.key as string)}
       >
         <div className="flex items-center space-x-1">
           <span>{column.label}</span>
@@ -488,7 +488,7 @@ export function DataTable<T>({
                     </TableHead>
                   )}
                   {columns.map((column) => (
-                    <SortableHeader key={column.key} column={column} />
+                    <SortableHeader key={String(column.key)} column={column} />
                   ))}
                   {actions.length > 0 && (
                     <TableHead className="text-right">Actions</TableHead>
@@ -555,8 +555,8 @@ export function DataTable<T>({
                           </TableCell>
                         )}
                         {columns.map((column) => (
-                          <TableCell key={column.key} className={column.className}>
-                            {column.render ? column.render(item) : (item as any)[column.key]}
+                          <TableCell key={String(column.key)} className={column.className}>
+                            {column.render ? column.render(item) : (item as Record<string, unknown>)[column.key as string] as React.ReactNode}
                           </TableCell>
                         ))}
                         {actions.length > 0 && (
