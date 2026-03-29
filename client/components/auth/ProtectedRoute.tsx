@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import { useEffect, useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
@@ -20,10 +20,7 @@ interface ProtectedRouteProps {
   onUnauthenticated?: () => void;
 }
 
-export default function ProtectedRoute({
-  children,
-  onUnauthenticated
-}: ProtectedRouteProps) {
+export default function ProtectedRoute({ children, onUnauthenticated }: ProtectedRouteProps) {
   const router = useRouter();
   const pathname = usePathname();
   const [isChecking, setIsChecking] = useState(true);
@@ -43,6 +40,7 @@ export default function ProtectedRoute({
         console.log('ProtectedRoute: User is authenticated');
         setIsAuthenticated(true);
         setIsChecking(false);
+
         return;
       }
 
@@ -58,6 +56,7 @@ export default function ProtectedRoute({
       } else {
         // Redirect to login with return URL
         const returnUrl = encodeURIComponent(pathname || '/dashboard');
+
         console.log('ProtectedRoute: Redirecting to login, return URL:', returnUrl);
         router.replace(`/auth/login?redirect=${returnUrl}`);
       }
@@ -67,6 +66,7 @@ export default function ProtectedRoute({
       // On error, assume not authenticated and redirect to login
       clearInvalidToken();
       const returnUrl = encodeURIComponent(pathname || '/dashboard');
+
       router.replace(`/auth/login?redirect=${returnUrl}`);
     }
   }

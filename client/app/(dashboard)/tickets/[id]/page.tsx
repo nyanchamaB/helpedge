@@ -1,22 +1,16 @@
-"use client";
+'use client';
 
 export const dynamic = 'force-dynamic';
 
-import { useEffect, useState, useMemo } from "react";
-import { useNavigation } from "@/contexts/NavigationContext";
-import { format } from "date-fns";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Skeleton } from "@/components/ui/skeleton";
+import { useEffect, useState, useMemo } from 'react';
+import { useNavigation } from '@/contexts/NavigationContext';
+import { format } from 'date-fns';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Separator } from '@/components/ui/separator';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Skeleton } from '@/components/ui/skeleton';
 import {
   Dialog,
   DialogContent,
@@ -24,7 +18,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog";
+} from '@/components/ui/dialog';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -35,14 +29,14 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
+} from '@/components/ui/alert-dialog';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from '@/components/ui/select';
 import {
   getTicketById,
   assignTicket,
@@ -67,17 +61,17 @@ import {
   TicketStatusString,
   TicketPriorityString,
   TriageStatusString,
-} from "@/lib/api/tickets";
-import { Textarea } from "@/components/ui/textarea";
+} from '@/lib/api/tickets';
+import { Textarea } from '@/components/ui/textarea';
 import {
   getAllUsers,
   getAssignableStaff,
   getUserById,
   User as UserType,
   getUserDisplayName,
-} from "@/lib/api/users";
-import { getAllCategories, Category } from "@/lib/api/categories";
-import { useAuth } from "@/contexts/AuthContext";
+} from '@/lib/api/users';
+import { getAllCategories, Category } from '@/lib/api/categories';
+import { useAuth } from '@/contexts/AuthContext';
 import {
   ArrowLeft,
   Calendar,
@@ -107,78 +101,80 @@ import {
   HelpCircle,
   ArrowLeftRight,
   Trash2,
-} from "lucide-react";
+} from 'lucide-react';
 import { Spinner } from '@/components/ui/spinner';
-import { AIDetailsSection } from "@/components/tickets/AIDetailsSection";
-import { OverrideModal } from "@/components/ai/OverrideModal";
-import { EscalateDialog } from "@/components/tickets/EscalateDialog";
-import { PageContainer } from "@/components/layout/PageContainer";
-import type { TicketAIDetails } from "@/lib/types/ai";
-import { useQueryClient } from "@tanstack/react-query";
-import { toast } from "sonner";
+import { AIDetailsSection } from '@/components/tickets/AIDetailsSection';
+import { OverrideModal } from '@/components/ai/OverrideModal';
+import { EscalateDialog } from '@/components/tickets/EscalateDialog';
+import { PageContainer } from '@/components/layout/PageContainer';
+import type { TicketAIDetails } from '@/lib/types/ai';
+import { useQueryClient } from '@tanstack/react-query';
+import { toast } from 'sonner';
 
 function getInitials(name: string): string {
-  return name
-    .split(" ")
-    .map((p) => p[0])
-    .slice(0, 2)
-    .join("")
-    .toUpperCase() || "?";
+  return (
+    name
+      .split(' ')
+      .map((p) => p[0])
+      .slice(0, 2)
+      .join('')
+      .toUpperCase() || '?'
+  );
 }
 
 // Status badge styling
 function getStatusBadgeStyle(status: TicketStatusString): string {
   switch (status) {
-    case "Open":
-      return "bg-blue-100 text-blue-800 border-blue-200";
-    case "InProgress":
-      return "bg-yellow-100 text-yellow-800 border-yellow-200";
-    case "Resolved":
-      return "bg-green-100 text-green-800 border-green-200";
-    case "Closed":
-      return "bg-gray-100 text-gray-800 border-gray-200";
-    case "OnHold":
-      return "bg-purple-100 text-purple-800 border-purple-200";
-    case "AwaitingInfo":
-      return "bg-teal-100 text-teal-800 border-teal-200";
+    case 'Open':
+      return 'bg-blue-100 text-blue-800 border-blue-200';
+    case 'InProgress':
+      return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+    case 'Resolved':
+      return 'bg-green-100 text-green-800 border-green-200';
+    case 'Closed':
+      return 'bg-gray-100 text-gray-800 border-gray-200';
+    case 'OnHold':
+      return 'bg-purple-100 text-purple-800 border-purple-200';
+    case 'AwaitingInfo':
+      return 'bg-teal-100 text-teal-800 border-teal-200';
     default:
-      return "bg-gray-100 text-gray-800 border-gray-200";
+      return 'bg-gray-100 text-gray-800 border-gray-200';
   }
 }
 
 // Priority badge styling
 function getPriorityBadgeStyle(priority: TicketPriorityString): string {
   switch (priority) {
-    case "Low":
-      return "bg-gray-100 text-gray-700 border-gray-200";
-    case "Medium":
-      return "bg-blue-100 text-blue-700 border-blue-200";
-    case "High":
-      return "bg-orange-100 text-orange-700 border-orange-200";
-    case "Critical":
-      return "bg-red-100 text-red-700 border-red-200";
+    case 'Low':
+      return 'bg-gray-100 text-gray-700 border-gray-200';
+    case 'Medium':
+      return 'bg-blue-100 text-blue-700 border-blue-200';
+    case 'High':
+      return 'bg-orange-100 text-orange-700 border-orange-200';
+    case 'Critical':
+      return 'bg-red-100 text-red-700 border-red-200';
     default:
-      return "bg-gray-100 text-gray-700 border-gray-200";
+      return 'bg-gray-100 text-gray-700 border-gray-200';
   }
 }
 
 // Triage status badge styling
 function getTriageBadgeStyle(triageStatus: TriageStatusString): string {
   switch (triageStatus) {
-    case "Pending":
-      return "bg-yellow-100 text-yellow-700 border-yellow-200";
-    case "Confirmed":
-      return "bg-green-100 text-green-700 border-green-200";
-    case "Modified":
-      return "bg-blue-100 text-blue-700 border-blue-200";
-    case "Skipped":
-      return "bg-gray-100 text-gray-700 border-gray-200";
-    case "AutoAssigned":
-      return "bg-green-100 text-green-700 border-green-200";
-    case "AssignedWithReview":
-      return "bg-amber-100 text-amber-700 border-amber-200";
+    case 'Pending':
+      return 'bg-yellow-100 text-yellow-700 border-yellow-200';
+    case 'Confirmed':
+      return 'bg-green-100 text-green-700 border-green-200';
+    case 'Modified':
+      return 'bg-blue-100 text-blue-700 border-blue-200';
+    case 'Skipped':
+      return 'bg-gray-100 text-gray-700 border-gray-200';
+    case 'AutoAssigned':
+      return 'bg-green-100 text-green-700 border-green-200';
+    case 'AssignedWithReview':
+      return 'bg-amber-100 text-amber-700 border-amber-200';
     default:
-      return "bg-gray-100 text-gray-700 border-gray-200";
+      return 'bg-gray-100 text-gray-700 border-gray-200';
   }
 }
 
@@ -186,14 +182,14 @@ function DetailItem({
   icon,
   label,
   value,
-  className = "",
+  className = '',
 }: {
   icon: React.ReactNode;
   label: string;
   value: React.ReactNode;
   className?: string;
 }) {
-  if (!value) return null;
+  if (!value) {return null;}
 
   return (
     <div className={`flex items-start gap-3 ${className}`}>
@@ -232,33 +228,40 @@ function TicketDetailSkeleton() {
 // Returns the correct "back" URL for a given role
 function getBackRoute(role?: string): string {
   switch (role) {
-    case "Technician":
-    case "SystemAdmin":
-    case "SecurityAdmin":
-      return "/resolver/tickets";
-    case "ServiceDeskAgent":
-      return "/agent/tickets";
-    case "EndUser":
-      return "/portal/my-tickets";
+    case 'Technician':
+    case 'SystemAdmin':
+    case 'SecurityAdmin':
+      return '/resolver/tickets';
+    case 'ServiceDeskAgent':
+      return '/agent/tickets';
+    case 'EndUser':
+      return '/portal/my-tickets';
     default:
-      return "/tickets"; // Admin, ITManager, TeamLead
+      return '/tickets'; // Admin, ITManager, TeamLead
   }
 }
 
 // Roles allowed to assign tickets
-const ASSIGN_ROLES = ["Admin", "ITManager", "TeamLead", "ServiceDeskAgent"];
+const ASSIGN_ROLES = ['Admin', 'ITManager', 'TeamLead', 'ServiceDeskAgent'];
 
 // Roles allowed to escalate tickets
-const ESCALATE_ROLES = ["Admin", "ITManager", "TeamLead", "Technician", "SystemAdmin", "ServiceDeskAgent"];
+const ESCALATE_ROLES = [
+  'Admin',
+  'ITManager',
+  'TeamLead',
+  'Technician',
+  'SystemAdmin',
+  'ServiceDeskAgent',
+];
 
 // Roles allowed to view AI details and override classifications
-const AI_ROLES = ["Admin", "ITManager", "TeamLead", "ServiceDeskAgent"];
+const AI_ROLES = ['Admin', 'ITManager', 'TeamLead', 'ServiceDeskAgent'];
 
 // Roles that can close/reopen tickets (backend: Admin, ITManager, TeamLead, ServiceDeskAgent)
-const CLOSE_REOPEN_ROLES = ["Admin", "ITManager", "TeamLead", "ServiceDeskAgent"];
+const CLOSE_REOPEN_ROLES = ['Admin', 'ITManager', 'TeamLead', 'ServiceDeskAgent'];
 
 // Manager/supervisor roles that can act on any ticket (not just their own)
-const MANAGER_ROLES = ["Admin", "ITManager", "TeamLead"];
+const MANAGER_ROLES = ['Admin', 'ITManager', 'TeamLead'];
 
 export default function TicketDetailPage() {
   const { pageParams, navigateTo, activePage } = useNavigation();
@@ -283,10 +286,9 @@ export default function TicketDetailPage() {
   const [isLoadingCategories, setIsLoadingCategories] = useState(false);
   const [isAssigning, setIsAssigning] = useState(false);
   const [assignDialogOpen, setAssignDialogOpen] = useState(false);
-  const [selectedUserId, setSelectedUserId] = useState<string>("");
-  const [selectedCategoryId, setSelectedCategoryId] = useState<string>("");
-  const [selectedPriority, setSelectedPriority] =
-    useState<TicketPriorityString>("Medium");
+  const [selectedUserId, setSelectedUserId] = useState<string>('');
+  const [selectedCategoryId, setSelectedCategoryId] = useState<string>('');
+  const [selectedPriority, setSelectedPriority] = useState<TicketPriorityString>('Medium');
   const [assignError, setAssignError] = useState<string | null>(null);
 
   // Triage states
@@ -299,13 +301,13 @@ export default function TicketDetailPage() {
 
   // Transfer dialog states (SystemAdmin peer-transfer)
   const [transferDialogOpen, setTransferDialogOpen] = useState(false);
-  const [transferTargetId, setTransferTargetId] = useState("");
+  const [transferTargetId, setTransferTargetId] = useState('');
   const [isTransferring, setIsTransferring] = useState(false);
   const [transferError, setTransferError] = useState<string | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
 
   // Comment states
-  const [newComment, setNewComment] = useState("");
+  const [newComment, setNewComment] = useState('');
   const [isInternalComment, setIsInternalComment] = useState(false);
   const [isAddingComment, setIsAddingComment] = useState(false);
   const [commentError, setCommentError] = useState<string | null>(null);
@@ -314,12 +316,14 @@ export default function TicketDetailPage() {
   // Build name map from already-loaded users; supplemented by per-ID lookups below
   const knownNameMap = useMemo(() => {
     const map: Record<string, string> = {};
+
     users.forEach((u) => {
       map[u.id] = getUserDisplayName(u);
     });
     if (user) {
-      map[user.id] = user.name || user.email || "You";
+      map[user.id] = user.name || user.email || 'You';
     }
+
     return map;
   }, [users, user]);
 
@@ -335,10 +339,8 @@ export default function TicketDetailPage() {
 
   // Check if ticket needs triage (has AI suggestions and triageStatus is Pending)
   const needsTriage =
-    ticket?.triageStatus === "Pending" &&
-    (ticket?.aiSuggestedCategoryId ||
-      ticket?.aiSuggestedAssigneeId ||
-      ticket?.aiSuggestedPriority);
+    ticket?.triageStatus === 'Pending' &&
+    (ticket?.aiSuggestedCategoryId || ticket?.aiSuggestedAssigneeId || ticket?.aiSuggestedPriority);
 
   // Check if current user is the assignee
   const isAssignee = user && ticket?.assignedToId === user.id;
@@ -346,37 +348,34 @@ export default function TicketDetailPage() {
   // Granular action permissions based on backend authorization
   // Acknowledge: SystemAdmin only, own Open ticket (other roles auto-progress to InProgress on assign)
   const canAcknowledge =
-    user?.role === "SystemAdmin" &&
-    Boolean(isAssignee) &&
-    ticket?.status === "Open";
+    user?.role === 'SystemAdmin' && Boolean(isAssignee) && ticket?.status === 'Open';
 
   // Resolve: assignee OR manager on any active ticket
   const canResolve =
     Boolean(isAssignee || (user && MANAGER_ROLES.includes(user.role))) &&
-    (ticket?.status === "InProgress" ||
-      ticket?.status === "OnHold" ||
-      ticket?.status === "AwaitingInfo");
+    (ticket?.status === 'InProgress' ||
+      ticket?.status === 'OnHold' ||
+      ticket?.status === 'AwaitingInfo');
 
   // Close: specific roles on Resolved tickets
   const canClose =
-    Boolean(user && CLOSE_REOPEN_ROLES.includes(user.role)) &&
-    ticket?.status === "Resolved";
+    Boolean(user && CLOSE_REOPEN_ROLES.includes(user.role)) && ticket?.status === 'Resolved';
 
   // Reopen: specific roles on Resolved or Closed tickets
   const canReopen =
     Boolean(user && CLOSE_REOPEN_ROLES.includes(user.role)) &&
-    (ticket?.status === "Resolved" || ticket?.status === "Closed");
+    (ticket?.status === 'Resolved' || ticket?.status === 'Closed');
 
   // Transfer: SystemAdmin only — peer-transfer of own assigned ticket
   const canTransfer =
-    user?.role === "SystemAdmin" &&
+    user?.role === 'SystemAdmin' &&
     Boolean(isAssignee) &&
-    (ticket?.status === "Open" || ticket?.status === "InProgress");
+    (ticket?.status === 'Open' || ticket?.status === 'InProgress');
 
   // Request Info: assignee or manager — flag ticket as awaiting user info (only from InProgress)
   const canRequestInfo =
     Boolean(isAssignee || (user && MANAGER_ROLES.includes(user.role))) &&
-    ticket?.status === "InProgress";
+    ticket?.status === 'InProgress';
 
   // Mark In Progress: two cases both use the same /mark-in-progress endpoint:
   // 1. Resume a paused ticket (OnHold / AwaitingInfo) — assignee or manager
@@ -384,10 +383,8 @@ export default function TicketDetailPage() {
   //    (SystemAdmin uses /acknowledge instead — covered by canAcknowledge)
   const canMarkInProgress =
     (Boolean(isAssignee || (user && MANAGER_ROLES.includes(user.role))) &&
-      (ticket?.status === "OnHold" || ticket?.status === "AwaitingInfo")) ||
-    (Boolean(isAssignee) &&
-      ticket?.status === "Open" &&
-      user?.role !== "SystemAdmin");
+      (ticket?.status === 'OnHold' || ticket?.status === 'AwaitingInfo')) ||
+    (Boolean(isAssignee) && ticket?.status === 'Open' && user?.role !== 'SystemAdmin');
 
   // Show the actions card if any action is available or user is the assignee/manager
   const showActionsCard =
@@ -421,32 +418,35 @@ export default function TicketDetailPage() {
 
     if (response.success && response.data) {
       setTicket(response.data);
-      resolveCommentAuthors(
-        response.data.comments ?? [],
-        [response.data.assignedToId, response.data.createdById, response.data.triagedById]
-      );
+      resolveCommentAuthors(response.data.comments ?? [], [
+        response.data.assignedToId,
+        response.data.createdById,
+        response.data.triagedById,
+      ]);
     } else {
-      setError(response.error || "Failed to load ticket");
+      setError(response.error || 'Failed to load ticket');
     }
 
     setIsLoading(false);
   }
 
   async function resolveCommentAuthors(
-    comments: import("@/lib/api/tickets").TicketComment[],
-    extraIds?: (string | null | undefined)[]
+    comments: import('@/lib/api/tickets').TicketComment[],
+    extraIds?: (string | null | undefined)[],
   ) {
     const commentIds = comments.map((c) => c.authorId);
-    const all = [...commentIds, ...(extraIds?.filter(Boolean) as string[] ?? [])];
+    const all = [...commentIds, ...((extraIds?.filter(Boolean) as string[]) ?? [])];
     const uniqueIds = [...new Set(all)];
     const extra: Record<string, string> = {};
+
     await Promise.all(
       uniqueIds.map(async (id) => {
         const res = await getUserById(id);
+
         if (res.success && res.data) {
           extra[id] = getUserDisplayName(res.data);
         }
-      })
+      }),
     );
     if (Object.keys(extra).length > 0) {
       setAuthorNameMap((prev) => ({ ...prev, ...extra }));
@@ -455,7 +455,7 @@ export default function TicketDetailPage() {
 
   // Fetch users when dialog opens — Admin/Manager get full list, others get staff-only endpoint
   async function fetchUsers() {
-    if (users.length > 0) return; // Already loaded
+    if (users.length > 0) {return;} // Already loaded
 
     setIsLoadingUsers(true);
     let response = await getAllUsers();
@@ -467,6 +467,7 @@ export default function TicketDetailPage() {
 
     if (response.success && response.data) {
       const assignableUsers = response.data.filter((u) => u.isActive);
+
       setUsers(assignableUsers);
     }
 
@@ -475,7 +476,7 @@ export default function TicketDetailPage() {
 
   // Fetch categories when dialog opens
   async function fetchCategories() {
-    if (categories.length > 0) return; // Already loaded
+    if (categories.length > 0) {return;} // Already loaded
 
     setIsLoadingCategories(true);
     const response = await getAllCategories();
@@ -483,6 +484,7 @@ export default function TicketDetailPage() {
     if (response.success && response.data) {
       // Filter to only show active categories
       const activeCategories = response.data.filter((c) => c.isActive);
+
       setCategories(activeCategories);
     }
 
@@ -491,18 +493,21 @@ export default function TicketDetailPage() {
 
   // Helper function to get category name by ID
   function getCategoryName(categoryId: string | undefined): string {
-    if (!categoryId) return "Unknown Category";
+    if (!categoryId) {return 'Unknown Category';}
     const category = categories.find((c) => c.id === categoryId);
-    return category?.name || "Unknown Category";
+
+    return category?.name || 'Unknown Category';
   }
 
   // Helper function to get user display name by ID
   function getUserName(userId: string | null | undefined): string {
-    if (!userId) return "Unassigned";
+    if (!userId) {return 'Unassigned';}
     // Check users list first (staff roles), then resolved maps
     const fromList = users.find((u) => u.id === userId);
-    if (fromList) return getUserDisplayName(fromList);
-    return knownNameMap[userId] || authorNameMap[userId] || "...";
+
+    if (fromList) {return getUserDisplayName(fromList);}
+
+    return knownNameMap[userId] || authorNameMap[userId] || '...';
   }
 
   // Handle opening assign dialog - pre-fill with AI suggestions if available
@@ -512,15 +517,9 @@ export default function TicketDetailPage() {
     setTriageError(null);
 
     // Pre-fill with AI suggestions or current values
-    setSelectedUserId(
-      ticket?.assignedToId || ticket?.aiSuggestedAssigneeId || ""
-    );
-    setSelectedCategoryId(
-      ticket?.categoryId || ticket?.aiSuggestedCategoryId || ""
-    );
-    setSelectedPriority(
-      ticket?.priority || ticket?.aiSuggestedPriority || "Medium"
-    );
+    setSelectedUserId(ticket?.assignedToId || ticket?.aiSuggestedAssigneeId || '');
+    setSelectedCategoryId(ticket?.categoryId || ticket?.aiSuggestedCategoryId || '');
+    setSelectedPriority(ticket?.priority || ticket?.aiSuggestedPriority || 'Medium');
 
     // Fetch both users and categories
     fetchUsers();
@@ -529,7 +528,7 @@ export default function TicketDetailPage() {
 
   // Handle ticket assignment
   async function handleAssign() {
-    if (!selectedUserId || !ticket) return;
+    if (!selectedUserId || !ticket) {return;}
 
     setIsAssigning(true);
     setAssignError(null);
@@ -541,7 +540,7 @@ export default function TicketDetailPage() {
       await fetchTicket();
       setAssignDialogOpen(false);
     } else {
-      setAssignError(response.error || "Failed to assign ticket");
+      setAssignError(response.error || 'Failed to assign ticket');
     }
 
     setIsAssigning(false);
@@ -549,7 +548,7 @@ export default function TicketDetailPage() {
 
   // Handle ticket unassignment
   async function handleUnassign() {
-    if (!ticket) return;
+    if (!ticket) {return;}
 
     setIsAssigning(true);
     setAssignError(null);
@@ -561,7 +560,7 @@ export default function TicketDetailPage() {
       await fetchTicket();
       setAssignDialogOpen(false);
     } else {
-      setAssignError(response.error || "Failed to unassign ticket");
+      setAssignError(response.error || 'Failed to unassign ticket');
     }
 
     setIsAssigning(false);
@@ -569,7 +568,7 @@ export default function TicketDetailPage() {
 
   // Confirm AI suggestions (1-click triage)
   async function handleConfirmTriage() {
-    if (!ticket) return;
+    if (!ticket) {return;}
 
     setIsTriaging(true);
     setTriageError(null);
@@ -580,7 +579,7 @@ export default function TicketDetailPage() {
       await fetchTicket();
       setAssignDialogOpen(false);
     } else {
-      setTriageError(response.error || "Failed to confirm AI suggestions");
+      setTriageError(response.error || 'Failed to confirm AI suggestions');
     }
 
     setIsTriaging(false);
@@ -588,7 +587,7 @@ export default function TicketDetailPage() {
 
   // Modify AI suggestions during triage
   async function handleModifyTriage() {
-    if (!ticket) return;
+    if (!ticket) {return;}
 
     setIsTriaging(true);
     setTriageError(null);
@@ -603,7 +602,7 @@ export default function TicketDetailPage() {
       await fetchTicket();
       setAssignDialogOpen(false);
     } else {
-      setTriageError(response.error || "Failed to modify triage suggestions");
+      setTriageError(response.error || 'Failed to modify triage suggestions');
     }
 
     setIsTriaging(false);
@@ -611,7 +610,7 @@ export default function TicketDetailPage() {
 
   // Acknowledge ticket (start working on it)
   async function handleAcknowledge() {
-    if (!ticket) return;
+    if (!ticket) {return;}
 
     setIsProcessing(true);
     setActionError(null);
@@ -621,7 +620,7 @@ export default function TicketDetailPage() {
     if (response.success) {
       await fetchTicket();
     } else {
-      setActionError(response.error || "Failed to acknowledge ticket");
+      setActionError(response.error || 'Failed to acknowledge ticket');
     }
 
     setIsProcessing(false);
@@ -629,7 +628,7 @@ export default function TicketDetailPage() {
 
   // Resolve ticket
   async function handleResolve() {
-    if (!ticket) return;
+    if (!ticket) {return;}
 
     setIsProcessing(true);
     setActionError(null);
@@ -639,7 +638,7 @@ export default function TicketDetailPage() {
     if (response.success) {
       await fetchTicket();
     } else {
-      setActionError(response.error || "Failed to resolve ticket");
+      setActionError(response.error || 'Failed to resolve ticket');
     }
 
     setIsProcessing(false);
@@ -647,7 +646,7 @@ export default function TicketDetailPage() {
 
   // Transfer ticket to another SystemAdmin
   async function handleTransfer() {
-    if (!ticket || !transferTargetId) return;
+    if (!ticket || !transferTargetId) {return;}
 
     setIsTransferring(true);
     setTransferError(null);
@@ -656,10 +655,10 @@ export default function TicketDetailPage() {
 
     if (response.success) {
       setTransferDialogOpen(false);
-      setTransferTargetId("");
+      setTransferTargetId('');
       await fetchTicket();
     } else {
-      setTransferError(response.error || "Failed to transfer ticket");
+      setTransferError(response.error || 'Failed to transfer ticket');
     }
 
     setIsTransferring(false);
@@ -667,7 +666,7 @@ export default function TicketDetailPage() {
 
   // Close ticket
   async function handleClose() {
-    if (!ticket) return;
+    if (!ticket) {return;}
 
     setIsProcessing(true);
     setActionError(null);
@@ -677,7 +676,7 @@ export default function TicketDetailPage() {
     if (response.success) {
       await fetchTicket();
     } else {
-      setActionError(response.error || "Failed to close ticket");
+      setActionError(response.error || 'Failed to close ticket');
     }
 
     setIsProcessing(false);
@@ -685,7 +684,7 @@ export default function TicketDetailPage() {
 
   // Reopen ticket
   async function handleReopen() {
-    if (!ticket) return;
+    if (!ticket) {return;}
 
     setIsProcessing(true);
     setActionError(null);
@@ -695,7 +694,7 @@ export default function TicketDetailPage() {
     if (response.success) {
       await fetchTicket();
     } else {
-      setActionError(response.error || "Failed to reopen ticket");
+      setActionError(response.error || 'Failed to reopen ticket');
     }
 
     setIsProcessing(false);
@@ -703,7 +702,7 @@ export default function TicketDetailPage() {
 
   // Request more info from the user (InProgress → AwaitingInfo)
   async function handleRequestInfo() {
-    if (!ticket) return;
+    if (!ticket) {return;}
 
     setIsProcessing(true);
     setActionError(null);
@@ -713,7 +712,7 @@ export default function TicketDetailPage() {
     if (response.success) {
       await fetchTicket();
     } else {
-      setActionError(response.error || "Failed to request information");
+      setActionError(response.error || 'Failed to request information');
     }
 
     setIsProcessing(false);
@@ -721,7 +720,7 @@ export default function TicketDetailPage() {
 
   // Resume work on a paused ticket (OnHold/AwaitingInfo → InProgress)
   async function handleMarkInProgress() {
-    if (!ticket) return;
+    if (!ticket) {return;}
 
     setIsProcessing(true);
     setActionError(null);
@@ -731,7 +730,7 @@ export default function TicketDetailPage() {
     if (response.success) {
       await fetchTicket();
     } else {
-      setActionError(response.error || "Failed to resume ticket");
+      setActionError(response.error || 'Failed to resume ticket');
     }
 
     setIsProcessing(false);
@@ -739,21 +738,22 @@ export default function TicketDetailPage() {
 
   // Delete ticket — Admin only
   async function handleDelete() {
-    if (!ticket) return;
+    if (!ticket) {return;}
     setIsDeleting(true);
     const res = await deleteTicket(ticket.id);
+
     if (res.success) {
-      toast.success("Ticket deleted");
+      toast.success('Ticket deleted');
       navigateTo(pageParams?.from ?? getBackRoute(user?.role));
     } else {
-      toast.error(res.error || "Failed to delete ticket");
+      toast.error(res.error || 'Failed to delete ticket');
       setIsDeleting(false);
     }
   }
 
   // Add comment
   async function handleAddComment() {
-    if (!ticket || !newComment.trim() || !user) return;
+    if (!ticket || !newComment.trim() || !user) {return;}
 
     setIsAddingComment(true);
     setCommentError(null);
@@ -766,10 +766,10 @@ export default function TicketDetailPage() {
 
     if (response.success) {
       await fetchTicket();
-      setNewComment("");
+      setNewComment('');
       setIsInternalComment(false);
     } else {
-      setCommentError(response.error || "Failed to add comment");
+      setCommentError(response.error || 'Failed to add comment');
     }
 
     setIsAddingComment(false);
@@ -790,9 +790,7 @@ export default function TicketDetailPage() {
           <CardContent className="py-10">
             <div className="text-center">
               <AlertCircle className="h-12 w-12 text-red-500 mx-auto mb-4" />
-              <h2 className="text-xl font-semibold text-red-600 mb-2">
-                Error Loading Ticket
-              </h2>
+              <h2 className="text-xl font-semibold text-red-600 mb-2">Error Loading Ticket</h2>
               <p className="text-muted-foreground mb-4">{error}</p>
               <div className="flex justify-center gap-2">
                 <Button
@@ -842,22 +840,19 @@ export default function TicketDetailPage() {
               >
                 {getEffectiveStatusLabel(ticket.status, ticket.assignedToId)}
               </Badge>
-              <Badge
-                variant="outline"
-                className={getPriorityBadgeStyle(ticket.priority)}
-              >
+              <Badge variant="outline" className={getPriorityBadgeStyle(ticket.priority)}>
                 {getPriorityString(ticket.priority)}
               </Badge>
               {ticket.triageStatus && (
-                <Badge
-                  variant="outline"
-                  className={getTriageBadgeStyle(ticket.triageStatus)}
-                >
+                <Badge variant="outline" className={getTriageBadgeStyle(ticket.triageStatus)}>
                   Triage: {getTriageStatusString(ticket.triageStatus)}
                 </Badge>
               )}
               {ticket.isEscalated && (
-                <Badge variant="outline" className="bg-orange-100 text-orange-700 border-orange-200">
+                <Badge
+                  variant="outline"
+                  className="bg-orange-100 text-orange-700 border-orange-200"
+                >
                   <TrendingUp className="h-3 w-3 mr-1" />
                   Escalated
                 </Badge>
@@ -869,7 +864,7 @@ export default function TicketDetailPage() {
         {/* Action Buttons */}
         <div className="flex items-center gap-2">
           {/* Delete — Admin only */}
-          {user?.role === "Admin" && (
+          {user?.role === 'Admin' && (
             <AlertDialog>
               <AlertDialogTrigger asChild>
                 <Button
@@ -889,12 +884,11 @@ export default function TicketDetailPage() {
                 <AlertDialogHeader>
                   <AlertDialogTitle>Delete this ticket?</AlertDialogTitle>
                   <AlertDialogDescription>
-                    <span className="font-medium">{ticket.ticketNumber}</span> —{" "}
-                    {ticket.subject}
+                    <span className="font-medium">{ticket.ticketNumber}</span> — {ticket.subject}
                     <br />
                     <br />
-                    This action is permanent and cannot be undone. All comments,
-                    attachments, and AI analysis will be lost.
+                    This action is permanent and cannot be undone. All comments, attachments, and AI
+                    analysis will be lost.
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
@@ -939,36 +933,28 @@ export default function TicketDetailPage() {
             <Dialog open={assignDialogOpen} onOpenChange={setAssignDialogOpen}>
               <DialogTrigger asChild>
                 <Button
-                  variant={needsTriage ? "default" : "outline"}
+                  variant={needsTriage ? 'default' : 'outline'}
                   onClick={handleOpenAssignDialog}
-                  className={
-                    needsTriage ? "bg-purple-600 hover:bg-purple-700" : ""
-                  }
+                  className={needsTriage ? 'bg-purple-600 hover:bg-purple-700' : ''}
                 >
                   {needsTriage ? (
                     <Sparkles className="h-4 w-4 mr-2" />
                   ) : (
                     <UserPlus className="h-4 w-4 mr-2" />
                   )}
-                  {needsTriage
-                    ? "Triage"
-                    : ticket.assignedToId
-                    ? "Reassign"
-                    : "Assign"}
+                  {needsTriage ? 'Triage' : ticket.assignedToId ? 'Reassign' : 'Assign'}
                 </Button>
               </DialogTrigger>
               <DialogContent className="w-full max-w-2xl">
                 <DialogHeader>
                   <DialogTitle className="flex items-center gap-2">
-                    {needsTriage && (
-                      <Sparkles className="h-5 w-5 text-purple-500" />
-                    )}
-                    {needsTriage ? "Triage Ticket" : "Assign Ticket"}
+                    {needsTriage && <Sparkles className="h-5 w-5 text-purple-500" />}
+                    {needsTriage ? 'Triage Ticket' : 'Assign Ticket'}
                   </DialogTitle>
                   <DialogDescription>
                     {needsTriage
-                      ? "Review AI suggestions and confirm or modify them."
-                      : "Select a user to assign this ticket to."}
+                      ? 'Review AI suggestions and confirm or modify them.'
+                      : 'Select a user to assign this ticket to.'}
                   </DialogDescription>
                 </DialogHeader>
 
@@ -990,13 +976,10 @@ export default function TicketDetailPage() {
                         {ticket.aiSuggestedPriority && (
                           <div className="flex justify-between">
                             <span>Priority:</span>
-                            <span className="font-medium">
-                              {ticket.aiSuggestedPriority}
-                            </span>
+                            <span className="font-medium">{ticket.aiSuggestedPriority}</span>
                             {ticket.aiPriorityConfidence && (
                               <span className="text-xs opacity-75">
-                                (
-                                {(ticket.aiPriorityConfidence * 100).toFixed(0)}
+                                ({(ticket.aiPriorityConfidence * 100).toFixed(0)}
                                 %)
                               </span>
                             )}
@@ -1010,8 +993,7 @@ export default function TicketDetailPage() {
                             </span>
                             {ticket.aiCategoryConfidence && (
                               <span className="text-xs opacity-75">
-                                (
-                                {(ticket.aiCategoryConfidence * 100).toFixed(0)}
+                                ({(ticket.aiCategoryConfidence * 100).toFixed(0)}
                                 %)
                               </span>
                             )}
@@ -1025,8 +1007,7 @@ export default function TicketDetailPage() {
                             </span>
                             {ticket.aiAssigneeConfidence && (
                               <span className="text-xs opacity-75">
-                                (
-                                {(ticket.aiAssigneeConfidence * 100).toFixed(0)}
+                                ({(ticket.aiAssigneeConfidence * 100).toFixed(0)}
                                 %)
                               </span>
                             )}
@@ -1034,9 +1015,7 @@ export default function TicketDetailPage() {
                         )}
                         {ticket.aiAssignmentReason && (
                           <div className="pt-2 border-t border-purple-200 mt-2">
-                            <span className="text-xs italic">
-                              {ticket.aiAssignmentReason}
-                            </span>
+                            <span className="text-xs italic">{ticket.aiAssignmentReason}</span>
                           </div>
                         )}
                       </div>
@@ -1049,10 +1028,7 @@ export default function TicketDetailPage() {
                       Priority
                       {ticket.aiSuggestedPriority &&
                         selectedPriority === ticket.aiSuggestedPriority && (
-                          <Badge
-                            variant="outline"
-                            className="text-xs bg-purple-50 text-purple-700"
-                          >
+                          <Badge variant="outline" className="text-xs bg-purple-50 text-purple-700">
                             <Sparkles className="h-3 w-3 mr-1" />
                             AI
                           </Badge>
@@ -1060,9 +1036,7 @@ export default function TicketDetailPage() {
                     </label>
                     <Select
                       value={selectedPriority}
-                      onValueChange={(value) =>
-                        setSelectedPriority(value as TicketPriorityString)
-                      }
+                      onValueChange={(value) => setSelectedPriority(value as TicketPriorityString)}
                     >
                       <SelectTrigger>
                         <SelectValue placeholder="Select priority" />
@@ -1082,10 +1056,7 @@ export default function TicketDetailPage() {
                       Category
                       {ticket.aiSuggestedCategoryId &&
                         selectedCategoryId === ticket.aiSuggestedCategoryId && (
-                          <Badge
-                            variant="outline"
-                            className="text-xs bg-purple-50 text-purple-700"
-                          >
+                          <Badge variant="outline" className="text-xs bg-purple-50 text-purple-700">
                             <Sparkles className="h-3 w-3 mr-1" />
                             AI
                           </Badge>
@@ -1099,10 +1070,7 @@ export default function TicketDetailPage() {
                         </span>
                       </div>
                     ) : (
-                      <Select
-                        value={selectedCategoryId}
-                        onValueChange={setSelectedCategoryId}
-                      >
+                      <Select value={selectedCategoryId} onValueChange={setSelectedCategoryId}>
                         <SelectTrigger>
                           <SelectValue placeholder="Select a category" />
                         </SelectTrigger>
@@ -1130,10 +1098,7 @@ export default function TicketDetailPage() {
                       Assignee
                       {ticket.aiSuggestedAssigneeId &&
                         selectedUserId === ticket.aiSuggestedAssigneeId && (
-                          <Badge
-                            variant="outline"
-                            className="text-xs bg-purple-50 text-purple-700"
-                          >
+                          <Badge variant="outline" className="text-xs bg-purple-50 text-purple-700">
                             <Sparkles className="h-3 w-3 mr-1" />
                             AI
                           </Badge>
@@ -1142,15 +1107,10 @@ export default function TicketDetailPage() {
                     {isLoadingUsers ? (
                       <div className="flex items-center justify-center py-4">
                         <Spinner className="text-muted-foreground" />
-                        <span className="ml-2 text-sm text-muted-foreground">
-                          Loading users...
-                        </span>
+                        <span className="ml-2 text-sm text-muted-foreground">Loading users...</span>
                       </div>
                     ) : (
-                      <Select
-                        value={selectedUserId}
-                        onValueChange={setSelectedUserId}
-                      >
+                      <Select value={selectedUserId} onValueChange={setSelectedUserId}>
                         <SelectTrigger>
                           <SelectValue placeholder="Select a user" />
                         </SelectTrigger>
@@ -1172,7 +1132,7 @@ export default function TicketDetailPage() {
 
                   {ticket.assignedToId && (
                     <p className="text-sm text-muted-foreground">
-                      Currently assigned to:{" "}
+                      Currently assigned to:{' '}
                       <span className="font-medium text-foreground">
                         {getUserName(ticket.assignedToId)}
                       </span>
@@ -1196,10 +1156,7 @@ export default function TicketDetailPage() {
                     </Button>
                   )}
                   <div className="flex gap-2 ml-auto">
-                    <Button
-                      variant="outline"
-                      onClick={() => setAssignDialogOpen(false)}
-                    >
+                    <Button variant="outline" onClick={() => setAssignDialogOpen(false)}>
                       Cancel
                     </Button>
 
@@ -1236,10 +1193,7 @@ export default function TicketDetailPage() {
                       </>
                     ) : (
                       /* Regular assign button */
-                      <Button
-                        onClick={handleAssign}
-                        disabled={!selectedUserId || isAssigning}
-                      >
+                      <Button onClick={handleAssign} disabled={!selectedUserId || isAssigning}>
                         {isAssigning ? (
                           <Spinner size="sm" className="mr-2" />
                         ) : (
@@ -1266,10 +1220,10 @@ export default function TicketDetailPage() {
             </CardTitle>
             <CardDescription>
               {isAssignee
-                ? "You are assigned to this ticket"
+                ? 'You are assigned to this ticket'
                 : user && MANAGER_ROLES.includes(user.role)
-                ? "Manager actions available"
-                : "Ticket actions"}
+                  ? 'Manager actions available'
+                  : 'Ticket actions'}
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -1314,11 +1268,7 @@ export default function TicketDetailPage() {
 
               {/* Close — Admin/ITManager/TeamLead/ServiceDeskAgent on Resolved tickets */}
               {canClose && (
-                <Button
-                  onClick={handleClose}
-                  disabled={isProcessing}
-                  variant="outline"
-                >
+                <Button onClick={handleClose} disabled={isProcessing} variant="outline">
                   {isProcessing ? (
                     <Spinner size="sm" className="mr-2" />
                   ) : (
@@ -1330,11 +1280,7 @@ export default function TicketDetailPage() {
 
               {/* Reopen — Admin/ITManager/TeamLead/ServiceDeskAgent on Resolved/Closed */}
               {canReopen && (
-                <Button
-                  onClick={handleReopen}
-                  disabled={isProcessing}
-                  variant="outline"
-                >
+                <Button onClick={handleReopen} disabled={isProcessing} variant="outline">
                   {isProcessing ? (
                     <Spinner size="sm" className="mr-2" />
                   ) : (
@@ -1348,7 +1294,7 @@ export default function TicketDetailPage() {
               {canTransfer && (
                 <Button
                   onClick={() => {
-                    setTransferTargetId("");
+                    setTransferTargetId('');
                     setTransferError(null);
                     setTransferDialogOpen(true);
                   }}
@@ -1362,11 +1308,7 @@ export default function TicketDetailPage() {
 
               {/* Request Info — flag ticket as awaiting user info (InProgress → AwaitingInfo) */}
               {canRequestInfo && (
-                <Button
-                  onClick={handleRequestInfo}
-                  disabled={isProcessing}
-                  variant="outline"
-                >
+                <Button onClick={handleRequestInfo} disabled={isProcessing} variant="outline">
                   {isProcessing ? (
                     <Spinner size="sm" className="mr-2" />
                   ) : (
@@ -1382,34 +1324,31 @@ export default function TicketDetailPage() {
                   onClick={handleMarkInProgress}
                   disabled={isProcessing}
                   className={
-                    ticket.status === "Open"
-                      ? "bg-blue-600 hover:bg-blue-700"
-                      : "border-blue-300 text-blue-700 hover:bg-blue-50"
+                    ticket.status === 'Open'
+                      ? 'bg-blue-600 hover:bg-blue-700'
+                      : 'border-blue-300 text-blue-700 hover:bg-blue-50'
                   }
-                  variant={ticket.status === "Open" ? "default" : "outline"}
+                  variant={ticket.status === 'Open' ? 'default' : 'outline'}
                 >
                   {isProcessing ? (
                     <Spinner size="sm" className="mr-2" />
                   ) : (
                     <Play className="h-4 w-4 mr-2" />
                   )}
-                  {ticket.status === "Open" ? "Start Working" : "Resume Work"}
+                  {ticket.status === 'Open' ? 'Start Working' : 'Resume Work'}
                 </Button>
               )}
 
-
               {/* Info: assigned to someone else, waiting to start */}
-              {ticket.status === "Open" &&
-                !isAssignee &&
-                ticket.assignedToId && (
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <Clock className="h-4 w-4" />
-                    Waiting for assignee to start working
-                  </div>
-                )}
+              {ticket.status === 'Open' && !isAssignee && ticket.assignedToId && (
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <Clock className="h-4 w-4" />
+                  Waiting for assignee to start working
+                </div>
+              )}
 
               {/* Info: unassigned */}
-              {ticket.status === "Open" && !ticket.assignedToId && (
+              {ticket.status === 'Open' && !ticket.assignedToId && (
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
                   <UserPlus className="h-4 w-4" />
                   Ticket needs to be assigned first
@@ -1417,7 +1356,7 @@ export default function TicketDetailPage() {
               )}
 
               {/* Info: awaiting more information from user */}
-              {ticket.status === "AwaitingInfo" && !canResolve && (
+              {ticket.status === 'AwaitingInfo' && !canResolve && (
                 <div className="flex items-center gap-2 text-sm text-teal-600">
                   <HelpCircle className="h-4 w-4" />
                   Waiting for user to provide more information
@@ -1434,7 +1373,7 @@ export default function TicketDetailPage() {
         onOpenChange={(open) => {
           if (!open) {
             setTransferDialogOpen(false);
-            setTransferTargetId("");
+            setTransferTargetId('');
             setTransferError(null);
           }
         }}
@@ -1446,8 +1385,8 @@ export default function TicketDetailPage() {
               Transfer Ticket
             </DialogTitle>
             <DialogDescription>
-              Transfer this ticket to another SystemAdmin. They will become
-              the new assignee responsible for resolving it.
+              Transfer this ticket to another SystemAdmin. They will become the new assignee
+              responsible for resolving it.
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-2">
@@ -1466,12 +1405,7 @@ export default function TicketDetailPage() {
                 </SelectTrigger>
                 <SelectContent>
                   {users
-                    .filter(
-                      (u) =>
-                        u.role === "SystemAdmin" &&
-                        u.id !== user?.id &&
-                        u.isActive
-                    )
+                    .filter((u) => u.role === 'SystemAdmin' && u.id !== user?.id && u.isActive)
                     .map((u) => (
                       <SelectItem key={u.id} value={u.id}>
                         {getUserDisplayName(u)}
@@ -1489,10 +1423,7 @@ export default function TicketDetailPage() {
             >
               Cancel
             </Button>
-            <Button
-              onClick={handleTransfer}
-              disabled={!transferTargetId || isTransferring}
-            >
+            <Button onClick={handleTransfer} disabled={!transferTargetId || isTransferring}>
               {isTransferring ? (
                 <Spinner size="sm" className="mr-2" />
               ) : (
@@ -1514,7 +1445,7 @@ export default function TicketDetailPage() {
         </CardHeader>
         <CardContent>
           <div className="whitespace-pre-wrap text-sm">
-            {ticket.description || "No description provided"}
+            {ticket.description || 'No description provided'}
           </div>
         </CardContent>
       </Card>
@@ -1540,24 +1471,24 @@ export default function TicketDetailPage() {
             <DetailItem
               icon={<Calendar className="h-4 w-4" />}
               label="Created At"
-              value={format(new Date(ticket.createdAt), "PPpp")}
+              value={format(new Date(ticket.createdAt), 'PPpp')}
             />
             <DetailItem
               icon={<Clock className="h-4 w-4" />}
               label="Updated At"
-              value={format(new Date(ticket.updatedAt), "PPpp")}
+              value={format(new Date(ticket.updatedAt), 'PPpp')}
             />
             {ticket.resolvedAt && (
               <DetailItem
                 icon={<CheckCircle className="h-4 w-4" />}
                 label="Resolved At"
-                value={format(new Date(ticket.resolvedAt), "PPpp")}
+                value={format(new Date(ticket.resolvedAt), 'PPpp')}
               />
             )}
             <DetailItem
               icon={<User className="h-4 w-4" />}
               label="Created By"
-              value={ticket.createdById ? getUserName(ticket.createdById) : "System/Email"}
+              value={ticket.createdById ? getUserName(ticket.createdById) : 'System/Email'}
             />
             <DetailItem
               icon={<User className="h-4 w-4" />}
@@ -1593,14 +1524,14 @@ export default function TicketDetailPage() {
                 <DetailItem
                   icon={<Mail className="h-4 w-4" />}
                   label="To"
-                  value={ticket.emailRecipients.join(", ")}
+                  value={ticket.emailRecipients.join(', ')}
                 />
               )}
               {ticket.emailReceivedAt && (
                 <DetailItem
                   icon={<Calendar className="h-4 w-4" />}
                   label="Received At"
-                  value={format(new Date(ticket.emailReceivedAt), "PPpp")}
+                  value={format(new Date(ticket.emailReceivedAt), 'PPpp')}
                 />
               )}
               {ticket.emailMessageId && (
@@ -1608,9 +1539,7 @@ export default function TicketDetailPage() {
                   icon={<Hash className="h-4 w-4" />}
                   label="Message ID"
                   value={
-                    <span className="font-mono text-xs break-all">
-                      {ticket.emailMessageId}
-                    </span>
+                    <span className="font-mono text-xs break-all">{ticket.emailMessageId}</span>
                   }
                 />
               )}
@@ -1628,29 +1557,22 @@ export default function TicketDetailPage() {
                 <Brain className="h-5 w-5" />
                 AI Suggestions
               </CardTitle>
-              <CardDescription>
-                Automated analysis and recommendations
-              </CardDescription>
+              <CardDescription>Automated analysis and recommendations</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               {ticket.aiSuggestedPriority && (
                 <div className="flex items-center justify-between">
-                  <span className="text-sm text-muted-foreground">
-                    Suggested Priority
-                  </span>
+                  <span className="text-sm text-muted-foreground">Suggested Priority</span>
                   <div className="flex items-center gap-2">
                     <Badge
                       variant="outline"
-                      className={getPriorityBadgeStyle(
-                        ticket.aiSuggestedPriority
-                      )}
+                      className={getPriorityBadgeStyle(ticket.aiSuggestedPriority)}
                     >
                       {ticket.aiSuggestedPriority}
                     </Badge>
                     {ticket.aiPriorityConfidence && (
                       <span className="text-xs text-muted-foreground">
-                        ({(ticket.aiPriorityConfidence * 100).toFixed(0)}%
-                        confidence)
+                        ({(ticket.aiPriorityConfidence * 100).toFixed(0)}% confidence)
                       </span>
                     )}
                   </div>
@@ -1658,17 +1580,12 @@ export default function TicketDetailPage() {
               )}
               {ticket.aiSuggestedCategoryId && (
                 <div className="flex items-center justify-between">
-                  <span className="text-sm text-muted-foreground">
-                    Suggested Category
-                  </span>
+                  <span className="text-sm text-muted-foreground">Suggested Category</span>
                   <div className="flex items-center gap-2">
-                    <Badge variant="outline">
-                      {getCategoryName(ticket.aiSuggestedCategoryId)}
-                    </Badge>
+                    <Badge variant="outline">{getCategoryName(ticket.aiSuggestedCategoryId)}</Badge>
                     {ticket.aiCategoryConfidence && (
                       <span className="text-xs text-muted-foreground">
-                        ({(ticket.aiCategoryConfidence * 100).toFixed(0)}%
-                        confidence)
+                        ({(ticket.aiCategoryConfidence * 100).toFixed(0)}% confidence)
                       </span>
                     )}
                   </div>
@@ -1676,17 +1593,12 @@ export default function TicketDetailPage() {
               )}
               {ticket.aiSuggestedAssigneeId && (
                 <div className="flex items-center justify-between">
-                  <span className="text-sm text-muted-foreground">
-                    Suggested Assignee
-                  </span>
+                  <span className="text-sm text-muted-foreground">Suggested Assignee</span>
                   <div className="flex items-center gap-2">
-                    <Badge variant="outline">
-                      {getUserName(ticket.aiSuggestedAssigneeId)}
-                    </Badge>
+                    <Badge variant="outline">{getUserName(ticket.aiSuggestedAssigneeId)}</Badge>
                     {ticket.aiAssigneeConfidence && (
                       <span className="text-xs text-muted-foreground">
-                        ({(ticket.aiAssigneeConfidence * 100).toFixed(0)}%
-                        confidence)
+                        ({(ticket.aiAssigneeConfidence * 100).toFixed(0)}% confidence)
                       </span>
                     )}
                   </div>
@@ -1694,9 +1606,7 @@ export default function TicketDetailPage() {
               )}
               {ticket.aiAssignmentReason && (
                 <div className="pt-2 border-t">
-                  <p className="text-sm text-muted-foreground mb-1">
-                    Assignment Reason
-                  </p>
+                  <p className="text-sm text-muted-foreground mb-1">Assignment Reason</p>
                   <p className="text-sm">{ticket.aiAssignmentReason}</p>
                 </div>
               )}
@@ -1705,7 +1615,7 @@ export default function TicketDetailPage() {
         )}
 
         {/* AutoAssigned banner */}
-        {ticket.triageStatus === "AutoAssigned" && (
+        {ticket.triageStatus === 'AutoAssigned' && (
           <Card className="border-green-200 bg-green-50">
             <CardHeader className="pb-2">
               <CardTitle className="text-base flex items-center gap-2 text-green-800">
@@ -1715,16 +1625,21 @@ export default function TicketDetailPage() {
             </CardHeader>
             <CardContent className="space-y-2">
               <p className="text-sm text-green-700">
-                This ticket was automatically assigned by the AI system with high confidence. No manual review required.
+                This ticket was automatically assigned by the AI system with high confidence. No
+                manual review required.
               </p>
               {ticket.aiConfidenceScore != null && (
                 <p className="text-sm text-green-700">
-                  Confidence: <span className="font-medium">{(ticket.aiConfidenceScore * 100).toFixed(0)}%</span>
+                  Confidence:{' '}
+                  <span className="font-medium">
+                    {(ticket.aiConfidenceScore * 100).toFixed(0)}%
+                  </span>
                 </p>
               )}
               {ticket.assignedToId && (
                 <p className="text-sm text-green-700">
-                  Assigned to: <span className="font-medium">{getUserName(ticket.assignedToId)}</span>
+                  Assigned to:{' '}
+                  <span className="font-medium">{getUserName(ticket.assignedToId)}</span>
                 </p>
               )}
             </CardContent>
@@ -1732,7 +1647,7 @@ export default function TicketDetailPage() {
         )}
 
         {/* AssignedWithReview banner */}
-        {ticket.triageStatus === "AssignedWithReview" && (
+        {ticket.triageStatus === 'AssignedWithReview' && (
           <Card className="border-amber-200 bg-amber-50">
             <CardHeader className="pb-2">
               <CardTitle className="text-base flex items-center gap-2 text-amber-800">
@@ -1742,16 +1657,21 @@ export default function TicketDetailPage() {
             </CardHeader>
             <CardContent className="space-y-2">
               <p className="text-sm text-amber-700">
-                The AI assigned this ticket but flagged it for human review. Please verify the assignment is correct.
+                The AI assigned this ticket but flagged it for human review. Please verify the
+                assignment is correct.
               </p>
               {ticket.aiConfidenceScore != null && (
                 <p className="text-sm text-amber-700">
-                  Confidence: <span className="font-medium">{(ticket.aiConfidenceScore * 100).toFixed(0)}%</span>
+                  Confidence:{' '}
+                  <span className="font-medium">
+                    {(ticket.aiConfidenceScore * 100).toFixed(0)}%
+                  </span>
                 </p>
               )}
               {ticket.assignedToId && (
                 <p className="text-sm text-amber-700">
-                  Assigned to: <span className="font-medium">{getUserName(ticket.assignedToId)}</span>
+                  Assigned to:{' '}
+                  <span className="font-medium">{getUserName(ticket.assignedToId)}</span>
                 </p>
               )}
             </CardContent>
@@ -1760,46 +1680,43 @@ export default function TicketDetailPage() {
 
         {/* Triage Information for Confirmed / Modified / Skipped */}
         {ticket.triageStatus &&
-          ticket.triageStatus !== "Pending" &&
-          ticket.triageStatus !== "AutoAssigned" &&
-          ticket.triageStatus !== "AssignedWithReview" && (
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Triage Information</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-muted-foreground">Status</span>
-                <Badge
-                  variant="outline"
-                  className={getTriageBadgeStyle(ticket.triageStatus)}
-                >
-                  {getTriageStatusString(ticket.triageStatus)}
-                </Badge>
-              </div>
-              {ticket.triagedById && (
-                <DetailItem
-                  icon={<User className="h-4 w-4" />}
-                  label="Triaged By"
-                  value={getUserName(ticket.triagedById)}
-                />
-              )}
-              {ticket.triagedAt && (
-                <DetailItem
-                  icon={<Calendar className="h-4 w-4" />}
-                  label="Triaged At"
-                  value={format(new Date(ticket.triagedAt), "PPpp")}
-                />
-              )}
-              {ticket.categoryLocked && (
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <CheckCircle className="h-4 w-4 text-green-600" />
-                  Category is locked
+          ticket.triageStatus !== 'Pending' &&
+          ticket.triageStatus !== 'AutoAssigned' &&
+          ticket.triageStatus !== 'AssignedWithReview' && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg">Triage Information</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-muted-foreground">Status</span>
+                  <Badge variant="outline" className={getTriageBadgeStyle(ticket.triageStatus)}>
+                    {getTriageStatusString(ticket.triageStatus)}
+                  </Badge>
                 </div>
-              )}
-            </CardContent>
-          </Card>
-        )}
+                {ticket.triagedById && (
+                  <DetailItem
+                    icon={<User className="h-4 w-4" />}
+                    label="Triaged By"
+                    value={getUserName(ticket.triagedById)}
+                  />
+                )}
+                {ticket.triagedAt && (
+                  <DetailItem
+                    icon={<Calendar className="h-4 w-4" />}
+                    label="Triaged At"
+                    value={format(new Date(ticket.triagedAt), 'PPpp')}
+                  />
+                )}
+                {ticket.categoryLocked && (
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <CheckCircle className="h-4 w-4 text-green-600" />
+                    Category is locked
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          )}
       </div>
 
       {/* Escalation Status */}
@@ -1865,7 +1782,7 @@ export default function TicketDetailPage() {
         </CardHeader>
         <CardContent className="space-y-6">
           {/* Add Comment Form */}
-          {user && ticket.status !== "Closed" && (
+          {user && ticket.status !== 'Closed' && (
             <div className="border rounded-lg p-4 bg-muted/50">
               <h4 className="text-sm font-medium mb-3">Add a Comment</h4>
 
@@ -1911,7 +1828,7 @@ export default function TicketDetailPage() {
             </div>
           )}
 
-          {ticket.status === "Closed" && (
+          {ticket.status === 'Closed' && (
             <div className="text-center py-4 text-muted-foreground text-sm">
               This ticket is closed. Reopen it to add comments.
             </div>
@@ -1919,9 +1836,7 @@ export default function TicketDetailPage() {
 
           {/* Comments List */}
           {!ticket.comments || ticket.comments.length === 0 ? (
-            <p className="text-muted-foreground text-center py-8">
-              No comments yet
-            </p>
+            <p className="text-muted-foreground text-center py-8">No comments yet</p>
           ) : (
             <div className="space-y-4">
               {ticket.comments.map((comment) => {
@@ -1929,49 +1844,48 @@ export default function TicketDetailPage() {
                   comment.authorName ||
                   knownNameMap[comment.authorId] ||
                   authorNameMap[comment.authorId] ||
-                  "User";
+                  'User';
                 const isOwn = comment.authorId === user?.id;
+
                 return (
-                <div
-                  key={comment.id}
-                  className={`p-4 rounded-lg border ${
-                    comment.isInternal
-                      ? "bg-yellow-500/10 border-yellow-500/20"
-                      : isOwn
-                      ? "bg-blue-500/10 border-blue-500/20"
-                      : "bg-muted/50 border-border"
-                  }`}
-                >
-                  <div className="flex items-start gap-3">
-                    <Avatar className="h-8 w-8">
-                      <AvatarFallback className={isOwn ? "bg-blue-500/20 text-blue-600 dark:text-blue-400" : ""}>
-                        {getInitials(authorName)}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-1">
-                        <span className="font-medium text-sm text-foreground">
-                          {authorName}
-                        </span>
-                        {comment.isInternal && (
-                          <Badge
-                            variant="outline"
-                            className="text-xs bg-yellow-500/20 text-yellow-700 dark:text-yellow-400 border-yellow-500/30"
-                          >
-                            <Lock className="h-3 w-3 mr-1" />
-                            Internal
-                          </Badge>
-                        )}
-                        <span className="text-xs text-muted-foreground">
-                          {format(new Date(comment.createdAt), "PPp")}
-                        </span>
+                  <div
+                    key={comment.id}
+                    className={`p-4 rounded-lg border ${
+                      comment.isInternal
+                        ? 'bg-yellow-500/10 border-yellow-500/20'
+                        : isOwn
+                          ? 'bg-blue-500/10 border-blue-500/20'
+                          : 'bg-muted/50 border-border'
+                    }`}
+                  >
+                    <div className="flex items-start gap-3">
+                      <Avatar className="h-8 w-8">
+                        <AvatarFallback
+                          className={isOwn ? 'bg-blue-500/20 text-blue-600 dark:text-blue-400' : ''}
+                        >
+                          {getInitials(authorName)}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-1">
+                          <span className="font-medium text-sm text-foreground">{authorName}</span>
+                          {comment.isInternal && (
+                            <Badge
+                              variant="outline"
+                              className="text-xs bg-yellow-500/20 text-yellow-700 dark:text-yellow-400 border-yellow-500/30"
+                            >
+                              <Lock className="h-3 w-3 mr-1" />
+                              Internal
+                            </Badge>
+                          )}
+                          <span className="text-xs text-muted-foreground">
+                            {format(new Date(comment.createdAt), 'PPp')}
+                          </span>
+                        </div>
+                        <p className="text-sm whitespace-pre-wrap">{comment.content}</p>
                       </div>
-                      <p className="text-sm whitespace-pre-wrap">
-                        {comment.content}
-                      </p>
                     </div>
                   </div>
-                </div>
                 );
               })}
             </div>
@@ -1988,15 +1902,15 @@ export default function TicketDetailPage() {
             // Refresh ticket data and AI details
             fetchTicket();
             queryClient.invalidateQueries({
-              queryKey: ["ticket-ai-details", ticketId],
+              queryKey: ['ticket-ai-details', ticketId],
             });
-            toast.success("AI classification overridden successfully");
+            toast.success('AI classification overridden successfully');
           }}
           ticketId={ticketId}
           aiDetails={
             {
               ticketId,
-              method: "Hybrid" as any, // Will be populated from actual AI details
+              method: 'Hybrid' as any, // Will be populated from actual AI details
               finalCategory: ticket.categoryId,
               finalPriority: ticket.priority,
               finalAssignee: ticket.assignedToId,
@@ -2006,7 +1920,7 @@ export default function TicketDetailPage() {
             id: c.id,
             name: c.name,
           }))}
-          availablePriorities={["Low", "Medium", "High", "Critical"]}
+          availablePriorities={['Low', 'Medium', 'High', 'Critical']}
           availableAssignees={users.map((u) => ({
             id: u.id,
             name: u.fullName || `${u.firstName} ${u.lastName}`,
@@ -2021,7 +1935,7 @@ export default function TicketDetailPage() {
         ticketId={ticketId}
         onSuccess={() => {
           fetchTicket();
-          toast.success("Ticket escalated successfully");
+          toast.success('Ticket escalated successfully');
         }}
       />
     </PageContainer>

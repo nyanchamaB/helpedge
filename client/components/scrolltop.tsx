@@ -1,6 +1,6 @@
-"use client";
-import React, { useEffect, useState } from "react";
-import { ArrowUp } from "lucide-react";
+'use client';
+import React, { useEffect, useState } from 'react';
+import { ArrowUp } from 'lucide-react';
 
 export default function ScrollTop() {
   const [isVisible, setIsVisible] = useState(false);
@@ -14,15 +14,16 @@ export default function ScrollTop() {
       }
     };
 
-    window.addEventListener("scroll", toggleVisibility);
-    return () => window.removeEventListener("scroll", toggleVisibility);
+    window.addEventListener('scroll', toggleVisibility);
+
+    return () => window.removeEventListener('scroll', toggleVisibility);
   }, []);
 
   const scrollToTop = () => {
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  if (!isVisible) return null;
+  if (!isVisible) {return null;}
 
   return (
     <button
@@ -33,6 +34,4 @@ export default function ScrollTop() {
       <ArrowUp size={20} />
     </button>
   );
-};
-
-
+}

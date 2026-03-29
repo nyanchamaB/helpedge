@@ -1,12 +1,12 @@
-"use client";
+'use client';
 
-import { useMemo } from "react";
-import { Ticket } from "@/lib/api/tickets";
-import { User, getUserDisplayName } from "@/lib/api/users";
-import { Badge } from "@/components/ui/badge";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Skeleton } from "@/components/ui/skeleton";
-import { cn } from "@/lib/utils";
+import { useMemo } from 'react';
+import { Ticket } from '@/lib/api/tickets';
+import { User, getUserDisplayName } from '@/lib/api/users';
+import { Badge } from '@/components/ui/badge';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Skeleton } from '@/components/ui/skeleton';
+import { cn } from '@/lib/utils';
 
 interface AgentLoad {
   user: User;
@@ -18,13 +18,13 @@ interface AgentLoad {
 
 function LoadBar({ value, max }: { value: number; max: number }) {
   const pct = max > 0 ? Math.round((value / max) * 100) : 0;
-  const color =
-    pct > 80 ? "bg-red-400" : pct > 50 ? "bg-amber-400" : "bg-green-400";
+  const color = pct > 80 ? 'bg-red-400' : pct > 50 ? 'bg-amber-400' : 'bg-green-400';
+
   return (
     <div className="flex items-center gap-2">
       <div className="flex-1 h-1.5 bg-muted rounded-full overflow-hidden">
         <div
-          className={cn("h-full rounded-full transition-all", color)}
+          className={cn('h-full rounded-full transition-all', color)}
           style={{ width: `${pct}%` }}
         />
       </div>
@@ -39,31 +39,21 @@ interface TeamWorkloadTableProps {
   isLoading?: boolean;
 }
 
-export function TeamWorkloadTable({
-  tickets,
-  users,
-  isLoading = false,
-}: TeamWorkloadTableProps) {
-  const staffRoles = [
-    "ServiceDeskAgent",
-    "Technician",
-    "SystemAdmin",
-    "SecurityAdmin",
-    "TeamLead",
-  ];
+export function TeamWorkloadTable({ tickets, users, isLoading = false }: TeamWorkloadTableProps) {
+  const staffRoles = ['ServiceDeskAgent', 'Technician', 'SystemAdmin', 'SecurityAdmin', 'TeamLead'];
 
   const agentLoads = useMemo<AgentLoad[]>(() => {
     const staff = users.filter((u) => staffRoles.includes(u.role));
+
     return staff
       .map((user) => {
         const assigned = tickets.filter((t) => t.assignedToId === user.id);
+
         return {
           user,
-          open: assigned.filter((t) => t.status === "Open").length,
-          inProgress: assigned.filter((t) => t.status === "InProgress").length,
-          resolved: assigned.filter(
-            (t) => t.status === "Resolved" || t.status === "Closed"
-          ).length,
+          open: assigned.filter((t) => t.status === 'Open').length,
+          inProgress: assigned.filter((t) => t.status === 'InProgress').length,
+          resolved: assigned.filter((t) => t.status === 'Resolved' || t.status === 'Closed').length,
           total: assigned.length,
         };
       })
@@ -83,11 +73,7 @@ export function TeamWorkloadTable({
   }
 
   if (agentLoads.length === 0) {
-    return (
-      <p className="text-sm text-muted-foreground text-center py-6">
-        No staff members found
-      </p>
-    );
+    return <p className="text-sm text-muted-foreground text-center py-6">No staff members found</p>;
   }
 
   return (
@@ -109,13 +95,11 @@ export function TeamWorkloadTable({
                 <div className="flex items-center gap-2">
                   <Avatar className="h-7 w-7 shrink-0">
                     <AvatarFallback className="text-xs bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300">
-                      {(user.firstName?.[0] ?? "") + (user.lastName?.[0] ?? "")}
+                      {(user.firstName?.[0] ?? '') + (user.lastName?.[0] ?? '')}
                     </AvatarFallback>
                   </Avatar>
                   <div>
-                    <p className="font-medium text-foreground">
-                      {getUserDisplayName(user)}
-                    </p>
+                    <p className="font-medium text-foreground">{getUserDisplayName(user)}</p>
                     <p className="text-xs text-muted-foreground">{user.role}</p>
                   </div>
                 </div>

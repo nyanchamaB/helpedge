@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
@@ -92,11 +92,7 @@ export function AIDetailsSection({
             className="shrink-0"
             aria-label={isExpanded ? 'Collapse AI details' : 'Expand AI details'}
           >
-            {isExpanded ? (
-              <ChevronUp className="h-5 w-5" />
-            ) : (
-              <ChevronDown className="h-5 w-5" />
-            )}
+            {isExpanded ? <ChevronUp className="h-5 w-5" /> : <ChevronDown className="h-5 w-5" />}
           </Button>
         </div>
       </CardHeader>
@@ -134,8 +130,8 @@ export function AIDetailsSection({
             <Alert>
               <Info className="h-4 w-4" />
               <AlertDescription>
-                No AI classification data available for this ticket. The ticket may have
-                been classified manually or before the AI system was enabled.
+                No AI classification data available for this ticket. The ticket may have been
+                classified manually or before the AI system was enabled.
               </AlertDescription>
             </Alert>
           )}

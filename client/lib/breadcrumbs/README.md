@@ -32,7 +32,7 @@ export default function TicketsPage() {
 
 ```tsx
 // app/tickets/[id]/page.tsx
-"use client";
+'use client';
 
 import { Breadcrumbs } from '@/components/layout/Breadcrumbs';
 import { useParams } from 'next/navigation';
@@ -67,7 +67,7 @@ export default function TicketDetailPage() {
 
 ```tsx
 // app/settings/profile/page.tsx
-"use client";
+'use client';
 
 import { Breadcrumbs } from '@/components/layout/Breadcrumbs';
 
@@ -149,10 +149,7 @@ export default function StaticPage() {
   return (
     <div>
       <SimpleBreadcrumbs
-        items={[
-          { label: 'Dashboard', href: '/dashboard' },
-          { label: 'Static Page' },
-        ]}
+        items={[{ label: 'Dashboard', href: '/dashboard' }, { label: 'Static Page' }]}
       />
       {/* Page content */}
     </div>
@@ -165,7 +162,7 @@ export default function StaticPage() {
 ### With Data Fetching
 
 ```tsx
-"use client";
+'use client';
 
 import { Breadcrumbs } from '@/components/layout/Breadcrumbs';
 import { useEffect, useState } from 'react';
@@ -201,7 +198,7 @@ const customLabels = {
   [`/team/${teamId}/members/${memberId}`]: memberName,
 };
 
-<Breadcrumbs customLabels={customLabels} />
+<Breadcrumbs customLabels={customLabels} />;
 ```
 
 ### Role-Based Visibility

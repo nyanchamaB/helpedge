@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
@@ -21,8 +21,13 @@ interface AuthContextType {
   user: User | null;
   isLoading: boolean;
   isAuthenticated: boolean;
-  login: (credentials: LoginRequest, redirectTo?: string) => Promise<{ success: boolean; error?: string; redirectUrl?: string }>;
-  register: (userData: RegisterRequest) => Promise<{ success: boolean; error?: string; redirectUrl?: string }>;
+  login: (
+    credentials: LoginRequest,
+    redirectTo?: string,
+  ) => Promise<{ success: boolean; error?: string; redirectUrl?: string }>;
+  register: (
+    userData: RegisterRequest,
+  ) => Promise<{ success: boolean; error?: string; redirectUrl?: string }>;
   logout: () => Promise<void>;
   refreshUser: () => Promise<void>;
   refreshSession: () => Promise<boolean>;
@@ -54,12 +59,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (!token) {
         setUser(null);
         setIsLoading(false);
+
         return;
       }
 
       // First, perform client-side token validation (structure + expiry check)
       // This is faster and prevents unnecessary API calls for expired tokens
-      const { validateStoredToken: validateTokenClient, clearInvalidToken } = await import('@/lib/auth/tokenValidator');
+      const { validateStoredToken: validateTokenClient, clearInvalidToken } =
+        await import('@/lib/auth/tokenValidator');
       const clientValidation = validateTokenClient();
 
       if (!clientValidation.isValid) {
@@ -68,6 +75,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         clearInvalidToken();
         setUser(null);
         setIsLoading(false);
+
         return;
       }
 
@@ -82,14 +90,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         // But don't fail if backend is unavailable - trust client-side validation
         try {
           const response = await validateToken(token);
+
           // Backend returns { isValid: true } not { valid: true }
           if (!response.success || !response.data?.valid) {
-            console.warn('AuthContext: Backend token validation failed, but trusting client-side validation');
+            console.warn(
+              'AuthContext: Backend token validation failed, but trusting client-side validation',
+            );
           } else {
             console.log('AuthContext: Backend token validation successful');
           }
         } catch (backendError) {
-          console.warn('AuthContext: Could not reach backend for token validation, but trusting client-side validation');
+          console.warn(
+            'AuthContext: Could not reach backend for token validation, but trusting client-side validation',
+          );
         }
       } else {
         // Could not extract user from token
@@ -111,20 +124,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
    * Backend sets auth cookie via Set-Cookie header automatically
    * Returns the appropriate dashboard route for the user's role
    */
-  async function login(credentials: LoginRequest, redirectTo?: string): Promise<{ success: boolean; error?: string; redirectUrl?: string }> {
+  async function login(
+    credentials: LoginRequest,
+    redirectTo?: string,
+  ): Promise<{ success: boolean; error?: string; redirectUrl?: string }> {
     try {
       console.log('AuthContext: Calling login API...');
       const response = await apiLogin(credentials);
+
       console.log('AuthContext: Login API response:', response);
 
       // Check if cookie was set by the backend (via Set-Cookie header)
       const storedToken = typeof window !== 'undefined' ? getAuthToken() : null;
+
       console.log('AuthContext: Token in cookie:', storedToken ? 'YES' : 'NO');
 
       if (response.success && storedToken) {
         // Get user from the newly set cookie token
         console.log('AuthContext: Getting current user from token...');
         const currentUser = getCurrentUser();
+
         console.log('AuthContext: Current user:', currentUser);
 
         setUser(currentUser);
@@ -140,23 +159,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           return { success: true, redirectUrl };
         } else {
           console.error('AuthContext: Failed to extract user from token');
+
           return {
             success: false,
-            error: 'Failed to extract user information from token.'
+            error: 'Failed to extract user information from token.',
           };
         }
       } else {
         console.error('AuthContext: Login failed or no token in cookie');
+
         return {
           success: false,
-          error: response.error || 'Login failed. Please check your credentials.'
+          error: response.error || 'Login failed. Please check your credentials.',
         };
       }
     } catch (error) {
       console.error('AuthContext: Login error:', error);
+
       return {
         success: false,
-        error: 'An unexpected error occurred. Please try again.'
+        error: 'An unexpected error occurred. Please try again.',
       };
     }
   }
@@ -165,7 +187,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
    * Register new user
    * Note: Backend registration does not return a token, so we auto-login after successful registration
    */
-  async function register(userData: RegisterRequest): Promise<{ success: boolean; error?: string; redirectUrl?: string }> {
+  async function register(
+    userData: RegisterRequest,
+  ): Promise<{ success: boolean; error?: string; redirectUrl?: string }> {
     try {
       const response = await apiRegister(userData);
 
@@ -173,18 +197,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         // Registration successful, now automatically login the user
         console.log('Registration successful, auto-logging in...');
         const loginResult = await login({ email: userData.email, password: userData.password });
+
         return loginResult;
       } else {
         return {
           success: false,
-          error: response.error || 'Registration failed. Please try again.'
+          error: response.error || 'Registration failed. Please try again.',
         };
       }
     } catch (error) {
       console.error('Registration error:', error);
+
       return {
         success: false,
-        error: 'An unexpected error occurred. Please try again.'
+        error: 'An unexpected error occurred. Please try again.',
       };
     }
   }
@@ -193,7 +219,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
    * Get the dashboard route for the current user's role
    */
   function getDashboardRoute(): string {
-    if (!user) return '/dashboard';
+    if (!user) {return '/dashboard';}
+
     return getDashboardRouteForRole(user.role);
   }
 
@@ -218,6 +245,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
    */
   async function refreshUser(): Promise<void> {
     const currentUser = getCurrentUser();
+
     setUser(currentUser);
   }
 
@@ -233,15 +261,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (result.success) {
         // Update user data from the new token
         const currentUser = getCurrentUser();
+
         setUser(currentUser);
         console.log('AuthContext: Session refreshed successfully');
+
         return true;
       } else {
         console.error('AuthContext: Session refresh failed:', result.error);
+
         return false;
       }
     } catch (error) {
       console.error('AuthContext: Session refresh error:', error);
+
       return false;
     }
   }
@@ -266,8 +298,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
  */
 export function useAuth() {
   const context = useContext(AuthContext);
+
   if (context === undefined) {
     throw new Error('useAuth must be used within an AuthProvider');
   }
+
   return context;
 }

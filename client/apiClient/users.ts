@@ -17,7 +17,7 @@ export enum UserRole {
 }
 // Users interface
 export interface User {
-  id: string
+  id: string;
   name: string; //update to first and last name if needed
   email: string;
   role: UserRole;
@@ -40,8 +40,10 @@ export interface StatusParams {
 const handleResponse = async (response: Response) => {
   if (!response.ok) {
     const error = await response.json().catch(() => ({ message: 'An error occurred' }));
+
     throw new Error(error.message || `HTTP error! status: ${response.status}`);
   }
+
   return response.json();
 };
 
@@ -50,6 +52,7 @@ export const fetchUsers = async (page: number, pageSize: number): Promise<User[]
   const response = await fetch(`https://helpedge-api.onrender.com/api/Auth/Users`, {
     credentials: 'include',
   });
+
   return handleResponse(response);
 };
 
@@ -58,6 +61,7 @@ export const fetchUserById = async (id: number): Promise<User> => {
   const response = await fetch(`https://helpedge-api.onrender.com/api/Auth/Users/${id}`, {
     credentials: 'include',
   });
+
   return handleResponse(response);
 };
 
@@ -71,6 +75,7 @@ export const createUser = async (user: Omit<User, 'id'>): Promise<User> => {
     credentials: 'include',
     body: JSON.stringify(user),
   });
+
   return handleResponse(response);
 };
 
@@ -84,6 +89,7 @@ export const updateUser = async (id: number, user: Partial<User>): Promise<User>
     credentials: 'include',
     body: JSON.stringify(user),
   });
+
   return handleResponse(response);
 };
 
@@ -93,6 +99,7 @@ export const deleteUser = async (id: number): Promise<void> => {
     method: 'DELETE',
     credentials: 'include',
   });
+
   if (!response.ok) {
     throw new Error(`HTTP error! status: ${response.status}`);
   }
@@ -104,24 +111,33 @@ export const activateUser = async (id: number): Promise<User> => {
     method: 'POST',
     credentials: 'include',
   });
+
   return handleResponse(response);
 };
 
 // Deactivate user
 export const deactivateUser = async (id: number): Promise<User> => {
-  const response = await fetch(`https://helpedge-api.onrender.com/api/Auth/Users/${id}/deactivate`, {
-    method: 'POST',
-    credentials: 'include',
-  });
+  const response = await fetch(
+    `https://helpedge-api.onrender.com/api/Auth/Users/${id}/deactivate`,
+    {
+      method: 'POST',
+      credentials: 'include',
+    },
+  );
+
   return handleResponse(response);
 };
 
 // Reset user password
 export const resetUserPassword = async (id: number): Promise<void> => {
-  const response = await fetch(`https://helpedge-api.onrender.com/api/Auth/Users/${id}/reset-password`, {
-    method: 'POST',
-    credentials: 'include',
-  });
+  const response = await fetch(
+    `https://helpedge-api.onrender.com/api/Auth/Users/${id}/reset-password`,
+    {
+      method: 'POST',
+      credentials: 'include',
+    },
+  );
+
   if (!response.ok) {
     throw new Error(`HTTP error! status: ${response.status}`);
   }
@@ -137,6 +153,7 @@ export const assignUserRole = async (id: number, role: number): Promise<User> =>
     credentials: 'include',
     body: JSON.stringify({ role }),
   });
+
   return handleResponse(response);
 };
 
@@ -146,6 +163,7 @@ export const unassignUserRole = async (id: number): Promise<User> => {
     method: 'DELETE',
     credentials: 'include',
   });
+
   return handleResponse(response);
 };
 // Fetch users hook
@@ -168,6 +186,7 @@ export const useUser = (id: number) => {
 // Create user mutation
 export const useCreateUser = () => {
   const queryClient = useQueryClient();
+
   return useMutation<User, Error, Omit<User, 'id'>>({
     mutationFn: createUser,
     onSuccess: () => {
@@ -179,6 +198,7 @@ export const useCreateUser = () => {
 // Update user mutation
 export const useUpdateUser = () => {
   const queryClient = useQueryClient();
+
   return useMutation<User, Error, { id: number; user: Partial<User> }>({
     mutationFn: ({ id, user }) => updateUser(id, user),
     onSuccess: () => {
@@ -190,6 +210,7 @@ export const useUpdateUser = () => {
 // Delete user mutation
 export const useDeleteUser = () => {
   const queryClient = useQueryClient();
+
   return useMutation<void, Error, number>({
     mutationFn: deleteUser,
     onSuccess: () => {
@@ -201,6 +222,7 @@ export const useDeleteUser = () => {
 // Activate user mutation
 export const useActivateUser = () => {
   const queryClient = useQueryClient();
+
   return useMutation<User, Error, number>({
     mutationFn: activateUser,
     onSuccess: () => {
@@ -212,6 +234,7 @@ export const useActivateUser = () => {
 // Deactivate user mutation
 export const useDeactivateUser = () => {
   const queryClient = useQueryClient();
+
   return useMutation<User, Error, number>({
     mutationFn: deactivateUser,
     onSuccess: () => {
@@ -223,6 +246,7 @@ export const useDeactivateUser = () => {
 // Reset user password mutation
 export const useResetUserPassword = () => {
   const queryClient = useQueryClient();
+
   return useMutation<void, Error, number>({
     mutationFn: resetUserPassword,
     onSuccess: () => {
@@ -234,6 +258,7 @@ export const useResetUserPassword = () => {
 // Assign user role mutation
 export const useAssignUserRole = () => {
   const queryClient = useQueryClient();
+
   return useMutation<User, Error, { id: number; role: number }>({
     mutationFn: ({ id, role }) => assignUserRole(id, role),
     onSuccess: () => {
@@ -245,6 +270,7 @@ export const useAssignUserRole = () => {
 // Unassign user role mutation
 export const useUnassignUserRole = () => {
   const queryClient = useQueryClient();
+
   return useMutation<User, Error, number>({
     mutationFn: unassignUserRole,
     onSuccess: () => {

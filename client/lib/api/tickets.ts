@@ -25,18 +25,30 @@ export enum TicketPriority {
 
 // Triage Status Enum (matches backend)
 export enum TriageStatus {
-  Pending = 0,            // Not yet triaged - awaiting Team Lead review
-  Confirmed = 1,          // AI suggestions confirmed by Team Lead
-  Modified = 2,           // AI suggestions modified by Team Lead
-  Skipped = 3,            // Triage skipped (manual assignment)
-  AutoAssigned = 4,       // AI auto-assigned with high confidence (no human review needed)
+  Pending = 0, // Not yet triaged - awaiting Team Lead review
+  Confirmed = 1, // AI suggestions confirmed by Team Lead
+  Modified = 2, // AI suggestions modified by Team Lead
+  Skipped = 3, // Triage skipped (manual assignment)
+  AutoAssigned = 4, // AI auto-assigned with high confidence (no human review needed)
   AssignedWithReview = 5, // AI assigned but flagged for human review
 }
 
 // String literal types matching backend responses
-export type TicketStatusString = 'Open' | 'InProgress' | 'Resolved' | 'Closed' | 'OnHold' | 'AwaitingInfo';
+export type TicketStatusString =
+  | 'Open'
+  | 'InProgress'
+  | 'Resolved'
+  | 'Closed'
+  | 'OnHold'
+  | 'AwaitingInfo';
 export type TicketPriorityString = 'Low' | 'Medium' | 'High' | 'Critical';
-export type TriageStatusString = 'Pending' | 'Confirmed' | 'Modified' | 'Skipped' | 'AutoAssigned' | 'AssignedWithReview';
+export type TriageStatusString =
+  | 'Pending'
+  | 'Confirmed'
+  | 'Modified'
+  | 'Skipped'
+  | 'AutoAssigned'
+  | 'AssignedWithReview';
 
 // Ticket Interfaces
 export interface TicketComment {
@@ -191,7 +203,7 @@ export async function getTicketsByCreator(creatorId: string): Promise<ApiRespons
  */
 export async function createTicket(
   ticket: CreateTicketRequest,
-  idempotencyKey?: string
+  idempotencyKey?: string,
 ): Promise<ApiResponse<Ticket>> {
   return apiRequest<Ticket>('/api/Tickets', {
     method: 'POST',
@@ -209,7 +221,7 @@ export async function createTicket(
  * @returns Created ticket object with AI suggestions
  */
 export async function createTicketFromEmail(
-  emailTicket: CreateTicketFromEmailRequest
+  emailTicket: CreateTicketFromEmailRequest,
 ): Promise<ApiResponse<Ticket>> {
   return apiRequest<Ticket>('/api/Tickets/from-email', {
     method: 'POST',
@@ -226,7 +238,7 @@ export async function createTicketFromEmail(
  */
 export async function assignTicket(
   ticketId: string,
-  assigneeId: string
+  assigneeId: string,
 ): Promise<ApiResponse<Ticket>> {
   return apiRequest<Ticket>(`/api/Tickets/${ticketId}/assign/${assigneeId}`, {
     method: 'PATCH',
@@ -268,7 +280,7 @@ export async function acknowledgeTicket(ticketId: string): Promise<ApiResponse<T
  */
 export async function updateTicketPriority(
   ticketId: string,
-  priority: TicketPriority
+  priority: TicketPriority,
 ): Promise<ApiResponse<Ticket>> {
   return apiRequest<Ticket>(`/api/Tickets/${ticketId}/priority`, {
     method: 'PATCH',
@@ -309,7 +321,7 @@ export async function closeTicket(ticketId: string): Promise<ApiResponse<Ticket>
  */
 export async function transferTicket(
   ticketId: string,
-  toUserId: string
+  toUserId: string,
 ): Promise<ApiResponse<Ticket>> {
   return apiRequest<Ticket>(`/api/Tickets/${ticketId}/transfer`, {
     method: 'POST',
@@ -360,7 +372,7 @@ export async function markInProgress(ticketId: string): Promise<ApiResponse<void
  */
 export async function addTicketComment(
   ticketId: string,
-  comment: AddCommentRequest
+  comment: AddCommentRequest,
 ): Promise<ApiResponse<Ticket>> {
   return apiRequest<Ticket>(`/api/Tickets/${ticketId}/comments`, {
     method: 'POST',
@@ -420,7 +432,7 @@ export async function confirmTriageSuggestions(ticketId: string): Promise<ApiRes
  */
 export async function modifyTriageSuggestions(
   ticketId: string,
-  modifications: TriageModifyRequest
+  modifications: TriageModifyRequest,
 ): Promise<ApiResponse<Ticket>> {
   return apiRequest<Ticket>(`/api/Tickets/${ticketId}/triage/modify`, {
     method: 'PATCH',
@@ -437,7 +449,7 @@ export async function modifyTriageSuggestions(
  */
 export async function escalateTicket(
   ticketId: string,
-  body: EscalateTicketRequest
+  body: EscalateTicketRequest,
 ): Promise<ApiResponse<Ticket>> {
   return apiRequest<Ticket>(`/api/Tickets/${ticketId}/escalate`, {
     method: 'PATCH',
@@ -477,24 +489,38 @@ export function getStatusString(status: TicketStatusString | TicketStatus): stri
   // Handle string values from API
   if (typeof status === 'string') {
     switch (status) {
-      case 'Open': return 'Open';
-      case 'InProgress': return 'In Progress';
-      case 'Resolved': return 'Resolved';
-      case 'Closed': return 'Closed';
-      case 'OnHold': return 'On Hold';
-      case 'AwaitingInfo': return 'Awaiting Info';
-      default: return status;
+      case 'Open':
+        return 'Open';
+      case 'InProgress':
+        return 'In Progress';
+      case 'Resolved':
+        return 'Resolved';
+      case 'Closed':
+        return 'Closed';
+      case 'OnHold':
+        return 'On Hold';
+      case 'AwaitingInfo':
+        return 'Awaiting Info';
+      default:
+        return status;
     }
   }
   // Handle numeric enum values
   switch (status) {
-    case TicketStatus.Open: return 'Open';
-    case TicketStatus.InProgress: return 'In Progress';
-    case TicketStatus.Resolved: return 'Resolved';
-    case TicketStatus.Closed: return 'Closed';
-    case TicketStatus.OnHold: return 'On Hold';
-    case TicketStatus.AwaitingInfo: return 'Awaiting Info';
-    default: return 'Unknown';
+    case TicketStatus.Open:
+      return 'Open';
+    case TicketStatus.InProgress:
+      return 'In Progress';
+    case TicketStatus.Resolved:
+      return 'Resolved';
+    case TicketStatus.Closed:
+      return 'Closed';
+    case TicketStatus.OnHold:
+      return 'On Hold';
+    case TicketStatus.AwaitingInfo:
+      return 'Awaiting Info';
+    default:
+      return 'Unknown';
   }
 }
 
@@ -508,11 +534,16 @@ export function getPriorityString(priority: TicketPriorityString | TicketPriorit
   }
   // Handle numeric enum values
   switch (priority) {
-    case TicketPriority.Low: return 'Low';
-    case TicketPriority.Medium: return 'Medium';
-    case TicketPriority.High: return 'High';
-    case TicketPriority.Critical: return 'Critical';
-    default: return 'Unknown';
+    case TicketPriority.Low:
+      return 'Low';
+    case TicketPriority.Medium:
+      return 'Medium';
+    case TicketPriority.High:
+      return 'High';
+    case TicketPriority.Critical:
+      return 'Critical';
+    default:
+      return 'Unknown';
   }
 }
 
@@ -526,13 +557,20 @@ export function getTriageStatusString(triageStatus: TriageStatusString | TriageS
   }
   // Handle numeric enum values
   switch (triageStatus) {
-    case TriageStatus.Pending: return 'Pending';
-    case TriageStatus.Confirmed: return 'Confirmed';
-    case TriageStatus.Modified: return 'Modified';
-    case TriageStatus.Skipped: return 'Skipped';
-    case TriageStatus.AutoAssigned: return 'Auto Assigned';
-    case TriageStatus.AssignedWithReview: return 'Assigned With Review';
-    default: return 'Unknown';
+    case TriageStatus.Pending:
+      return 'Pending';
+    case TriageStatus.Confirmed:
+      return 'Confirmed';
+    case TriageStatus.Modified:
+      return 'Modified';
+    case TriageStatus.Skipped:
+      return 'Skipped';
+    case TriageStatus.AutoAssigned:
+      return 'Auto Assigned';
+    case TriageStatus.AssignedWithReview:
+      return 'Assigned With Review';
+    default:
+      return 'Unknown';
   }
 }
 
@@ -541,12 +579,18 @@ export function getTriageStatusString(triageStatus: TriageStatusString | TriageS
  */
 export function getPriorityColor(priority: TicketPriorityString | TicketPriority): string {
   const priorityStr = typeof priority === 'string' ? priority : getPriorityString(priority);
+
   switch (priorityStr) {
-    case 'Low': return 'text-gray-600';
-    case 'Medium': return 'text-blue-600';
-    case 'High': return 'text-orange-600';
-    case 'Critical': return 'text-red-600';
-    default: return 'text-gray-600';
+    case 'Low':
+      return 'text-gray-600';
+    case 'Medium':
+      return 'text-blue-600';
+    case 'High':
+      return 'text-orange-600';
+    case 'Critical':
+      return 'text-red-600';
+    default:
+      return 'text-gray-600';
   }
 }
 
@@ -555,15 +599,24 @@ export function getPriorityColor(priority: TicketPriorityString | TicketPriority
  */
 export function getStatusColor(status: TicketStatusString | TicketStatus): string {
   const statusStr = typeof status === 'string' ? status : getStatusString(status);
+
   switch (statusStr) {
-    case 'Open': return 'text-blue-600';
-    case 'In Progress': return 'text-yellow-600';
-    case 'Resolved': return 'text-green-600';
-    case 'Closed': return 'text-gray-600';
-    case 'On Hold': return 'text-purple-600';
-    case 'Awaiting Info': return 'text-teal-600';
-    case 'AwaitingInfo': return 'text-teal-600';
-    default: return 'text-gray-600';
+    case 'Open':
+      return 'text-blue-600';
+    case 'In Progress':
+      return 'text-yellow-600';
+    case 'Resolved':
+      return 'text-green-600';
+    case 'Closed':
+      return 'text-gray-600';
+    case 'On Hold':
+      return 'text-purple-600';
+    case 'Awaiting Info':
+      return 'text-teal-600';
+    case 'AwaitingInfo':
+      return 'text-teal-600';
+    default:
+      return 'text-gray-600';
   }
 }
 
@@ -573,9 +626,10 @@ export function getStatusColor(status: TicketStatusString | TicketStatus): strin
  */
 export function getEffectiveStatusLabel(
   status: TicketStatusString,
-  assignedToId?: string | null
+  assignedToId?: string | null,
 ): string {
-  if (status === 'Open' && assignedToId) return 'Awaiting Ack';
+  if (status === 'Open' && assignedToId) {return 'Awaiting Ack';}
+
   return getStatusString(status);
 }
 
@@ -585,17 +639,24 @@ export function getEffectiveStatusLabel(
  */
 export function getEffectiveStatusStyle(
   status: TicketStatusString,
-  assignedToId?: string | null
+  assignedToId?: string | null,
 ): string {
-  if (status === 'Open' && assignedToId) return 'bg-amber-100 text-amber-800 border-amber-200';
+  if (status === 'Open' && assignedToId) {return 'bg-amber-100 text-amber-800 border-amber-200';}
   switch (status) {
-    case 'Open': return 'bg-blue-100 text-blue-800 border-blue-200';
-    case 'InProgress': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
-    case 'Resolved': return 'bg-green-100 text-green-800 border-green-200';
-    case 'Closed': return 'bg-gray-100 text-gray-800 border-gray-200';
-    case 'OnHold': return 'bg-purple-100 text-purple-800 border-purple-200';
-    case 'AwaitingInfo': return 'bg-teal-100 text-teal-800 border-teal-200';
-    default: return 'bg-gray-100 text-gray-800 border-gray-200';
+    case 'Open':
+      return 'bg-blue-100 text-blue-800 border-blue-200';
+    case 'InProgress':
+      return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+    case 'Resolved':
+      return 'bg-green-100 text-green-800 border-green-200';
+    case 'Closed':
+      return 'bg-gray-100 text-gray-800 border-gray-200';
+    case 'OnHold':
+      return 'bg-purple-100 text-purple-800 border-purple-200';
+    case 'AwaitingInfo':
+      return 'bg-teal-100 text-teal-800 border-teal-200';
+    default:
+      return 'bg-gray-100 text-gray-800 border-gray-200';
   }
 }
 
@@ -603,16 +664,27 @@ export function getEffectiveStatusStyle(
  * Get triage status color for UI
  */
 export function getTriageStatusColor(triageStatus: TriageStatusString | TriageStatus): string {
-  const triageStr = typeof triageStatus === 'string' ? triageStatus : getTriageStatusString(triageStatus);
+  const triageStr =
+    typeof triageStatus === 'string' ? triageStatus : getTriageStatusString(triageStatus);
+
   switch (triageStr) {
-    case 'Pending': return 'text-yellow-600';
-    case 'Confirmed': return 'text-green-600';
-    case 'Modified': return 'text-blue-600';
-    case 'Skipped': return 'text-gray-600';
-    case 'Auto Assigned': return 'text-green-600';
-    case 'AutoAssigned': return 'text-green-600';
-    case 'Assigned With Review': return 'text-amber-600';
-    case 'AssignedWithReview': return 'text-amber-600';
-    default: return 'text-gray-600';
+    case 'Pending':
+      return 'text-yellow-600';
+    case 'Confirmed':
+      return 'text-green-600';
+    case 'Modified':
+      return 'text-blue-600';
+    case 'Skipped':
+      return 'text-gray-600';
+    case 'Auto Assigned':
+      return 'text-green-600';
+    case 'AutoAssigned':
+      return 'text-green-600';
+    case 'Assigned With Review':
+      return 'text-amber-600';
+    case 'AssignedWithReview':
+      return 'text-amber-600';
+    default:
+      return 'text-gray-600';
   }
 }

@@ -1,11 +1,11 @@
-"use client";
+'use client';
 
-import { Globe, Search, X, Menu } from "lucide-react";
-import { navLinks } from "@/common";
-import Link from "next/link";
-import { useState, useRef, useEffect } from "react";
-import { usePathname } from "next/navigation";
-import { siteConfig } from "@/config/site";
+import { Globe, Search, X, Menu } from 'lucide-react';
+import { navLinks } from '@/common';
+import Link from 'next/link';
+import { useState, useRef, useEffect } from 'react';
+import { usePathname } from 'next/navigation';
+import { siteConfig } from '@/config/site';
 
 export default function NavHeader() {
   const pathname = usePathname();
@@ -17,15 +17,13 @@ export default function NavHeader() {
   // Close dropdown when clicking outside
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
-      if (
-        dropdownRef.current &&
-        !dropdownRef.current.contains(event.target as Node)
-      ) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
         setOpenDropdown(null);
       }
     }
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+    document.addEventListener('mousedown', handleClickOutside);
+
+    return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
   return (
@@ -51,9 +49,7 @@ export default function NavHeader() {
               <button
                 type="button"
                 className="text-gray-700 hover:text-indigo-600 font-medium transition flex items-center"
-                onClick={() =>
-                  setOpenDropdown(openDropdown === link.label ? null : link.label)
-                }
+                onClick={() => setOpenDropdown(openDropdown === link.label ? null : link.label)}
               >
                 {link.label}
                 {link.dropdown && (
@@ -122,21 +118,18 @@ export default function NavHeader() {
 
           {/* Action Buttons */}
           {/* <button className="text-gray-700 hover:text-indigo-600">Login</button> */}
-          <Link 
-            href="/auth/login"
-            className="text-gray-700 hover:text-indigo-600"
-          >
+          <Link href="/auth/login" className="text-gray-700 hover:text-indigo-600">
             Login
           </Link>
-          <Link  href="/ContactTeam" >
-          <button className="px-4 py-2 border border-indigo-400 text-indigo-600 rounded-lg hover:bg-indigo-50">
-            Reach out to Us
-          </button>
+          <Link href="/ContactTeam">
+            <button className="px-4 py-2 border border-indigo-400 text-indigo-600 rounded-lg hover:bg-indigo-50">
+              Reach out to Us
+            </button>
           </Link>
-          <Link href="/GetStarted" >
-          <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-indigo-700">
-            Get Started
-          </button>
+          <Link href="/GetStarted">
+            <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-indigo-700">
+              Get Started
+            </button>
           </Link>
         </div>
 
@@ -169,25 +162,22 @@ export default function NavHeader() {
             >
               <Search className="mr-2 w-5 h-5" /> Search
             </button>
-           {/* <button className="text-gray-700 hover:text-indigo-600">Login</button> */}
-            <Link 
-            href="/auth/login"
-            className="text-gray-700 hover:text-indigo-600"
-          >
-            Login
-          </Link>
-          <Link href="/ContactTeam" >
-            <button className="px-4 py-2 border border-indigo-600 text-indigo-600 rounded-lg hover:bg-indigo-50">
-              Reach out for support
-            </button>
-          </Link>
-          <Link href="/pricing/DetailsForm" >
-            <button className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">
-              Get Started
-            </button>
-          </Link>
-        </nav>
-      </div>
+            {/* <button className="text-gray-700 hover:text-indigo-600">Login</button> */}
+            <Link href="/auth/login" className="text-gray-700 hover:text-indigo-600">
+              Login
+            </Link>
+            <Link href="/ContactTeam">
+              <button className="px-4 py-2 border border-indigo-600 text-indigo-600 rounded-lg hover:bg-indigo-50">
+                Reach out for support
+              </button>
+            </Link>
+            <Link href="/pricing/DetailsForm">
+              <button className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">
+                Get Started
+              </button>
+            </Link>
+          </nav>
+        </div>
       )}
     </header>
   );

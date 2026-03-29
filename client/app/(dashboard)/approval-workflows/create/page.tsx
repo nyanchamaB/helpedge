@@ -1,4 +1,4 @@
-"use client";
+'use client';
 export const dynamic = 'force-dynamic';
 
 // import { useNavigation } from '@/contexts/NavigationContext';
@@ -16,6 +16,7 @@ export default function CreateApprovalWorkflowPage() {
 
   const handleSubmit = async (data: CreateApprovalWorkflowDto) => {
     const result = await createMutation.mutateAsync(data);
+
     if (result.success) {
       router.push('/approval-workflows');
     }
@@ -24,14 +25,20 @@ export default function CreateApprovalWorkflowPage() {
   return (
     <div className="container mx-auto py-8">
       <div className="mb-6">
-        <Button variant="ghost" className="gap-2" onClick={() => router.push('/approval-workflows')}>
+        <Button
+          variant="ghost"
+          className="gap-2"
+          onClick={() => router.push('/approval-workflows')}
+        >
           <ArrowLeft className="h-4 w-4" /> Back to Workflows
         </Button>
       </div>
       <Card>
         <CardHeader>
           <CardTitle className="text-2xl">Create Approval Workflow</CardTitle>
-          <p className="text-muted-foreground">Define a multi-step approval chain for service requests</p>
+          <p className="text-muted-foreground">
+            Define a multi-step approval chain for service requests
+          </p>
         </CardHeader>
         <CardContent>
           <WorkflowForm

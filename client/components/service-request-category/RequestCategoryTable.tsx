@@ -1,7 +1,7 @@
 // /components/service-request-category/RequestCategoryTable.tsx
-"use client";
-import React, { useState } from "react";
-import { ServiceRequestCategory, SupportTier } from "@/lib/api/service-request-category";
+'use client';
+import React, { useState } from 'react';
+import { ServiceRequestCategory, SupportTier } from '@/lib/api/service-request-category';
 import {
   Table,
   TableBody,
@@ -9,8 +9,8 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
+} from '@/components/ui/table';
+import { Badge } from '@/components/ui/badge';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -18,7 +18,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+} from '@/components/ui/dropdown-menu';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -28,10 +28,10 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Card, CardContent } from "@/components/ui/card";
+} from '@/components/ui/alert-dialog';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Card, CardContent } from '@/components/ui/card';
 import {
   Search,
   EyeIcon,
@@ -57,23 +57,18 @@ import {
   Type,
   ToggleLeft,
   ToggleRight,
-} from "lucide-react";
-import { Spinner } from "@/components/ui/spinner";
-import { format } from "date-fns";
-import { Checkbox } from "@/components/ui/checkbox";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+} from 'lucide-react';
+import { Spinner } from '@/components/ui/spinner';
+import { format } from 'date-fns';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from '@/components/ui/select';
 
 interface RequestCategoryTableProps {
   categories: ServiceRequestCategory[];
@@ -93,13 +88,13 @@ interface RequestCategoryTableProps {
 }
 
 type SortField =
-  | "name"
-  | "requestType"
-  | "isActive"
-  | "createdAt"
-  | "updatedAt"
-  | "estimatedFulfillmentDays";
-type SortDirection = "asc" | "desc";
+  | 'name'
+  | 'requestType'
+  | 'isActive'
+  | 'createdAt'
+  | 'updatedAt'
+  | 'estimatedFulfillmentDays';
+type SortDirection = 'asc' | 'desc';
 
 export default function RequestCategoryTable({
   categories,
@@ -117,16 +112,15 @@ export default function RequestCategoryTable({
   showActions = true,
   selectable = true,
 }: RequestCategoryTableProps) {
-  const [searchTerm, setSearchTerm] = useState("");
-  const [filterType, setFilterType] = useState<string>("all");
-  const [filterStatus, setFilterStatus] = useState<string>("all");
-  const [sortField, setSortField] = useState<SortField>("name");
-  const [sortDirection, setSortDirection] = useState<SortDirection>("asc");
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filterType, setFilterType] = useState<string>('all');
+  const [filterStatus, setFilterStatus] = useState<string>('all');
+  const [sortField, setSortField] = useState<SortField>('name');
+  const [sortDirection, setSortDirection] = useState<SortDirection>('asc');
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [bulkActionDialogOpen, setBulkActionDialogOpen] = useState(false);
-  const [selectedCategory, setSelectedCategory] =
-    useState<ServiceRequestCategory | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<ServiceRequestCategory | null>(null);
 
   // Filter and sort categories
   const filteredCategories = categories
@@ -136,15 +130,14 @@ export default function RequestCategoryTable({
         category.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
         (category.keywords &&
           category.keywords.some((keyword) =>
-            keyword.toLowerCase().includes(searchTerm.toLowerCase())
+            keyword.toLowerCase().includes(searchTerm.toLowerCase()),
           ));
 
-      const matchesType =
-        filterType === "all" || category.requestType === filterType;
+      const matchesType = filterType === 'all' || category.requestType === filterType;
       const matchesStatus =
-        filterStatus === "all" ||
-        (filterStatus === "active" && category.isActive) ||
-        (filterStatus === "inactive" && !category.isActive);
+        filterStatus === 'all' ||
+        (filterStatus === 'active' && category.isActive) ||
+        (filterStatus === 'inactive' && !category.isActive);
 
       return matchesSearch && matchesType && matchesStatus;
     })
@@ -152,27 +145,27 @@ export default function RequestCategoryTable({
       let aValue: string | number, bValue: string | number;
 
       switch (sortField) {
-        case "name":
+        case 'name':
           aValue = a.name.toLowerCase();
           bValue = b.name.toLowerCase();
           break;
-        case "requestType":
+        case 'requestType':
           aValue = a.requestType;
           bValue = b.requestType;
           break;
-        case "isActive":
+        case 'isActive':
           aValue = a.isActive ? 1 : 0;
           bValue = b.isActive ? 1 : 0;
           break;
-        case "createdAt":
+        case 'createdAt':
           aValue = new Date(a.createdAt).getTime();
           bValue = new Date(b.createdAt).getTime();
           break;
-        case "updatedAt":
+        case 'updatedAt':
           aValue = new Date(a.updatedAt).getTime();
           bValue = new Date(b.updatedAt).getTime();
           break;
-        case "estimatedFulfillmentDays":
+        case 'estimatedFulfillmentDays':
           aValue = a.estimatedFulfillmentDays || 0;
           bValue = b.estimatedFulfillmentDays || 0;
           break;
@@ -180,17 +173,18 @@ export default function RequestCategoryTable({
           return 0;
       }
 
-      if (aValue < bValue) return sortDirection === "asc" ? -1 : 1;
-      if (aValue > bValue) return sortDirection === "asc" ? 1 : -1;
+      if (aValue < bValue) {return sortDirection === 'asc' ? -1 : 1;}
+      if (aValue > bValue) {return sortDirection === 'asc' ? 1 : -1;}
+
       return 0;
     });
 
   const handleSort = (field: SortField) => {
     if (sortField === field) {
-      setSortDirection(sortDirection === "asc" ? "desc" : "asc");
+      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
     } else {
       setSortField(field);
-      setSortDirection("asc");
+      setSortDirection('asc');
     }
   };
 
@@ -202,8 +196,12 @@ export default function RequestCategoryTable({
         </Badge>
       );
     }
+
     return (
-      <Badge variant="outline" className="text-xs bg-purple-500/10 text-purple-700 dark:text-purple-400 border-purple-200 dark:border-purple-800">
+      <Badge
+        variant="outline"
+        className="text-xs bg-purple-500/10 text-purple-700 dark:text-purple-400 border-purple-200 dark:border-purple-800"
+      >
         L2
       </Badge>
     );
@@ -211,23 +209,20 @@ export default function RequestCategoryTable({
 
   const getRequestTypeColor = (type: string) => {
     switch (type) {
-      case "Access":
-        return "bg-blue-500/10 text-blue-700 dark:text-blue-400";
-      case "Hardware":
-        return "bg-orange-500/10 text-orange-700 dark:text-orange-400";
-      case "Software":
-        return "bg-green-500/10 text-green-700 dark:text-green-400";
-      case "Support":
-        return "bg-purple-500/10 text-purple-700 dark:text-purple-400";
+      case 'Access':
+        return 'bg-blue-500/10 text-blue-700 dark:text-blue-400';
+      case 'Hardware':
+        return 'bg-orange-500/10 text-orange-700 dark:text-orange-400';
+      case 'Software':
+        return 'bg-green-500/10 text-green-700 dark:text-green-400';
+      case 'Support':
+        return 'bg-purple-500/10 text-purple-700 dark:text-purple-400';
       default:
-        return "bg-muted text-muted-foreground";
+        return 'bg-muted text-muted-foreground';
     }
   };
 
-  const handleDeleteClick = (
-    category: ServiceRequestCategory,
-    e: React.MouseEvent
-  ) => {
+  const handleDeleteClick = (category: ServiceRequestCategory, e: React.MouseEvent) => {
     e.stopPropagation();
     setSelectedCategory(category);
     setDeleteDialogOpen(true);
@@ -257,45 +252,34 @@ export default function RequestCategoryTable({
     }
   };
 
-  const handleBulkAction = async (
-    action: "delete" | "activate" | "deactivate"
-  ) => {
-    if (selectedIds.length === 0) return;
+  const handleBulkAction = async (action: 'delete' | 'activate' | 'deactivate') => {
+    if (selectedIds.length === 0) {return;}
 
     try {
       switch (action) {
-        case "delete":
-          if (onBulkDelete) await onBulkDelete(selectedIds);
+        case 'delete':
+          if (onBulkDelete) {await onBulkDelete(selectedIds);}
           break;
-        case "activate":
-          if (onBulkActivate) await onBulkActivate(selectedIds);
+        case 'activate':
+          if (onBulkActivate) {await onBulkActivate(selectedIds);}
           break;
-        case "deactivate":
-          if (onBulkDeactivate) await onBulkDeactivate(selectedIds);
+        case 'deactivate':
+          if (onBulkDeactivate) {await onBulkDeactivate(selectedIds);}
           break;
       }
       setSelectedIds([]);
       setBulkActionDialogOpen(false);
     } catch (error) {
-      console.error("Bulk action failed:", error);
+      console.error('Bulk action failed:', error);
     }
   };
 
-  const SortableHeader = ({
-    field,
-    children,
-  }: {
-    field: SortField;
-    children: React.ReactNode;
-  }) => (
-    <TableHead
-      className="cursor-pointer hover:bg-muted/50"
-      onClick={() => handleSort(field)}
-    >
+  const SortableHeader = ({ field, children }: { field: SortField; children: React.ReactNode }) => (
+    <TableHead className="cursor-pointer hover:bg-muted/50" onClick={() => handleSort(field)}>
       <div className="flex items-center space-x-1">
         <span>{children}</span>
         {sortField === field &&
-          (sortDirection === "asc" ? (
+          (sortDirection === 'asc' ? (
             <ChevronUp className="h-4 w-4" />
           ) : (
             <ChevronDown className="h-4 w-4" />
@@ -347,7 +331,7 @@ export default function RequestCategoryTable({
                   <CheckSquare className="h-5 w-5 text-blue-600" />
                   <span className="font-medium">
                     {selectedIds.length} category
-                    {selectedIds.length !== 1 ? "ies" : ""} selected
+                    {selectedIds.length !== 1 ? 'ies' : ''} selected
                   </span>
                 </div>
 
@@ -356,7 +340,7 @@ export default function RequestCategoryTable({
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => handleBulkAction("activate")}
+                      onClick={() => handleBulkAction('activate')}
                     >
                       Activate Selected
                     </Button>
@@ -366,7 +350,7 @@ export default function RequestCategoryTable({
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => handleBulkAction("deactivate")}
+                      onClick={() => handleBulkAction('deactivate')}
                     >
                       Deactivate Selected
                     </Button>
@@ -383,11 +367,7 @@ export default function RequestCategoryTable({
                     </Button>
                   )}
 
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setSelectedIds([])}
-                  >
+                  <Button variant="ghost" size="sm" onClick={() => setSelectedIds([])}>
                     Clear Selection
                   </Button>
                 </div>
@@ -444,8 +424,7 @@ export default function RequestCategoryTable({
           {/* Results count */}
           <div className="mb-4 text-sm text-muted-foreground flex justify-between items-center">
             <div>
-              Showing {filteredCategories.length} of {categories.length}{" "}
-              categories
+              Showing {filteredCategories.length} of {categories.length} categories
               {searchTerm && (
                 <span className="ml-2">
                   matching &quot;<span className="font-medium">{searchTerm}</span>&quot;
@@ -492,30 +471,23 @@ export default function RequestCategoryTable({
                   <TableHead>Configuration</TableHead>
                   <SortableHeader field="isActive">Status</SortableHeader>
                   <SortableHeader field="createdAt">Created</SortableHeader>
-                  {showActions && (
-                    <TableHead className="text-right">Actions</TableHead>
-                  )}
+                  {showActions && <TableHead className="text-right">Actions</TableHead>}
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {filteredCategories.length === 0 ? (
                   <TableRow>
-                    <TableCell
-                      colSpan={showActions ? 8 : 7}
-                      className="text-center py-12"
-                    >
+                    <TableCell colSpan={showActions ? 8 : 7} className="text-center py-12">
                       <div className="flex flex-col items-center justify-center space-y-4">
                         <div className="rounded-full bg-muted p-4">
                           <Type className="h-8 w-8 text-muted-foreground" />
                         </div>
                         <div>
-                          <p className="text-muted-foreground font-medium">
-                            No categories found
-                          </p>
+                          <p className="text-muted-foreground font-medium">No categories found</p>
                           <p className="text-sm text-muted-foreground/70 mt-1">
                             {searchTerm
-                              ? "Try a different search term"
-                              : "Create your first category to get started"}
+                              ? 'Try a different search term'
+                              : 'Create your first category to get started'}
                           </p>
                         </div>
                         {!searchTerm && onCreate && (
@@ -538,9 +510,7 @@ export default function RequestCategoryTable({
                         <TableCell onClick={(e) => e.stopPropagation()}>
                           <Checkbox
                             checked={selectedIds.includes(category.id)}
-                            onCheckedChange={() =>
-                              handleSelectCategory(category.id)
-                            }
+                            onCheckedChange={() => handleSelectCategory(category.id)}
                             className="h-4 w-4"
                             onClick={(e) => e.stopPropagation()}
                           />
@@ -564,7 +534,10 @@ export default function RequestCategoryTable({
                             {category.keywords && category.keywords.length > 0 && (
                               <div className="flex flex-wrap gap-1 mt-1">
                                 {category.keywords.slice(0, 2).map((keyword, idx) => (
-                                  <span key={idx} className="text-xs bg-muted text-muted-foreground px-2 py-0.5 rounded">
+                                  <span
+                                    key={idx}
+                                    className="text-xs bg-muted text-muted-foreground px-2 py-0.5 rounded"
+                                  >
                                     {keyword}
                                   </span>
                                 ))}
@@ -659,29 +632,19 @@ export default function RequestCategoryTable({
                           </div>
                         </div>
                       </TableCell>
-                      <TableCell>
-                        {getStatusBadge(category)}
-                      </TableCell>
+                      <TableCell>{getStatusBadge(category)}</TableCell>
                       <TableCell>
                         <div className="text-sm">
-                          <div>
-                            {format(
-                              new Date(category.createdAt),
-                              "MMM d, yyyy"
-                            )}
-                          </div>
+                          <div>{format(new Date(category.createdAt), 'MMM d, yyyy')}</div>
                           <div className="text-muted-foreground text-xs">
-                            {format(new Date(category.createdAt), "h:mm a")}
+                            {format(new Date(category.createdAt), 'h:mm a')}
                           </div>
                         </div>
                       </TableCell>
                       {showActions && (
                         <TableCell className="text-right">
                           <DropdownMenu>
-                            <DropdownMenuTrigger
-                              asChild
-                              onClick={(e) => e.stopPropagation()}
-                            >
+                            <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
                               <Button
                                 variant="ghost"
                                 className="h-8 w-8 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
@@ -692,17 +655,13 @@ export default function RequestCategoryTable({
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
                               <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                              <DropdownMenuItem
-                                onClick={() => onCategoryClick(category)}
-                              >
+                              <DropdownMenuItem onClick={() => onCategoryClick(category)}>
                                 <EyeIcon className="mr-2 h-4 w-4" />
                                 View details
                               </DropdownMenuItem>
 
                               {onEdit && (
-                                <DropdownMenuItem
-                                  onClick={() => onEdit(category)}
-                                >
+                                <DropdownMenuItem onClick={() => onEdit(category)}>
                                   <Edit className="mr-2 h-4 w-4" />
                                   Edit
                                 </DropdownMenuItem>
@@ -713,9 +672,7 @@ export default function RequestCategoryTable({
                                   <DropdownMenuSeparator />
                                   <DropdownMenuItem
                                     className="text-red-600"
-                                    onClick={(e) =>
-                                      handleDeleteClick(category, e)
-                                    }
+                                    onClick={(e) => handleDeleteClick(category, e)}
                                   >
                                     <Trash2 className="mr-2 h-4 w-4" />
                                     Delete
@@ -741,18 +698,14 @@ export default function RequestCategoryTable({
           <AlertDialogHeader>
             <AlertDialogTitle>Delete Category</AlertDialogTitle>
             <AlertDialogDescription>
-              This will permanently delete the category{" "}
-              <span className="font-semibold">&quot;{selectedCategory?.name}&quot;</span>.
-              This action cannot be undone and may affect existing service
-              requests.
+              This will permanently delete the category{' '}
+              <span className="font-semibold">&quot;{selectedCategory?.name}&quot;</span>. This
+              action cannot be undone and may affect existing service requests.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={confirmDelete}
-              className="bg-red-600 hover:bg-red-700"
-            >
+            <AlertDialogAction onClick={confirmDelete} className="bg-red-600 hover:bg-red-700">
               Delete Category
             </AlertDialogAction>
           </AlertDialogFooter>
@@ -760,29 +713,24 @@ export default function RequestCategoryTable({
       </AlertDialog>
 
       {/* Bulk Delete Confirmation Dialog */}
-      <AlertDialog
-        open={bulkActionDialogOpen}
-        onOpenChange={setBulkActionDialogOpen}
-      >
+      <AlertDialog open={bulkActionDialogOpen} onOpenChange={setBulkActionDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>
-              Delete {selectedIds.length} Categories
-            </AlertDialogTitle>
+            <AlertDialogTitle>Delete {selectedIds.length} Categories</AlertDialogTitle>
             <AlertDialogDescription>
               You are about to delete {selectedIds.length} categor
-              {selectedIds.length === 1 ? "y" : "ies"}. This action cannot be
-              undone. Are you sure you want to continue?
+              {selectedIds.length === 1 ? 'y' : 'ies'}. This action cannot be undone. Are you sure
+              you want to continue?
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction
-              onClick={() => handleBulkAction("delete")}
+              onClick={() => handleBulkAction('delete')}
               className="bg-red-600 hover:bg-red-700"
             >
               Delete {selectedIds.length} Categor
-              {selectedIds.length === 1 ? "y" : "ies"}
+              {selectedIds.length === 1 ? 'y' : 'ies'}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

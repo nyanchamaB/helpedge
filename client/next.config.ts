@@ -1,4 +1,4 @@
-import type { NextConfig } from "next";
+import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
   // Enable React strict mode for better development experience
@@ -21,9 +21,12 @@ const nextConfig: NextConfig = {
   // Optimize production builds
   compiler: {
     // Remove console logs in production
-    removeConsole: process.env.NODE_ENV === "production" ? {
-      exclude: ["error", "warn"],
-    } : false,
+    removeConsole:
+      process.env.NODE_ENV === 'production'
+        ? {
+            exclude: ['error', 'warn'],
+          }
+        : false,
   },
 
   // Image optimization
@@ -61,8 +64,10 @@ const nextConfig: NextConfig = {
   // Browser requests to /api-proxy/api/Tickets → server forwards to localhost:5035/api/Tickets
   async rewrites() {
     const backendUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5035';
+
     // Only proxy when using a localhost backend
-    if (!backendUrl.includes('localhost')) return [];
+    if (!backendUrl.includes('localhost')) {return [];}
+
     return [
       {
         source: '/api-proxy/:path*',

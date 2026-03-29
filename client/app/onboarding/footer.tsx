@@ -1,6 +1,6 @@
-"use client";
-import { footerLinks } from "@/common";
-import Link from "next/link";
+'use client';
+import { footerLinks } from '@/common';
+import Link from 'next/link';
 
 export default function Footer() {
   return (
@@ -14,8 +14,8 @@ export default function Footer() {
                 <li key={link.label}>
                   <Link
                     href={link.href}
-                    target={link.href.startsWith("http") ? "_blank" : undefined}
-                    rel={link.href.startsWith("http") ? "noopener noreferrer" : undefined}
+                    target={link.href.startsWith('http') ? '_blank' : undefined}
+                    rel={link.href.startsWith('http') ? 'noopener noreferrer' : undefined}
                     className="hover:text-blue-400 transition"
                   >
                     {link.label}

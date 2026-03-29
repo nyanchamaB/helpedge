@@ -1,12 +1,12 @@
-"use client";
+'use client';
 
-import { useEffect, useMemo, useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { useAuth } from "@/contexts/AuthContext";
-import { useNavigation } from "@/contexts/NavigationContext";
-import { UserRole, ROLE_DESCRIPTIONS } from "@/lib/api/auth";
+import { useEffect, useMemo, useState } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { useAuth } from '@/contexts/AuthContext';
+import { useNavigation } from '@/contexts/NavigationContext';
+import { UserRole, ROLE_DESCRIPTIONS } from '@/lib/api/auth';
 import {
   getDashboardStats,
   getTicketStatusCounts,
@@ -26,11 +26,11 @@ import {
   type MyTicketsDashboard,
   type MyStats,
   type DetailedHealthStatus,
-} from "@/lib/api/dashboard";
-import { getAssignableStaff } from "@/lib/api/users";
-import { getAIAutomationRate, isTfIdfStale } from "@/lib/api/ai";
-import { getActiveCategories, type Category } from "@/lib/api/categories";
-import { getMyServiceRequests } from "@/lib/api/service-request";
+} from '@/lib/api/dashboard';
+import { getAssignableStaff } from '@/lib/api/users';
+import { getAIAutomationRate, isTfIdfStale } from '@/lib/api/ai';
+import { getActiveCategories, type Category } from '@/lib/api/categories';
+import { getMyServiceRequests } from '@/lib/api/service-request';
 import {
   LayoutDashboard,
   Ticket,
@@ -53,7 +53,7 @@ import {
   BarChart2,
   Timer,
   Zap,
-} from "lucide-react";
+} from 'lucide-react';
 
 // Role-based dashboard configurations
 const ROLE_DASHBOARD_CONFIG: Record<
@@ -66,52 +66,52 @@ const ROLE_DASHBOARD_CONFIG: Record<
   }
 > = {
   Admin: {
-    title: "Admin Dashboard",
-    description: "Full system overview and management",
+    title: 'Admin Dashboard',
+    description: 'Full system overview and management',
     icon: <Shield className="h-6 w-6" />,
-    color: "bg-purple-500",
+    color: 'bg-purple-500',
   },
   ITManager: {
-    title: "IT Manager Dashboard",
-    description: "Strategic oversight and reporting",
+    title: 'IT Manager Dashboard',
+    description: 'Strategic oversight and reporting',
     icon: <TrendingUp className="h-6 w-6" />,
-    color: "bg-blue-500",
+    color: 'bg-blue-500',
   },
   TeamLead: {
-    title: "Team Lead Dashboard",
-    description: "Team management and workload distribution",
+    title: 'Team Lead Dashboard',
+    description: 'Team management and workload distribution',
     icon: <Users className="h-6 w-6" />,
-    color: "bg-green-500",
+    color: 'bg-green-500',
   },
   SystemAdmin: {
-    title: "System Admin Dashboard",
-    description: "Infrastructure and SLA management",
+    title: 'System Admin Dashboard',
+    description: 'Infrastructure and SLA management',
     icon: <Server className="h-6 w-6" />,
-    color: "bg-orange-500",
+    color: 'bg-orange-500',
   },
   ServiceDeskAgent: {
-    title: "Service Desk Dashboard",
-    description: "Ticket triage and first-line support",
+    title: 'Service Desk Dashboard',
+    description: 'Ticket triage and first-line support',
     icon: <Ticket className="h-6 w-6" />,
-    color: "bg-cyan-500",
+    color: 'bg-cyan-500',
   },
   Technician: {
-    title: "Technician Dashboard",
-    description: "Technical resolution and second-line support",
+    title: 'Technician Dashboard',
+    description: 'Technical resolution and second-line support',
     icon: <Activity className="h-6 w-6" />,
-    color: "bg-indigo-500",
+    color: 'bg-indigo-500',
   },
   SecurityAdmin: {
-    title: "Security Admin Dashboard",
-    description: "Security requests and access management",
+    title: 'Security Admin Dashboard',
+    description: 'Security requests and access management',
     icon: <Shield className="h-6 w-6" />,
-    color: "bg-red-500",
+    color: 'bg-red-500',
   },
   EndUser: {
-    title: "My Tickets",
-    description: "Track your support requests",
+    title: 'My Tickets',
+    description: 'Track your support requests',
     icon: <Ticket className="h-6 w-6" />,
-    color: "bg-gray-500",
+    color: 'bg-gray-500',
   },
 };
 
@@ -122,7 +122,7 @@ function StatCard({
   icon,
   description,
   trend,
-  color = "bg-blue-500",
+  color = 'bg-blue-500',
 }: {
   title: string;
   value: string | number;
@@ -139,14 +139,10 @@ function StatCard({
       </CardHeader>
       <CardContent>
         <div className="text-2xl font-bold">{value}</div>
-        {description && (
-          <p className="text-xs text-muted-foreground">{description}</p>
-        )}
+        {description && <p className="text-xs text-muted-foreground">{description}</p>}
         {trend && (
-          <p
-            className={`text-xs ${trend.positive ? "text-green-500" : "text-red-500"}`}
-          >
-            {trend.positive ? "+" : ""}
+          <p className={`text-xs ${trend.positive ? 'text-green-500' : 'text-red-500'}`}>
+            {trend.positive ? '+' : ''}
             {trend.value}% from last period
           </p>
         )}
@@ -161,7 +157,7 @@ function AdminDashboard() {
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [healthStatus, setHealthStatus] = useState<DetailedHealthStatus | null>(null);
   const [staffCount, setStaffCount] = useState<number | null>(null);
-  const [avgResolutionHours, setAvgResolutionHours] = useState<string>("N/A");
+  const [avgResolutionHours, setAvgResolutionHours] = useState<string>('N/A');
   const [automationRate, setAutomationRate] = useState<number | null>(null);
   const [tfIdfStale, setTfIdfStale] = useState<boolean | null>(null);
   const [loading, setLoading] = useState(true);
@@ -169,34 +165,35 @@ function AdminDashboard() {
   useEffect(() => {
     async function fetchData() {
       setLoading(true);
-      const [statsRes, healthRes, staffRes, kpisRes, automationRes, staleRes] =
-        await Promise.all([
-          getDashboardStats(),
-          getDetailedHealth(),
-          getAssignableStaff(),
-          getResolverKpis(),
-          getAIAutomationRate(),
-          isTfIdfStale(),
-        ]);
-      if (statsRes.success) setStats(statsRes.data!);
-      if (healthRes.success) setHealthStatus(healthRes.data!);
-      if (staffRes.success) setStaffCount(staffRes.data!.length);
+      const [statsRes, healthRes, staffRes, kpisRes, automationRes, staleRes] = await Promise.all([
+        getDashboardStats(),
+        getDetailedHealth(),
+        getAssignableStaff(),
+        getResolverKpis(),
+        getAIAutomationRate(),
+        isTfIdfStale(),
+      ]);
+
+      if (statsRes.success) {setStats(statsRes.data!);}
+      if (healthRes.success) {setHealthStatus(healthRes.data!);}
+      if (staffRes.success) {setStaffCount(staffRes.data!.length);}
       if (kpisRes.success && kpisRes.data) {
         const ttrs = kpisRes.data
           .map((r) => r.avgTtrMinutes)
           .filter((v): v is number => v != null && v > 0);
+
         if (ttrs.length > 0) {
           const avgMinutes = ttrs.reduce((a, b) => a + b, 0) / ttrs.length;
           const hours = avgMinutes / 60;
-          setAvgResolutionHours(
-            hours < 1 ? `${Math.round(avgMinutes)}m` : `${hours.toFixed(1)}h`
-          );
+
+          setAvgResolutionHours(hours < 1 ? `${Math.round(avgMinutes)}m` : `${hours.toFixed(1)}h`);
         }
       }
       if (automationRes.success && automationRes.data != null) {
         const raw = automationRes.data as number | { automationRate?: number };
-        const rate = typeof raw === "number" ? raw : raw.automationRate;
-        if (rate != null) setAutomationRate(Math.round(rate * 100));
+        const rate = typeof raw === 'number' ? raw : raw.automationRate;
+
+        if (rate != null) {setAutomationRate(Math.round(rate * 100));}
       }
       if (staleRes.success && staleRes.data != null) {
         setTfIdfStale((staleRes.data as { isStale?: boolean })?.isStale ?? null);
@@ -234,9 +231,9 @@ function AdminDashboard() {
         />
         <StatCard
           title="System Status"
-          value={healthStatus?.checks != null ? "Healthy" : "Issues"}
+          value={healthStatus?.checks != null ? 'Healthy' : 'Issues'}
           icon={<Server className="h-4 w-4" />}
-          color={healthStatus?.checks != null ? "bg-green-500" : "bg-red-500"}
+          color={healthStatus?.checks != null ? 'bg-green-500' : 'bg-red-500'}
         />
       </div>
 
@@ -273,7 +270,7 @@ function AdminDashboard() {
           <Bot className="h-4 w-4 text-violet-500" />
           <CardTitle className="text-sm">AI Classification Pipeline</CardTitle>
           <button
-            onClick={() => navigateTo("/ai/analytics")}
+            onClick={() => navigateTo('/ai/analytics')}
             className="ml-auto text-xs text-blue-500 hover:underline"
           >
             View details
@@ -289,7 +286,7 @@ function AdminDashboard() {
                 </span>
               </div>
               <p className="text-2xl font-bold">
-                {automationRate != null ? `${automationRate}%` : "—"}
+                {automationRate != null ? `${automationRate}%` : '—'}
               </p>
             </div>
             <div className="text-center border-x">
@@ -302,13 +299,13 @@ function AdminDashboard() {
               <Badge
                 className={
                   tfIdfStale === null
-                    ? "bg-gray-400"
+                    ? 'bg-gray-400'
                     : tfIdfStale
-                    ? "bg-orange-500"
-                    : "bg-green-500"
+                      ? 'bg-orange-500'
+                      : 'bg-green-500'
                 }
               >
-                {tfIdfStale === null ? "Unknown" : tfIdfStale ? "Stale" : "Current"}
+                {tfIdfStale === null ? 'Unknown' : tfIdfStale ? 'Stale' : 'Current'}
               </Badge>
             </div>
             <div className="text-center">
@@ -320,12 +317,12 @@ function AdminDashboard() {
               </div>
               <Badge
                 className={
-                  healthStatus?.checks?.mongodb?.status === "Healthy"
-                    ? "bg-green-500"
-                    : "bg-red-500"
+                  healthStatus?.checks?.mongodb?.status === 'Healthy'
+                    ? 'bg-green-500'
+                    : 'bg-red-500'
                 }
               >
-                {healthStatus?.checks?.mongodb?.status ?? "Unknown"}
+                {healthStatus?.checks?.mongodb?.status ?? 'Unknown'}
               </Badge>
             </div>
           </div>
@@ -363,11 +360,12 @@ function ITManagerDashboard() {
         getCategoryTicketCounts(),
         getActiveCategories(),
       ]);
-      if (statsRes.success) setStats(statsRes.data!);
-      if (teamRes.success) setTeamStats(teamRes.data!);
-      if (kpisRes.success && kpisRes.data) setResolverKpis(kpisRes.data);
-      if (categoryRes.success && categoryRes.data) setCategoryCounts(categoryRes.data);
-      if (categoriesRes.success && categoriesRes.data) setCategories(categoriesRes.data);
+
+      if (statsRes.success) {setStats(statsRes.data!);}
+      if (teamRes.success) {setTeamStats(teamRes.data!);}
+      if (kpisRes.success && kpisRes.data) {setResolverKpis(kpisRes.data);}
+      if (categoryRes.success && categoryRes.data) {setCategoryCounts(categoryRes.data);}
+      if (categoriesRes.success && categoriesRes.data) {setCategories(categoriesRes.data);}
       setLoading(false);
     }
     fetchData();
@@ -375,12 +373,13 @@ function ITManagerDashboard() {
 
   const categoryRows = useMemo(() => {
     const nameMap = new Map(categories.map((c) => [c.id, c.name]));
+
     return categoryCounts
       .map((c) => ({ ...c, name: nameMap.get(c.categoryId) ?? `…${c.categoryId.slice(-4)}` }))
       .sort((a, b) => b.count - a.count);
   }, [categoryCounts, categories]);
 
-  if (loading) return <DashboardSkeleton />;
+  if (loading) {return <DashboardSkeleton />;}
 
   const totalUnacked = resolverKpis.reduce((s, r) => s + (r.unacknowledgedCount ?? 0), 0);
 
@@ -411,11 +410,10 @@ function ITManagerDashboard() {
           title="Unacknowledged"
           value={totalUnacked}
           icon={<AlertTriangle className="h-4 w-4" />}
-          color={totalUnacked > 0 ? "bg-red-500" : "bg-gray-400"}
+          color={totalUnacked > 0 ? 'bg-red-500' : 'bg-gray-400'}
           description="Assigned but not opened"
         />
       </div>
-
     </div>
   );
 }
@@ -429,18 +427,16 @@ function TeamLeadDashboard() {
   useEffect(() => {
     async function fetchData() {
       setLoading(true);
-      const [teamRes, myRes] = await Promise.all([
-        getTeamStats(),
-        getMyStats(),
-      ]);
-      if (teamRes.success) setTeamStats(teamRes.data!);
-      if (myRes.success) setMyStats(myRes.data!);
+      const [teamRes, myRes] = await Promise.all([getTeamStats(), getMyStats()]);
+
+      if (teamRes.success) {setTeamStats(teamRes.data!);}
+      if (myRes.success) {setMyStats(myRes.data!);}
       setLoading(false);
     }
     fetchData();
   }, []);
 
-  if (loading) return <DashboardSkeleton />;
+  if (loading) {return <DashboardSkeleton />;}
 
   return (
     <div className="space-y-6">
@@ -511,26 +507,22 @@ function TeamLeadDashboard() {
 // System Admin Dashboard (SLA focused)
 function SystemAdminDashboard() {
   const [slaStats, setSlaStats] = useState<SLAStats | null>(null);
-  const [healthStatus, setHealthStatus] = useState<DetailedHealthStatus | null>(
-    null,
-  );
+  const [healthStatus, setHealthStatus] = useState<DetailedHealthStatus | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function fetchData() {
       setLoading(true);
-      const [slaRes, healthRes] = await Promise.all([
-        getMySLA(),
-        getDetailedHealth(),
-      ]);
-      if (slaRes.success) setSlaStats(slaRes.data!);
-      if (healthRes.success) setHealthStatus(healthRes.data!);
+      const [slaRes, healthRes] = await Promise.all([getMySLA(), getDetailedHealth()]);
+
+      if (slaRes.success) {setSlaStats(slaRes.data!);}
+      if (healthRes.success) {setHealthStatus(healthRes.data!);}
       setLoading(false);
     }
     fetchData();
   }, []);
 
-  if (loading) return <DashboardSkeleton />;
+  if (loading) {return <DashboardSkeleton />;}
 
   return (
     <div className="space-y-6">
@@ -555,9 +547,9 @@ function SystemAdminDashboard() {
         />
         <StatCard
           title="System Health"
-          value={healthStatus?.checks != null ? "OK" : "Issues"}
+          value={healthStatus?.checks != null ? 'OK' : 'Issues'}
           icon={<Server className="h-4 w-4" />}
-          color={healthStatus?.checks != null ? "bg-green-500" : "bg-red-500"}
+          color={healthStatus?.checks != null ? 'bg-green-500' : 'bg-red-500'}
         />
       </div>
 
@@ -570,27 +562,19 @@ function SystemAdminDashboard() {
             <div className="space-y-2">
               <div className="flex justify-between items-center">
                 <span className="text-sm">Critical</span>
-                <Badge variant="destructive">
-                  {slaStats?.byPriority.critical ?? 0}
-                </Badge>
+                <Badge variant="destructive">{slaStats?.byPriority.critical ?? 0}</Badge>
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-sm">High</span>
-                <Badge className="bg-orange-500">
-                  {slaStats?.byPriority.high ?? 0}
-                </Badge>
+                <Badge className="bg-orange-500">{slaStats?.byPriority.high ?? 0}</Badge>
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-sm">Medium</span>
-                <Badge className="bg-yellow-500">
-                  {slaStats?.byPriority.medium ?? 0}
-                </Badge>
+                <Badge className="bg-yellow-500">{slaStats?.byPriority.medium ?? 0}</Badge>
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-sm">Low</span>
-                <Badge className="bg-green-500">
-                  {slaStats?.byPriority.low ?? 0}
-                </Badge>
+                <Badge className="bg-green-500">{slaStats?.byPriority.low ?? 0}</Badge>
               </div>
             </div>
           </CardContent>
@@ -605,13 +589,9 @@ function SystemAdminDashboard() {
               <div className="flex justify-between items-center">
                 <span className="text-sm">MongoDB</span>
                 <Badge
-                  className={
-                    healthStatus?.checks?.mongodb != null
-                      ? "bg-green-500"
-                      : "bg-red-500"
-                  }
+                  className={healthStatus?.checks?.mongodb != null ? 'bg-green-500' : 'bg-red-500'}
                 >
-                  {healthStatus?.checks?.mongodb?.status ?? "Unknown"}
+                  {healthStatus?.checks?.mongodb?.status ?? 'Unknown'}
                 </Badge>
               </div>
               <div className="flex justify-between items-center">
@@ -619,13 +599,11 @@ function SystemAdminDashboard() {
                 <Badge
                   className={
                     healthStatus?.checks?.configuration?.jwtConfigured
-                      ? "bg-green-500"
-                      : "bg-red-500"
+                      ? 'bg-green-500'
+                      : 'bg-red-500'
                   }
                 >
-                  {healthStatus?.checks?.configuration?.jwtConfigured
-                    ? "Configured"
-                    : "Not Set"}
+                  {healthStatus?.checks?.configuration?.jwtConfigured ? 'Configured' : 'Not Set'}
                 </Badge>
               </div>
               <div className="flex justify-between items-center">
@@ -633,13 +611,11 @@ function SystemAdminDashboard() {
                 <Badge
                   className={
                     healthStatus?.checks?.configuration?.corsConfigured
-                      ? "bg-green-500"
-                      : "bg-red-500"
+                      ? 'bg-green-500'
+                      : 'bg-red-500'
                   }
                 >
-                  {healthStatus?.checks?.configuration?.corsConfigured
-                    ? "Configured"
-                    : "Not Set"}
+                  {healthStatus?.checks?.configuration?.corsConfigured ? 'Configured' : 'Not Set'}
                 </Badge>
               </div>
             </div>
@@ -654,9 +630,7 @@ function SystemAdminDashboard() {
 function ServiceDeskDashboard() {
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [myStats, setMyStats] = useState<MyStats | null>(null);
-  const [statusCounts, setStatusCounts] = useState<TicketStatusCounts | null>(
-    null,
-  );
+  const [statusCounts, setStatusCounts] = useState<TicketStatusCounts | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -667,15 +641,16 @@ function ServiceDeskDashboard() {
         getMyStats(),
         getTicketStatusCounts(),
       ]);
-      if (statsRes.success) setStats(statsRes.data!);
-      if (myRes.success) setMyStats(myRes.data!);
-      if (statusRes.success) setStatusCounts(statusRes.data!);
+
+      if (statsRes.success) {setStats(statsRes.data!);}
+      if (myRes.success) {setMyStats(myRes.data!);}
+      if (statusRes.success) {setStatusCounts(statusRes.data!);}
       setLoading(false);
     }
     fetchData();
   }, []);
 
-  if (loading) return <DashboardSkeleton />;
+  if (loading) {return <DashboardSkeleton />;}
 
   return (
     <div className="space-y-6">
@@ -752,18 +727,16 @@ function TechnicianDashboard() {
   useEffect(() => {
     async function fetchData() {
       setLoading(true);
-      const [myRes, statsRes] = await Promise.all([
-        getMyStats(),
-        getDashboardStats(),
-      ]);
-      if (myRes.success) setMyStats(myRes.data!);
-      if (statsRes.success) setStats(statsRes.data!);
+      const [myRes, statsRes] = await Promise.all([getMyStats(), getDashboardStats()]);
+
+      if (myRes.success) {setMyStats(myRes.data!);}
+      if (statsRes.success) {setStats(statsRes.data!);}
       setLoading(false);
     }
     fetchData();
   }, []);
 
-  if (loading) return <DashboardSkeleton />;
+  if (loading) {return <DashboardSkeleton />;}
 
   return (
     <div className="space-y-6">
@@ -806,18 +779,16 @@ function SecurityAdminDashboard() {
   useEffect(() => {
     async function fetchData() {
       setLoading(true);
-      const [myRes, statsRes] = await Promise.all([
-        getMyStats(),
-        getDashboardStats(),
-      ]);
-      if (myRes.success) setMyStats(myRes.data!);
-      if (statsRes.success) setStats(statsRes.data!);
+      const [myRes, statsRes] = await Promise.all([getMyStats(), getDashboardStats()]);
+
+      if (myRes.success) {setMyStats(myRes.data!);}
+      if (statsRes.success) {setStats(statsRes.data!);}
       setLoading(false);
     }
     fetchData();
   }, []);
 
-  if (loading) return <DashboardSkeleton />;
+  if (loading) {return <DashboardSkeleton />;}
 
   return (
     <div className="space-y-6">
@@ -854,25 +825,22 @@ function SecurityAdminDashboard() {
 // Status + Priority badge helpers for EndUser dashboard
 function TicketStatusBadge({ status }: { status: string }) {
   const map: Record<string, string> = {
-    Open: "bg-yellow-500/10 text-yellow-700 dark:text-yellow-400 border-yellow-500/20",
-    InProgress:
-      "bg-blue-500/10 text-blue-700 dark:text-blue-400 border-blue-500/20",
-    OnHold:
-      "bg-orange-500/10 text-orange-700 dark:text-orange-400 border-orange-500/20",
-    AwaitingInfo:
-      "bg-purple-500/10 text-purple-700 dark:text-purple-400 border-purple-500/20",
-    Resolved:
-      "bg-green-500/10 text-green-700 dark:text-green-400 border-green-500/20",
-    Closed: "bg-muted text-muted-foreground border-border",
+    Open: 'bg-yellow-500/10 text-yellow-700 dark:text-yellow-400 border-yellow-500/20',
+    InProgress: 'bg-blue-500/10 text-blue-700 dark:text-blue-400 border-blue-500/20',
+    OnHold: 'bg-orange-500/10 text-orange-700 dark:text-orange-400 border-orange-500/20',
+    AwaitingInfo: 'bg-purple-500/10 text-purple-700 dark:text-purple-400 border-purple-500/20',
+    Resolved: 'bg-green-500/10 text-green-700 dark:text-green-400 border-green-500/20',
+    Closed: 'bg-muted text-muted-foreground border-border',
   };
   const label: Record<string, string> = {
-    InProgress: "In Progress",
-    AwaitingInfo: "Awaiting Info",
-    OnHold: "On Hold",
+    InProgress: 'In Progress',
+    AwaitingInfo: 'Awaiting Info',
+    OnHold: 'On Hold',
   };
+
   return (
     <span
-      className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium border ${map[status] ?? "bg-muted text-muted-foreground border-border"}`}
+      className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium border ${map[status] ?? 'bg-muted text-muted-foreground border-border'}`}
     >
       {label[status] ?? status}
     </span>
@@ -881,14 +849,15 @@ function TicketStatusBadge({ status }: { status: string }) {
 
 function TicketPriorityBadge({ priority }: { priority: string }) {
   const map: Record<string, string> = {
-    Critical: "bg-red-500/10 text-red-700 dark:text-red-400",
-    High: "bg-orange-500/10 text-orange-700 dark:text-orange-400",
-    Medium: "bg-yellow-500/10 text-yellow-700 dark:text-yellow-400",
-    Low: "bg-green-500/10 text-green-700 dark:text-green-400",
+    Critical: 'bg-red-500/10 text-red-700 dark:text-red-400',
+    High: 'bg-orange-500/10 text-orange-700 dark:text-orange-400',
+    Medium: 'bg-yellow-500/10 text-yellow-700 dark:text-yellow-400',
+    Low: 'bg-green-500/10 text-green-700 dark:text-green-400',
   };
+
   return (
     <span
-      className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${map[priority] ?? "bg-muted text-muted-foreground"}`}
+      className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${map[priority] ?? 'bg-muted text-muted-foreground'}`}
     >
       {priority}
     </span>
@@ -904,36 +873,39 @@ function EndUserDashboard() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!user?.id) return;
+    if (!user?.id) {return;}
     async function fetchData() {
       setLoading(true);
       const [ticketsRes, isrRes] = await Promise.all([
-        import('@/lib/api/tickets').then(m => m.getTicketsByCreator(user!.id)),
+        import('@/lib/api/tickets').then((m) => m.getTicketsByCreator(user!.id)),
         getMyServiceRequests(),
       ]);
-      if (ticketsRes.success && ticketsRes.data) setTickets(ticketsRes.data);
-      if (isrRes.success && isrRes.data) setIsrs(isrRes.data);
+
+      if (ticketsRes.success && ticketsRes.data) {setTickets(ticketsRes.data);}
+      if (isrRes.success && isrRes.data) {setIsrs(isrRes.data);}
       setLoading(false);
     }
     fetchData();
   }, [user?.id]);
 
-  const firstName = user?.name?.split(" ")[0] ?? user?.email?.split("@")[0] ?? "there";
+  const firstName = user?.name?.split(' ')[0] ?? user?.email?.split('@')[0] ?? 'there';
 
   // ── Ticket counts (computed from real data) ──────────────────────────────
   const ticketCounts = {
     total: tickets.length,
-    open: tickets.filter(t => t.status === 'Open').length,
-    inProgress: tickets.filter(t => t.status === 'InProgress').length,
-    resolvedClosed: tickets.filter(t => t.status === 'Resolved' || t.status === 'Closed').length,
+    open: tickets.filter((t) => t.status === 'Open').length,
+    inProgress: tickets.filter((t) => t.status === 'InProgress').length,
+    resolvedClosed: tickets.filter((t) => t.status === 'Resolved' || t.status === 'Closed').length,
   };
 
   // ── ISR counts (computed from real data) ────────────────────────────────
   const isrCounts = {
     total: isrs.length,
-    pendingApproval: isrs.filter(r => r.status === 'PendingApproval').length,
-    active: isrs.filter(r => r.status === 'Approved' || r.status === 'InProgress' || r.status === 'OnHold').length,
-    fulfilledClosed: isrs.filter(r => r.status === 'Fulfilled' || r.status === 'Closed').length,
+    pendingApproval: isrs.filter((r) => r.status === 'PendingApproval').length,
+    active: isrs.filter(
+      (r) => r.status === 'Approved' || r.status === 'InProgress' || r.status === 'OnHold',
+    ).length,
+    fulfilledClosed: isrs.filter((r) => r.status === 'Fulfilled' || r.status === 'Closed').length,
   };
 
   const recentTickets = [...tickets]
@@ -948,23 +920,67 @@ function EndUserDashboard() {
     <div className="space-y-4">
       {/* Tickets */}
       <div>
-        <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-2">Support Tickets</p>
+        <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-2">
+          Support Tickets
+        </p>
         <div className="grid grid-cols-2 gap-3">
-          <StatCard title="Total" value={ticketCounts.total} icon={<Ticket className="h-4 w-4" />} color="bg-blue-500" />
-          <StatCard title="Open" value={ticketCounts.open} icon={<AlertCircle className="h-4 w-4" />} color="bg-yellow-500" />
-          <StatCard title="In Progress" value={ticketCounts.inProgress} icon={<Clock className="h-4 w-4" />} color="bg-orange-500" />
-          <StatCard title="Resolved / Closed" value={ticketCounts.resolvedClosed} icon={<CheckCircle className="h-4 w-4" />} color="bg-green-500" />
+          <StatCard
+            title="Total"
+            value={ticketCounts.total}
+            icon={<Ticket className="h-4 w-4" />}
+            color="bg-blue-500"
+          />
+          <StatCard
+            title="Open"
+            value={ticketCounts.open}
+            icon={<AlertCircle className="h-4 w-4" />}
+            color="bg-yellow-500"
+          />
+          <StatCard
+            title="In Progress"
+            value={ticketCounts.inProgress}
+            icon={<Clock className="h-4 w-4" />}
+            color="bg-orange-500"
+          />
+          <StatCard
+            title="Resolved / Closed"
+            value={ticketCounts.resolvedClosed}
+            icon={<CheckCircle className="h-4 w-4" />}
+            color="bg-green-500"
+          />
         </div>
       </div>
 
       {/* Service Requests */}
       <div>
-        <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-2">Service Requests</p>
+        <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-2">
+          Service Requests
+        </p>
         <div className="grid grid-cols-2 gap-3">
-          <StatCard title="Total" value={isrCounts.total} icon={<ClipboardList className="h-4 w-4" />} color="bg-indigo-500" />
-          <StatCard title="Pending Approval" value={isrCounts.pendingApproval} icon={<AlertCircle className="h-4 w-4" />} color="bg-amber-500" />
-          <StatCard title="Active" value={isrCounts.active} icon={<Clock className="h-4 w-4" />} color="bg-orange-500" />
-          <StatCard title="Fulfilled / Closed" value={isrCounts.fulfilledClosed} icon={<CheckCircle className="h-4 w-4" />} color="bg-emerald-500" />
+          <StatCard
+            title="Total"
+            value={isrCounts.total}
+            icon={<ClipboardList className="h-4 w-4" />}
+            color="bg-indigo-500"
+          />
+          <StatCard
+            title="Pending Approval"
+            value={isrCounts.pendingApproval}
+            icon={<AlertCircle className="h-4 w-4" />}
+            color="bg-amber-500"
+          />
+          <StatCard
+            title="Active"
+            value={isrCounts.active}
+            icon={<Clock className="h-4 w-4" />}
+            color="bg-orange-500"
+          />
+          <StatCard
+            title="Fulfilled / Closed"
+            value={isrCounts.fulfilledClosed}
+            icon={<CheckCircle className="h-4 w-4" />}
+            color="bg-emerald-500"
+          />
         </div>
       </div>
     </div>
@@ -976,7 +992,12 @@ function EndUserDashboard() {
       <Card>
         <CardHeader className="flex flex-row items-center justify-between pb-3 shrink-0">
           <CardTitle className="text-base">Recent Tickets</CardTitle>
-          <Button variant="ghost" size="sm" className="text-xs text-muted-foreground gap-1" onClick={() => navigateTo("/portal/my-tickets")}>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="text-xs text-muted-foreground gap-1"
+            onClick={() => navigateTo('/portal/my-tickets')}
+          >
             View all <ChevronRight className="h-3 w-3" />
           </Button>
         </CardHeader>
@@ -985,7 +1006,11 @@ function EndUserDashboard() {
             <div className="flex flex-col items-center py-6 text-center text-muted-foreground">
               <Ticket className="h-8 w-8 mb-2 opacity-40" />
               <p className="text-sm">No tickets yet</p>
-              <Button size="sm" className="mt-3" onClick={() => navigateTo("/portal/create-ticket", { from: '/dashboard' })}>
+              <Button
+                size="sm"
+                className="mt-3"
+                onClick={() => navigateTo('/portal/create-ticket', { from: '/dashboard' })}
+              >
                 <Plus className="h-3 w-3 mr-1" /> Submit a Ticket
               </Button>
             </div>
@@ -998,9 +1023,15 @@ function EndUserDashboard() {
                   onClick={() => navigateTo(`/portal/ticket/${ticket.id}`, { from: '/dashboard' })}
                 >
                   <div className="min-w-0 flex-1">
-                    <p className="font-medium text-sm truncate">{ticket.subject ?? ticket.description}</p>
+                    <p className="font-medium text-sm truncate">
+                      {ticket.subject ?? ticket.description}
+                    </p>
                     <p className="text-xs text-muted-foreground mt-0.5">
-                      {new Date(ticket.createdAt).toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" })}
+                      {new Date(ticket.createdAt).toLocaleDateString(undefined, {
+                        year: 'numeric',
+                        month: 'short',
+                        day: 'numeric',
+                      })}
                     </p>
                   </div>
                   <div className="flex items-center gap-2 shrink-0">
@@ -1019,7 +1050,12 @@ function EndUserDashboard() {
       <Card>
         <CardHeader className="flex flex-row items-center justify-between pb-3 shrink-0">
           <CardTitle className="text-base">Recent Service Requests</CardTitle>
-          <Button variant="ghost" size="sm" className="text-xs text-muted-foreground gap-1" onClick={() => navigateTo("/service-requests/my-requests")}>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="text-xs text-muted-foreground gap-1"
+            onClick={() => navigateTo('/service-requests/my-requests')}
+          >
             View all <ChevronRight className="h-3 w-3" />
           </Button>
         </CardHeader>
@@ -1028,7 +1064,13 @@ function EndUserDashboard() {
             <div className="flex flex-col items-center py-6 text-center text-muted-foreground">
               <ClipboardList className="h-8 w-8 mb-2 opacity-40" />
               <p className="text-sm">No service requests yet</p>
-              <Button size="sm" className="mt-3" onClick={() => navigateTo("/service-requests/create-request", { from: '/dashboard' })}>
+              <Button
+                size="sm"
+                className="mt-3"
+                onClick={() =>
+                  navigateTo('/service-requests/create-request', { from: '/dashboard' })
+                }
+              >
                 <Plus className="h-3 w-3 mr-1" /> Raise a Request
               </Button>
             </div>
@@ -1043,11 +1085,18 @@ function EndUserDashboard() {
                   <div className="min-w-0 flex-1">
                     <p className="font-medium text-sm truncate">{isr.subject}</p>
                     <p className="text-xs text-muted-foreground mt-0.5">
-                      #{isr.requestNumber} · {new Date(isr.createdAt).toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" })}
+                      #{isr.requestNumber} ·{' '}
+                      {new Date(isr.createdAt).toLocaleDateString(undefined, {
+                        year: 'numeric',
+                        month: 'short',
+                        day: 'numeric',
+                      })}
                     </p>
                   </div>
                   <div className="flex items-center gap-2 shrink-0">
-                    <Badge variant="outline" className="text-xs">{isr.status}</Badge>
+                    <Badge variant="outline" className="text-xs">
+                      {isr.status}
+                    </Badge>
                     <ChevronRight className="h-4 w-4 text-muted-foreground/50" />
                   </div>
                 </button>
@@ -1068,19 +1117,22 @@ function EndUserDashboard() {
           Need IT support? Submit a ticket and our team will get back to you shortly.
         </p>
         <div className="flex flex-wrap gap-3 mt-5">
-          <Button onClick={() => navigateTo("/portal/create-ticket", { from: '/dashboard' })}>
+          <Button onClick={() => navigateTo('/portal/create-ticket', { from: '/dashboard' })}>
             <Plus className="h-4 w-4 mr-2" />
             Submit a Ticket
           </Button>
-          <Button variant="outline" onClick={() => navigateTo("/portal/my-tickets")}>
+          <Button variant="outline" onClick={() => navigateTo('/portal/my-tickets')}>
             <FileText className="h-4 w-4 mr-2" />
             View My Tickets
           </Button>
-          <Button variant="outline" onClick={() => navigateTo("/portal/email-ticket")}>
+          <Button variant="outline" onClick={() => navigateTo('/portal/email-ticket')}>
             <Mail className="h-4 w-4 mr-2" />
             Submit via Email
           </Button>
-          <Button variant="outline" onClick={() => navigateTo("/service-requests/create-request", { from: '/dashboard' })}>
+          <Button
+            variant="outline"
+            onClick={() => navigateTo('/service-requests/create-request', { from: '/dashboard' })}
+          >
             <ClipboardList className="h-4 w-4 mr-2" />
             Raise Service Request
           </Button>
@@ -1133,21 +1185,21 @@ export default function RoleDashboard() {
 
   const renderDashboard = () => {
     switch (user.role) {
-      case "Admin":
+      case 'Admin':
         return <AdminDashboard />;
-      case "ITManager":
+      case 'ITManager':
         return <ITManagerDashboard />;
-      case "TeamLead":
+      case 'TeamLead':
         return <TeamLeadDashboard />;
-      case "SystemAdmin":
+      case 'SystemAdmin':
         return <SystemAdminDashboard />;
-      case "ServiceDeskAgent":
+      case 'ServiceDeskAgent':
         return <ServiceDeskDashboard />;
-      case "Technician":
+      case 'Technician':
         return <TechnicianDashboard />;
-      case "SecurityAdmin":
+      case 'SecurityAdmin':
         return <SecurityAdminDashboard />;
-      case "EndUser":
+      case 'EndUser':
         return <EndUserDashboard />;
       default:
         return <EndUserDashboard />;
@@ -1157,11 +1209,9 @@ export default function RoleDashboard() {
   return (
     <div className="space-y-6">
       {/* Dashboard Header — hidden for EndUser (they get a welcome banner inside their dashboard) */}
-      {user.role !== "EndUser" && (
+      {user.role !== 'EndUser' && (
         <div className="flex items-center gap-4">
-          <div className={`p-3 rounded-full ${config.color} text-white`}>
-            {config.icon}
-          </div>
+          <div className={`p-3 rounded-full ${config.color} text-white`}>{config.icon}</div>
           <div>
             <h1 className="text-2xl font-bold">{config.title}</h1>
             <p className="text-muted-foreground">{config.description}</p>

@@ -7,10 +7,7 @@ import {
 } from '@/lib/api/service-request-category';
 import { ServiceRequestType } from '@/lib/api/service-request';
 
-export const useCategories = (options?: {
-  enabled?: boolean;
-  staleTime?: number;
-}) => {
+export const useCategories = (options?: { enabled?: boolean; staleTime?: number }) => {
   return useQuery({
     queryKey: ['service-request-categories'],
     queryFn: () => getServiceRequestsCategories(),
@@ -37,14 +34,14 @@ export const useCategoriesByType = (type?: ServiceRequestType) => {
 export const useCategory = (id?: string) => {
   return useQuery({
     queryKey: ['service-request-categories', id],
-    queryFn: () => id ? getServiceRequestCategoryById(id) : null,
+    queryFn: () => (id ? getServiceRequestCategoryById(id) : null),
     enabled: !!id,
   });
 };
 
 export const useInvalidateCategories = () => {
   const queryClient = useQueryClient();
-  
+
   return () => {
     queryClient.invalidateQueries({ queryKey: ['service-request-categories'] });
   };
@@ -52,9 +49,8 @@ export const useInvalidateCategories = () => {
 
 export const useRefetchCategories = () => {
   const queryClient = useQueryClient();
-  
+
   return () => {
     return queryClient.refetchQueries({ queryKey: ['service-request-categories'] });
   };
 };
-

@@ -1,9 +1,13 @@
-"use client";
+'use client';
 export const dynamic = 'force-dynamic';
 
 import { useMemo, useState } from 'react';
 import { useNavigation } from '@/contexts/NavigationContext';
-import { useApprovalWorkflows, useDeleteApprovalWorkflow, useToggleApprovalWorkflow } from '@/hooks/approval-workflows/useApprovalWorkflows';
+import {
+  useApprovalWorkflows,
+  useDeleteApprovalWorkflow,
+  useToggleApprovalWorkflow,
+} from '@/hooks/approval-workflows/useApprovalWorkflows';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
@@ -49,13 +53,13 @@ import { cn } from '@/lib/utils';
 // ─── Approver type metadata ──────────────────────────────────────────────────
 
 const APPROVER_META: Record<string, { label: string; icon: React.ElementType; color: string }> = {
-  SpecificUser:      { label: 'Specific User',    icon: User,        color: 'text-blue-600' },
-  Role:              { label: 'By Role',           icon: Shield,      color: 'text-violet-600' },
-  RequestersManager: { label: "Requester's Mgr",  icon: UserCheck,   color: 'text-teal-600' },
-  DepartmentHead:    { label: 'Dept. Head',        icon: Building2,   color: 'text-orange-600' },
-  CostCenterOwner:   { label: 'Cost Center Owner', icon: Banknote,    color: 'text-amber-600' },
-  SecurityTeam:      { label: 'Security Team',     icon: ShieldCheck, color: 'text-red-600' },
-  ITManagement:      { label: 'IT Management',     icon: Server,      color: 'text-indigo-600' },
+  SpecificUser: { label: 'Specific User', icon: User, color: 'text-blue-600' },
+  Role: { label: 'By Role', icon: Shield, color: 'text-violet-600' },
+  RequestersManager: { label: "Requester's Mgr", icon: UserCheck, color: 'text-teal-600' },
+  DepartmentHead: { label: 'Dept. Head', icon: Building2, color: 'text-orange-600' },
+  CostCenterOwner: { label: 'Cost Center Owner', icon: Banknote, color: 'text-amber-600' },
+  SecurityTeam: { label: 'Security Team', icon: ShieldCheck, color: 'text-red-600' },
+  ITManagement: { label: 'IT Management', icon: Server, color: 'text-indigo-600' },
 };
 
 function getApproverMeta(type: string) {
@@ -73,21 +77,27 @@ export default function ApprovalWorkflowsPage() {
   const [search, setSearch] = useState('');
   const [showActive, setShowActive] = useState<'all' | 'active' | 'inactive'>('all');
 
-  const stats = useMemo(() => ({
-    total:    workflows.length,
-    active:   workflows.filter((w) => w.isActive).length,
-    inactive: workflows.filter((w) => !w.isActive).length,
-    steps:    workflows.reduce((s, w) => s + (w.steps?.length ?? 0), 0),
-  }), [workflows]);
+  const stats = useMemo(
+    () => ({
+      total: workflows.length,
+      active: workflows.filter((w) => w.isActive).length,
+      inactive: workflows.filter((w) => !w.isActive).length,
+      steps: workflows.reduce((s, w) => s + (w.steps?.length ?? 0), 0),
+    }),
+    [workflows],
+  );
 
   const filtered = useMemo(() => {
     return workflows.filter((w) => {
-      if (showActive === 'active'   && !w.isActive) return false;
-      if (showActive === 'inactive' &&  w.isActive) return false;
+      if (showActive === 'active' && !w.isActive) {return false;}
+      if (showActive === 'inactive' && w.isActive) {return false;}
       if (search.trim()) {
         const q = search.toLowerCase();
-        if (!w.name.toLowerCase().includes(q) && !(w.description ?? '').toLowerCase().includes(q)) return false;
+
+        if (!w.name.toLowerCase().includes(q) && !(w.description ?? '').toLowerCase().includes(q))
+          {return false;}
       }
+
       return true;
     });
   }, [workflows, search, showActive]);
@@ -102,7 +112,6 @@ export default function ApprovalWorkflowsPage() {
 
   return (
     <div className="container mx-auto py-8 space-y-6">
-
       {/* ── Header ── */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div className="flex items-center gap-2.5">
@@ -122,10 +131,30 @@ export default function ApprovalWorkflowsPage() {
       {/* ── Stats ── */}
       {workflows.length > 0 && (
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          <MiniStat label="Total" value={stats.total} icon={<Layers className="h-4 w-4 text-primary" />} accent="primary" />
-          <MiniStat label="Active" value={stats.active} icon={<CheckCircle2 className="h-4 w-4 text-green-600" />} accent="green" />
-          <MiniStat label="Inactive" value={stats.inactive} icon={<XCircle className="h-4 w-4 text-muted-foreground" />} accent="gray" />
-          <MiniStat label="Total Steps" value={stats.steps} icon={<Zap className="h-4 w-4 text-violet-600" />} accent="violet" />
+          <MiniStat
+            label="Total"
+            value={stats.total}
+            icon={<Layers className="h-4 w-4 text-primary" />}
+            accent="primary"
+          />
+          <MiniStat
+            label="Active"
+            value={stats.active}
+            icon={<CheckCircle2 className="h-4 w-4 text-green-600" />}
+            accent="green"
+          />
+          <MiniStat
+            label="Inactive"
+            value={stats.inactive}
+            icon={<XCircle className="h-4 w-4 text-muted-foreground" />}
+            accent="gray"
+          />
+          <MiniStat
+            label="Total Steps"
+            value={stats.steps}
+            icon={<Zap className="h-4 w-4 text-violet-600" />}
+            accent="violet"
+          />
         </div>
       )}
 
@@ -150,7 +179,7 @@ export default function ApprovalWorkflowsPage() {
                   'px-3 capitalize transition-colors',
                   showActive === v
                     ? 'bg-primary text-primary-foreground font-medium'
-                    : 'text-muted-foreground hover:bg-muted'
+                    : 'text-muted-foreground hover:bg-muted',
                 )}
               >
                 {v}
@@ -170,7 +199,13 @@ export default function ApprovalWorkflowsPage() {
         <div className="text-center py-12 border-2 border-dashed rounded-xl text-muted-foreground">
           <Search className="h-8 w-8 mx-auto mb-3 opacity-40" />
           <p className="font-medium">No workflows match your filters</p>
-          <button onClick={() => { setSearch(''); setShowActive('all'); }} className="text-sm text-primary underline mt-1">
+          <button
+            onClick={() => {
+              setSearch('');
+              setShowActive('all');
+            }}
+            className="text-sm text-primary underline mt-1"
+          >
             Clear filters
           </button>
         </div>
@@ -192,8 +227,13 @@ export default function ApprovalWorkflowsPage() {
   );
 }
 
-
-function WorkflowCard({ workflow: wf, onNavigate, onToggle, onDelete, isToggling }: {
+function WorkflowCard({
+  workflow: wf,
+  onNavigate,
+  onToggle,
+  onDelete,
+  isToggling,
+}: {
   workflow: ApprovalWorkflow;
   onNavigate: (path: string) => void;
   onToggle: () => void;
@@ -201,9 +241,7 @@ function WorkflowCard({ workflow: wf, onNavigate, onToggle, onDelete, isToggling
   isToggling: boolean;
 }) {
   return (
-    <div
-      className="rounded-xl border bg-card hover:shadow-sm transition-shadow"
-    >
+    <div className="rounded-xl border bg-card hover:shadow-sm transition-shadow">
       <div
         className="p-4 cursor-pointer"
         onClick={() => onNavigate(`/approval-workflows/${wf.id}`)}
@@ -219,7 +257,7 @@ function WorkflowCard({ workflow: wf, onNavigate, onToggle, onDelete, isToggling
                   'text-xs',
                   wf.isActive
                     ? 'bg-green-50 text-green-700 border-green-200'
-                    : 'bg-muted text-muted-foreground'
+                    : 'bg-muted text-muted-foreground',
                 )}
               >
                 {wf.isActive ? 'Active' : 'Inactive'}
@@ -263,7 +301,8 @@ function WorkflowCard({ workflow: wf, onNavigate, onToggle, onDelete, isToggling
                 <AlertDialogHeader>
                   <AlertDialogTitle>Delete Workflow</AlertDialogTitle>
                   <AlertDialogDescription>
-                    Are you sure you want to delete &quot;{wf.name}&quot;? This action cannot be undone.
+                    Are you sure you want to delete &quot;{wf.name}&quot;? This action cannot be
+                    undone.
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
@@ -313,7 +352,6 @@ function WorkflowCard({ workflow: wf, onNavigate, onToggle, onDelete, isToggling
   );
 }
 
-
 function StepChain({ steps }: { steps: ApprovalStep[] }) {
   const sorted = [...steps].sort((a, b) => a.order - b.order);
   const MAX_VISIBLE = 4;
@@ -325,19 +363,23 @@ function StepChain({ steps }: { steps: ApprovalStep[] }) {
       {visible.map((step, i) => {
         const meta = getApproverMeta(step.approverType);
         const Icon = meta.icon;
+
         return (
           <div key={step.id ?? i} className="flex items-center gap-1">
             <div className="flex items-center gap-1.5 rounded-lg bg-muted/60 border px-2.5 py-1.5 text-xs">
-              <span className={cn('font-bold text-[10px] tabular-nums w-3.5 h-3.5 rounded-full bg-muted-foreground/20 flex items-center justify-center shrink-0', meta.color)}>
+              <span
+                className={cn(
+                  'font-bold text-[10px] tabular-nums w-3.5 h-3.5 rounded-full bg-muted-foreground/20 flex items-center justify-center shrink-0',
+                  meta.color,
+                )}
+              >
                 {step.order}
               </span>
               <Icon className={cn('h-3 w-3 shrink-0', meta.color)} />
               <span className="font-medium max-w-[100px] truncate" title={step.name}>
                 {step.name}
               </span>
-              {step.requireAll && (
-                <span className="text-[10px] text-muted-foreground">(all)</span>
-              )}
+              {step.requireAll && <span className="text-[10px] text-muted-foreground">(all)</span>}
             </div>
             {i < visible.length - 1 || overflow > 0 ? (
               <ArrowRight className="h-3 w-3 text-muted-foreground/50 shrink-0" />
@@ -358,16 +400,29 @@ function StepChain({ steps }: { steps: ApprovalStep[] }) {
 
 const accentCls: Record<string, string> = {
   primary: 'bg-primary/5 dark:bg-primary/10',
-  green:   'bg-green-50 dark:bg-green-950/30',
-  gray:    'bg-muted/60',
-  violet:  'bg-violet-50 dark:bg-violet-950/30',
+  green: 'bg-green-50 dark:bg-green-950/30',
+  gray: 'bg-muted/60',
+  violet: 'bg-violet-50 dark:bg-violet-950/30',
 };
 
-function MiniStat({ label, value, icon, accent }: {
-  label: string; value: number; icon: React.ReactNode; accent: string;
+function MiniStat({
+  label,
+  value,
+  icon,
+  accent,
+}: {
+  label: string;
+  value: number;
+  icon: React.ReactNode;
+  accent: string;
 }) {
   return (
-    <div className={cn('flex items-center gap-3 rounded-xl border p-3.5', accentCls[accent] ?? accentCls.gray)}>
+    <div
+      className={cn(
+        'flex items-center gap-3 rounded-xl border p-3.5',
+        accentCls[accent] ?? accentCls.gray,
+      )}
+    >
       <div className="shrink-0">{icon}</div>
       <div>
         <p className="text-xl font-bold leading-none">{value}</p>
@@ -388,7 +443,8 @@ function EmptyState({ onCreateNew }: { onCreateNew: () => void }) {
       <div>
         <h3 className="font-semibold text-lg">No approval workflows yet</h3>
         <p className="text-sm text-muted-foreground mt-1 max-w-xs mx-auto">
-          Create workflows to define who must approve service requests before they&rsquo;re fulfilled.
+          Create workflows to define who must approve service requests before they&rsquo;re
+          fulfilled.
         </p>
       </div>
       <Button onClick={onCreateNew}>

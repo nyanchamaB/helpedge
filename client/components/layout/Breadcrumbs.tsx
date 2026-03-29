@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
@@ -78,6 +78,7 @@ export function Breadcrumbs({
 
     checkMobile();
     window.addEventListener('resize', checkMobile);
+
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
@@ -95,9 +96,7 @@ export function Breadcrumbs({
     : { items: breadcrumbs, hasEllipsis: false };
 
   // Get hidden items for ellipsis dropdown
-  const hiddenItems = hasEllipsis
-    ? breadcrumbs.slice(1, breadcrumbs.length - 2)
-    : [];
+  const hiddenItems = hasEllipsis ? breadcrumbs.slice(1, breadcrumbs.length - 2) : [];
 
   return (
     <Breadcrumb className={cn('mb-4', className)}>
@@ -123,9 +122,7 @@ export function Breadcrumbs({
                         {hiddenItems.map((hiddenItem) => (
                           <DropdownMenuItem key={hiddenItem.href} asChild>
                             <Link href={hiddenItem.href}>
-                              {hiddenItem.icon && (
-                                <hiddenItem.icon className="h-4 w-4 mr-2" />
-                              )}
+                              {hiddenItem.icon && <hiddenItem.icon className="h-4 w-4 mr-2" />}
                               {hiddenItem.label}
                             </Link>
                           </DropdownMenuItem>
@@ -150,13 +147,8 @@ export function Breadcrumbs({
                       </BreadcrumbPage>
                     ) : (
                       <BreadcrumbLink asChild>
-                        <Link
-                          href={item.href}
-                          className="flex items-center gap-1"
-                        >
-                          {item.icon && index === 0 && (
-                            <item.icon className="h-4 w-4" />
-                          )}
+                        <Link href={item.href} className="flex items-center gap-1">
+                          {item.icon && index === 0 && <item.icon className="h-4 w-4" />}
                           <span>{item.label}</span>
                         </Link>
                       </BreadcrumbLink>

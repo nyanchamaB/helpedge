@@ -1,11 +1,11 @@
-import dynamic from "next/dynamic";
+import dynamic from 'next/dynamic';
 
 // Lazy load heavy landing page components
-const NavHeader = dynamic(() => import("./onboarding/navsection"), {
+const NavHeader = dynamic(() => import('./onboarding/navsection'), {
   ssr: true,
 });
 
-const HomePage = dynamic(() => import("./onboarding/home"), {
+const HomePage = dynamic(() => import('./onboarding/home'), {
   ssr: true,
   loading: () => (
     <div className="flex items-center justify-center min-h-screen">

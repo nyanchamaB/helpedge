@@ -1,16 +1,16 @@
-"use client";
+'use client';
 
 export const dynamic = 'force-dynamic';
 
-import { useEffect, useState } from "react";
-import { TicketsTable } from "@/components/tickets/TicketsTable";
-import { getTicketsByCreator, Ticket } from "@/lib/api/tickets";
-import { useAuth } from "@/contexts/AuthContext";
-import { useNavigation } from "@/contexts/NavigationContext";
-import { PageContainer } from "@/components/layout/PageContainer";
-import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
-import { Spinner } from "@/components/ui/spinner";
+import { useEffect, useState } from 'react';
+import { TicketsTable } from '@/components/tickets/TicketsTable';
+import { getTicketsByCreator, Ticket } from '@/lib/api/tickets';
+import { useAuth } from '@/contexts/AuthContext';
+import { useNavigation } from '@/contexts/NavigationContext';
+import { PageContainer } from '@/components/layout/PageContainer';
+import { Button } from '@/components/ui/button';
+import { Plus } from 'lucide-react';
+import { Spinner } from '@/components/ui/spinner';
 
 /**
  * My Tickets Page
@@ -24,16 +24,11 @@ export default function MyTicketsPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (!authLoading && user) {
-      fetchMyTickets();
-    }
-  }, [authLoading, user]);
-
   async function fetchMyTickets() {
     if (!user?.id) {
-      setError("User ID not found");
+      setError('User ID not found');
       setIsLoading(false);
+
       return;
     }
 
@@ -45,11 +40,17 @@ export default function MyTicketsPage() {
     if (response.success && response.data) {
       setTickets(response.data);
     } else {
-      setError(response.error || "Failed to load your tickets");
+      setError(response.error || 'Failed to load your tickets');
     }
 
     setIsLoading(false);
   }
+
+  useEffect(() => {
+    if (!authLoading && user) {
+      fetchMyTickets();
+    }
+  }, [authLoading, user]);
 
   // Show loading while auth is checking
   if (authLoading) {
@@ -70,11 +71,9 @@ export default function MyTicketsPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold">My Tickets</h1>
-          <p className="text-muted-foreground">
-            View and track your submitted tickets
-          </p>
+          <p className="text-muted-foreground">View and track your submitted tickets</p>
         </div>
-        <Button onClick={() => navigateTo("/portal/create-ticket")}>
+        <Button onClick={() => navigateTo('/portal/create-ticket')}>
           <Plus className="h-4 w-4 mr-2" />
           New Ticket
         </Button>

@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import {
   Dialog,
@@ -8,9 +8,9 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { useState } from "react";
+} from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { useState } from 'react';
 
 export function ConfirmDeleteDialog({
   onConfirm,
@@ -37,8 +37,7 @@ export function ConfirmDeleteDialog({
         <DialogHeader>
           <DialogTitle>Delete Category</DialogTitle>
           <DialogDescription>
-            This action cannot be undone. This will permanently delete the
-            category.
+            This action cannot be undone. This will permanently delete the category.
           </DialogDescription>
         </DialogHeader>
 
@@ -47,12 +46,8 @@ export function ConfirmDeleteDialog({
             Cancel
           </Button>
 
-          <Button
-            variant="destructive"
-            onClick={handleDelete}
-            disabled={loading}
-          >
-            {loading ? "Deleting..." : "Delete"}
+          <Button variant="destructive" onClick={handleDelete} disabled={loading}>
+            {loading ? 'Deleting...' : 'Delete'}
           </Button>
         </DialogFooter>
       </DialogContent>

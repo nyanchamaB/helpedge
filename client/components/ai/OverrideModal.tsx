@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import { useState, useEffect, type FC } from 'react';
 import { useForm } from 'react-hook-form';
@@ -91,13 +91,14 @@ export const OverrideModal: FC<OverrideModalProps> = ({
 
   // Re-initialize form with resolved names whenever modal opens or lookup arrays load
   useEffect(() => {
-    if (!isOpen) return;
+    if (!isOpen) {return;}
     const category = availableCategories.find(
-      (c) => c.id === aiDetails.finalCategory || c.name === aiDetails.finalCategory
+      (c) => c.id === aiDetails.finalCategory || c.name === aiDetails.finalCategory,
     )?.name;
     const assignee = availableAssignees.find(
-      (a) => a.id === aiDetails.finalAssignee || a.name === aiDetails.finalAssignee
+      (a) => a.id === aiDetails.finalAssignee || a.name === aiDetails.finalAssignee,
     )?.name;
+
     form.reset({
       correctCategory: category || undefined,
       correctPriority: aiDetails.finalPriority || undefined,
@@ -144,13 +145,19 @@ export const OverrideModal: FC<OverrideModalProps> = ({
 
   // Resolve IDs to display names using the provided lookup arrays
   const resolveCategoryName = (idOrName: string | null | undefined) => {
-    if (!idOrName) return 'None';
-    return availableCategories.find((c) => c.id === idOrName || c.name === idOrName)?.name ?? idOrName;
+    if (!idOrName) {return 'None';}
+
+    return (
+      availableCategories.find((c) => c.id === idOrName || c.name === idOrName)?.name ?? idOrName
+    );
   };
 
   const resolveAssigneeName = (idOrName: string | null | undefined) => {
-    if (!idOrName) return 'None';
-    return availableAssignees.find((a) => a.id === idOrName || a.name === idOrName)?.name ?? idOrName;
+    if (!idOrName) {return 'None';}
+
+    return (
+      availableAssignees.find((a) => a.id === idOrName || a.name === idOrName)?.name ?? idOrName
+    );
   };
 
   return (
@@ -201,10 +208,7 @@ export const OverrideModal: FC<OverrideModalProps> = ({
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Your Correction</FormLabel>
-                        <Select
-                          onValueChange={field.onChange}
-                          defaultValue={field.value}
-                        >
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
                           <FormControl>
                             <SelectTrigger>
                               <SelectValue placeholder="Select correct category" />
@@ -234,9 +238,7 @@ export const OverrideModal: FC<OverrideModalProps> = ({
               <div className="grid grid-cols-2 gap-4">
                 <div className="rounded-lg border p-3 space-y-2">
                   <p className="text-xs text-muted-foreground">AI Suggested</p>
-                  <p className="text-sm font-medium">
-                    {aiDetails.finalPriority || 'None'}
-                  </p>
+                  <p className="text-sm font-medium">{aiDetails.finalPriority || 'None'}</p>
                 </div>
                 <div className="flex items-center justify-center">
                   <ArrowRight className="h-4 w-4 text-muted-foreground" />
@@ -248,10 +250,7 @@ export const OverrideModal: FC<OverrideModalProps> = ({
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Your Correction</FormLabel>
-                        <Select
-                          onValueChange={field.onChange}
-                          defaultValue={field.value}
-                        >
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
                           <FormControl>
                             <SelectTrigger>
                               <SelectValue placeholder="Select correct priority" />
@@ -297,10 +296,7 @@ export const OverrideModal: FC<OverrideModalProps> = ({
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel>Your Correction</FormLabel>
-                            <Select
-                              onValueChange={field.onChange}
-                              defaultValue={field.value}
-                            >
+                            <Select onValueChange={field.onChange} defaultValue={field.value}>
                               <FormControl>
                                 <SelectTrigger>
                                   <SelectValue placeholder="Select correct assignee" />
@@ -332,7 +328,9 @@ export const OverrideModal: FC<OverrideModalProps> = ({
               name="reason"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Reason <span className="text-destructive">*</span></FormLabel>
+                  <FormLabel>
+                    Reason <span className="text-destructive">*</span>
+                  </FormLabel>
                   <FormControl>
                     <Textarea
                       placeholder="Why is this correction necessary? (min. 10 characters)"

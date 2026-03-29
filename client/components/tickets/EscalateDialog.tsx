@@ -1,27 +1,27 @@
-"use client";
+'use client';
 
-import { useState, useEffect } from "react";
+import { useState, useEffect } from 'react';
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
+} from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Textarea } from '@/components/ui/textarea';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { Label } from "@/components/ui/label";
-import { TrendingUp } from "lucide-react";
+} from '@/components/ui/select';
+import { Label } from '@/components/ui/label';
+import { TrendingUp } from 'lucide-react';
 import { Spinner } from '@/components/ui/spinner';
-import { escalateTicket } from "@/lib/api/tickets";
-import { getAssignableStaff, User, getUserDisplayName } from "@/lib/api/users";
+import { escalateTicket } from '@/lib/api/tickets';
+import { getAssignableStaff, User, getUserDisplayName } from '@/lib/api/users';
 
 interface EscalateDialogProps {
   isOpen: boolean;
@@ -30,14 +30,9 @@ interface EscalateDialogProps {
   onSuccess: () => void;
 }
 
-export function EscalateDialog({
-  isOpen,
-  onClose,
-  ticketId,
-  onSuccess,
-}: EscalateDialogProps) {
-  const [reason, setReason] = useState("");
-  const [targetUserId, setTargetUserId] = useState<string>("");
+export function EscalateDialog({ isOpen, onClose, ticketId, onSuccess }: EscalateDialogProps) {
+  const [reason, setReason] = useState('');
+  const [targetUserId, setTargetUserId] = useState<string>('');
   const [users, setUsers] = useState<User[]>([]);
   const [isLoadingUsers, setIsLoadingUsers] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -47,8 +42,8 @@ export function EscalateDialog({
     if (isOpen) {
       loadUsers();
     } else {
-      setReason("");
-      setTargetUserId("");
+      setReason('');
+      setTargetUserId('');
       setError(null);
     }
   }, [isOpen]);
@@ -56,6 +51,7 @@ export function EscalateDialog({
   async function loadUsers() {
     setIsLoadingUsers(true);
     const response = await getAssignableStaff();
+
     if (response.success && response.data) {
       setUsers(response.data.filter((u) => u.isActive));
     }
@@ -63,21 +59,21 @@ export function EscalateDialog({
   }
 
   async function handleSubmit() {
-    if (!reason.trim()) return;
+    if (!reason.trim()) {return;}
 
     setIsSubmitting(true);
     setError(null);
 
     const response = await escalateTicket(ticketId, {
       reason: reason.trim(),
-      targetUserId: targetUserId && targetUserId !== "none" ? targetUserId : undefined,
+      targetUserId: targetUserId && targetUserId !== 'none' ? targetUserId : undefined,
     });
 
     if (response.success) {
       onSuccess();
       onClose();
     } else {
-      setError(response.error || "Failed to escalate ticket");
+      setError(response.error || 'Failed to escalate ticket');
     }
 
     setIsSubmitting(false);
@@ -92,8 +88,8 @@ export function EscalateDialog({
             Escalate Ticket
           </DialogTitle>
           <DialogDescription>
-            Escalating marks this ticket as high-priority and notifies senior
-            agents. This action cannot be undone.
+            Escalating marks this ticket as high-priority and notifies senior agents. This action
+            cannot be undone.
           </DialogDescription>
         </DialogHeader>
 
@@ -122,9 +118,7 @@ export function EscalateDialog({
             <Select value={targetUserId} onValueChange={setTargetUserId}>
               <SelectTrigger id="escalate-target" disabled={isLoadingUsers}>
                 <SelectValue
-                  placeholder={
-                    isLoadingUsers ? "Loading users..." : "Select a senior agent"
-                  }
+                  placeholder={isLoadingUsers ? 'Loading users...' : 'Select a senior agent'}
                 />
               </SelectTrigger>
               <SelectContent>
@@ -138,8 +132,8 @@ export function EscalateDialog({
             </Select>
             <p className="text-xs text-muted-foreground">
               {targetUserId
-                ? "The selected agent will be assigned to this escalated ticket."
-                : "Without a target, the escalation will be routed to available senior agents."}
+                ? 'The selected agent will be assigned to this escalated ticket.'
+                : 'Without a target, the escalation will be routed to available senior agents.'}
             </p>
           </div>
         </div>

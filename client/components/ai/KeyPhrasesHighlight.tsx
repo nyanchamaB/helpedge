@@ -1,11 +1,6 @@
 import type { FC } from 'react';
 import { Badge } from '@/components/ui/badge';
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from '@/components/ui/tooltip';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
 
 interface KeyPhrasesHighlightProps {
@@ -29,6 +24,7 @@ export const KeyPhrasesHighlight: FC<KeyPhrasesHighlightProps> = ({
   const sortedKeywords = [...keywords].sort((a, b) => {
     const scoreA = scores[a] || 0;
     const scoreB = scores[b] || 0;
+
     return scoreB - scoreA;
   });
 
@@ -54,6 +50,7 @@ export const KeyPhrasesHighlight: FC<KeyPhrasesHighlightProps> = ({
     if (normalized >= 0.2) {
       return 'bg-blue-400 text-white hover:bg-blue-500';
     }
+
     return 'bg-blue-300 text-blue-900 hover:bg-blue-400';
   };
 
@@ -69,14 +66,12 @@ export const KeyPhrasesHighlight: FC<KeyPhrasesHighlightProps> = ({
               variant="secondary"
               className={cn(
                 'font-medium transition-colors',
-                hasScore && getIntensityClass(keyword)
+                hasScore && getIntensityClass(keyword),
               )}
             >
               {keyword}
               {hasScore && (
-                <span className="ml-1.5 text-xs opacity-75">
-                  {(score * 100).toFixed(0)}
-                </span>
+                <span className="ml-1.5 text-xs opacity-75">{(score * 100).toFixed(0)}</span>
               )}
             </Badge>
           );
@@ -91,9 +86,7 @@ export const KeyPhrasesHighlight: FC<KeyPhrasesHighlightProps> = ({
                     <p className="text-xs text-muted-foreground">
                       Importance: {(score * 100).toFixed(1)}%
                     </p>
-                    <p className="text-xs">
-                      This keyword suggests the AI classification
-                    </p>
+                    <p className="text-xs">This keyword suggests the AI classification</p>
                   </div>
                 </TooltipContent>
               </Tooltip>

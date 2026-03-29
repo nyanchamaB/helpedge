@@ -68,7 +68,9 @@ export default function Header({ user }: HeaderProps) {
               </div>
               <div className="text-left">
                 <p className="text-sm font-medium text-foreground">{user.name}</p>
-                <p className="text-xs text-muted-foreground capitalize">{user.role.replace('_', ' ')}</p>
+                <p className="text-xs text-muted-foreground capitalize">
+                  {user.role.replace('_', ' ')}
+                </p>
               </div>
             </button>
 

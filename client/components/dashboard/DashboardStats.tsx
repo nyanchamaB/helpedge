@@ -1,14 +1,11 @@
-"use client";
+'use client';
 
-import { useEffect, useState } from "react";
-import { useNavigation } from "@/contexts/NavigationContext";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { format } from "date-fns";
-import {
-  getDashboardStats,
-  type DashboardStats as DashboardStatsType,
-} from "@/lib/api/dashboard";
+import { useEffect, useState } from 'react';
+import { useNavigation } from '@/contexts/NavigationContext';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { format } from 'date-fns';
+import { getDashboardStats, type DashboardStats as DashboardStatsType } from '@/lib/api/dashboard';
 import {
   getAllTickets,
   getTicketsByAssignee,
@@ -18,9 +15,9 @@ import {
   getStatusColor,
   getPriorityColor,
   type Ticket,
-} from "@/lib/api/tickets";
-import { getAuthToken } from "@/lib/api/client";
-import { useAuth } from "@/contexts/AuthContext";
+} from '@/lib/api/tickets';
+import { getAuthToken } from '@/lib/api/client';
+import { useAuth } from '@/contexts/AuthContext';
 import {
   Ticket as TicketIcon,
   Users,
@@ -30,17 +27,17 @@ import {
   TrendingUp,
   Calendar,
   RefreshCw,
-} from "lucide-react";
-import { Spinner } from "@/components/ui/spinner";
+} from 'lucide-react';
+import { Spinner } from '@/components/ui/spinner';
 
 // Roles that can access /api/Dashboard/stats
 const DASHBOARD_STATS_ROLES = [
-  "Admin",
-  "ITManager",
-  "TeamLead",
-  "ServiceDeskAgent",
-  "Technician",
-  "SecurityAdmin",
+  'Admin',
+  'ITManager',
+  'TeamLead',
+  'ServiceDeskAgent',
+  'Technician',
+  'SecurityAdmin',
 ];
 
 export default function DashboardStats() {
@@ -55,8 +52,8 @@ export default function DashboardStats() {
 
   // Check if user can access dashboard stats API
   const canAccessDashboardStats = user && DASHBOARD_STATS_ROLES.includes(user.role);
-  const isEndUser = user?.role === "EndUser";
-  const isSystemAdmin = user?.role === "SystemAdmin";
+  const isEndUser = user?.role === 'EndUser';
+  const isSystemAdmin = user?.role === 'SystemAdmin';
 
   // Fetch dashboard data on mount
   useEffect(() => {
@@ -72,23 +69,24 @@ export default function DashboardStats() {
   }, [user]); // Re-fetch when user changes
 
   async function fetchDashboardData() {
-    if (!user) return;
+    if (!user) {return;}
 
     setIsLoading(true);
     setError(null);
 
     try {
-      console.log("🔄 Fetching dashboard data for role:", user.role);
+      console.log('🔄 Fetching dashboard data for role:', user.role);
 
       // Fetch dashboard stats only for authorized roles
       if (canAccessDashboardStats) {
-        console.log("📊 Fetching dashboard stats...");
+        console.log('📊 Fetching dashboard stats...');
         const statsResponse = await getDashboardStats();
+
         if (statsResponse.success && statsResponse.data) {
-          console.log("✅ Dashboard stats loaded:", statsResponse.data);
+          console.log('✅ Dashboard stats loaded:', statsResponse.data);
           setStats(statsResponse.data);
         } else {
-          console.warn("⚠️ Failed to fetch dashboard stats:", {
+          console.warn('⚠️ Failed to fetch dashboard stats:', {
             error: statsResponse.error,
             status: statsResponse.status,
           });
@@ -100,61 +98,65 @@ export default function DashboardStats() {
 
       if (isEndUser) {
         // EndUser: Show only their own created tickets
-        console.log("🎫 Fetching tickets created by user...");
+        console.log('🎫 Fetching tickets created by user...');
         ticketsResponse = await getTicketsByCreator(user.id);
       } else if (isSystemAdmin) {
         // SystemAdmin: Show tickets assigned to them
-        console.log("🎫 Fetching tickets assigned to SystemAdmin...");
+        console.log('🎫 Fetching tickets assigned to SystemAdmin...');
         ticketsResponse = await getTicketsByAssignee(user.id);
       } else {
         // Other roles: Show all tickets
-        console.log("🎫 Fetching all tickets...");
+        console.log('🎫 Fetching all tickets...');
         ticketsResponse = await getAllTickets();
       }
 
       if (ticketsResponse.success && ticketsResponse.data) {
-        console.log("✅ Tickets loaded:", ticketsResponse.data.length, "tickets");
+        console.log('✅ Tickets loaded:', ticketsResponse.data.length, 'tickets');
         setTickets(ticketsResponse.data);
       } else {
-        console.error("❌ Failed to fetch tickets:", ticketsResponse.error);
-        setError(ticketsResponse.error || "Failed to fetch tickets");
+        console.error('❌ Failed to fetch tickets:', ticketsResponse.error);
+        setError(ticketsResponse.error || 'Failed to fetch tickets');
       }
 
       setIsLoading(false);
     } catch (err) {
-      console.error("💥 Unexpected error fetching dashboard data:", err);
-      setError("An unexpected error occurred while fetching dashboard data");
+      console.error('💥 Unexpected error fetching dashboard data:', err);
+      setError('An unexpected error occurred while fetching dashboard data');
       setIsLoading(false);
     }
   }
 
   // Calculate stats from actual tickets data
   const calculatedCounts = {
-    open: tickets.filter((t) => t.status === "Open").length,
-    inProgress: tickets.filter((t) => t.status === "InProgress").length,
-    resolved: tickets.filter((t) => t.status === "Resolved").length,
-    closed: tickets.filter((t) => t.status === "Closed").length,
-    onHold: tickets.filter((t) => t.status === "OnHold").length,
+    open: tickets.filter((t) => t.status === 'Open').length,
+    inProgress: tickets.filter((t) => t.status === 'InProgress').length,
+    resolved: tickets.filter((t) => t.status === 'Resolved').length,
+    closed: tickets.filter((t) => t.status === 'Closed').length,
+    onHold: tickets.filter((t) => t.status === 'OnHold').length,
   };
 
   // Calculate critical and high priority tickets
-  const criticalTickets = tickets.filter((t) => t.priority === "Critical").length;
-  const highPriorityTickets = tickets.filter((t) => t.priority === "High").length;
+  const criticalTickets = tickets.filter((t) => t.priority === 'Critical').length;
+  const highPriorityTickets = tickets.filter((t) => t.priority === 'High').length;
 
   // Get today's tickets from the tickets list
   const today = new Date();
+
   today.setHours(0, 0, 0, 0);
   const todayTicketsFromList = tickets.filter((t) => {
     const createdDate = new Date(t.createdAt);
+
     createdDate.setHours(0, 0, 0, 0);
+
     return createdDate.getTime() === today.getTime();
   }).length;
 
   // Get dashboard title based on role
   const getDashboardTitle = () => {
-    if (isEndUser) return "My Tickets Dashboard";
-    if (isSystemAdmin) return "My Assigned Tickets";
-    return "Dashboard";
+    if (isEndUser) {return 'My Tickets Dashboard';}
+    if (isSystemAdmin) {return 'My Assigned Tickets';}
+
+    return 'Dashboard';
   };
 
   // Loading state
@@ -194,26 +196,18 @@ export default function DashboardStats() {
               <p className="text-red-800 dark:text-red-200">{error}</p>
 
               <div className="bg-card rounded-md p-4 text-sm">
-                <h3 className="font-semibold text-foreground mb-2">
-                  Troubleshooting Steps:
-                </h3>
+                <h3 className="font-semibold text-foreground mb-2">Troubleshooting Steps:</h3>
                 <ol className="list-decimal list-inside space-y-1 text-foreground">
                   <li>Check that the backend API is running</li>
                   <li>
-                    Verify the API URL:{" "}
+                    Verify the API URL:{' '}
                     <code className="bg-muted px-1 rounded">
-                      {process.env.NEXT_PUBLIC_API_BASE_URL ||
-                        "https://helpedge-api.onrender.com"}
+                      {process.env.NEXT_PUBLIC_API_BASE_URL || 'https://helpedge-api.onrender.com'}
                     </code>
                   </li>
                   <li>Check browser console (F12) for detailed error logs</li>
-                  <li>
-                    Verify you are logged in (check cookies for
-                    &apos;authToken&apos;)
-                  </li>
-                  <li>
-                    Check backend logs for 500 Internal Server Error details
-                  </li>
+                  <li>Verify you are logged in (check cookies for &apos;authToken&apos;)</li>
+                  <li>Check backend logs for 500 Internal Server Error details</li>
                 </ol>
               </div>
 
@@ -223,9 +217,8 @@ export default function DashboardStats() {
                 </summary>
                 <div className="mt-3 space-y-2 text-sm text-foreground">
                   <p>
-                    <strong>API Base URL:</strong>{" "}
-                    {process.env.NEXT_PUBLIC_API_BASE_URL ||
-                      "https://helpedge-api.onrender.com"}
+                    <strong>API Base URL:</strong>{' '}
+                    {process.env.NEXT_PUBLIC_API_BASE_URL || 'https://helpedge-api.onrender.com'}
                   </p>
                   <p>
                     <strong>Endpoint:</strong> GET /api/Tickets
@@ -234,15 +227,11 @@ export default function DashboardStats() {
                     <strong>Error:</strong> {error}
                   </p>
                   <p>
-                    <strong>Token Present:</strong>{" "}
-                    {typeof window !== "undefined" &&
-                    getAuthToken()
-                      ? "✅ Yes"
-                      : "❌ No"}
+                    <strong>Token Present:</strong>{' '}
+                    {typeof window !== 'undefined' && getAuthToken() ? '✅ Yes' : '❌ No'}
                   </p>
                   <p className="text-xs text-muted-foreground mt-2">
-                    Check the browser console for full error details and network
-                    requests.
+                    Check the browser console for full error details and network requests.
                   </p>
                 </div>
               </details>
@@ -255,7 +244,7 @@ export default function DashboardStats() {
                   Try Again
                 </button>
                 <button
-                  onClick={() => (window.location.href = "/auth/login")}
+                  onClick={() => (window.location.href = '/auth/login')}
                   className="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700"
                 >
                   Re-login
@@ -268,9 +257,7 @@ export default function DashboardStats() {
         {/* Show partial stats if available */}
         {(stats || calculatedCounts) && (
           <div>
-            <h2 className="text-xl font-semibold mb-4 text-foreground">
-              Available Data (Partial)
-            </h2>
+            <h2 className="text-xl font-semibold mb-4 text-foreground">Available Data (Partial)</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               {stats && (
                 <>
@@ -452,7 +439,9 @@ export default function DashboardStats() {
 
         <Card className="hover:shadow-lg transition border-l-4 border-l-red-500">
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Critical Priority</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">
+              Critical Priority
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <p className="text-2xl font-bold text-red-600">{criticalTickets}</p>
@@ -466,16 +455,20 @@ export default function DashboardStats() {
       {/* Recent Tickets */}
       <section>
         <h2 className="text-2xl font-semibold mb-4">
-          {isEndUser ? "My Recent Tickets" : isSystemAdmin ? "My Assigned Tickets" : "Recent Tickets"}
+          {isEndUser
+            ? 'My Recent Tickets'
+            : isSystemAdmin
+              ? 'My Assigned Tickets'
+              : 'Recent Tickets'}
         </h2>
         {tickets.length === 0 ? (
           <Card>
             <CardContent className="p-8 text-center text-muted-foreground">
               <TicketIcon className="h-12 w-12 mx-auto mb-4 opacity-50" />
-              <p>{isEndUser ? "You haven't created any tickets yet" : "No tickets found"}</p>
+              <p>{isEndUser ? "You haven't created any tickets yet" : 'No tickets found'}</p>
               {isEndUser && (
                 <button
-                  onClick={() => navigateTo("/portal/create-ticket")}
+                  onClick={() => navigateTo('/portal/create-ticket')}
                   className="inline-block mt-4 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
                 >
                   Create Your First Ticket
@@ -486,7 +479,7 @@ export default function DashboardStats() {
         ) : (
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
             {tickets.slice(0, 6).map((ticket) => {
-              const formattedDate = format(new Date(ticket.createdAt), "PPpp");
+              const formattedDate = format(new Date(ticket.createdAt), 'PPpp');
 
               return (
                 <Card
@@ -499,21 +492,18 @@ export default function DashboardStats() {
                   <CardContent className="p-4 space-y-2">
                     <div className="flex items-start justify-between">
                       <h3 className="text-lg font-semibold truncate flex-1">
-                        {ticket.subject || "No Subject"}
+                        {ticket.subject || 'No Subject'}
                       </h3>
                       <span className="text-xs text-muted-foreground ml-2">
                         #{ticket.ticketNumber}
                       </span>
                     </div>
                     <p className="text-sm text-muted-foreground line-clamp-2">
-                      {ticket.description || "No description provided"}
+                      {ticket.description || 'No description provided'}
                     </p>
                     <p className="text-xs text-muted-foreground">{formattedDate}</p>
                     <div className="flex gap-2 mt-2 flex-wrap">
-                      <Badge
-                        variant="outline"
-                        className={getStatusColor(ticket.status)}
-                      >
+                      <Badge variant="outline" className={getStatusColor(ticket.status)}>
                         {getStatusString(ticket.status).toUpperCase()}
                       </Badge>
                       <Badge className={getPriorityColor(ticket.priority)}>
@@ -530,7 +520,7 @@ export default function DashboardStats() {
         {tickets.length > 6 && (
           <div className="mt-4 text-center">
             <a
-              href={isEndUser ? "/tickets/my-tickets" : "/tickets"}
+              href={isEndUser ? '/tickets/my-tickets' : '/tickets'}
               className="text-blue-600 hover:underline"
             >
               View all {tickets.length} tickets

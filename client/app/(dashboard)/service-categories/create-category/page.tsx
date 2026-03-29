@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 export const dynamic = 'force-dynamic';
 
@@ -9,7 +9,10 @@ import { CategoryForm } from '@/components/service-request-category/CategoryForm
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
-import { createServiceRequestCategory, CreateServiceRequestCategoryDto } from '@/lib/api/service-request-category';
+import {
+  createServiceRequestCategory,
+  CreateServiceRequestCategoryDto,
+} from '@/lib/api/service-request-category';
 import { toast } from 'sonner';
 
 export default function CreateCategoryPage() {
@@ -18,7 +21,7 @@ export default function CreateCategoryPage() {
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    if (!["Admin", "ITManager"].includes(user?.role ?? "")) navigateTo("/service-categories");
+    if (!['Admin', 'ITManager'].includes(user?.role ?? '')) {navigateTo('/service-categories');}
   }, [user]);
 
   const handleSubmit = async (formData: any) => {
@@ -38,8 +41,10 @@ export default function CreateCategoryPage() {
         keywords: formData.keywords,
       };
       const response = await createServiceRequestCategory(dto);
+
       if (!response.success) {
         toast.error(response.error ?? 'Failed to create category');
+
         return;
       }
       toast.success('Category created successfully');

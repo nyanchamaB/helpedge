@@ -1,14 +1,8 @@
-"use client";
+'use client';
 
 import { useState, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import {
   Select,
@@ -96,8 +90,10 @@ export default function TrainingDataManagerPage() {
   // Fetch training data with filters
   const filters = useMemo(() => {
     const params: Record<string, string | boolean> = {};
-    if (categoryFilter !== 'all') params.category = categoryFilter;
-    if (verifiedFilter !== 'all') params.verified = verifiedFilter === 'verified';
+
+    if (categoryFilter !== 'all') {params.category = categoryFilter;}
+    if (verifiedFilter !== 'all') {params.verified = verifiedFilter === 'verified';}
+
     return params;
   }, [categoryFilter, verifiedFilter]);
 
@@ -125,7 +121,8 @@ export default function TrainingDataManagerPage() {
 
   // Filter by source (client-side filter for source)
   const filteredData = useMemo(() => {
-    if (sourceFilter === 'all') return trainingData;
+    if (sourceFilter === 'all') {return trainingData;}
+
     return trainingData.filter((item) => item.source === sourceFilter);
   }, [trainingData, sourceFilter]);
 
@@ -149,6 +146,7 @@ export default function TrainingDataManagerPage() {
     mutationFn: addBulkTrainingData,
     onSuccess: (response) => {
       const count = response.data?.addedCount || 0;
+
       toast.success(`Successfully added ${count} training examples`);
       queryClient.invalidateQueries({ queryKey: ['training-data'] });
       queryClient.invalidateQueries({ queryKey: ['training-data-stats'] });
@@ -165,24 +163,31 @@ export default function TrainingDataManagerPage() {
   const handleCsvImport = () => {
     if (!csvText.trim()) {
       toast.error('Please enter CSV data');
+
       return;
     }
 
     try {
       const lines = csvText.trim().split('\n');
-      const headers = lines[0].toLowerCase().split(',').map((h) => h.trim());
+      const headers = lines[0]
+        .toLowerCase()
+        .split(',')
+        .map((h) => h.trim());
 
       // Validate headers
       const requiredHeaders = ['description', 'category'];
       const hasRequired = requiredHeaders.every((h) => headers.includes(h));
+
       if (!hasRequired) {
         toast.error('CSV must have "description" and "category" columns');
+
         return;
       }
 
       const examples = lines.slice(1).map((line) => {
         const values = line.split(',').map((v) => v.trim());
         const row: Record<string, string> = {};
+
         headers.forEach((header, i) => {
           row[header] = values[i];
         });
@@ -198,6 +203,7 @@ export default function TrainingDataManagerPage() {
 
       if (examples.length === 0) {
         toast.error('No valid data rows found');
+
         return;
       }
 
@@ -221,6 +227,7 @@ export default function TrainingDataManagerPage() {
   const handleManualAdd = () => {
     if (!manualForm.description || !manualForm.category) {
       toast.error('Description and category are required');
+
       return;
     }
 
@@ -260,6 +267,7 @@ export default function TrainingDataManagerPage() {
   const handleExportCSV = () => {
     if (filteredData.length === 0) {
       toast.error('No data to export');
+
       return;
     }
 
@@ -286,6 +294,7 @@ export default function TrainingDataManagerPage() {
     const blob = new Blob([csv], { type: 'text/csv' });
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
+
     a.href = url;
     a.download = `training-data-${format(new Date(), 'yyyy-MM-dd')}.csv`;
     a.click();
@@ -315,9 +324,7 @@ export default function TrainingDataManagerPage() {
       <div className="flex items-center justify-between flex-wrap gap-4">
         <div className="space-y-1">
           <h1 className="text-3xl font-bold">Training Data Manager</h1>
-          <p className="text-muted-foreground">
-            Manage ML training data and monitor data quality
-          </p>
+          <p className="text-muted-foreground">Manage ML training data and monitor data quality</p>
         </div>
 
         <div className="flex items-center gap-2">
@@ -327,10 +334,7 @@ export default function TrainingDataManagerPage() {
             disabled={isLoadingStats || isLoadingData}
           >
             <RefreshCw
-              className={cn(
-                'h-4 w-4 mr-2',
-                (isLoadingStats || isLoadingData) && 'animate-spin'
-              )}
+              className={cn('h-4 w-4 mr-2', (isLoadingStats || isLoadingData) && 'animate-spin')}
             />
             Refresh
           </Button>
@@ -369,12 +373,8 @@ export default function TrainingDataManagerPage() {
               </div>
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold">
-                {stats?.totalCount?.toLocaleString() || '0'}
-              </div>
-              <p className="text-xs text-muted-foreground mt-2">
-                Training data entries
-              </p>
+              <div className="text-3xl font-bold">{stats?.totalCount?.toLocaleString() || '0'}</div>
+              <p className="text-xs text-muted-foreground mt-2">Training data entries</p>
             </CardContent>
           </Card>
 
@@ -413,25 +413,18 @@ export default function TrainingDataManagerPage() {
                     (stats?.balanceScore || 0) >= 0.7
                       ? 'text-green-600'
                       : (stats?.balanceScore || 0) >= 0.5
-                      ? 'text-yellow-600'
-                      : 'text-red-600'
+                        ? 'text-yellow-600'
+                        : 'text-red-600',
                   )}
                 />
               </div>
             </CardHeader>
             <CardContent>
               <div className="text-3xl font-bold">
-                {stats?.balanceScore
-                  ? `${(stats.balanceScore * 100).toFixed(0)}%`
-                  : 'N/A'}
+                {stats?.balanceScore ? `${(stats.balanceScore * 100).toFixed(0)}%` : 'N/A'}
               </div>
-              <Progress
-                value={(stats?.balanceScore || 0) * 100}
-                className="mt-2"
-              />
-              <p className="text-xs text-muted-foreground mt-2">
-                Category distribution
-              </p>
+              <Progress value={(stats?.balanceScore || 0) * 100} className="mt-2" />
+              <p className="text-xs text-muted-foreground mt-2">Category distribution</p>
             </CardContent>
           </Card>
 
@@ -449,9 +442,7 @@ export default function TrainingDataManagerPage() {
               <div className="text-3xl font-bold">
                 {stats?.byCategory ? Object.keys(stats.byCategory).length : 0}
               </div>
-              <p className="text-xs text-muted-foreground mt-2">
-                Categories with data
-              </p>
+              <p className="text-xs text-muted-foreground mt-2">Categories with data</p>
             </CardContent>
           </Card>
         </div>
@@ -512,9 +503,7 @@ export default function TrainingDataManagerPage() {
       <Card>
         <CardHeader>
           <CardTitle>Training Data ({filteredData.length})</CardTitle>
-          <CardDescription>
-            Manage training examples used for ML model training
-          </CardDescription>
+          <CardDescription>Manage training examples used for ML model training</CardDescription>
         </CardHeader>
         <CardContent>
           {isLoadingData ? (
@@ -543,9 +532,7 @@ export default function TrainingDataManagerPage() {
                       <TableCell>
                         <div className="max-w-md">
                           {item.subject && (
-                            <div className="font-medium text-sm mb-1">
-                              {item.subject}
-                            </div>
+                            <div className="font-medium text-sm mb-1">{item.subject}</div>
                           )}
                           <div className="text-sm text-muted-foreground line-clamp-2">
                             {item.description}
@@ -562,8 +549,8 @@ export default function TrainingDataManagerPage() {
                               item.actualPriority === 'High'
                                 ? 'destructive'
                                 : item.actualPriority === 'Medium'
-                                ? 'default'
-                                : 'secondary'
+                                  ? 'default'
+                                  : 'secondary'
                             }
                           >
                             {item.actualPriority}
@@ -613,9 +600,7 @@ export default function TrainingDataManagerPage() {
         <DialogContent className="max-w-2xl">
           <DialogHeader>
             <DialogTitle>Add Training Data</DialogTitle>
-            <DialogDescription>
-              Add training examples manually or import from CSV
-            </DialogDescription>
+            <DialogDescription>Add training examples manually or import from CSV</DialogDescription>
           </DialogHeader>
 
           <div className="space-y-4">
@@ -649,9 +634,7 @@ export default function TrainingDataManagerPage() {
                     id="description"
                     placeholder="Enter ticket description..."
                     value={manualForm.description}
-                    onChange={(e) =>
-                      setManualForm({ ...manualForm, description: e.target.value })
-                    }
+                    onChange={(e) => setManualForm({ ...manualForm, description: e.target.value })}
                     rows={4}
                   />
                 </div>
@@ -662,9 +645,7 @@ export default function TrainingDataManagerPage() {
                     id="subject"
                     placeholder="Enter ticket subject..."
                     value={manualForm.subject}
-                    onChange={(e) =>
-                      setManualForm({ ...manualForm, subject: e.target.value })
-                    }
+                    onChange={(e) => setManualForm({ ...manualForm, subject: e.target.value })}
                   />
                 </div>
 
@@ -675,9 +656,7 @@ export default function TrainingDataManagerPage() {
                     </Label>
                     <Select
                       value={manualForm.category}
-                      onValueChange={(value) =>
-                        setManualForm({ ...manualForm, category: value })
-                      }
+                      onValueChange={(value) => setManualForm({ ...manualForm, category: value })}
                     >
                       <SelectTrigger>
                         <SelectValue placeholder="Select category" />
@@ -696,9 +675,7 @@ export default function TrainingDataManagerPage() {
                     <Label htmlFor="priority">Priority (optional)</Label>
                     <Select
                       value={manualForm.priority}
-                      onValueChange={(value) =>
-                        setManualForm({ ...manualForm, priority: value })
-                      }
+                      onValueChange={(value) => setManualForm({ ...manualForm, priority: value })}
                     >
                       <SelectTrigger>
                         <SelectValue placeholder="Select priority" />
@@ -764,17 +741,14 @@ Cannot access email,Software,Email Problem,Medium"
           <DialogHeader>
             <DialogTitle>Delete Training Data</DialogTitle>
             <DialogDescription>
-              Are you sure you want to delete this training example? This action cannot be
-              undone.
+              Are you sure you want to delete this training example? This action cannot be undone.
             </DialogDescription>
           </DialogHeader>
 
           {selectedForDelete && (
             <div className="bg-muted p-4 rounded-md">
               <p className="text-sm font-medium">Description:</p>
-              <p className="text-sm text-muted-foreground mt-1">
-                {selectedForDelete.description}
-              </p>
+              <p className="text-sm text-muted-foreground mt-1">{selectedForDelete.description}</p>
               <div className="flex gap-2 mt-3">
                 <Badge variant="outline">{selectedForDelete.actualCategory}</Badge>
                 <Badge variant="secondary">{selectedForDelete.source}</Badge>

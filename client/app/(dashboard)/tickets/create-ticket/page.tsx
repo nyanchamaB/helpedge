@@ -1,8 +1,8 @@
-"use client";
+'use client';
 
-import { useEffect } from "react";
-import { useNavigation } from "@/contexts/NavigationContext";
-import { Spinner } from "@/components/ui/spinner";
+import { useEffect } from 'react';
+import { useNavigation } from '@/contexts/NavigationContext';
+import { Spinner } from '@/components/ui/spinner';
 
 /**
  * Redirect /tickets/create-ticket → dashboard SPA submit ticket route.
@@ -12,7 +12,7 @@ export default function CreateTicketRedirect() {
   const { navigateTo } = useNavigation();
 
   useEffect(() => {
-    navigateTo("/portal/create-ticket");
+    navigateTo('/portal/create-ticket');
   }, [navigateTo]);
 
   return (

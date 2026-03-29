@@ -1,15 +1,15 @@
-"use client";
+'use client';
 
-export const dynamic = "force-dynamic";
+export const dynamic = 'force-dynamic';
 
-import { useState } from "react";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
-import { useNavigation } from "@/contexts/NavigationContext";
-import { useCreateServiceRequest } from "@/hooks/service-requests/useServiceRequestMutations";
-import { useSubmitServiceRequest } from "@/hooks/service-requests/useServiceRequestMutations";
-import { useActiveCategories } from "@/hooks/service-request-category/useCategories";
+import { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
+import { useNavigation } from '@/contexts/NavigationContext';
+import { useCreateServiceRequest } from '@/hooks/service-requests/useServiceRequestMutations';
+import { useSubmitServiceRequest } from '@/hooks/service-requests/useServiceRequestMutations';
+import { useActiveCategories } from '@/hooks/service-request-category/useCategories';
 import {
   CreateServiceRequestDto,
   ServiceRequestType,
@@ -17,48 +17,61 @@ import {
   SERVICE_REQUEST_TYPES,
   SERVICE_REQUEST_PRIORITIES,
   getSRTypeLabel,
-} from "@/lib/api/service-request";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
-import { Badge } from "@/components/ui/badge";
+} from '@/lib/api/service-request';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
+import { Badge } from '@/components/ui/badge';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { ArrowLeft, ClipboardList, Send, Save, Plus, X, ChevronDown, ChevronRight, BookOpen } from "lucide-react";
+} from '@/components/ui/select';
+import {
+  ArrowLeft,
+  ClipboardList,
+  Send,
+  Save,
+  Plus,
+  X,
+  ChevronDown,
+  ChevronRight,
+  BookOpen,
+} from 'lucide-react';
 
 // ─── Enum Reference ───────────────────────────────────────────────────────────
 
 const ENUM_ROWS = [
   {
-    name: "requestType",
-    values: "Access, Equipment, Software, DataChange, Workspace, Account, PermissionChange",
-    note: "",
+    name: 'requestType',
+    values: 'Access, Equipment, Software, DataChange, Workspace, Account, PermissionChange',
+    note: '',
   },
   {
-    name: "priority",
-    values: "Critical, High, Normal, Low",
-    note: "",
+    name: 'priority',
+    values: 'Critical, High, Normal, Low',
+    note: '',
   },
   {
-    name: "approverType",
-    values: "SpecificUser, Role, RequestersManager, DepartmentHead, CostCenterOwner, SecurityTeam, ITManagement",
-    note: "(used in Approval Workflows)",
+    name: 'approverType',
+    values:
+      'SpecificUser, Role, RequestersManager, DepartmentHead, CostCenterOwner, SecurityTeam, ITManagement',
+    note: '(used in Approval Workflows)',
   },
   {
-    name: "status",
-    values: "Draft, PendingApproval, Approved, InProgress, Fulfilled, OnHold, Closed, Rejected, Cancelled",
-    note: "(read-only)",
+    name: 'status',
+    values:
+      'Draft, PendingApproval, Approved, InProgress, Fulfilled, OnHold, Closed, Rejected, Cancelled',
+    note: '(read-only)',
   },
 ];
 
 function EnumReference() {
   const [open, setOpen] = useState(false);
+
   return (
     <div className="rounded-lg border bg-muted/30">
       <button
@@ -66,17 +79,25 @@ function EnumReference() {
         className="w-full flex items-center gap-2 px-4 py-3 text-sm font-medium text-left hover:bg-muted/50 transition-colors"
         onClick={() => setOpen((v) => !v)}
       >
-        {open ? <ChevronDown className="h-4 w-4 shrink-0" /> : <ChevronRight className="h-4 w-4 shrink-0" />}
+        {open ? (
+          <ChevronDown className="h-4 w-4 shrink-0" />
+        ) : (
+          <ChevronRight className="h-4 w-4 shrink-0" />
+        )}
         <BookOpen className="h-4 w-4 shrink-0 text-muted-foreground" />
         Enum Reference
-        <span className="text-xs text-muted-foreground font-normal ml-1">valid values for request fields</span>
+        <span className="text-xs text-muted-foreground font-normal ml-1">
+          valid values for request fields
+        </span>
       </button>
       {open && (
         <div className="px-4 pb-4 overflow-x-auto">
           <table className="w-full text-xs border-collapse">
             <thead>
               <tr className="border-b">
-                <th className="text-left py-2 pr-4 font-semibold text-muted-foreground w-40">Enum</th>
+                <th className="text-left py-2 pr-4 font-semibold text-muted-foreground w-40">
+                  Enum
+                </th>
                 <th className="text-left py-2 font-semibold text-muted-foreground">Values</th>
               </tr>
             </thead>
@@ -90,8 +111,11 @@ function EnumReference() {
                     )}
                   </td>
                   <td className="py-2 align-top leading-relaxed text-muted-foreground">
-                    {row.values.split(", ").map((v) => (
-                      <code key={v} className="inline-block bg-muted rounded px-1 py-0.5 mr-1 mb-1 font-mono text-foreground">
+                    {row.values.split(', ').map((v) => (
+                      <code
+                        key={v}
+                        className="inline-block bg-muted rounded px-1 py-0.5 mr-1 mb-1 font-mono text-foreground"
+                      >
                         {v}
                       </code>
                     ))}
@@ -107,11 +131,19 @@ function EnumReference() {
 }
 
 const schema = z.object({
-  subject: z.string().min(5, "Subject must be at least 5 characters"),
-  description: z.string().min(10, "Description must be at least 10 characters"),
-  requestType: z.enum(["Access", "Equipment", "Software", "DataChange", "Workspace", "Account", "PermissionChange"] as const),
+  subject: z.string().min(5, 'Subject must be at least 5 characters'),
+  description: z.string().min(10, 'Description must be at least 10 characters'),
+  requestType: z.enum([
+    'Access',
+    'Equipment',
+    'Software',
+    'DataChange',
+    'Workspace',
+    'Account',
+    'PermissionChange',
+  ] as const),
   categoryId: z.string().optional(),
-  priority: z.enum(["Critical", "High", "Normal", "Low"] as const),
+  priority: z.enum(['Critical', 'High', 'Normal', 'Low'] as const),
   justification: z.string().optional(),
   requiredByDate: z.string().optional(),
   onBehalfOfId: z.string().optional(),
@@ -133,11 +165,11 @@ export default function CreateRequestPage() {
   const categoriesQuery = useActiveCategories();
   const categories = categoriesQuery.data?.data ?? [];
 
-  const [submitMode, setSubmitMode] = useState<"draft" | "submit">("draft");
+  const [submitMode, setSubmitMode] = useState<'draft' | 'submit'>('draft');
 
   // Tags state
   const [tags, setTags] = useState<string[]>([]);
-  const [tagInput, setTagInput] = useState("");
+  const [tagInput, setTagInput] = useState('');
 
   // requestDetails key-value rows
   const [kvRows, setKvRows] = useState<KVRow[]>([]);
@@ -150,20 +182,21 @@ export default function CreateRequestPage() {
     formState: { errors, isSubmitting },
   } = useForm<FormValues>({
     resolver: zodResolver(schema),
-    defaultValues: { priority: "Normal" as const },
+    defaultValues: { priority: 'Normal' as const },
   });
 
-  const watchedType = watch("requestType");
+  const watchedType = watch('requestType');
 
   const filteredCategories = categories.filter(
-    (c: { requestType: string }) => !watchedType || c.requestType === watchedType
+    (c: { requestType: string }) => !watchedType || c.requestType === watchedType,
   );
 
   // Tag helpers
   function addTag() {
-    const t = tagInput.trim().toLowerCase().replace(/\s+/g, "-");
-    if (t && !tags.includes(t)) setTags((prev) => [...prev, t]);
-    setTagInput("");
+    const t = tagInput.trim().toLowerCase().replace(/\s+/g, '-');
+
+    if (t && !tags.includes(t)) {setTags((prev) => [...prev, t]);}
+    setTagInput('');
   }
 
   function removeTag(t: string) {
@@ -171,7 +204,7 @@ export default function CreateRequestPage() {
   }
 
   function handleTagKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
-    if (e.key === "Enter" || e.key === ",") {
+    if (e.key === 'Enter' || e.key === ',') {
       e.preventDefault();
       addTag();
     }
@@ -179,10 +212,10 @@ export default function CreateRequestPage() {
 
   // requestDetails helpers
   function addKvRow() {
-    setKvRows((prev) => [...prev, { key: "", value: "" }]);
+    setKvRows((prev) => [...prev, { key: '', value: '' }]);
   }
 
-  function updateKvRow(idx: number, field: "key" | "value", val: string) {
+  function updateKvRow(idx: number, field: 'key' | 'value', val: string) {
     setKvRows((prev) => prev.map((r, i) => (i === idx ? { ...r, [field]: val } : r)));
   }
 
@@ -196,6 +229,7 @@ export default function CreateRequestPage() {
       .filter((r) => r.key.trim())
       .reduce<Record<string, unknown>>((acc, r) => {
         acc[r.key.trim()] = r.value;
+
         return acc;
       }, {});
 
@@ -206,7 +240,9 @@ export default function CreateRequestPage() {
       priority: values.priority as ServiceRequestPriority,
       categoryId: values.categoryId || undefined,
       justification: values.justification || undefined,
-      requiredByDate: values.requiredByDate ? new Date(values.requiredByDate).toISOString() : undefined,
+      requiredByDate: values.requiredByDate
+        ? new Date(values.requiredByDate).toISOString()
+        : undefined,
       onBehalfOfId: values.onBehalfOfId || undefined,
       estimatedCost: values.estimatedCost ? parseFloat(values.estimatedCost) : undefined,
       tags: tags.length > 0 ? tags : undefined,
@@ -214,9 +250,11 @@ export default function CreateRequestPage() {
     };
 
     const result = await createMutation.mutateAsync(dto);
+
     if (result.success && result.data) {
       const id = result.data.id;
-      if (submitMode === "submit") {
+
+      if (submitMode === 'submit') {
         // Submit after create; always navigate to draft regardless of outcome
         await submitMutation.mutateAsync(id);
       }
@@ -228,7 +266,11 @@ export default function CreateRequestPage() {
     <div className="max-w-2xl mx-auto space-y-6">
       {/* Header */}
       <div className="flex items-center gap-3">
-        <Button variant="ghost" size="sm" onClick={() => navigateTo(pageParams?.from ?? "/service-requests/my-requests")}>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => navigateTo(pageParams?.from ?? '/service-requests/my-requests')}
+        >
           <ArrowLeft className="h-4 w-4 mr-1" />
           Back
         </Button>
@@ -239,14 +281,15 @@ export default function CreateRequestPage() {
       </div>
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-
         {/* Subject */}
         <div className="space-y-1.5">
-          <Label htmlFor="subject">Subject <span className="text-destructive">*</span></Label>
+          <Label htmlFor="subject">
+            Subject <span className="text-destructive">*</span>
+          </Label>
           <Input
             id="subject"
             placeholder="Brief description of your request"
-            {...register("subject")}
+            {...register('subject')}
           />
           {errors.subject && <p className="text-xs text-destructive">{errors.subject.message}</p>}
         </div>
@@ -254,32 +297,47 @@ export default function CreateRequestPage() {
         {/* Request Type + Category */}
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-1.5">
-            <Label>Request Type <span className="text-destructive">*</span></Label>
-            <Select onValueChange={(v) => { setValue("requestType", v as ServiceRequestType); setValue("categoryId", ""); }}>
+            <Label>
+              Request Type <span className="text-destructive">*</span>
+            </Label>
+            <Select
+              onValueChange={(v) => {
+                setValue('requestType', v as ServiceRequestType);
+                setValue('categoryId', '');
+              }}
+            >
               <SelectTrigger>
                 <SelectValue placeholder="Select type" />
               </SelectTrigger>
               <SelectContent>
                 {SERVICE_REQUEST_TYPES.map((t) => (
-                  <SelectItem key={t} value={t}>{getSRTypeLabel(t)}</SelectItem>
+                  <SelectItem key={t} value={t}>
+                    {getSRTypeLabel(t)}
+                  </SelectItem>
                 ))}
               </SelectContent>
             </Select>
-            {errors.requestType && <p className="text-xs text-destructive">{errors.requestType.message}</p>}
+            {errors.requestType && (
+              <p className="text-xs text-destructive">{errors.requestType.message}</p>
+            )}
           </div>
 
           <div className="space-y-1.5">
             <Label>Category</Label>
-            <Select onValueChange={(v) => setValue("categoryId", v)}>
+            <Select onValueChange={(v) => setValue('categoryId', v)}>
               <SelectTrigger>
                 <SelectValue placeholder="Select category" />
               </SelectTrigger>
               <SelectContent>
                 {filteredCategories.length === 0 ? (
-                  <SelectItem value="_none" disabled>No categories available</SelectItem>
+                  <SelectItem value="_none" disabled>
+                    No categories available
+                  </SelectItem>
                 ) : (
                   filteredCategories.map((c: { id: string; name: string }) => (
-                    <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
+                    <SelectItem key={c.id} value={c.id}>
+                      {c.name}
+                    </SelectItem>
                   ))
                 )}
               </SelectContent>
@@ -291,33 +349,42 @@ export default function CreateRequestPage() {
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-1.5">
             <Label>Priority</Label>
-            <Select defaultValue="Normal" onValueChange={(v) => setValue("priority", v as ServiceRequestPriority)}>
+            <Select
+              defaultValue="Normal"
+              onValueChange={(v) => setValue('priority', v as ServiceRequestPriority)}
+            >
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
                 {SERVICE_REQUEST_PRIORITIES.map((p) => (
-                  <SelectItem key={p} value={p}>{p}</SelectItem>
+                  <SelectItem key={p} value={p}>
+                    {p}
+                  </SelectItem>
                 ))}
               </SelectContent>
             </Select>
           </div>
           <div className="space-y-1.5">
             <Label>Required By Date</Label>
-            <Input type="date" {...register("requiredByDate")} />
+            <Input type="date" {...register('requiredByDate')} />
           </div>
         </div>
 
         {/* Description */}
         <div className="space-y-1.5">
-          <Label htmlFor="description">Description <span className="text-destructive">*</span></Label>
+          <Label htmlFor="description">
+            Description <span className="text-destructive">*</span>
+          </Label>
           <Textarea
             id="description"
             rows={4}
             placeholder="Describe your request in detail..."
-            {...register("description")}
+            {...register('description')}
           />
-          {errors.description && <p className="text-xs text-destructive">{errors.description.message}</p>}
+          {errors.description && (
+            <p className="text-xs text-destructive">{errors.description.message}</p>
+          )}
         </div>
 
         {/* Justification */}
@@ -327,7 +394,7 @@ export default function CreateRequestPage() {
             id="justification"
             rows={2}
             placeholder="Why is this request needed? (optional)"
-            {...register("justification")}
+            {...register('justification')}
           />
         </div>
 
@@ -336,7 +403,9 @@ export default function CreateRequestPage() {
           <div className="space-y-1.5">
             <Label htmlFor="estimatedCost">Estimated Cost</Label>
             <div className="relative">
-              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">$</span>
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">
+                $
+              </span>
               <Input
                 id="estimatedCost"
                 type="number"
@@ -344,7 +413,7 @@ export default function CreateRequestPage() {
                 step="0.01"
                 placeholder="0.00"
                 className="pl-7"
-                {...register("estimatedCost")}
+                {...register('estimatedCost')}
               />
             </div>
           </div>
@@ -353,9 +422,11 @@ export default function CreateRequestPage() {
             <Input
               id="onBehalfOfId"
               placeholder="User ID of the beneficiary"
-              {...register("onBehalfOfId")}
+              {...register('onBehalfOfId')}
             />
-            <p className="text-xs text-muted-foreground">Leave blank if this request is for yourself</p>
+            <p className="text-xs text-muted-foreground">
+              Leave blank if this request is for yourself
+            </p>
           </div>
         </div>
 
@@ -396,7 +467,9 @@ export default function CreateRequestPage() {
           <div className="flex items-center justify-between">
             <div>
               <Label>Request Details</Label>
-              <p className="text-xs text-muted-foreground">Additional structured information for this request</p>
+              <p className="text-xs text-muted-foreground">
+                Additional structured information for this request
+              </p>
             </div>
             <Button type="button" variant="outline" size="sm" onClick={addKvRow}>
               <Plus className="h-4 w-4 mr-1" />
@@ -410,13 +483,13 @@ export default function CreateRequestPage() {
                   <Input
                     placeholder="Field name"
                     value={row.key}
-                    onChange={(e) => updateKvRow(idx, "key", e.target.value)}
+                    onChange={(e) => updateKvRow(idx, 'key', e.target.value)}
                     className="flex-1"
                   />
                   <Input
                     placeholder="Value"
                     value={row.value}
-                    onChange={(e) => updateKvRow(idx, "value", e.target.value)}
+                    onChange={(e) => updateKvRow(idx, 'value', e.target.value)}
                     className="flex-1"
                   />
                   <Button
@@ -440,18 +513,14 @@ export default function CreateRequestPage() {
             type="submit"
             variant="outline"
             disabled={isSubmitting}
-            onClick={() => setSubmitMode("draft")}
+            onClick={() => setSubmitMode('draft')}
           >
             <Save className="h-4 w-4 mr-1" />
             Save as Draft
           </Button>
-          <Button
-            type="submit"
-            disabled={isSubmitting}
-            onClick={() => setSubmitMode("submit")}
-          >
+          <Button type="submit" disabled={isSubmitting} onClick={() => setSubmitMode('submit')}>
             <Send className="h-4 w-4 mr-1" />
-            {isSubmitting && submitMode === "submit" ? "Submitting..." : "Submit for Approval"}
+            {isSubmitting && submitMode === 'submit' ? 'Submitting...' : 'Submit for Approval'}
           </Button>
         </div>
       </form>

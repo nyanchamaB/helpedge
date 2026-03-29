@@ -1,14 +1,8 @@
-"use client";
+'use client';
 
 import { useState, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import {
   Select,
@@ -117,7 +111,11 @@ export default function AIAnalyticsDashboard() {
 
   const categoryNameMap = useMemo(() => {
     const map: Record<string, string> = {};
-    (categoriesResponse?.data ?? []).forEach((c: any) => { map[c.id] = c.name; });
+
+    (categoriesResponse?.data ?? []).forEach((c: any) => {
+      map[c.id] = c.name;
+    });
+
     return map;
   }, [categoriesResponse]);
 
@@ -126,9 +124,10 @@ export default function AIAnalyticsDashboard() {
   // it's an orphaned reference — skip it rather than showing the raw ID.
   const isObjectId = (v: string) => /^[a-f0-9]{24}$/i.test(v);
   const resolveCategory = (raw: string): string | null => {
-    if (!raw) return null;
-    if (categoryNameMap[raw]) return categoryNameMap[raw];
-    if (isObjectId(raw)) return null; // orphaned ID — filter out
+    if (!raw) {return null;}
+    if (categoryNameMap[raw]) {return categoryNameMap[raw];}
+    if (isObjectId(raw)) {return null;} // orphaned ID — filter out
+
     return raw; // plain name string, use as-is
   };
 
@@ -136,7 +135,9 @@ export default function AIAnalyticsDashboard() {
   const categoryPerformance = (Array.isArray(categoryResponse?.data) ? categoryResponse.data : [])
     .map((item: any) => {
       const resolved = resolveCategory(item.categoryName ?? item.category ?? '');
-      if (!resolved) return null; // drop orphaned category entries
+
+      if (!resolved) {return null;} // drop orphaned category entries
+
       return {
         ...item,
         accuracyPct: item.accuracy != null ? parseFloat((item.accuracy * 100).toFixed(1)) : 0,
@@ -163,7 +164,7 @@ export default function AIAnalyticsDashboard() {
 
   // Export to CSV
   const handleExportCSV = () => {
-    if (!metrics) return;
+    if (!metrics) {return;}
 
     const csvData = [
       ['Metric', 'Value'],
@@ -183,6 +184,7 @@ export default function AIAnalyticsDashboard() {
     const blob = new Blob([csv], { type: 'text/csv' });
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
+
     a.href = url;
     a.download = `ai-performance-${format(new Date(), 'yyyy-MM-dd')}.csv`;
     a.click();
@@ -196,11 +198,7 @@ export default function AIAnalyticsDashboard() {
           <AlertCircle className="h-4 w-4" />
           <AlertDescription>
             Failed to load AI analytics. Please try again.
-            <Button
-              variant="link"
-              className="px-2"
-              onClick={handleRefreshAll}
-            >
+            <Button variant="link" className="px-2" onClick={handleRefreshAll}>
               Retry
             </Button>
           </AlertDescription>
@@ -221,14 +219,8 @@ export default function AIAnalyticsDashboard() {
         </div>
 
         <div className="flex items-center gap-2">
-          <Button
-            variant="outline"
-            onClick={handleRefreshAll}
-            disabled={isRefreshing}
-          >
-            <RefreshCw
-              className={cn('h-4 w-4 mr-2', isRefreshing && 'animate-spin')}
-            />
+          <Button variant="outline" onClick={handleRefreshAll} disabled={isRefreshing}>
+            <RefreshCw className={cn('h-4 w-4 mr-2', isRefreshing && 'animate-spin')} />
             Refresh
           </Button>
           <Button onClick={handleExportCSV} disabled={!metrics}>
@@ -287,8 +279,8 @@ export default function AIAnalyticsDashboard() {
                 (metrics?.overallAccuracy || 0) >= 0.8
                   ? 'text-green-600'
                   : (metrics?.overallAccuracy || 0) >= 0.6
-                  ? 'text-yellow-600'
-                  : 'text-red-600'
+                    ? 'text-yellow-600'
+                    : 'text-red-600'
               }
             />
 
@@ -301,9 +293,7 @@ export default function AIAnalyticsDashboard() {
               trend={(metrics?.automationRate || 0) >= 0.7 ? 'up' : 'down'}
               trendValue={`${((metrics?.automationRate || 0) * 100).toFixed(1)}%`}
               colorClass={
-                (metrics?.automationRate || 0) >= 0.7
-                  ? 'text-green-600'
-                  : 'text-yellow-600'
+                (metrics?.automationRate || 0) >= 0.7 ? 'text-green-600' : 'text-yellow-600'
               }
             />
 
@@ -325,9 +315,7 @@ export default function AIAnalyticsDashboard() {
               trend={(metrics?.overrideRate || 0) <= 0.2 ? 'up' : 'down'}
               trendValue={`${((metrics?.overrideRate || 0) * 100).toFixed(1)}%`}
               colorClass={
-                (metrics?.overrideRate || 0) <= 0.2
-                  ? 'text-green-600'
-                  : 'text-yellow-600'
+                (metrics?.overrideRate || 0) <= 0.2 ? 'text-green-600' : 'text-yellow-600'
               }
             />
           </div>
@@ -359,9 +347,7 @@ export default function AIAnalyticsDashboard() {
               description="Per classification"
               icon={Clock}
               colorClass={
-                (metrics?.averageProcessingTimeMs || 0) < 500
-                  ? 'text-green-600'
-                  : 'text-yellow-600'
+                (metrics?.averageProcessingTimeMs || 0) < 500 ? 'text-green-600' : 'text-yellow-600'
               }
             />
 
@@ -381,32 +367,39 @@ export default function AIAnalyticsDashboard() {
       <Card>
         <CardHeader>
           <CardTitle>Performance by Category</CardTitle>
-          <CardDescription>
-            Accuracy and prediction count for each category
-          </CardDescription>
+          <CardDescription>Accuracy and prediction count for each category</CardDescription>
         </CardHeader>
         <CardContent>
           {isLoadingCategory ? (
             <Skeleton className="h-96 w-full" />
           ) : categoryPerformance.length > 0 ? (
             <ResponsiveContainer width="100%" height={420}>
-              <AreaChart data={categoryPerformance} margin={{ top: 10, right: 20, left: 0, bottom: 90 }}>
+              <AreaChart
+                data={categoryPerformance}
+                margin={{ top: 10, right: 20, left: 0, bottom: 90 }}
+              >
                 <defs>
                   <linearGradient id="gradPredictions" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%"  stopColor="#818cf8" stopOpacity={0.5} />
+                    <stop offset="5%" stopColor="#818cf8" stopOpacity={0.5} />
                     <stop offset="95%" stopColor="#818cf8" stopOpacity={0.03} />
                   </linearGradient>
                   <linearGradient id="gradAccuracy" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%"  stopColor="#34d399" stopOpacity={0.5} />
+                    <stop offset="5%" stopColor="#34d399" stopOpacity={0.5} />
                     <stop offset="95%" stopColor="#34d399" stopOpacity={0.03} />
                   </linearGradient>
                   <filter id="glowPurple">
                     <feGaussianBlur stdDeviation="3" result="blur" />
-                    <feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
+                    <feMerge>
+                      <feMergeNode in="blur" />
+                      <feMergeNode in="SourceGraphic" />
+                    </feMerge>
                   </filter>
                   <filter id="glowGreen">
                     <feGaussianBlur stdDeviation="3" result="blur" />
-                    <feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
+                    <feMerge>
+                      <feMergeNode in="blur" />
+                      <feMergeNode in="SourceGraphic" />
+                    </feMerge>
                   </filter>
                 </defs>
 
@@ -457,10 +450,7 @@ export default function AIAnalyticsDashboard() {
                   }
                   cursor={{ stroke: 'currentColor', strokeOpacity: 0.15, strokeWidth: 1 }}
                 />
-                <Legend
-                  wrapperStyle={{ paddingTop: 8, fontSize: 13 }}
-                  iconType="circle"
-                />
+                <Legend wrapperStyle={{ paddingTop: 8, fontSize: 13 }} iconType="circle" />
 
                 <Area
                   yAxisId="left"
@@ -471,7 +461,13 @@ export default function AIAnalyticsDashboard() {
                   strokeWidth={2.5}
                   fill="url(#gradPredictions)"
                   dot={{ r: 4, fill: '#818cf8', strokeWidth: 0 }}
-                  activeDot={{ r: 7, fill: '#818cf8', stroke: '#c7d2fe', strokeWidth: 2, filter: 'url(#glowPurple)' }}
+                  activeDot={{
+                    r: 7,
+                    fill: '#818cf8',
+                    stroke: '#c7d2fe',
+                    strokeWidth: 2,
+                    filter: 'url(#glowPurple)',
+                  }}
                 />
                 <Area
                   yAxisId="right"
@@ -482,7 +478,13 @@ export default function AIAnalyticsDashboard() {
                   strokeWidth={2.5}
                   fill="url(#gradAccuracy)"
                   dot={{ r: 4, fill: '#34d399', strokeWidth: 0 }}
-                  activeDot={{ r: 7, fill: '#34d399', stroke: '#a7f3d0', strokeWidth: 2, filter: 'url(#glowGreen)' }}
+                  activeDot={{
+                    r: 7,
+                    fill: '#34d399',
+                    stroke: '#a7f3d0',
+                    strokeWidth: 2,
+                    filter: 'url(#glowGreen)',
+                  }}
                 />
               </AreaChart>
             </ResponsiveContainer>
@@ -495,68 +497,71 @@ export default function AIAnalyticsDashboard() {
       </Card>
 
       {/* Confusion Matrix */}
-      {confusionMatrix && confusionMatrix.categories.length > 0 && Array.isArray(confusionMatrix.matrix) && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Confusion Matrix</CardTitle>
-            <CardDescription>
-              Shows how often categories are confused with each other
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="overflow-x-auto">
-              <table className="w-full border-collapse">
-                <thead>
-                  <tr>
-                    <th className="border p-2 bg-muted font-medium text-sm">
-                      Predicted →<br />Actual ↓
-                    </th>
-                    {confusionMatrix.categories.map((cat: string | null) => (
-                      <th
-                        key={cat ?? ''}
-                        className="border p-2 bg-muted font-medium text-sm max-w-[100px] truncate"
-                        title={cat ?? ''}
-                      >
-                        {cat}
+      {confusionMatrix &&
+        confusionMatrix.categories.length > 0 &&
+        Array.isArray(confusionMatrix.matrix) && (
+          <Card>
+            <CardHeader>
+              <CardTitle>Confusion Matrix</CardTitle>
+              <CardDescription>
+                Shows how often categories are confused with each other
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="overflow-x-auto">
+                <table className="w-full border-collapse">
+                  <thead>
+                    <tr>
+                      <th className="border p-2 bg-muted font-medium text-sm">
+                        Predicted →<br />
+                        Actual ↓
                       </th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {confusionMatrix.categories.map((actualCat: string | null, i: number) => (
-                    <tr key={actualCat ?? i}>
-                      <td className="border p-2 bg-muted font-medium text-sm max-w-[100px] truncate" title={actualCat ?? undefined}>
-                        {actualCat}
-                      </td>
-                      {(confusionMatrix.matrix[i] ?? []).map((count: number, j: number) => (
-                        <td
-                          key={j}
-                          className={cn(
-                            'border p-2 text-center text-sm',
-                            count > 0 &&
-                              i === j &&
-                              'bg-green-100 dark:bg-green-900 font-semibold',
-                            count > 0 &&
-                              i !== j &&
-                              'bg-red-100 dark:bg-red-900'
-                          )}
+                      {confusionMatrix.categories.map((cat: string | null) => (
+                        <th
+                          key={cat ?? ''}
+                          className="border p-2 bg-muted font-medium text-sm max-w-[100px] truncate"
+                          title={cat ?? ''}
                         >
-                          {count}
-                        </td>
+                          {cat}
+                        </th>
                       ))}
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-            <p className="text-sm text-muted-foreground mt-4">
-              Overall Accuracy: {(confusionMatrix.accuracy * 100).toFixed(2)}%
-              {' • '}
-              Total Predictions: {confusionMatrix.totalPredictions.toLocaleString()}
-            </p>
-          </CardContent>
-        </Card>
-      )}
+                  </thead>
+                  <tbody>
+                    {confusionMatrix.categories.map((actualCat: string | null, i: number) => (
+                      <tr key={actualCat ?? i}>
+                        <td
+                          className="border p-2 bg-muted font-medium text-sm max-w-[100px] truncate"
+                          title={actualCat ?? undefined}
+                        >
+                          {actualCat}
+                        </td>
+                        {(confusionMatrix.matrix[i] ?? []).map((count: number, j: number) => (
+                          <td
+                            key={j}
+                            className={cn(
+                              'border p-2 text-center text-sm',
+                              count > 0 &&
+                                i === j &&
+                                'bg-green-100 dark:bg-green-900 font-semibold',
+                              count > 0 && i !== j && 'bg-red-100 dark:bg-red-900',
+                            )}
+                          >
+                            {count}
+                          </td>
+                        ))}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              <p className="text-sm text-muted-foreground mt-4">
+                Overall Accuracy: {(confusionMatrix.accuracy * 100).toFixed(2)}%{' • '}
+                Total Predictions: {confusionMatrix.totalPredictions.toLocaleString()}
+              </p>
+            </CardContent>
+          </Card>
+        )}
     </div>
   );
 }
@@ -585,9 +590,7 @@ function MetricCard({
     <Card>
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
-          <CardDescription className="text-xs font-medium uppercase">
-            {title}
-          </CardDescription>
+          <CardDescription className="text-xs font-medium uppercase">{title}</CardDescription>
           <Icon className={cn('h-4 w-4', colorClass)} />
         </div>
       </CardHeader>
@@ -605,7 +608,7 @@ function MetricCard({
               <span
                 className={cn(
                   'text-xs font-medium',
-                  trend === 'up' ? 'text-green-600' : 'text-red-600'
+                  trend === 'up' ? 'text-green-600' : 'text-red-600',
                 )}
               >
                 {trendValue}

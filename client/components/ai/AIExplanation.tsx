@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import type { FC } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -61,9 +61,10 @@ export const AIExplanation: FC<AIExplanationProps> = ({
     (acc, keyword, index) => {
       // Assign higher scores to earlier keywords (they're typically more important)
       acc[keyword] = Math.max(0.3, 1 - index * 0.1);
+
       return acc;
     },
-    {} as Record<string, number>
+    {} as Record<string, number>,
   );
 
   return (
@@ -104,16 +105,16 @@ export const AIExplanation: FC<AIExplanationProps> = ({
             <Alert variant="destructive">
               <AlertTriangle className="h-4 w-4" />
               <AlertDescription>
-                <strong>Manual review recommended.</strong> The AI classification has low
-                confidence and should be verified by an agent.
+                <strong>Manual review recommended.</strong> The AI classification has low confidence
+                and should be verified by an agent.
               </AlertDescription>
             </Alert>
           ) : finalConfidence && finalConfidence >= 0.8 ? (
             <Alert>
               <CheckCircle className="h-4 w-4" />
               <AlertDescription>
-                <strong>High confidence classification.</strong> The AI is confident about
-                this categorization.
+                <strong>High confidence classification.</strong> The AI is confident about this
+                categorization.
               </AlertDescription>
             </Alert>
           ) : (
@@ -131,7 +132,9 @@ export const AIExplanation: FC<AIExplanationProps> = ({
               <span className="text-sm font-medium shrink-0">Category</span>
               <span className="text-sm text-right">
                 {finalCategory
-                  ? (getCategoryName ? getCategoryName(finalCategory) : finalCategory)
+                  ? getCategoryName
+                    ? getCategoryName(finalCategory)
+                    : finalCategory
                   : 'Unknown'}
               </span>
             </div>
@@ -145,9 +148,7 @@ export const AIExplanation: FC<AIExplanationProps> = ({
                 <Separator />
                 <div className="flex items-center justify-between">
                   <span className="text-sm font-medium">Processing Time</span>
-                  <span className="text-sm text-muted-foreground">
-                    {processingTimeMs}ms
-                  </span>
+                  <span className="text-sm text-muted-foreground">{processingTimeMs}ms</span>
                 </div>
               </>
             )}
@@ -188,9 +189,7 @@ export const AIExplanation: FC<AIExplanationProps> = ({
         <Card>
           <CardHeader>
             <CardTitle className="text-lg">AI Reasoning</CardTitle>
-            <p className="text-sm text-muted-foreground">
-              Why the AI made this classification
-            </p>
+            <p className="text-sm text-muted-foreground">Why the AI made this classification</p>
           </CardHeader>
           <CardContent>
             <p className="text-sm leading-relaxed">{reasoning}</p>
@@ -233,9 +232,7 @@ export const AIExplanation: FC<AIExplanationProps> = ({
                     </div>
                   )}
                   {ruleBasedResult.reasoning && (
-                    <p className="text-muted-foreground mt-2">
-                      {ruleBasedResult.reasoning}
-                    </p>
+                    <p className="text-muted-foreground mt-2">{ruleBasedResult.reasoning}</p>
                   )}
                 </div>
               </div>

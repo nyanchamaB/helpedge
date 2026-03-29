@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 export const dynamic = 'force-dynamic';
 
@@ -24,7 +24,7 @@ export default function EditCategoryPage() {
   const router = useRouter();
 
   useEffect(() => {
-    if (!["Admin", "ITManager"].includes(user?.role ?? "")) router.push("/service-categories");
+    if (!['Admin', 'ITManager'].includes(user?.role ?? '')) {router.push('/service-categories');}
   }, [user]);
   const id = pageParams?.id ?? activePage.split('/').filter(Boolean).at(-2) ?? '';
 
@@ -33,15 +33,17 @@ export default function EditCategoryPage() {
   const [isFetching, setIsFetching] = useState(true);
 
   useEffect(() => {
-    if (!id) return;
-    getServiceRequestCategoryById(id).then((res) => {
-      if (res.success && res.data) {
-        setCategory(res.data);
-      } else {
-        toast.error('Failed to load category');
-        navigateTo('/service-categories');
-      }
-    }).finally(() => setIsFetching(false));
+    if (!id) {return;}
+    getServiceRequestCategoryById(id)
+      .then((res) => {
+        if (res.success && res.data) {
+          setCategory(res.data);
+        } else {
+          toast.error('Failed to load category');
+          navigateTo('/service-categories');
+        }
+      })
+      .finally(() => setIsFetching(false));
   }, [id, navigateTo]);
 
   const handleSubmit = async (formData: any) => {
@@ -61,6 +63,7 @@ export default function EditCategoryPage() {
         keywords: formData.keywords,
       };
       const res = await updateServiceRequestCategory(id, dto);
+
       if (res.success) {
         toast.success('Category updated successfully');
         navigateTo('/service-categories');
@@ -86,7 +89,9 @@ export default function EditCategoryPage() {
     return (
       <div className="container mx-auto py-8 text-center">
         <h2 className="text-2xl font-bold">Category not found</h2>
-        <p className="text-muted-foreground mt-2">The category you are trying to edit does not exist.</p>
+        <p className="text-muted-foreground mt-2">
+          The category you are trying to edit does not exist.
+        </p>
         <Button className="mt-4" onClick={() => router.push('/service-categories')}>
           Back to Categories
         </Button>
@@ -97,7 +102,11 @@ export default function EditCategoryPage() {
   return (
     <div className="container mx-auto py-8">
       <div className="mb-6">
-        <Button variant="ghost" className="gap-2" onClick={() => router.push('/service-categories')}>
+        <Button
+          variant="ghost"
+          className="gap-2"
+          onClick={() => router.push('/service-categories')}
+        >
           <ArrowLeft className="h-4 w-4" />
           Back to Categories
         </Button>

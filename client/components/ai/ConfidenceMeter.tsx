@@ -23,8 +23,9 @@ export const ConfidenceMeter: FC<ConfidenceMeterProps> = ({
   const percentage = Math.round(confidence * 100);
 
   const getColorClass = () => {
-    if (confidence >= 0.8) return 'bg-green-600';
-    if (confidence >= 0.6) return 'bg-yellow-600';
+    if (confidence >= 0.8) {return 'bg-green-600';}
+    if (confidence >= 0.6) {return 'bg-yellow-600';}
+
     return 'bg-red-600';
   };
 
@@ -38,9 +39,7 @@ export const ConfidenceMeter: FC<ConfidenceMeterProps> = ({
     <div className={cn('space-y-2', className)}>
       <div className="flex items-center justify-between text-sm">
         <span className="text-muted-foreground">{label}</span>
-        {showPercentage && (
-          <span className="font-medium tabular-nums">{percentage}%</span>
-        )}
+        {showPercentage && <span className="font-medium tabular-nums">{percentage}%</span>}
       </div>
       <div className="relative">
         <Progress

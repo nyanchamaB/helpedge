@@ -1,13 +1,9 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import {
-  SidebarMenu,
-  SidebarMenuItem,
-  SidebarMenuButton,
-} from "@/components/ui/sidebar";
-import { useAuth } from "@/contexts/AuthContext";
-import { usePathname, useRouter } from "next/navigation";
+import { useState } from 'react';
+import { SidebarMenu, SidebarMenuItem, SidebarMenuButton } from '@/components/ui/sidebar';
+import { useAuth } from '@/contexts/AuthContext';
+import { usePathname, useRouter } from 'next/navigation';
 import {
   BadgeCheck,
   Bell,
@@ -16,7 +12,7 @@ import {
   HelpCircle,
   LogOut,
   ChevronsUpDown,
-} from "lucide-react";
+} from 'lucide-react';
 import { Spinner } from '@/components/ui/spinner';
 import {
   DropdownMenu,
@@ -26,8 +22,8 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+} from '@/components/ui/dropdown-menu';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 export function NavUser() {
   const { user, isLoading, logout } = useAuth();
@@ -36,7 +32,7 @@ export function NavUser() {
   const [selectedKey, setSelectedKey] = useState(pathname);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
 
-  const isMobile = typeof window !== "undefined" && window.innerWidth < 768;
+  const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
 
   const handleLogout = async () => {
     setIsLoggingOut(true);
@@ -47,8 +43,8 @@ export function NavUser() {
     }
   };
 
-  if (isLoading) return null;
-  if (!user) return null;
+  if (isLoading) {return null;}
+  if (!user) {return null;}
 
   return (
     <SidebarMenu>
@@ -62,14 +58,12 @@ export function NavUser() {
             >
               <Avatar className="h-8 w-8 mr-2">
                 <AvatarFallback>
-                  {user.name ? user.name.charAt(0).toUpperCase() : "U"}
+                  {user.name ? user.name.charAt(0).toUpperCase() : 'U'}
                 </AvatarFallback>
               </Avatar>
               <div className="grid flex-1 text-left text-sm leading-tight">
-                <span className="font-medium">{user.name || "User"}</span>
-                <span className="text-xs text-muted-foreground">
-                  {user.email}
-                </span>
+                <span className="font-medium">{user.name || 'User'}</span>
+                <span className="text-xs text-muted-foreground">{user.email}</span>
               </div>
               <ChevronsUpDown className="ml-auto h-4 w-4 shrink-0 opacity-50" />
             </SidebarMenuButton>
@@ -78,23 +72,21 @@ export function NavUser() {
           <DropdownMenuContent
             align="end"
             className="w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-lg"
-            side={isMobile ? "bottom" : "top"}
+            side={isMobile ? 'bottom' : 'top'}
             sideOffset={8}
           >
             <DropdownMenuLabel className="font-normal">
               <div className="flex items-center">
                 <Avatar className="h-8 w-8 mr-2">
                   <AvatarFallback>
-                    {user.name ? user.name.charAt(0).toUpperCase() : "U"}
+                    {user.name ? user.name.charAt(0).toUpperCase() : 'U'}
                   </AvatarFallback>
                 </Avatar>
                 <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="font-medium">{user.name || "User"}</span>
-                  <span className="text-xs text-muted-foreground">
-                    {user.email}
-                  </span>
+                  <span className="font-medium">{user.name || 'User'}</span>
+                  <span className="text-xs text-muted-foreground">{user.email}</span>
                   <span className="text-xs text-muted-foreground capitalize">
-                    Role: {user.role.replace("_", " ")}
+                    Role: {user.role.replace('_', ' ')}
                   </span>
                 </div>
               </div>
@@ -127,16 +119,9 @@ export function NavUser() {
 
             <DropdownMenuSeparator />
 
-            <DropdownMenuItem
-              onClick={handleLogout}
-              disabled={isLoggingOut}
-            >
-              {isLoggingOut ? (
-                <Spinner />
-              ) : (
-                <LogOut />
-              )}
-              {isLoggingOut ? "Signing Out..." : "Sign Out"}
+            <DropdownMenuItem onClick={handleLogout} disabled={isLoggingOut}>
+              {isLoggingOut ? <Spinner /> : <LogOut />}
+              {isLoggingOut ? 'Signing Out...' : 'Sign Out'}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

@@ -1,17 +1,11 @@
-"use client";
+'use client';
 
-import { useEffect, useState } from "react";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
-import { Skeleton } from "@/components/ui/skeleton";
-import { getCurrentUserProfile, UserProfile } from "@/lib/api/users";
+import { useEffect, useState } from 'react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Badge } from '@/components/ui/badge';
+import { Skeleton } from '@/components/ui/skeleton';
+import { getCurrentUserProfile, UserProfile } from '@/lib/api/users';
 import {
   User,
   Mail,
@@ -26,7 +20,7 @@ import {
   Calendar,
   Shield,
   IdCard,
-} from "lucide-react";
+} from 'lucide-react';
 
 function ProfileSkeleton() {
   return (
@@ -66,7 +60,7 @@ interface InfoItemProps {
 }
 
 function InfoItem({ icon, label, value }: InfoItemProps) {
-  if (!value) return null;
+  if (!value) {return null;}
 
   return (
     <div className="flex items-start gap-3 py-2">
@@ -79,25 +73,26 @@ function InfoItem({ icon, label, value }: InfoItemProps) {
   );
 }
 
-function getRoleBadgeVariant(role: string): "default" | "secondary" | "outline" {
+function getRoleBadgeVariant(role: string): 'default' | 'secondary' | 'outline' {
   switch (role) {
-    case "Admin":
-      return "default";
-    case "Agent":
-      return "secondary";
+    case 'Admin':
+      return 'default';
+    case 'Agent':
+      return 'secondary';
     default:
-      return "outline";
+      return 'outline';
   }
 }
 
 function formatDate(dateString: string | undefined): string {
-  if (!dateString) return "N/A";
-  return new Date(dateString).toLocaleDateString("en-US", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
+  if (!dateString) {return 'N/A';}
+
+  return new Date(dateString).toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
   });
 }
 
@@ -106,13 +101,16 @@ function getInitials(firstName?: string, lastName?: string, fullName?: string): 
     return `${firstName[0]}${lastName[0]}`.toUpperCase();
   }
   if (fullName) {
-    const parts = fullName.split(" ");
+    const parts = fullName.split(' ');
+
     if (parts.length >= 2) {
       return `${parts[0][0]}${parts[parts.length - 1][0]}`.toUpperCase();
     }
+
     return fullName.substring(0, 2).toUpperCase();
   }
-  return "U";
+
+  return 'U';
 }
 
 export default function ProfilePage() {
@@ -130,7 +128,7 @@ export default function ProfilePage() {
       if (response.success && response.data) {
         setProfile(response.data);
       } else {
-        setError(response.error || "Failed to load profile");
+        setError(response.error || 'Failed to load profile');
       }
 
       setLoading(false);
@@ -191,7 +189,10 @@ export default function ProfilePage() {
                     {profile.role}
                   </Badge>
                   {profile.isActive ? (
-                    <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+                    <Badge
+                      variant="outline"
+                      className="bg-green-50 text-green-700 border-green-200"
+                    >
                       Active
                     </Badge>
                   ) : (

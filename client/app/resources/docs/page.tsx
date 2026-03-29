@@ -1,5 +1,5 @@
-import { redirect } from "next/navigation";
+import { redirect } from 'next/navigation';
 
 export default function DocsPage() {
-  redirect("/resources/docs/introduction");
+  redirect('/resources/docs/introduction');
 }

@@ -1,51 +1,50 @@
-"use client";
+'use client';
 
-import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { Search, ChevronRight, BookOpen } from "lucide-react";
-import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
-import { siteConfig } from "@/config/site";
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import { Search, ChevronRight, BookOpen } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Badge } from '@/components/ui/badge';
+import { siteConfig } from '@/config/site';
 
 const slugToLabel: Record<string, string> = {
-  docs: "Docs",
-  "getting-started": "Getting Started",
-  "quick-setup": "Quick Setup",
-  introduction: "Introduction",
-  "incident-management": "Incident Management",
-  "change-management": "Change Management",
-  "problem-management": "Problem Management",
-  "sla-management": "SLA Management",
-  "asset-management": "Asset Management",
-  "knowledge-base": "Knowledge Base",
-  "self-service-portal": "Self-Service Portal",
-  "multi-channel-support": "Multi-Channel Support",
-  "user-management": "User Management",
-  "custom-workflows": "Custom Workflows",
-  automation: "Automation",
-  integrations: "Integrations",
-  security: "Security",
-  "reporting-dashboards": "Reporting & Dashboards",
-  analytics: "Analytics",
-  "collaboration-tools": "Collaboration Tools",
+  docs: 'Docs',
+  'getting-started': 'Getting Started',
+  'quick-setup': 'Quick Setup',
+  introduction: 'Introduction',
+  'incident-management': 'Incident Management',
+  'change-management': 'Change Management',
+  'problem-management': 'Problem Management',
+  'sla-management': 'SLA Management',
+  'asset-management': 'Asset Management',
+  'knowledge-base': 'Knowledge Base',
+  'self-service-portal': 'Self-Service Portal',
+  'multi-channel-support': 'Multi-Channel Support',
+  'user-management': 'User Management',
+  'custom-workflows': 'Custom Workflows',
+  automation: 'Automation',
+  integrations: 'Integrations',
+  security: 'Security',
+  'reporting-dashboards': 'Reporting & Dashboards',
+  analytics: 'Analytics',
+  'collaboration-tools': 'Collaboration Tools',
 };
 
 export default function DocsHeader() {
   const pathname = usePathname();
 
   // Build breadcrumb segments from pathname
-  const segments = pathname.split("/").filter(Boolean);
+  const segments = pathname.split('/').filter(Boolean);
 
   const breadcrumbs = segments.map((seg, i) => ({
     label: slugToLabel[seg] ?? seg,
-    href: "/" + segments.slice(0, i + 1).join("/"),
+    href: '/' + segments.slice(0, i + 1).join('/'),
     isLast: i === segments.length - 1,
   }));
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="max-w-7xl mx-auto px-6 h-14 flex items-center gap-6">
-
         {/* Logo + back to home */}
         <Link
           href="/"
@@ -76,9 +75,7 @@ export default function DocsHeader() {
                   <ChevronRight className="w-3.5 h-3.5 shrink-0" />
                 </>
               ) : (
-                <span className="text-foreground font-medium truncate">
-                  {crumb.label}
-                </span>
+                <span className="text-foreground font-medium truncate">{crumb.label}</span>
               )}
             </span>
           ))}

@@ -1,5 +1,3 @@
-"use client";
+'use client';
 
-export default function Customers() {
-    
-}
+export default function Customers() {}

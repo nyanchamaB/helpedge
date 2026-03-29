@@ -9,10 +9,9 @@ import {
 } from '@/lib/api/service-request-category';
 import { toast } from 'sonner';
 
-
 export const useCreateCategory = () => {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
     mutationFn: createServiceRequestCategory,
     onSuccess: () => {
@@ -27,7 +26,7 @@ export const useCreateCategory = () => {
 
 export const useUpdateCategory = () => {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
     mutationFn: ({ id, data }: { id: string; data: UpdateServiceRequestCategoryDto }) =>
       updateServiceRequestCategory(id, data),
@@ -44,7 +43,7 @@ export const useUpdateCategory = () => {
 
 export const useDeleteCategory = () => {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
     mutationFn: deleteServiceRequestCategory,
     onSuccess: () => {
@@ -59,7 +58,7 @@ export const useDeleteCategory = () => {
 
 export const useToggleCategoryStatus = () => {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
     mutationFn: ({ id, activate }: { id: string; activate: boolean }) =>
       activate ? activateServiceRequestCategory(id) : deactivateServiceRequestCategory(id),
@@ -78,32 +77,29 @@ export const useBulkOperations = () => {
   const queryClient = useQueryClient();
   const toggleStatus = useToggleCategoryStatus();
   const deleteMutation = useDeleteCategory();
-  
+
   return {
     bulkActivate: async (ids: string[]) => {
-      const promises = ids.map(id => 
-        toggleStatus.mutateAsync({ id, activate: true })
-      );
+      const promises = ids.map((id) => toggleStatus.mutateAsync({ id, activate: true }));
+
       await Promise.all(promises);
       queryClient.invalidateQueries({ queryKey: ['service-request-categories'] });
     },
-    
+
     bulkDeactivate: async (ids: string[]) => {
-      const promises = ids.map(id => 
-        toggleStatus.mutateAsync({ id, activate: false })
-      );
+      const promises = ids.map((id) => toggleStatus.mutateAsync({ id, activate: false }));
+
       await Promise.all(promises);
       queryClient.invalidateQueries({ queryKey: ['service-request-categories'] });
     },
-    
+
     bulkDelete: async (ids: string[]) => {
-      const promises = ids.map(id => 
-        deleteMutation.mutateAsync(id)
-      );
+      const promises = ids.map((id) => deleteMutation.mutateAsync(id));
+
       await Promise.all(promises);
       queryClient.invalidateQueries({ queryKey: ['service-request-categories'] });
     },
-    
+
     isPending: toggleStatus.isPending || deleteMutation.isPending,
   };
 };

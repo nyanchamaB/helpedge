@@ -1,6 +1,6 @@
-"use client";
+'use client';
 
-import { PlaceholderPage } from "@/components/shared/PlaceholderPage";
+import { PlaceholderPage } from '@/components/shared/PlaceholderPage';
 
 export default function AuditLogPage() {
   return (
@@ -8,14 +8,14 @@ export default function AuditLogPage() {
       title="Audit Log"
       description="View system audit trail and security events"
       features={[
-        "Comprehensive audit trail",
-        "User activity logging",
-        "Security event monitoring",
-        "Login/logout tracking",
-        "Data modification history",
-        "Advanced search and filtering",
-        "Export audit reports",
-        "Compliance reporting tools",
+        'Comprehensive audit trail',
+        'User activity logging',
+        'Security event monitoring',
+        'Login/logout tracking',
+        'Data modification history',
+        'Advanced search and filtering',
+        'Export audit reports',
+        'Compliance reporting tools',
       ]}
     />
   );

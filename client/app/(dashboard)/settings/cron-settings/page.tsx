@@ -1,34 +1,28 @@
-"use client";
+'use client';
 
 export const dynamic = 'force-dynamic';
 
-import { useEffect, useState } from "react";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
-import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Badge } from "@/components/ui/badge";
-import { Switch } from "@/components/ui/switch";
+import { useEffect, useState } from 'react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Label } from '@/components/ui/label';
+import { Button } from '@/components/ui/button';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Badge } from '@/components/ui/badge';
+import { Switch } from '@/components/ui/switch';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from '@/components/ui/select';
 import {
   getCronSettings,
   updateCronSettings,
   CronSettings,
   INTERVAL_OPTIONS,
-} from "@/lib/api/cron-settings";
-import { useAuth } from "@/contexts/AuthContext";
+} from '@/lib/api/cron-settings';
+import { useAuth } from '@/contexts/AuthContext';
 import {
   Clock,
   RefreshCw,
@@ -39,8 +33,8 @@ import {
   Activity,
   Info,
   Save,
-} from "lucide-react";
-import { toast } from "sonner";
+} from 'lucide-react';
+import { toast } from 'sonner';
 
 function SettingsSkeleton() {
   return (
@@ -66,13 +60,14 @@ function SettingsSkeleton() {
 }
 
 function formatDate(dateString: string | undefined): string {
-  if (!dateString) return "Never";
-  return new Date(dateString).toLocaleString("en-US", {
-    year: "numeric",
-    month: "short",
-    day: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
+  if (!dateString) {return 'Never';}
+
+  return new Date(dateString).toLocaleString('en-US', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
   });
 }
 
@@ -89,7 +84,7 @@ export default function CronSettingsPage() {
   const [hasChanges, setHasChanges] = useState(false);
 
   // Check if user has permission (Admin or ITManager)
-  const hasPermission = user?.role === "Admin" || user?.role === "ITManager";
+  const hasPermission = user?.role === 'Admin' || user?.role === 'ITManager';
 
   useEffect(() => {
     async function fetchSettings() {
@@ -103,7 +98,7 @@ export default function CronSettingsPage() {
         setAutoFetchEnabled(response.data.autoFetchEnabled);
         setIntervalMinutes(response.data.intervalMinutes);
       } else {
-        setError(response.error || "Failed to load cron settings");
+        setError(response.error || 'Failed to load cron settings');
       }
 
       setLoading(false);
@@ -113,7 +108,7 @@ export default function CronSettingsPage() {
       fetchSettings();
     } else {
       setLoading(false);
-      setError("You do not have permission to view this page");
+      setError('You do not have permission to view this page');
     }
   }, [hasPermission]);
 
@@ -123,12 +118,13 @@ export default function CronSettingsPage() {
       const changed =
         autoFetchEnabled !== settings.autoFetchEnabled ||
         intervalMinutes !== settings.intervalMinutes;
+
       setHasChanges(changed);
     }
   }, [autoFetchEnabled, intervalMinutes, settings]);
 
   async function handleSave() {
-    if (!settings || !hasChanges) return;
+    if (!settings || !hasChanges) {return;}
 
     setSaving(true);
 
@@ -140,12 +136,12 @@ export default function CronSettingsPage() {
     if (response.success && response.data) {
       setSettings(response.data);
       setHasChanges(false);
-      toast.success("Cron settings updated successfully", {
-        description: `Auto-fetch is ${response.data.autoFetchEnabled ? "enabled" : "disabled"} with ${response.data.intervalMinutes} minute interval`,
+      toast.success('Cron settings updated successfully', {
+        description: `Auto-fetch is ${response.data.autoFetchEnabled ? 'enabled' : 'disabled'} with ${response.data.intervalMinutes} minute interval`,
       });
     } else {
-      toast.error("Failed to update cron settings", {
-        description: response.error || "An error occurred",
+      toast.error('Failed to update cron settings', {
+        description: response.error || 'An error occurred',
       });
     }
 
@@ -268,11 +264,7 @@ export default function CronSettingsPage() {
             {/* Action Buttons */}
             {hasChanges && (
               <div className="flex gap-3 pt-4 border-t">
-                <Button
-                  onClick={handleSave}
-                  disabled={saving}
-                  className="flex items-center gap-2"
-                >
+                <Button onClick={handleSave} disabled={saving} className="flex items-center gap-2">
                   {saving ? (
                     <>
                       <RefreshCw className="h-4 w-4 animate-spin" />
@@ -285,11 +277,7 @@ export default function CronSettingsPage() {
                     </>
                   )}
                 </Button>
-                <Button
-                  onClick={handleReset}
-                  variant="outline"
-                  disabled={saving}
-                >
+                <Button onClick={handleReset} variant="outline" disabled={saving}>
                   Cancel
                 </Button>
               </div>
@@ -304,9 +292,7 @@ export default function CronSettingsPage() {
               <Activity className="h-5 w-5" />
               Current Status
             </CardTitle>
-            <CardDescription>
-              Real-time status of the email fetching service
-            </CardDescription>
+            <CardDescription>Real-time status of the email fetching service</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -322,7 +308,7 @@ export default function CronSettingsPage() {
                 <div className="flex-1 min-w-0">
                   <p className="text-sm text-muted-foreground">Auto-Fetch Status</p>
                   <p className="text-sm font-medium">
-                    {settings.autoFetchEnabled ? "Enabled" : "Disabled"}
+                    {settings.autoFetchEnabled ? 'Enabled' : 'Disabled'}
                   </p>
                 </div>
               </div>
@@ -348,9 +334,7 @@ export default function CronSettingsPage() {
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm text-muted-foreground">Last Fetch</p>
-                  <p className="text-sm font-medium">
-                    {formatDate(settings.lastFetchAt)}
-                  </p>
+                  <p className="text-sm font-medium">{formatDate(settings.lastFetchAt)}</p>
                 </div>
               </div>
 
@@ -358,7 +342,7 @@ export default function CronSettingsPage() {
               {settings.lastFetchStatus && (
                 <div className="flex items-start gap-3">
                   <div className="text-muted-foreground mt-0.5">
-                    {settings.lastFetchStatus.startsWith("Success") ? (
+                    {settings.lastFetchStatus.startsWith('Success') ? (
                       <CheckCircle2 className="h-5 w-5 text-green-600" />
                     ) : (
                       <XCircle className="h-5 w-5 text-red-600" />
@@ -366,9 +350,7 @@ export default function CronSettingsPage() {
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm text-muted-foreground">Last Status</p>
-                    <p className="text-sm font-medium break-words">
-                      {settings.lastFetchStatus}
-                    </p>
+                    <p className="text-sm font-medium break-words">{settings.lastFetchStatus}</p>
                   </div>
                 </div>
               )}
@@ -381,12 +363,8 @@ export default function CronSettingsPage() {
                       <Mail className="h-5 w-5" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm text-muted-foreground">
-                        Emails Fetched (Last Run)
-                      </p>
-                      <p className="text-sm font-medium">
-                        {settings.lastFetchEmailCount}
-                      </p>
+                      <p className="text-sm text-muted-foreground">Emails Fetched (Last Run)</p>
+                      <p className="text-sm font-medium">{settings.lastFetchEmailCount}</p>
                     </div>
                   </div>
                 )}
@@ -400,25 +378,13 @@ export default function CronSettingsPage() {
             <div className="flex gap-3">
               <Info className="h-5 w-5 text-blue-600 dark:text-blue-400 mt-0.5 shrink-0" />
               <div className="space-y-2 text-sm">
-                <p className="font-medium text-blue-900 dark:text-blue-100">
-                  How Auto-Fetch Works
-                </p>
+                <p className="font-medium text-blue-900 dark:text-blue-100">How Auto-Fetch Works</p>
                 <ul className="list-disc list-inside space-y-1 text-blue-800 dark:text-blue-200">
-                  <li>
-                    The background service runs automatically on server startup
-                  </li>
-                  <li>
-                    It checks for new emails at the specified interval when enabled
-                  </li>
-                  <li>
-                    Changes to settings take effect within 30 seconds
-                  </li>
-                  <li>
-                    The service persists across server restarts
-                  </li>
-                  <li>
-                    Only Admin and IT Manager roles can modify these settings
-                  </li>
+                  <li>The background service runs automatically on server startup</li>
+                  <li>It checks for new emails at the specified interval when enabled</li>
+                  <li>Changes to settings take effect within 30 seconds</li>
+                  <li>The service persists across server restarts</li>
+                  <li>Only Admin and IT Manager roles can modify these settings</li>
                 </ul>
               </div>
             </div>

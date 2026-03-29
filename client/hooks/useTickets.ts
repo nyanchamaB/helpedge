@@ -3,11 +3,7 @@
  */
 
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import {
-  createTicketFromEmail,
-  CreateTicketFromEmailRequest,
-  Ticket,
-} from '@/lib/api/tickets';
+import { createTicketFromEmail, CreateTicketFromEmailRequest, Ticket } from '@/lib/api/tickets';
 import type { ApiResponse } from '@/lib/api/client';
 
 /**

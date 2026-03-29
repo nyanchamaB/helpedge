@@ -1,14 +1,14 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
-import { format } from "date-fns";
-import { Send, MessageSquare } from "lucide-react";
+import { useState } from 'react';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Button } from '@/components/ui/button';
+import { Textarea } from '@/components/ui/textarea';
+import { format } from 'date-fns';
+import { Send, MessageSquare } from 'lucide-react';
 import { Spinner } from '@/components/ui/spinner';
-import { TicketComment } from "@/lib/api/tickets";
-import { cn } from "@/lib/utils";
+import { TicketComment } from '@/lib/api/tickets';
+import { cn } from '@/lib/utils';
 
 interface TicketConversationThreadProps {
   comments: TicketComment[];
@@ -20,12 +20,14 @@ interface TicketConversationThreadProps {
 }
 
 function getInitials(name: string): string {
-  return name
-    .split(" ")
-    .map((p) => p[0])
-    .slice(0, 2)
-    .join("")
-    .toUpperCase() || "?";
+  return (
+    name
+      .split(' ')
+      .map((p) => p[0])
+      .slice(0, 2)
+      .join('')
+      .toUpperCase() || '?'
+  );
 }
 
 export function TicketConversationThread({
@@ -36,14 +38,14 @@ export function TicketConversationThread({
   disabled = false,
   userNames = {},
 }: TicketConversationThreadProps) {
-  const [replyContent, setReplyContent] = useState("");
+  const [replyContent, setReplyContent] = useState('');
 
   const publicComments = comments.filter((c) => !c.isInternal);
 
   const handleSubmit = async () => {
-    if (!replyContent.trim() || isReplying) return;
+    if (!replyContent.trim() || isReplying) {return;}
     await onReply(replyContent.trim());
-    setReplyContent("");
+    setReplyContent('');
   };
 
   return (
@@ -53,9 +55,7 @@ export function TicketConversationThread({
         <div className="flex flex-col items-center py-10 text-gray-400">
           <MessageSquare className="h-10 w-10 mb-3 text-gray-200" />
           <p className="text-sm font-medium text-gray-500">No messages yet</p>
-          <p className="text-xs mt-1">
-            Send a reply below — our team will respond soon.
-          </p>
+          <p className="text-xs mt-1">Send a reply below — our team will respond soon.</p>
         </div>
       ) : (
         <div className="space-y-4">
@@ -64,45 +64,36 @@ export function TicketConversationThread({
             const displayName =
               comment.authorName ||
               userNames[comment.authorId] ||
-              (isOwn ? "You" : "Support Agent");
+              (isOwn ? 'You' : 'Support Agent');
+
             return (
-              <div
-                key={comment.id}
-                className={cn("flex gap-3", isOwn && "flex-row-reverse")}
-              >
+              <div key={comment.id} className={cn('flex gap-3', isOwn && 'flex-row-reverse')}>
                 <Avatar className="h-8 w-8 shrink-0">
                   <AvatarFallback
                     className={cn(
-                      "text-xs font-medium",
-                      isOwn
-                        ? "bg-blue-100 text-blue-700"
-                        : "bg-gray-100 text-gray-700"
+                      'text-xs font-medium',
+                      isOwn ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-700',
                     )}
                   >
                     {getInitials(displayName)}
                   </AvatarFallback>
                 </Avatar>
-                <div
-                  className={cn(
-                    "flex flex-col gap-1 max-w-[75%]",
-                    isOwn && "items-end"
-                  )}
-                >
-                  <span className={cn("text-xs font-medium text-gray-600", isOwn && "text-right")}>
+                <div className={cn('flex flex-col gap-1 max-w-[75%]', isOwn && 'items-end')}>
+                  <span className={cn('text-xs font-medium text-gray-600', isOwn && 'text-right')}>
                     {displayName}
                   </span>
                   <div
                     className={cn(
-                      "rounded-2xl px-4 py-2.5 text-sm leading-relaxed",
+                      'rounded-2xl px-4 py-2.5 text-sm leading-relaxed',
                       isOwn
-                        ? "bg-blue-500 text-white rounded-tr-sm"
-                        : "bg-gray-100 text-gray-800 rounded-tl-sm"
+                        ? 'bg-blue-500 text-white rounded-tr-sm'
+                        : 'bg-gray-100 text-gray-800 rounded-tl-sm',
                     )}
                   >
                     {comment.content}
                   </div>
                   <span className="text-xs text-gray-400">
-                    {format(new Date(comment.createdAt), "MMM d, h:mm a")}
+                    {format(new Date(comment.createdAt), 'MMM d, h:mm a')}
                   </span>
                 </div>
               </div>
@@ -121,20 +112,14 @@ export function TicketConversationThread({
             rows={3}
             className="border-0 resize-none p-0 focus-visible:ring-0 shadow-none text-sm"
             onKeyDown={(e) => {
-              if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) {
+              if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
                 handleSubmit();
               }
             }}
           />
           <div className="flex items-center justify-between">
-            <span className="text-xs text-gray-400">
-              Ctrl + Enter to send
-            </span>
-            <Button
-              size="sm"
-              onClick={handleSubmit}
-              disabled={!replyContent.trim() || isReplying}
-            >
+            <span className="text-xs text-gray-400">Ctrl + Enter to send</span>
+            <Button size="sm" onClick={handleSubmit} disabled={!replyContent.trim() || isReplying}>
               {isReplying ? (
                 <>
                   <Spinner size="xs" className="mr-1.5" />

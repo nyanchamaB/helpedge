@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
 
@@ -30,6 +30,7 @@ function extractParamsFromPath(path: string): Record<string, string> {
 
   for (const { pattern, paramNames } of patterns) {
     const match = path.match(pattern);
+
     if (match) {
       // Extract matched groups and map to param names
       paramNames.forEach((name, index) => {
@@ -51,6 +52,7 @@ export function NavigationProvider({ children }: { children: React.ReactNode }) 
   // Initialize from URL hash on mount
   useEffect(() => {
     const hash = window.location.hash.slice(1); // Remove #
+
     if (hash) {
       // Parse route and params from hash (e.g., #/tickets/123?param=value)
       const [route, queryString] = hash.split('?');
@@ -58,8 +60,9 @@ export function NavigationProvider({ children }: { children: React.ReactNode }) 
 
       // Extract params from query string
       if (queryString) {
-        queryString.split('&').forEach(pair => {
+        queryString.split('&').forEach((pair) => {
           const [key, value] = pair.split('=');
+
           if (key && value) {
             params[key] = decodeURIComponent(value);
           }
@@ -80,15 +83,18 @@ export function NavigationProvider({ children }: { children: React.ReactNode }) 
 
     // If params not provided, try to extract from path (for dynamic routes like /tickets/123)
     const extractedParams = params || extractParamsFromPath(page);
+
     setPageParams(extractedParams);
 
     // Update URL hash for bookmarking without page reload
     let hashUrl = `#${page}`;
+
     // Only add query string if params were explicitly provided (not auto-extracted)
     if (params && Object.keys(params).length > 0) {
       const queryString = Object.entries(params)
         .map(([key, value]) => `${key}=${encodeURIComponent(value)}`)
         .join('&');
+
       hashUrl += `?${queryString}`;
     }
     window.history.pushState(null, '', hashUrl);
@@ -100,7 +106,9 @@ export function NavigationProvider({ children }: { children: React.ReactNode }) 
   }, []);
 
   return (
-    <NavigationContext.Provider value={{ activePage, pageParams, navigateTo, pageTitle, pageDescription, setPageInfo }}>
+    <NavigationContext.Provider
+      value={{ activePage, pageParams, navigateTo, pageTitle, pageDescription, setPageInfo }}
+    >
       {children}
     </NavigationContext.Provider>
   );
@@ -108,8 +116,10 @@ export function NavigationProvider({ children }: { children: React.ReactNode }) 
 
 export function useNavigation() {
   const context = useContext(NavigationContext);
+
   if (!context) {
     throw new Error('useNavigation must be used within NavigationProvider');
   }
+
   return context;
 }

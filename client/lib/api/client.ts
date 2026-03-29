@@ -10,6 +10,7 @@ function getBaseUrl(): string {
   if (typeof window !== 'undefined' && API_PROXY_BASE) {
     return API_PROXY_BASE;
   }
+
   return API_BASE_URL;
 }
 
@@ -38,7 +39,7 @@ export interface ApiRequestConfig {
  */
 export async function apiRequest<T = unknown>(
   endpoint: string,
-  config: ApiRequestConfig = {}
+  config: ApiRequestConfig = {},
 ): Promise<ApiResponse<T>> {
   const {
     method = 'GET',
@@ -50,7 +51,8 @@ export async function apiRequest<T = unknown>(
 
   // Auth is Bearer token in Authorization header — cookies are never needed.
   // Force 'omit' to avoid CORS preflight failures from Access-Control-Allow-Credentials requirements.
-  const effectiveCredentials: 'include' | 'omit' | 'same-origin' = credentials === 'omit' || credentials === 'same-origin' ? credentials : 'omit';
+  const effectiveCredentials: 'include' | 'omit' | 'same-origin' =
+    credentials === 'omit' || credentials === 'same-origin' ? credentials : 'omit';
   const url = `${getBaseUrl()}${endpoint}`;
 
   const requestHeaders: Record<string, string> = {
@@ -61,13 +63,16 @@ export async function apiRequest<T = unknown>(
   // Add Authorization header if includeAuth is true
   if (includeAuth) {
     const token = getAuthToken();
+
     if (token) {
       requestHeaders['Authorization'] = `Bearer ${token}`;
     }
   }
 
   try {
-    const requestBody = body === undefined ? undefined : typeof body === 'string' ? body : JSON.stringify(body);
+    const requestBody =
+      body === undefined ? undefined : typeof body === 'string' ? body : JSON.stringify(body);
+
     console.log('API Request:', { url, method, headers: requestHeaders, body, credentials });
 
     const response = await fetch(url, {
@@ -82,7 +87,7 @@ export async function apiRequest<T = unknown>(
       status: response.status,
       ok: response.ok,
       statusText: response.statusText,
-      headers: Object.fromEntries(response.headers.entries())
+      headers: Object.fromEntries(response.headers.entries()),
     });
 
     const contentType = response.headers.get('content-type');
@@ -156,7 +161,7 @@ export async function apiRequest<T = unknown>(
     }
     // Try to extract more information
     const errorInfo: ErrorInfo = {
-      type:error instanceof Error ? error?.constructor?.name:'Unknown',
+      type: error instanceof Error ? error?.constructor?.name : 'Unknown',
       message: error instanceof Error ? error.message : String(error),
       url: url,
     };
@@ -164,7 +169,8 @@ export async function apiRequest<T = unknown>(
     // Check if it's a TypeError (common for CORS issues)
     if (error instanceof TypeError) {
       errorInfo.likelyCause = 'CORS or Network issue';
-      errorInfo.suggestion = 'Check browser console for CORS errors. The backend may need to allow requests from your origin.';
+      errorInfo.suggestion =
+        'Check browser console for CORS errors. The backend may need to allow requests from your origin.';
     }
 
     console.error('Error details:', errorInfo);
@@ -173,7 +179,8 @@ export async function apiRequest<T = unknown>(
     let userMessage = 'Network error occurred. ';
 
     if (error instanceof TypeError && error.message.includes('fetch')) {
-      userMessage += 'This is likely a CORS issue. The backend API needs to allow requests from your domain (http://localhost:3000). ';
+      userMessage +=
+        'This is likely a CORS issue. The backend API needs to allow requests from your domain (http://localhost:3000). ';
       userMessage += 'Please contact the backend team to add CORS headers.';
     } else {
       userMessage += 'Please check your internet connection and verify the API is accessible.';
@@ -193,14 +200,17 @@ export async function apiRequest<T = unknown>(
  * The actual auth token is httpOnly and sent automatically by browser
  */
 export function getAuthToken(): string | null {
-  if (typeof window === 'undefined') return null;
+  if (typeof window === 'undefined') {return null;}
   const cookies = document.cookie.split(';');
+
   for (const cookie of cookies) {
     const [name, value] = cookie.trim().split('=');
+
     if (name === 'authToken') {
       return value;
     }
   }
+
   return null;
 }
 
@@ -209,7 +219,7 @@ export function getAuthToken(): string | null {
  * Sets the cookie with an expired date to delete it
  */
 export function removeAuthToken(): void {
-  if (typeof window === 'undefined') return;
+  if (typeof window === 'undefined') {return;}
   document.cookie = 'authToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
 }
 
@@ -217,7 +227,8 @@ export function removeAuthToken(): void {
  * Check if user is authenticated (has valid token cookie)
  */
 export function isAuthenticated(): boolean {
-  if (typeof window === 'undefined') return false;
+  if (typeof window === 'undefined') {return false;}
   const token = getAuthToken();
+
   return !!token;
 }

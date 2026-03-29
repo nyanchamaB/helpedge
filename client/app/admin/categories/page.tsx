@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 export const dynamic = 'force-dynamic';
 
@@ -10,58 +10,102 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigation } from '@/contexts/NavigationContext';
-import {
-  Card, CardContent, CardDescription, CardHeader, CardTitle,
-} from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
-  Dialog, DialogContent, DialogDescription, DialogFooter,
-  DialogHeader, DialogTitle,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
 } from '@/components/ui/dialog';
 import {
-  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
-  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import {
-  Form, FormControl, FormField, FormItem, FormLabel, FormMessage,
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
 } from '@/components/ui/form';
 import {
-  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
 } from '@/components/ui/select';
 import {
-  Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
 } from '@/components/ui/table';
 import { Checkbox } from '@/components/ui/checkbox';
 import {
-  AlertCircle, Plus, RefreshCw, Pencil, Trash2, ToggleLeft, ToggleRight, Tag,
+  AlertCircle,
+  Plus,
+  RefreshCw,
+  Pencil,
+  Trash2,
+  ToggleLeft,
+  ToggleRight,
+  Tag,
 } from 'lucide-react';
 import { Spinner } from '@/components/ui/spinner';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import {
-  getAllCategories, createCategory, updateCategory, deleteCategory,
-  activateCategory, deactivateCategory,
-  type Category, type CreateCategoryRequest,
+  getAllCategories,
+  createCategory,
+  updateCategory,
+  deleteCategory,
+  activateCategory,
+  deactivateCategory,
+  type Category,
+  type CreateCategoryRequest,
 } from '@/lib/api/categories';
 
 // ─── Role helpers ────────────────────────────────────────────────────────────
 const ASSIGNABLE_ROLES = [
-  'Admin', 'ITManager', 'TeamLead', 'SystemAdmin',
-  'ServiceDeskAgent', 'Technician', 'SecurityAdmin',
+  'Admin',
+  'ITManager',
+  'TeamLead',
+  'SystemAdmin',
+  'ServiceDeskAgent',
+  'Technician',
+  'SecurityAdmin',
 ];
 
 // ─── Zod schema ──────────────────────────────────────────────────────────────
 const CategorySchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters').max(100),
   description: z.string().max(500).optional().or(z.literal('')),
-  color: z.string().regex(/^#[0-9a-fA-F]{6}$/, 'Must be a valid hex color (e.g. #3b82f6)').optional().or(z.literal('')),
+  color: z
+    .string()
+    .regex(/^#[0-9a-fA-F]{6}$/, 'Must be a valid hex color (e.g. #3b82f6)')
+    .optional()
+    .or(z.literal('')),
   supportTier: z.enum(['L1', 'L2']).optional(),
   assignableRoles: z.array(z.string()).optional(),
 });
+
 type CategoryFormValues = z.infer<typeof CategorySchema>;
 
 // ─── Keyword tag input ────────────────────────────────────────────────────────
@@ -70,6 +114,7 @@ function KeywordInput({ value, onChange }: { value: string[]; onChange: (v: stri
 
   const addKeyword = () => {
     const trimmed = input.trim().toLowerCase();
+
     if (trimmed && !value.includes(trimmed)) {
       onChange([...value, trimmed]);
     }
@@ -169,9 +214,11 @@ function CategoryDialog({ open, onOpenChange, category, onSaved }: CategoryDialo
         assignableUserIds: category?.assignableUserIds ?? [],
         keywords,
       };
+
       if (isEdit && category) {
         return updateCategory(category.id, payload);
       }
+
       return createCategory(payload);
     },
     onSuccess: () => {
@@ -193,104 +240,141 @@ function CategoryDialog({ open, onOpenChange, category, onSaved }: CategoryDialo
         <DialogHeader>
           <DialogTitle>{isEdit ? 'Edit Category' : 'Create Category'}</DialogTitle>
           <DialogDescription>
-            {isEdit ? 'Update category details and keywords.' : 'Add a new ticket classification category.'}
+            {isEdit
+              ? 'Update category details and keywords.'
+              : 'Add a new ticket classification category.'}
           </DialogDescription>
         </DialogHeader>
 
         <Form {...form}>
           <form onSubmit={form.handleSubmit((v) => saveMutation.mutate(v))} className="space-y-4">
             {/* Name */}
-            <FormField control={form.control} name="name" render={({ field }) => (
-              <FormItem>
-                <FormLabel>Name <span className="text-destructive">*</span></FormLabel>
-                <FormControl><Input placeholder="e.g. Network & Connectivity" {...field} /></FormControl>
-                <FormMessage />
-              </FormItem>
-            )} />
-
-            {/* Description */}
-            <FormField control={form.control} name="description" render={({ field }) => (
-              <FormItem>
-                <FormLabel>Description</FormLabel>
-                <FormControl><Textarea placeholder="Briefly describe this category" rows={2} {...field} /></FormControl>
-                <FormMessage />
-              </FormItem>
-            )} />
-
-            {/* Color + Support Tier */}
-            <div className="grid grid-cols-2 gap-4">
-              <FormField control={form.control} name="color" render={({ field }) => (
+            <FormField
+              control={form.control}
+              name="name"
+              render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Color</FormLabel>
+                  <FormLabel>
+                    Name <span className="text-destructive">*</span>
+                  </FormLabel>
                   <FormControl>
-                    <div className="flex items-center gap-2">
-                      <input
-                        type="color"
-                        value={field.value || '#3b82f6'}
-                        onChange={(e) => field.onChange(e.target.value)}
-                        className="h-9 w-10 rounded border cursor-pointer p-0.5"
-                      />
-                      <Input
-                        value={field.value || ''}
-                        onChange={field.onChange}
-                        placeholder="#3b82f6"
-                        className="font-mono text-sm"
-                      />
-                    </div>
+                    <Input placeholder="e.g. Network & Connectivity" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
-              )} />
+              )}
+            />
 
-              <FormField control={form.control} name="supportTier" render={({ field }) => (
+            {/* Description */}
+            <FormField
+              control={form.control}
+              name="description"
+              render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Support Tier</FormLabel>
-                  <Select onValueChange={field.onChange} value={field.value}>
-                    <FormControl>
-                      <SelectTrigger><SelectValue placeholder="Select tier" /></SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="L1">L1 — First line</SelectItem>
-                      <SelectItem value="L2">L2 — Escalation</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <FormLabel>Description</FormLabel>
+                  <FormControl>
+                    <Textarea placeholder="Briefly describe this category" rows={2} {...field} />
+                  </FormControl>
                   <FormMessage />
                 </FormItem>
-              )} />
+              )}
+            />
+
+            {/* Color + Support Tier */}
+            <div className="grid grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="color"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Color</FormLabel>
+                    <FormControl>
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="color"
+                          value={field.value || '#3b82f6'}
+                          onChange={(e) => field.onChange(e.target.value)}
+                          className="h-9 w-10 rounded border cursor-pointer p-0.5"
+                        />
+                        <Input
+                          value={field.value || ''}
+                          onChange={field.onChange}
+                          placeholder="#3b82f6"
+                          className="font-mono text-sm"
+                        />
+                      </div>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="supportTier"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Support Tier</FormLabel>
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select tier" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="L1">L1 — First line</SelectItem>
+                        <SelectItem value="L2">L2 — Escalation</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
             </div>
 
             {/* Keywords */}
             <div className="space-y-1">
               <FormLabel>Keywords</FormLabel>
-              <p className="text-xs text-muted-foreground">Used by the AI engine to classify tickets into this category.</p>
+              <p className="text-xs text-muted-foreground">
+                Used by the AI engine to classify tickets into this category.
+              </p>
               <KeywordInput value={keywords} onChange={setKeywords} />
             </div>
 
             {/* Assignable Roles */}
-            <FormField control={form.control} name="assignableRoles" render={({ field }) => (
-              <FormItem>
-                <FormLabel>Assignable Roles</FormLabel>
-                <p className="text-xs text-muted-foreground">Roles whose members can be assigned tickets in this category.</p>
-                <div className="grid grid-cols-2 gap-2 pt-1">
-                  {ASSIGNABLE_ROLES.map((role) => (
-                    <div key={role} className="flex items-center gap-2">
-                      <Checkbox
-                        id={`role-${role}`}
-                        checked={(field.value ?? []).includes(role)}
-                        onCheckedChange={(checked) => {
-                          const current = field.value ?? [];
-                          field.onChange(
-                            checked ? [...current, role] : current.filter((r) => r !== role)
-                          );
-                        }}
-                      />
-                      <label htmlFor={`role-${role}`} className="text-sm cursor-pointer">{role}</label>
-                    </div>
-                  ))}
-                </div>
-                <FormMessage />
-              </FormItem>
-            )} />
+            <FormField
+              control={form.control}
+              name="assignableRoles"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Assignable Roles</FormLabel>
+                  <p className="text-xs text-muted-foreground">
+                    Roles whose members can be assigned tickets in this category.
+                  </p>
+                  <div className="grid grid-cols-2 gap-2 pt-1">
+                    {ASSIGNABLE_ROLES.map((role) => (
+                      <div key={role} className="flex items-center gap-2">
+                        <Checkbox
+                          id={`role-${role}`}
+                          checked={(field.value ?? []).includes(role)}
+                          onCheckedChange={(checked) => {
+                            const current = field.value ?? [];
+
+                            field.onChange(
+                              checked ? [...current, role] : current.filter((r) => r !== role),
+                            );
+                          }}
+                        />
+                        <label htmlFor={`role-${role}`} className="text-sm cursor-pointer">
+                          {role}
+                        </label>
+                      </div>
+                    ))}
+                  </div>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
             <DialogFooter>
               <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
@@ -381,7 +465,8 @@ export default function CategoriesPage() {
             <AlertCircle className="h-12 w-12 text-destructive mb-4" />
             <h3 className="text-lg font-semibold mb-2">Failed to load categories</h3>
             <Button onClick={() => refetch()}>
-              <RefreshCw className="h-4 w-4 mr-2" />Retry
+              <RefreshCw className="h-4 w-4 mr-2" />
+              Retry
             </Button>
           </CardContent>
         </Card>
@@ -416,9 +501,21 @@ export default function CategoriesPage() {
       {/* Stats row */}
       {!isLoading && (
         <div className="flex items-center gap-4 text-sm text-muted-foreground">
-          <span><strong className="text-foreground">{categories.length}</strong> total</span>
-          <span><strong className="text-foreground">{categories.filter((c) => c.isActive).length}</strong> active</span>
-          <span><strong className="text-foreground">{categories.filter((c) => !c.isActive).length}</strong> inactive</span>
+          <span>
+            <strong className="text-foreground">{categories.length}</strong> total
+          </span>
+          <span>
+            <strong className="text-foreground">
+              {categories.filter((c) => c.isActive).length}
+            </strong>{' '}
+            active
+          </span>
+          <span>
+            <strong className="text-foreground">
+              {categories.filter((c) => !c.isActive).length}
+            </strong>{' '}
+            inactive
+          </span>
         </div>
       )}
 
@@ -436,7 +533,9 @@ export default function CategoriesPage() {
         <CardContent>
           {isLoading ? (
             <div className="space-y-3">
-              {[...Array(5)].map((_, i) => <Skeleton key={i} className="h-12 w-full" />)}
+              {[...Array(5)].map((_, i) => (
+                <Skeleton key={i} className="h-12 w-full" />
+              ))}
             </div>
           ) : categories.length === 0 ? (
             <div className="text-center py-12">
@@ -444,7 +543,8 @@ export default function CategoriesPage() {
               <h3 className="text-lg font-semibold mb-2">No categories yet</h3>
               {canEdit && (
                 <Button onClick={handleCreate}>
-                  <Plus className="h-4 w-4 mr-2" />Create First Category
+                  <Plus className="h-4 w-4 mr-2" />
+                  Create First Category
                 </Button>
               )}
             </div>
@@ -477,20 +577,29 @@ export default function CategoriesPage() {
                       <TableCell>
                         <div className="font-medium">{cat.name}</div>
                         {cat.description && (
-                          <div className="text-xs text-muted-foreground line-clamp-1">{cat.description}</div>
+                          <div className="text-xs text-muted-foreground line-clamp-1">
+                            {cat.description}
+                          </div>
                         )}
                       </TableCell>
 
                       {/* Support Tier */}
                       <TableCell>
                         {cat.supportTier ? (
-                          <Badge variant="outline" className={cn(
-                            'text-xs font-semibold',
-                            cat.supportTier === 'L1' ? 'border-blue-500 text-blue-600' : 'border-purple-500 text-purple-600'
-                          )}>
+                          <Badge
+                            variant="outline"
+                            className={cn(
+                              'text-xs font-semibold',
+                              cat.supportTier === 'L1'
+                                ? 'border-blue-500 text-blue-600'
+                                : 'border-purple-500 text-purple-600',
+                            )}
+                          >
                             {cat.supportTier}
                           </Badge>
-                        ) : '—'}
+                        ) : (
+                          '—'
+                        )}
                       </TableCell>
 
                       {/* Keywords */}
@@ -498,7 +607,9 @@ export default function CategoriesPage() {
                         {(cat.keywords?.length ?? 0) > 0 ? (
                           <div className="flex flex-wrap gap-1 max-w-[280px]">
                             {(cat.keywords ?? []).slice(0, 5).map((kw) => (
-                              <Badge key={kw} variant="secondary" className="text-xs">{kw}</Badge>
+                              <Badge key={kw} variant="secondary" className="text-xs">
+                                {kw}
+                              </Badge>
                             ))}
                             {(cat.keywords?.length ?? 0) > 5 && (
                               <Badge variant="outline" className="text-xs">
@@ -516,7 +627,9 @@ export default function CategoriesPage() {
                         {(cat.assignableRoles?.length ?? 0) > 0 ? (
                           <div className="flex flex-wrap gap-1 max-w-[200px]">
                             {(cat.assignableRoles ?? []).slice(0, 3).map((r) => (
-                              <Badge key={r} variant="outline" className="text-xs">{r}</Badge>
+                              <Badge key={r} variant="outline" className="text-xs">
+                                {r}
+                              </Badge>
                             ))}
                             {(cat.assignableRoles?.length ?? 0) > 3 && (
                               <Badge variant="outline" className="text-xs">
@@ -531,12 +644,15 @@ export default function CategoriesPage() {
 
                       {/* Status */}
                       <TableCell>
-                        <Badge className={cn(
-                          'text-xs',
-                          cat.isActive
-                            ? 'bg-green-100 text-green-700 border-green-200'
-                            : 'bg-muted text-muted-foreground'
-                        )} variant="outline">
+                        <Badge
+                          className={cn(
+                            'text-xs',
+                            cat.isActive
+                              ? 'bg-green-100 text-green-700 border-green-200'
+                              : 'bg-muted text-muted-foreground',
+                          )}
+                          variant="outline"
+                        >
                           {cat.isActive ? 'Active' : 'Inactive'}
                         </Badge>
                       </TableCell>
@@ -546,21 +662,33 @@ export default function CategoriesPage() {
                         <TableCell className="text-right">
                           <div className="flex items-center justify-end gap-1">
                             <Button
-                              variant="ghost" size="icon"
+                              variant="ghost"
+                              size="icon"
                               title={cat.isActive ? 'Deactivate' : 'Activate'}
-                              onClick={() => toggleMutation.mutate({ id: cat.id, active: cat.isActive })}
+                              onClick={() =>
+                                toggleMutation.mutate({ id: cat.id, active: cat.isActive })
+                              }
                               disabled={toggleMutation.isPending}
                             >
-                              {cat.isActive
-                                ? <ToggleRight className="h-4 w-4 text-green-600" />
-                                : <ToggleLeft className="h-4 w-4 text-muted-foreground" />}
+                              {cat.isActive ? (
+                                <ToggleRight className="h-4 w-4 text-green-600" />
+                              ) : (
+                                <ToggleLeft className="h-4 w-4 text-muted-foreground" />
+                              )}
                             </Button>
-                            <Button variant="ghost" size="icon" title="Edit" onClick={() => handleEdit(cat)}>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              title="Edit"
+                              onClick={() => handleEdit(cat)}
+                            >
                               <Pencil className="h-4 w-4" />
                             </Button>
                             {canDelete && (
                               <Button
-                                variant="ghost" size="icon" title="Delete"
+                                variant="ghost"
+                                size="icon"
+                                title="Delete"
                                 className="text-destructive hover:text-destructive"
                                 onClick={() => setDeleteTarget(cat)}
                               >
@@ -593,8 +721,8 @@ export default function CategoriesPage() {
           <AlertDialogHeader>
             <AlertDialogTitle>Delete &quot;{deleteTarget?.name}&quot;?</AlertDialogTitle>
             <AlertDialogDescription>
-              This permanently removes the category and all its keyword rules. Existing tickets assigned
-              to this category will not be affected. This action cannot be undone.
+              This permanently removes the category and all its keyword rules. Existing tickets
+              assigned to this category will not be affected. This action cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

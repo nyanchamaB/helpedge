@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import { useEffect, useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
@@ -33,6 +33,7 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
     if (!isLoading && !isAuthenticated && tokenValidated) {
       // Redirect to login with the current path as redirect parameter
       const redirectUrl = encodeURIComponent(pathname);
+
       console.log('ProtectedRoute: Not authenticated, redirecting to login');
       router.replace(`/auth/login?redirect=${redirectUrl}`);
     }

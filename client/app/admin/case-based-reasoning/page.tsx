@@ -1,13 +1,7 @@
-"use client";
+'use client';
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -61,9 +55,11 @@ export default function CaseBasedReasoningPage() {
 
   const stats = statsResponse?.data;
   const initializedRaw = initializedResponse?.data;
-  const isInitialized = typeof initializedRaw === 'boolean'
-    ? initializedRaw
-    : (initializedRaw?.isInitialized ?? (stats?.indexedTickets != null && stats.indexedTickets > 0));
+  const isInitialized =
+    typeof initializedRaw === 'boolean'
+      ? initializedRaw
+      : (initializedRaw?.isInitialized ??
+        (stats?.indexedTickets != null && stats.indexedTickets > 0));
 
   const handleRefresh = () => {
     refetchStats();
@@ -162,7 +158,9 @@ export default function CaseBasedReasoningPage() {
 
           <Card>
             <CardHeader className="pb-3">
-              <CardDescription className="text-xs font-medium uppercase">Indexed Tickets</CardDescription>
+              <CardDescription className="text-xs font-medium uppercase">
+                Indexed Tickets
+              </CardDescription>
               <Database className="h-4 w-4 text-purple-600 absolute top-4 right-4" />
             </CardHeader>
             <CardContent>
@@ -177,7 +175,9 @@ export default function CaseBasedReasoningPage() {
 
           <Card>
             <CardHeader className="pb-3">
-              <CardDescription className="text-xs font-medium uppercase">Avg. Similarity</CardDescription>
+              <CardDescription className="text-xs font-medium uppercase">
+                Avg. Similarity
+              </CardDescription>
               <Target className="h-4 w-4 text-green-600 absolute top-4 right-4" />
             </CardHeader>
             <CardContent>
@@ -192,7 +192,9 @@ export default function CaseBasedReasoningPage() {
 
           <Card>
             <CardHeader className="pb-3">
-              <CardDescription className="text-xs font-medium uppercase">Avg. Search Time</CardDescription>
+              <CardDescription className="text-xs font-medium uppercase">
+                Avg. Search Time
+              </CardDescription>
               <Zap className="h-4 w-4 text-yellow-500 absolute top-4 right-4" />
             </CardHeader>
             <CardContent>
@@ -222,7 +224,9 @@ export default function CaseBasedReasoningPage() {
         <CardContent>
           {isLoadingStats ? (
             <div className="space-y-3">
-              {[...Array(5)].map((_, i) => <Skeleton key={i} className="h-10 w-full" />)}
+              {[...Array(5)].map((_, i) => (
+                <Skeleton key={i} className="h-10 w-full" />
+              ))}
             </div>
           ) : !isInitialized ? (
             <div className="text-center py-12">
@@ -250,11 +254,14 @@ export default function CaseBasedReasoningPage() {
               <TableBody>
                 {categoryEntries.map(([category, count]) => {
                   const total = stats?.indexedTickets || 1;
-                  const pct = ((count as number) / total * 100).toFixed(1);
+                  const pct = (((count as number) / total) * 100).toFixed(1);
+
                   return (
                     <TableRow key={category}>
                       <TableCell className="font-medium">{category}</TableCell>
-                      <TableCell className="text-right">{(count as number).toLocaleString()}</TableCell>
+                      <TableCell className="text-right">
+                        {(count as number).toLocaleString()}
+                      </TableCell>
                       <TableCell className="text-right">
                         <Badge variant="outline">{pct}%</Badge>
                       </TableCell>

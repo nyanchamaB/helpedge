@@ -18,7 +18,7 @@ const QK = 'approval-workflows';
 
 function invalidate(qc: ReturnType<typeof useQueryClient>, id?: string) {
   qc.invalidateQueries({ queryKey: [QK] });
-  if (id) qc.invalidateQueries({ queryKey: [QK, id] });
+  if (id) {qc.invalidateQueries({ queryKey: [QK, id] });}
 }
 
 export function useApprovalWorkflows() {
@@ -26,7 +26,9 @@ export function useApprovalWorkflows() {
     queryKey: [QK],
     queryFn: async () => {
       const res = await getApprovalWorkflows();
-      if (!res.success) throw new Error(res.message || 'Failed to load workflows');
+
+      if (!res.success) {throw new Error(res.message || 'Failed to load workflows');}
+
       return res.data ?? [];
     },
     staleTime: 30_000,
@@ -38,7 +40,9 @@ export function useActiveApprovalWorkflows() {
     queryKey: [QK, 'active'],
     queryFn: async () => {
       const res = await getActiveApprovalWorkflows();
-      if (!res.success) throw new Error(res.message || 'Failed to load workflows');
+
+      if (!res.success) {throw new Error(res.message || 'Failed to load workflows');}
+
       return res.data ?? [];
     },
     staleTime: 30_000,
@@ -50,7 +54,9 @@ export function useWorkflowForRequest(type?: ServiceRequestType, categoryId?: st
     queryKey: [QK, 'for-request', type, categoryId],
     queryFn: async () => {
       const res = await getWorkflowForRequest(type!, categoryId);
-      if (!res.success) return null;
+
+      if (!res.success) {return null;}
+
       return res.data ?? null;
     },
     enabled: !!type,
@@ -63,7 +69,9 @@ export function useApprovalWorkflow(id?: string) {
     queryKey: [QK, id],
     queryFn: async () => {
       const res = await getApprovalWorkflowById(id!);
-      if (!res.success) throw new Error(res.message || 'Failed to load workflow');
+
+      if (!res.success) {throw new Error(res.message || 'Failed to load workflow');}
+
       return res.data!;
     },
     enabled: !!id,
@@ -73,10 +81,15 @@ export function useApprovalWorkflow(id?: string) {
 
 export function useCreateApprovalWorkflow() {
   const qc = useQueryClient();
+
   return useMutation({
     mutationFn: (data: CreateApprovalWorkflowDto) => createApprovalWorkflow(data),
     onSuccess: (res) => {
-      if (!res.success) { toast.error(res.message || 'Failed to create workflow'); return; }
+      if (!res.success) {
+        toast.error(res.message || 'Failed to create workflow');
+
+        return;
+      }
       toast.success('Workflow created');
       invalidate(qc);
     },
@@ -86,10 +99,15 @@ export function useCreateApprovalWorkflow() {
 
 export function useUpdateApprovalWorkflow(id: string) {
   const qc = useQueryClient();
+
   return useMutation({
     mutationFn: (data: CreateApprovalWorkflowDto) => updateApprovalWorkflow(id, data),
     onSuccess: (res) => {
-      if (!res.success) { toast.error(res.message || 'Failed to update workflow'); return; }
+      if (!res.success) {
+        toast.error(res.message || 'Failed to update workflow');
+
+        return;
+      }
       toast.success('Workflow updated');
       invalidate(qc, id);
     },
@@ -99,10 +117,15 @@ export function useUpdateApprovalWorkflow(id: string) {
 
 export function useDeleteApprovalWorkflow() {
   const qc = useQueryClient();
+
   return useMutation({
     mutationFn: (id: string) => deleteApprovalWorkflow(id),
     onSuccess: (res) => {
-      if (!res.success) { toast.error(res.message || 'Failed to delete workflow'); return; }
+      if (!res.success) {
+        toast.error(res.message || 'Failed to delete workflow');
+
+        return;
+      }
       toast.success('Workflow deleted');
       invalidate(qc);
     },
@@ -112,6 +135,7 @@ export function useDeleteApprovalWorkflow() {
 
 export function useToggleApprovalWorkflow() {
   const qc = useQueryClient();
+
   return useMutation({
     mutationFn: ({ id, isActive }: { id: string; isActive: boolean }) =>
       isActive ? deactivateApprovalWorkflow(id) : activateApprovalWorkflow(id),

@@ -1,7 +1,7 @@
-"use client";
+'use client';
 
-import { cn } from "@/lib/utils";
-import { Skeleton } from "@/components/ui/skeleton";
+import { cn } from '@/lib/utils';
+import { Skeleton } from '@/components/ui/skeleton';
 
 export interface QueueItem {
   id: string;
@@ -39,35 +39,36 @@ export function TicketQueueList({
       {queues.map((queue) => {
         const Icon = queue.icon;
         const isActive = queue.id === activeQueueId;
+
         return (
           <button
             key={queue.id}
             onClick={queue.onClick}
             className={cn(
-              "flex flex-col items-start p-4 rounded-xl border text-left transition-all hover:shadow-md",
+              'flex flex-col items-start p-4 rounded-xl border text-left transition-all hover:shadow-md',
               isActive
-                ? cn(queue.colorClasses.bg, queue.colorClasses.border, "shadow-md")
-                : "bg-card border-border hover:border-border"
+                ? cn(queue.colorClasses.bg, queue.colorClasses.border, 'shadow-md')
+                : 'bg-card border-border hover:border-border',
             )}
           >
             <div
               className={cn(
-                "p-2 rounded-lg mb-3",
-                isActive ? queue.colorClasses.iconBg : "bg-muted"
+                'p-2 rounded-lg mb-3',
+                isActive ? queue.colorClasses.iconBg : 'bg-muted',
               )}
             >
               <Icon
                 className={cn(
-                  "h-4 w-4",
-                  isActive ? queue.colorClasses.iconText : "text-muted-foreground"
+                  'h-4 w-4',
+                  isActive ? queue.colorClasses.iconText : 'text-muted-foreground',
                 )}
               />
             </div>
             <p className="text-2xl font-bold leading-none mb-1">{queue.count}</p>
             <p
               className={cn(
-                "text-sm font-medium",
-                isActive ? queue.colorClasses.iconText : "text-foreground"
+                'text-sm font-medium',
+                isActive ? queue.colorClasses.iconText : 'text-foreground',
               )}
             >
               {queue.label}

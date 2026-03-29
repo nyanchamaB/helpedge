@@ -1,18 +1,18 @@
-"use client";
+'use client';
 
 export const dynamic = 'force-dynamic';
 
-import { useEffect, useMemo, useState } from "react";
-import { useAuth } from "@/contexts/AuthContext";
-import { useNavigation } from "@/contexts/NavigationContext";
+import { useEffect, useMemo, useState } from 'react';
+import { useAuth } from '@/contexts/AuthContext';
+import { useNavigation } from '@/contexts/NavigationContext';
 import {
   getMyAssignedTickets,
   getUnassignedTickets,
   getTicketsPendingTriage,
   Ticket,
-} from "@/lib/api/tickets";
-import { getReviewQueueStats } from "@/lib/api/ai";
-import { getMyStats, type MyStats } from "@/lib/api/dashboard";
+} from '@/lib/api/tickets';
+import { getReviewQueueStats } from '@/lib/api/ai';
+import { getMyStats, type MyStats } from '@/lib/api/dashboard';
 import {
   getAssignedServiceRequests,
   getServiceRequestsPendingApprovalForMe,
@@ -20,17 +20,12 @@ import {
   getSRStatusStyle,
   getSRTypeLabel,
   type ServiceRequest,
-} from "@/lib/api/service-request";
-import { TicketQueueList, QueueItem } from "@/components/agent/TicketQueueList";
-import { TicketsTable } from "@/components/tickets/TicketsTable";
-import type { ReviewQueueStats } from "@/lib/types/ai";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+} from '@/lib/api/service-request';
+import { TicketQueueList, QueueItem } from '@/components/agent/TicketQueueList';
+import { TicketsTable } from '@/components/tickets/TicketsTable';
+import type { ReviewQueueStats } from '@/lib/types/ai';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import {
   Inbox,
   AlertCircle,
@@ -44,9 +39,9 @@ import {
   TrendingUp,
   ClipboardList,
   ChevronRight,
-} from "lucide-react";
-import { cn } from "@/lib/utils";
-import { format } from "date-fns";
+} from 'lucide-react';
+import { cn } from '@/lib/utils';
+import { format } from 'date-fns';
 
 const SLA_WARN_HOURS: Record<string, number> = {
   Critical: 1,
@@ -56,9 +51,10 @@ const SLA_WARN_HOURS: Record<string, number> = {
 };
 
 function isSlaWarning(ticket: Ticket): boolean {
-  if (ticket.status === "Resolved" || ticket.status === "Closed") return false;
+  if (ticket.status === 'Resolved' || ticket.status === 'Closed') {return false;}
   const hours = (Date.now() - new Date(ticket.createdAt).getTime()) / 3_600_000;
   const threshold = SLA_WARN_HOURS[ticket.priority] ?? 24;
+
   return hours > threshold * 0.75;
 }
 
@@ -80,7 +76,15 @@ export default function AgentDashboard() {
 
   async function fetchAll() {
     setIsLoading(true);
-    const [myRes, unassignedRes, triageRes, reviewRes, statsRes, assignedSRsRes, pendingApprovalRes] = await Promise.all([
+    const [
+      myRes,
+      unassignedRes,
+      triageRes,
+      reviewRes,
+      statsRes,
+      assignedSRsRes,
+      pendingApprovalRes,
+    ] = await Promise.all([
       getMyAssignedTickets(),
       getUnassignedTickets(),
       getTicketsPendingTriage(),
@@ -89,92 +93,95 @@ export default function AgentDashboard() {
       getAssignedServiceRequests(),
       getServiceRequestsPendingApprovalForMe(),
     ]);
-    if (myRes.success && myRes.data) setMyTickets(myRes.data);
-    if (unassignedRes.success && unassignedRes.data) setUnassigned(unassignedRes.data);
-    if (triageRes.success && triageRes.data) setPendingTriageCount(triageRes.data.length);
-    if (reviewRes.success && reviewRes.data) setReviewStats(reviewRes.data);
-    if (statsRes.success && statsRes.data) setMyStats(statsRes.data);
-    if (assignedSRsRes.success && assignedSRsRes.data) setAssignedSRs(assignedSRsRes.data);
-    if (pendingApprovalRes.success && pendingApprovalRes.data) setPendingApprovalSRs(pendingApprovalRes.data);
+
+    if (myRes.success && myRes.data) {setMyTickets(myRes.data);}
+    if (unassignedRes.success && unassignedRes.data) {setUnassigned(unassignedRes.data);}
+    if (triageRes.success && triageRes.data) {setPendingTriageCount(triageRes.data.length);}
+    if (reviewRes.success && reviewRes.data) {setReviewStats(reviewRes.data);}
+    if (statsRes.success && statsRes.data) {setMyStats(statsRes.data);}
+    if (assignedSRsRes.success && assignedSRsRes.data) {setAssignedSRs(assignedSRsRes.data);}
+    if (pendingApprovalRes.success && pendingApprovalRes.data)
+      {setPendingApprovalSRs(pendingApprovalRes.data);}
     setIsLoading(false);
   }
 
   const queues = useMemo(() => {
-    const waiting = myTickets.filter(
-      (t) => t.status === "OnHold" || t.status === "AwaitingInfo"
-    );
+    const waiting = myTickets.filter((t) => t.status === 'OnHold' || t.status === 'AwaitingInfo');
     const recentNew = unassigned.filter((t) => {
       const hoursAgo = (Date.now() - new Date(t.createdAt).getTime()) / 3_600_000;
+
       return hoursAgo < 24;
     });
+
     return { waiting, recentNew };
   }, [myTickets, unassigned]);
 
   const slaWarnings = useMemo(() => myTickets.filter(isSlaWarning), [myTickets]);
 
   const userReplies = useMemo(() => {
-    if (!user?.id) return [];
+    if (!user?.id) {return [];}
+
     return myTickets.filter((t) =>
-      (t.comments ?? []).some((c) => !c.isInternal && c.authorId !== user.id)
+      (t.comments ?? []).some((c) => !c.isInternal && c.authorId !== user.id),
     );
   }, [myTickets, user]);
 
   const queueItems: QueueItem[] = [
     {
-      id: "new",
-      label: "New Tickets",
+      id: 'new',
+      label: 'New Tickets',
       icon: Inbox,
       count: queues.recentNew.length,
-      description: "Received in last 24h",
+      description: 'Received in last 24h',
       colorClasses: {
-        bg: "bg-blue-50",
-        iconBg: "bg-blue-100",
-        iconText: "text-blue-600",
-        border: "border-blue-200",
+        bg: 'bg-blue-50',
+        iconBg: 'bg-blue-100',
+        iconText: 'text-blue-600',
+        border: 'border-blue-200',
       },
-      onClick: () => navigateTo("/agent/tickets", { queue: "unassigned" }),
+      onClick: () => navigateTo('/agent/tickets', { queue: 'unassigned' }),
     },
     {
-      id: "unassigned",
-      label: "Unassigned",
+      id: 'unassigned',
+      label: 'Unassigned',
       icon: AlertCircle,
       count: unassigned.length,
-      description: "Needs an agent",
+      description: 'Needs an agent',
       colorClasses: {
-        bg: "bg-amber-50",
-        iconBg: "bg-amber-100",
-        iconText: "text-amber-600",
-        border: "border-amber-200",
+        bg: 'bg-amber-50',
+        iconBg: 'bg-amber-100',
+        iconText: 'text-amber-600',
+        border: 'border-amber-200',
       },
-      onClick: () => navigateTo("/agent/tickets", { queue: "unassigned" }),
+      onClick: () => navigateTo('/agent/tickets', { queue: 'unassigned' }),
     },
     {
-      id: "mine",
-      label: "My Tickets",
+      id: 'mine',
+      label: 'My Tickets',
       icon: User,
       count: myTickets.length,
-      description: "Assigned to you",
+      description: 'Assigned to you',
       colorClasses: {
-        bg: "bg-purple-50",
-        iconBg: "bg-purple-100",
-        iconText: "text-purple-600",
-        border: "border-purple-200",
+        bg: 'bg-purple-50',
+        iconBg: 'bg-purple-100',
+        iconText: 'text-purple-600',
+        border: 'border-purple-200',
       },
-      onClick: () => navigateTo("/agent/tickets", { queue: "mine" }),
+      onClick: () => navigateTo('/agent/tickets', { queue: 'mine' }),
     },
     {
-      id: "waiting",
-      label: "Waiting",
+      id: 'waiting',
+      label: 'Waiting',
       icon: Clock,
       count: queues.waiting.length,
-      description: "Waiting for user",
+      description: 'Waiting for user',
       colorClasses: {
-        bg: "bg-gray-50",
-        iconBg: "bg-gray-100",
-        iconText: "text-gray-600",
-        border: "border-gray-200",
+        bg: 'bg-gray-50',
+        iconBg: 'bg-gray-100',
+        iconText: 'text-gray-600',
+        border: 'border-gray-200',
       },
-      onClick: () => navigateTo("/agent/tickets", { queue: "waiting" }),
+      onClick: () => navigateTo('/agent/tickets', { queue: 'waiting' }),
     },
   ];
 
@@ -185,17 +192,12 @@ export default function AgentDashboard() {
         <div>
           <h1 className="text-2xl font-bold">Agent Dashboard</h1>
           <p className="text-muted-foreground mt-1">
-            Welcome back{user?.name ? `, ${user.name.split(" ")[0]}` : ""}. Here is
-            your queue overview.
+            Welcome back{user?.name ? `, ${user.name.split(' ')[0]}` : ''}. Here is your queue
+            overview.
           </p>
         </div>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={fetchAll}
-          disabled={isLoading}
-        >
-          <RefreshCw className={cn("h-4 w-4 mr-1.5", isLoading && "animate-spin")} />
+        <Button variant="outline" size="sm" onClick={fetchAll} disabled={isLoading}>
+          <RefreshCw className={cn('h-4 w-4 mr-1.5', isLoading && 'animate-spin')} />
           Refresh
         </Button>
       </div>
@@ -205,7 +207,7 @@ export default function AgentDashboard() {
         <div className="flex flex-wrap gap-3">
           {pendingTriageCount > 0 && (
             <button
-              onClick={() => navigateTo("/tickets/review-queue")}
+              onClick={() => navigateTo('/tickets/review-queue')}
               className="flex items-center gap-2 px-3 py-2 rounded-lg bg-violet-50 border border-violet-200 hover:bg-violet-100 transition-colors"
             >
               <ClipboardCheck className="h-4 w-4 text-violet-600" />
@@ -216,7 +218,7 @@ export default function AgentDashboard() {
           )}
           {(reviewStats?.pendingCount ?? 0) > 0 && (
             <button
-              onClick={() => navigateTo("/tickets/review-queue")}
+              onClick={() => navigateTo('/tickets/review-queue')}
               className="flex items-center gap-2 px-3 py-2 rounded-lg bg-orange-50 border border-orange-200 hover:bg-orange-100 transition-colors"
             >
               <Eye className="h-4 w-4 text-orange-600" />
@@ -287,7 +289,7 @@ export default function AgentDashboard() {
                 variant="ghost"
                 size="sm"
                 className="text-xs"
-                onClick={() => navigateTo("/agent/tickets", { queue: "mine" })}
+                onClick={() => navigateTo('/agent/tickets', { queue: 'mine' })}
               >
                 View all
               </Button>
@@ -320,9 +322,7 @@ export default function AgentDashboard() {
             </CardHeader>
             <CardContent>
               {slaWarnings.length === 0 ? (
-                <p className="text-xs text-gray-400 text-center py-3">
-                  No SLA warnings
-                </p>
+                <p className="text-xs text-gray-400 text-center py-3">No SLA warnings</p>
               ) : (
                 <div className="space-y-2">
                   {slaWarnings.slice(0, 5).map((t) => (
@@ -331,12 +331,9 @@ export default function AgentDashboard() {
                       onClick={() => navigateTo(`/tickets/${t.id}`, { from: '/agent/dashboard' })}
                       className="w-full text-left p-2 rounded-lg hover:bg-red-50 transition-colors"
                     >
-                      <p className="text-xs font-medium text-gray-800 truncate">
-                        {t.subject}
-                      </p>
+                      <p className="text-xs font-medium text-gray-800 truncate">{t.subject}</p>
                       <p className="text-xs text-red-500 mt-0.5">
-                        {t.priority} · opened{" "}
-                        {format(new Date(t.createdAt), "MMM d, h:mm a")}
+                        {t.priority} · opened {format(new Date(t.createdAt), 'MMM d, h:mm a')}
                       </p>
                     </button>
                   ))}
@@ -360,9 +357,7 @@ export default function AgentDashboard() {
             </CardHeader>
             <CardContent>
               {userReplies.length === 0 ? (
-                <p className="text-xs text-gray-400 text-center py-3">
-                  No new replies
-                </p>
+                <p className="text-xs text-gray-400 text-center py-3">No new replies</p>
               ) : (
                 <div className="space-y-2">
                   {userReplies.slice(0, 5).map((t) => (
@@ -371,12 +366,9 @@ export default function AgentDashboard() {
                       onClick={() => navigateTo(`/tickets/${t.id}`, { from: '/agent/dashboard' })}
                       className="w-full text-left p-2 rounded-lg hover:bg-blue-50 transition-colors"
                     >
-                      <p className="text-xs font-medium text-gray-800 truncate">
-                        {t.subject}
-                      </p>
+                      <p className="text-xs font-medium text-gray-800 truncate">{t.subject}</p>
                       <p className="text-xs text-blue-500 mt-0.5">
-                        User replied ·{" "}
-                        {format(new Date(t.updatedAt), "MMM d, h:mm a")}
+                        User replied · {format(new Date(t.updatedAt), 'MMM d, h:mm a')}
                       </p>
                     </button>
                   ))}
@@ -405,7 +397,7 @@ export default function AgentDashboard() {
               variant="ghost"
               size="sm"
               className="text-xs"
-              onClick={() => navigateTo("/service-requests/queue", { tab: "mine" })}
+              onClick={() => navigateTo('/service-requests/queue', { tab: 'mine' })}
             >
               View all
             </Button>
@@ -426,18 +418,22 @@ export default function AgentDashboard() {
                 {assignedSRs.slice(0, 6).map((sr) => (
                   <button
                     key={sr.id}
-                    onClick={() => navigateTo(`/service-requests/${sr.id}`, { from: '/agent/dashboard' })}
+                    onClick={() =>
+                      navigateTo(`/service-requests/${sr.id}`, { from: '/agent/dashboard' })
+                    }
                     className="w-full text-left p-2.5 rounded-lg border hover:bg-muted/40 transition-colors"
                   >
                     <div className="flex items-start justify-between gap-2">
                       <div className="flex-1 min-w-0">
                         <p className="text-xs font-medium truncate">{sr.subject}</p>
                         <p className="text-xs text-muted-foreground mt-0.5">
-                          {getSRTypeLabel(sr.requestType)} · {sr.requesterName ?? "—"}
+                          {getSRTypeLabel(sr.requestType)} · {sr.requesterName ?? '—'}
                         </p>
                       </div>
                       <div className="flex items-center gap-1.5 shrink-0">
-                        <span className={`text-xs px-1.5 py-0.5 rounded-full border ${getSRStatusStyle(sr.status)}`}>
+                        <span
+                          className={`text-xs px-1.5 py-0.5 rounded-full border ${getSRStatusStyle(sr.status)}`}
+                        >
                           {getSRStatusLabel(sr.status)}
                         </span>
                         {sr.isOverdue && (
@@ -456,10 +452,15 @@ export default function AgentDashboard() {
         </Card>
 
         {/* Pending My Approval */}
-        <Card className={pendingApprovalSRs.length > 0 ? "border-amber-200" : ""}>
+        <Card className={pendingApprovalSRs.length > 0 ? 'border-amber-200' : ''}>
           <CardHeader className="flex flex-row items-center justify-between pb-3">
             <div className="flex items-center gap-2">
-              <Eye className={cn("h-4 w-4", pendingApprovalSRs.length > 0 ? "text-amber-500" : "text-muted-foreground")} />
+              <Eye
+                className={cn(
+                  'h-4 w-4',
+                  pendingApprovalSRs.length > 0 ? 'text-amber-500' : 'text-muted-foreground',
+                )}
+              />
               <CardTitle className="text-base">Needs My Approval</CardTitle>
               {pendingApprovalSRs.length > 0 && (
                 <span className="text-xs bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded-full font-medium">
@@ -471,7 +472,7 @@ export default function AgentDashboard() {
               variant="ghost"
               size="sm"
               className="text-xs"
-              onClick={() => navigateTo("/service-requests/queue", { tab: "pending-approval" })}
+              onClick={() => navigateTo('/service-requests/queue', { tab: 'pending-approval' })}
             >
               View all
             </Button>
@@ -492,14 +493,16 @@ export default function AgentDashboard() {
                 {pendingApprovalSRs.slice(0, 6).map((sr) => (
                   <button
                     key={sr.id}
-                    onClick={() => navigateTo(`/service-requests/${sr.id}`, { from: '/agent/dashboard' })}
+                    onClick={() =>
+                      navigateTo(`/service-requests/${sr.id}`, { from: '/agent/dashboard' })
+                    }
                     className="w-full text-left p-2.5 rounded-lg border border-amber-100 hover:bg-amber-50 transition-colors"
                   >
                     <div className="flex items-start justify-between gap-2">
                       <div className="flex-1 min-w-0">
                         <p className="text-xs font-medium truncate">{sr.subject}</p>
                         <p className="text-xs text-muted-foreground mt-0.5">
-                          {getSRTypeLabel(sr.requestType)} · {sr.requesterName ?? "—"}
+                          {getSRTypeLabel(sr.requestType)} · {sr.requesterName ?? '—'}
                         </p>
                       </div>
                       <div className="flex items-center gap-1.5 shrink-0">

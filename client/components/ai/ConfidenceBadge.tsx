@@ -54,9 +54,10 @@ export const ConfidenceBadge: FC<ConfidenceBadgeProps> = ({
 
   // Determine color variant based on confidence
   const getVariant = () => {
-    if (needsReview) return 'secondary';
-    if (confidence >= 0.8) return 'default';
-    if (confidence >= 0.6) return 'secondary';
+    if (needsReview) {return 'secondary';}
+    if (confidence >= 0.8) {return 'default';}
+    if (confidence >= 0.6) {return 'secondary';}
+
     return 'destructive';
   };
 
@@ -70,6 +71,7 @@ export const ConfidenceBadge: FC<ConfidenceBadgeProps> = ({
     if (confidence >= 0.6) {
       return 'bg-yellow-100 text-yellow-800 hover:bg-yellow-200 dark:bg-yellow-900 dark:text-yellow-200';
     }
+
     return 'bg-red-100 text-red-800 hover:bg-red-200 dark:bg-red-900 dark:text-red-200';
   };
 
@@ -92,7 +94,7 @@ export const ConfidenceBadge: FC<ConfidenceBadgeProps> = ({
         'inline-flex items-center font-medium',
         getColorClasses(),
         sizeClasses[size],
-        className
+        className,
       )}
     >
       <Icon className={iconSizes[size]} aria-hidden="true" />

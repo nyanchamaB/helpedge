@@ -18,14 +18,14 @@ interface EmailTicketFormProps {
   onCancel?: () => void;
 }
 interface TicketPayload {
-      subject: string;
-      description: string;
-      createdById: string;
-      emailMessageId: string;
-      emailSender: string;
-      emailRecipients: string[];
-      priority?: number;
-      categoryId?: string;
+  subject: string;
+  description: string;
+  createdById: string;
+  emailMessageId: string;
+  emailSender: string;
+  emailRecipients: string[];
+  priority?: number;
+  categoryId?: string;
 }
 
 export function EmailTicketForm({ defaultCreatorId, onSuccess, onCancel }: EmailTicketFormProps) {
@@ -67,6 +67,7 @@ export function EmailTicketForm({ defaultCreatorId, onSuccess, onCancel }: Email
     if (recipientsArray.length === 0) {
       console.log('Validation failed: No recipients');
       setValidationError('At least one recipient email is required');
+
       return;
     }
     // Build payload with only defined fields
@@ -91,6 +92,7 @@ export function EmailTicketForm({ defaultCreatorId, onSuccess, onCancel }: Email
       console.log('Submitting email ticket payload:', JSON.stringify(payload, null, 2));
       setSuccessMessage('');
       const result = await createTicketMutation.mutateAsync(payload);
+
       console.log('Mutation result:', result);
 
       if (result.success && result.data) {
@@ -114,9 +116,7 @@ export function EmailTicketForm({ defaultCreatorId, onSuccess, onCancel }: Email
       }
     } catch (error) {
       console.error('Failed to create ticket from email:', error);
-      setValidationError(
-        error instanceof Error ? error.message : 'An unexpected error occurred'
-      );
+      setValidationError(error instanceof Error ? error.message : 'An unexpected error occurred');
     }
   };
 
@@ -125,7 +125,8 @@ export function EmailTicketForm({ defaultCreatorId, onSuccess, onCancel }: Email
       <CardHeader>
         <CardTitle>Create Ticket from Email</CardTitle>
         <CardDescription>
-          Manually create a support ticket from email data. AI analysis will be automatically applied.
+          Manually create a support ticket from email data. AI analysis will be automatically
+          applied.
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -161,9 +162,7 @@ export function EmailTicketForm({ defaultCreatorId, onSuccess, onCancel }: Email
               placeholder="e.g., test-msg-001@helpedge.com"
               error={errors.emailMessageId?.message}
             />
-            <p className="text-xs text-muted-foreground">
-              Unique identifier for the email message
-            </p>
+            <p className="text-xs text-muted-foreground">Unique identifier for the email message</p>
           </div>
 
           <div className="space-y-2">
@@ -201,9 +200,7 @@ export function EmailTicketForm({ defaultCreatorId, onSuccess, onCancel }: Email
               placeholder="User ID of the ticket creator"
               error={errors.createdById?.message}
             />
-            <p className="text-xs text-muted-foreground">
-              ID of the user creating this ticket
-            </p>
+            <p className="text-xs text-muted-foreground">ID of the user creating this ticket</p>
           </div>
 
           {successMessage && (
@@ -223,10 +220,7 @@ export function EmailTicketForm({ defaultCreatorId, onSuccess, onCancel }: Email
           )}
 
           <div className="flex gap-3 pt-4">
-            <Button
-              type="submit"
-              disabled={isSubmitting || createTicketMutation.isPending}
-            >
+            <Button type="submit" disabled={isSubmitting || createTicketMutation.isPending}>
               {createTicketMutation.isPending ? 'Creating...' : 'Create Ticket'}
             </Button>
             {onCancel && (
