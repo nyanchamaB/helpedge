@@ -215,7 +215,7 @@ export interface MLModel {
   isActive: boolean;
   notes?: string;
   modelPath?: string;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
 }
 
 export interface MLModelStats {
@@ -268,7 +268,7 @@ export interface TrainingData {
   isVerified: boolean;
   source: TrainingDataSource;
   createdAt: string;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
 }
 
 export enum TrainingDataSource {

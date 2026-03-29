@@ -9,7 +9,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -38,9 +37,6 @@ import {
   ChevronDown,
   ChevronUp,
   CheckSquare,
-  Trash2,
-  EyeIcon,
-  Edit,
   ChevronLeft,
   ChevronRight,
   ChevronsLeft,
@@ -197,7 +193,7 @@ export function DataTable<T>({
     if (searchTerm && searchKeys.length > 0) {
       result = result.filter((item) =>
         searchKeys.some((key) => {
-          const value = (item as any)[key];
+          const value = (item as Record<string, unknown>)[key];
           if (typeof value === "string") {
             return value.toLowerCase().includes(searchTerm.toLowerCase());
           }
@@ -214,20 +210,19 @@ export function DataTable<T>({
     // Apply filters
     Object.entries(filterValues).forEach(([key, value]) => {
       if (value !== "all") {
-        result = result.filter((item) => (item as any)[key] === value);
+        result = result.filter((item) => (item as Record<string, unknown>)[key] === value);
       }
     });
 
     // Apply sorting
     if (sortField) {
       result.sort((a, b) => {
-        const aValue = (a as any)[sortField];
-        const bValue = (b as any)[sortField];
-
-        let comparison = 0;
-        if (aValue < bValue) comparison = -1;
-        if (aValue > bValue) comparison = 1;
-
+        const rawA = (a as Record<string, unknown>)[sortField];
+        const rawB = (b as Record<string, unknown>)[sortField];
+        
+        const aValue = rawA !== null && rawA !== undefined ? String(rawA) : '';
+        const bValue = rawB !== null && rawB !== undefined ? String(rawB) : '';
+        const comparison = aValue.localeCompare(bValue);
         return sortDirection === "asc" ? comparison : -comparison;
       });
     }
@@ -452,7 +447,7 @@ export function DataTable<T>({
               )}
               {searchTerm && (
                 <span className="ml-2">
-                  matching "<span className="font-medium">{searchTerm}</span>"
+                  matching &rsquo;<span className="font-medium">{searchTerm}</span>&ldquo;
                 </span>
               )}
             </div>

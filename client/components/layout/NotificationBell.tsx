@@ -130,6 +130,9 @@ function deriveTicketNotifications(tickets: Ticket[], userId: string, isStaff: b
 
 const POLL_INTERVAL = 60000; // 60 seconds
 
+type CombinedNotification =
+  | (AINotification & { source: 'ai' })
+  | (TicketNotification & { source: 'ticket' });
 /**
  * Notification Bell Component
  * Displays AI notifications with real-time polling
@@ -179,16 +182,16 @@ export function NotificationBell() {
   // Fetch ticket-derived notifications
   const { data: ticketsResponse } = useQuery({
     queryKey: ['notif-tickets', user?.id],
-    queryFn: (): Promise<any> => user?.id
+    queryFn: () => user?.id
       ? (isStaff ? getTicketsByAssignee(user.id) : getTicketsByCreator(user.id))
-      : Promise.resolve({ success: false, data: [] }),
+      : Promise.resolve({ success: false, status: 0, data: [] }),
     enabled: !!user?.id,
     refetchInterval: POLL_INTERVAL,
     staleTime: 30 * 1000,
   });
 
   const ticketNotifications = useMemo(() => {
-    const tickets = (ticketsResponse as any)?.data ?? [];
+    const tickets = ticketsResponse?.data ?? [];
     return user ? deriveTicketNotifications(tickets, user.id, isStaff) : [];
   }, [ticketsResponse, user, isStaff]);
 
@@ -227,7 +230,7 @@ export function NotificationBell() {
       queryClient.invalidateQueries({ queryKey: ['notification-count'] });
       queryClient.invalidateQueries({ queryKey: ['ai-notifications'] });
     },
-    onError: (error: any) => {
+    onError: (error: Error) => {
       toast.error(error.message || 'Failed to mark all as read');
     },
   });
@@ -282,7 +285,7 @@ export function NotificationBell() {
   };
 
   // Handle notification click
-  const handleNotificationClick = (notification: any) => {
+  const handleNotificationClick = (notification: CombinedNotification) => {
     if (!notification.isRead) {
       if (notification.source === 'ai') {
         markAsReadMutation.mutate(notification.id);
@@ -299,7 +302,7 @@ export function NotificationBell() {
   // Handle delete notification (AI only)
   const handleDeleteNotification = (
     e: React.MouseEvent,
-    notification: any
+    notification: CombinedNotification 
   ) => {
     e.stopPropagation();
     if (notification.source === 'ai') {
@@ -317,7 +320,7 @@ export function NotificationBell() {
   };
 
   // Get icon for any notification type
-  const getNotificationIcon = (notification: any) => {
+  const getNotificationIcon = (notification: CombinedNotification) => {
     if (notification.source === 'ticket') {
       switch (notification.type) {
         case 'reply': return <MessageSquare className="h-4 w-4 text-blue-500" />;
@@ -481,7 +484,7 @@ export function NotificationBell() {
                 No notifications
               </p>
               <p className="text-xs text-muted-foreground mt-1">
-                You're all caught up!
+                You&rsquo;re all caught up!
               </p>
             </div>
           )}

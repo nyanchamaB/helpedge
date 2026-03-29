@@ -10,8 +10,13 @@ interface BreadcrumbItem {
   icon?: React.ReactNode;
 }
 
+interface BreadcrumbConfig {
+  id?: string;
+  [key: string]: string | undefined;
+}
+
 // Custom breadcrumb configurations for specific routes
-const routeConfig: Record<string, (params?: any) => BreadcrumbItem[]> = {
+const routeConfig: Record<string, (params?: BreadcrumbConfig) => BreadcrumbItem[]> = {
   '/service-categories': () => [
     { label: 'Service Categories', href: '/service-categories' },
   ],
@@ -19,11 +24,11 @@ const routeConfig: Record<string, (params?: any) => BreadcrumbItem[]> = {
     { label: 'Service Categories', href: '/service-categories' },
     { label: 'Create Category' },
   ],
-  '/service-categories/[id]': (params: any) => [
+  '/service-categories/[id]': (params?: BreadcrumbConfig) => [
     { label: 'Service Categories', href: '/service-categories' },
     { label: `Category ${params?.id ? `#${params.id.substring(0, 8)}...` : 'Details'}` },
   ],
-  '/service-categories/[id]/edit': (params: any) => [
+  '/service-categories/[id]/edit': (params?: BreadcrumbConfig) => [
     { label: 'Service Categories', href: '/service-categories' },
     { label: `Category ${params?.id ? `#${params.id.substring(0, 8)}...` : 'Details'}`, href: `/service-categories/${params?.id}` },
     { label: 'Edit' },
@@ -47,7 +52,7 @@ export function useBreadcrumbs() {
     });
 
     if (matchedRoute && routeConfig[matchedRoute]) {
-      const breadcrumbItems = routeConfig[matchedRoute](params);
+      const breadcrumbItems = routeConfig[matchedRoute](params as BreadcrumbConfig);
       setItems(breadcrumbItems);
     } else {
       // Generate default breadcrumbs from pathname

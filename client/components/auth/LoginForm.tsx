@@ -13,9 +13,14 @@ import { Sparkles } from "lucide-react";
 import { Spinner } from '@/components/ui/spinner';
 import Image from "next/image";
 
+interface FormErrors {
+  email?: string;
+  password?: string;
+  general?: string;
+}
 export default function LoginForm() {
   const [formData, setFormData] = useState({ email: "", password: "" });
-  const [errors, setErrors] = useState<any>({});
+  const [errors, setErrors] = useState<FormErrors>({});
   const [isLoading, setIsLoading] = useState(false);
   const [isPageLoading, setIsPageLoading] = useState(true);
 

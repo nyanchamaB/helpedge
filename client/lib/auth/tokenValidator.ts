@@ -14,8 +14,8 @@ export interface TokenPayload {
   username?: string;
   Name?: string;
   unique_name?: string;
-  role?: any;
-  Role?: any;
+  role?: unknown;
+  Role?: unknown;
   department?: string;
   Department?: string;
   exp?: number; // Expiration timestamp (Unix epoch)

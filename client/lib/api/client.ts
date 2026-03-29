@@ -13,7 +13,7 @@ function getBaseUrl(): string {
   return API_BASE_URL;
 }
 
-export interface ApiResponse<T = any> {
+export interface ApiResponse<T = unknown> {
   data?: T;
   error?: string;
   message?: string;
@@ -23,7 +23,7 @@ export interface ApiResponse<T = any> {
 
 export interface ApiRequestConfig {
   method?: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
-  body?: any;
+  body?: unknown;
   headers?: Record<string, string>;
   includeAuth?: boolean;
   // Use 'omit' for public endpoints like login/register to avoid CORS issues
@@ -36,7 +36,7 @@ export interface ApiRequestConfig {
  * When includeAuth is true, adds Authorization header with Bearer token
  * Use credentials: 'omit' for public endpoints to avoid CORS issues
  */
-export async function apiRequest<T = any>(
+export async function apiRequest<T = unknown>(
   endpoint: string,
   config: ApiRequestConfig = {}
 ): Promise<ApiResponse<T>> {
@@ -147,10 +147,16 @@ export async function apiRequest<T = any>(
     console.error('API request error:', error);
     console.error('Error type:', error?.constructor?.name);
     console.error('Error message:', error instanceof Error ? error.message : String(error));
-
+    interface ErrorInfo {
+      type: string;
+      message: string;
+      url: string;
+      likelyCause?: string;
+      suggestion?: string;
+    }
     // Try to extract more information
-    const errorInfo: any = {
-      type: error?.constructor?.name || 'Unknown',
+    const errorInfo: ErrorInfo = {
+      type:error instanceof Error ? error?.constructor?.name:'Unknown',
       message: error instanceof Error ? error.message : String(error),
       url: url,
     };

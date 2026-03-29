@@ -13,7 +13,14 @@ const roleOptions = [
   { value: "agent", label: "Agent" },
   { value: "admin", label: "Administrator" },
 ];
-
+interface FormErrors {
+  name?: string;
+  email?: string;
+  password?: string;
+  department?: string;
+  role?: string;
+  general?: string;
+}
 export default function RegisterForm() {
   const [formData, setFormData] = useState({
     name: "",
@@ -22,13 +29,13 @@ export default function RegisterForm() {
     department: "",
     role: "end_user" as RoleString,
   });
-  const [errors, setErrors] = useState<any>({});
+  const [errors, setErrors] = useState<FormErrors>({});
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
   const { register } = useAuth();
 
   const validateForm = () => {
-    const newErrors: any = {};
+    const newErrors: FormErrors = {};
 
     // Name validation
     if (!formData.name.trim()) {
@@ -90,7 +97,7 @@ export default function RegisterForm() {
           general: result.error || "Registration failed. Please try again.",
         });
       }
-    } catch (error: any) {
+    } catch (error) {
       console.error("Registration error:", error);
       setErrors({
         general: "An unexpected error occurred. Please try again.",
@@ -112,7 +119,7 @@ export default function RegisterForm() {
   useEffect(() => {
     const savedEmail = sessionStorage.getItem("register_email");
     if (!savedEmail) {
-      router.replace("/onboarding");
+      router.push("/onboarding");
       return;
     }
     setFormData((prev) => ({ ...prev, email: savedEmail }));

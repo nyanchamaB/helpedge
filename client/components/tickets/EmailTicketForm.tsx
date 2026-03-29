@@ -17,6 +17,16 @@ interface EmailTicketFormProps {
   onSuccess?: (ticketId: string) => void;
   onCancel?: () => void;
 }
+interface TicketPayload {
+      subject: string;
+      description: string;
+      createdById: string;
+      emailMessageId: string;
+      emailSender: string;
+      emailRecipients: string[];
+      priority?: number;
+      categoryId?: string;
+}
 
 export function EmailTicketForm({ defaultCreatorId, onSuccess, onCancel }: EmailTicketFormProps) {
   const { navigateTo } = useNavigation();
@@ -59,9 +69,8 @@ export function EmailTicketForm({ defaultCreatorId, onSuccess, onCancel }: Email
       setValidationError('At least one recipient email is required');
       return;
     }
-
     // Build payload with only defined fields
-    const payload: any = {
+    const payload: TicketPayload = {
       subject: data.subject.trim(),
       description: data.description.trim(),
       createdById: data.createdById.trim(),

@@ -149,7 +149,7 @@ export default function RequestCategoryTable({
       return matchesSearch && matchesType && matchesStatus;
     })
     .sort((a, b) => {
-      let aValue: any, bValue: any;
+      let aValue: string | number, bValue: string | number;
 
       switch (sortField) {
         case "name":
@@ -448,7 +448,7 @@ export default function RequestCategoryTable({
               categories
               {searchTerm && (
                 <span className="ml-2">
-                  matching "<span className="font-medium">{searchTerm}</span>"
+                  matching &quot;<span className="font-medium">{searchTerm}</span>&quot;
                 </span>
               )}
             </div>
@@ -742,7 +742,7 @@ export default function RequestCategoryTable({
             <AlertDialogTitle>Delete Category</AlertDialogTitle>
             <AlertDialogDescription>
               This will permanently delete the category{" "}
-              <span className="font-semibold">"{selectedCategory?.name}"</span>.
+              <span className="font-semibold">&quot;{selectedCategory?.name}&quot;</span>.
               This action cannot be undone and may affect existing service
               requests.
             </AlertDialogDescription>
