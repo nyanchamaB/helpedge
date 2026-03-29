@@ -26,10 +26,6 @@ export default function ProtectedRoute({ children, onUnauthenticated }: Protecte
   const [isChecking, setIsChecking] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
-  useEffect(() => {
-    checkAuthAndRedirect();
-  }, [pathname]);
-
   async function checkAuthAndRedirect() {
     try {
       // Validate stored token
@@ -70,6 +66,14 @@ export default function ProtectedRoute({ children, onUnauthenticated }: Protecte
       router.replace(`/auth/login?redirect=${returnUrl}`);
     }
   }
+
+  useEffect(() => {
+    async function checkAuth() {
+      await checkAuthAndRedirect();
+    }
+
+    void checkAuth();
+  }, [pathname]);
 
   // Show loading state during validation to prevent flicker
   if (isChecking) {

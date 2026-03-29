@@ -71,7 +71,7 @@ export default function TeamSettingsPage() {
   }
 
   useEffect(() => {
-    fetchUsers();
+    void fetchUsers();
   }, []);
 
   // Stats

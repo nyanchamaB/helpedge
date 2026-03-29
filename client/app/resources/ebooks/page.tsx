@@ -92,14 +92,20 @@ export default function EbooksPage() {
   const openModal = (ebook: (typeof ebooks)[number]) => {
     setSelectedEbook(ebook);
     setIsModalOpen(true);
-    document.body.style.overflow = 'hidden';
   };
 
   const closeModal = () => {
     setIsModalOpen(false);
     setSelectedEbook(null);
-    document.body.style.overflow = 'unset';
   };
+
+  useEffect(() => {
+    document.body.style.overflow = isModalOpen ? 'hidden' : 'unset';
+
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [isModalOpen]);
 
   // Favorite toggle
   const toggleFavorite = (ebookId: number, e: React.MouseEvent) => {

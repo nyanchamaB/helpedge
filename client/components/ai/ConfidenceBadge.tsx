@@ -49,7 +49,7 @@ export const ConfidenceBadge: FC<ConfidenceBadgeProps> = ({
   className,
 }) => {
   const percentage = Math.round(confidence * 100);
-  const methodKey = method != null ? String(method) : '';
+  const methodKey = method !== null && method !== undefined ? String(method) : '';
   const Icon = METHOD_ICONS[methodKey] || HelpCircle;
 
   // Determine color variant based on confidence

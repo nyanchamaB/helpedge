@@ -56,18 +56,6 @@ export default function DashboardStats() {
   const isSystemAdmin = user?.role === 'SystemAdmin';
 
   // Fetch dashboard data on mount
-  useEffect(() => {
-    let mounted = true;
-
-    if (mounted && user) {
-      fetchDashboardData();
-    }
-
-    return () => {
-      mounted = false;
-    };
-  }, [user]); // Re-fetch when user changes
-
   async function fetchDashboardData() {
     if (!user) {return;}
 
@@ -125,6 +113,22 @@ export default function DashboardStats() {
       setIsLoading(false);
     }
   }
+
+  useEffect(() => {
+    let mounted = true;
+
+    if (mounted && user) {
+      async function loadData() {
+        await fetchDashboardData();
+      }
+
+      void loadData();
+    }
+
+    return () => {
+      mounted = false;
+    };
+  }, [user]); // Re-fetch when user changes
 
   // Calculate stats from actual tickets data
   const calculatedCounts = {

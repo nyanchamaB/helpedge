@@ -414,7 +414,7 @@ function Testimonials() {
             style={{ transitionDelay: `${i * 100}ms` }}
             className="rounded-2xl border border-border bg-card p-6 hover:shadow-lg hover:-translate-y-1 transition-all duration-300"
           >
-            <div className="text-3xl text-blue-200 dark:text-blue-800 font-serif mb-3">"</div>
+            <div className="text-3xl text-blue-200 dark:text-blue-800 font-serif mb-3">&quot;</div>
             <p className="text-sm text-muted-foreground leading-relaxed mb-5 italic">{t.quote}</p>
             <div className="flex items-center gap-3">
               <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-white text-xs font-bold shrink-0">

@@ -10,8 +10,7 @@ import { KeyPhrasesHighlight } from './KeyPhrasesHighlight';
 import { HighlightedText } from './HighlightedText';
 import { SimilarTicketsWidget } from './SimilarTicketsWidget';
 import { AlertTriangle, CheckCircle, Info } from 'lucide-react';
-import { ClassificationMethod } from '@/lib/types/ai';
-import type { TicketAIDetails, SimilarTicket } from '@/lib/types/ai';
+import { ClassificationMethod, type TicketAIDetails, type SimilarTicket } from '@/lib/types/ai';
 import { cn } from '@/lib/utils';
 
 interface AIExplanationProps {
@@ -143,7 +142,7 @@ export const AIExplanation: FC<AIExplanationProps> = ({
               <span className="text-sm font-medium">Priority</span>
               <span className="text-sm">{finalPriority || 'Unknown'}</span>
             </div>
-            {processingTimeMs != null && (
+            {processingTimeMs !== null && processingTimeMs !== undefined && (
               <>
                 <Separator />
                 <div className="flex items-center justify-between">

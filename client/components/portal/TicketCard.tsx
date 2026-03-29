@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { format, formatDistanceToNow } from 'date-fns';
 import { Clock, MessageSquare, ArrowRight, TrendingUp, Tag } from 'lucide-react';
@@ -57,7 +58,18 @@ export function TicketCard({ ticket }: TicketCardProps) {
   const commentCount = publicComments.length;
 
   const updatedDate = new Date(ticket.updatedAt);
-  const isRecent = Date.now() - updatedDate.getTime() < 7 * 24 * 60 * 60 * 1000;
+  const [isRecent, setIsRecent] = useState(false);
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      setIsRecent(Date.now() - updatedDate.getTime() < 7 * 24 * 60 * 60 * 1000);
+    }, 0);
+
+    return () => {
+      window.clearTimeout(timer);
+    };
+  }, [ticket.updatedAt]);
+
   const timeLabel = isRecent
     ? formatDistanceToNow(updatedDate, { addSuffix: true })
     : format(updatedDate, 'MMM d, yyyy');

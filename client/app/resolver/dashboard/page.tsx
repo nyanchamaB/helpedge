@@ -55,7 +55,7 @@ function formatAge(dateStr: string): string {
 }
 
 function formatMinutes(mins: number | null | undefined): string {
-  if (mins == null) {return '—';}
+  if (mins === null || mins === undefined) {return '—';}
   if (mins < 60) {return `${Math.round(mins)}m`;}
   const h = Math.floor(mins / 60);
   const m = Math.round(mins % 60);
@@ -97,7 +97,11 @@ export default function ResolverDashboard() {
   }
 
   useEffect(() => {
-    void fetchAll();
+    async function loadAll() {
+      await fetchAll();
+    }
+
+    void loadAll();
   }, []);
 
   const queues = useMemo(

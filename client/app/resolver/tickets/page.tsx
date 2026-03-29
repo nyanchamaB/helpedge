@@ -32,10 +32,6 @@ export default function MyWorkPage() {
 
   const activeQueue = (pageParams.queue as Queue) || 'all';
 
-  useEffect(() => {
-    fetchTickets();
-  }, []);
-
   async function fetchTickets() {
     setIsLoading(true);
     setError(null);
@@ -45,6 +41,14 @@ export default function MyWorkPage() {
     else {setError(res.error ?? 'Failed to load your tickets');}
     setIsLoading(false);
   }
+
+  useEffect(() => {
+    async function loadTickets() {
+      await fetchTickets();
+    }
+
+    void loadTickets();
+  }, []);
 
   const filtered = useMemo(() => {
     switch (activeQueue) {

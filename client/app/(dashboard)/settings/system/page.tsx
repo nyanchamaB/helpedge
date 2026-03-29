@@ -7,13 +7,17 @@ export default function SettingsPage() {
   const [status, setStatus] = useState('loading'); // "loading" | "success" | "error" state
 
   useEffect(() => {
-    try {
-      router.push('/settings/profile');
-      setStatus('success');
-    } catch (err) {
-      console.error('Redirect failed:', err);
-      setStatus('error');
+    async function redirect() {
+      try {
+        await router.push('/settings/profile');
+        setStatus('success');
+      } catch (err) {
+        console.error('Redirect failed:', err);
+        setStatus('error');
+      }
     }
+
+    void redirect();
   }, [router]);
 
   return (

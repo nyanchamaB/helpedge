@@ -23,22 +23,6 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
   const pathname = usePathname();
   const [tokenValidated, setTokenValidated] = useState(false);
 
-  // First layer: Validate token on mount and route changes
-  useEffect(() => {
-    validateAuthToken();
-  }, [pathname]);
-
-  // Second layer: Monitor AuthContext state
-  useEffect(() => {
-    if (!isLoading && !isAuthenticated && tokenValidated) {
-      // Redirect to login with the current path as redirect parameter
-      const redirectUrl = encodeURIComponent(pathname);
-
-      console.log('ProtectedRoute: Not authenticated, redirecting to login');
-      router.replace(`/auth/login?redirect=${redirectUrl}`);
-    }
-  }, [isAuthenticated, isLoading, tokenValidated, router, pathname]);
-
   async function validateAuthToken() {
     try {
       // Validate stored token
@@ -69,6 +53,26 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
       setTokenValidated(true);
     }
   }
+
+  // First layer: Validate token on mount and route changes
+  useEffect(() => {
+    async function validate() {
+      await validateAuthToken();
+    }
+
+    void validate();
+  }, [pathname]);
+
+  // Second layer: Monitor AuthContext state
+  useEffect(() => {
+    if (!isLoading && !isAuthenticated && tokenValidated) {
+      // Redirect to login with the current path as redirect parameter
+      const redirectUrl = encodeURIComponent(pathname);
+
+      console.log('ProtectedRoute: Not authenticated, redirecting to login');
+      router.replace(`/auth/login?redirect=${redirectUrl}`);
+    }
+  }, [isAuthenticated, isLoading, tokenValidated, router, pathname]);
 
   // Show loading state while checking authentication
   if (isLoading || !tokenValidated) {

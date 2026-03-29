@@ -122,7 +122,11 @@ export default function PortalNotifications() {
 
   useEffect(() => {
     if (!authLoading && user) {
-      void fetchData();
+      async function loadData() {
+        await fetchData();
+      }
+
+      void loadData();
     }
   }, [authLoading, user]);
 

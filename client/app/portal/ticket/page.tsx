@@ -75,32 +75,6 @@ export default function PortalTicketDetail() {
   const [isReplying, setIsReplying] = useState(false);
   const [authorNames, setAuthorNames] = useState<Record<string, string>>({});
 
-  async function fetchTicket() {
-    setIsLoading(true);
-    const response = await getTicketById(ticketId);
-
-    if (response.success && response.data) {
-      setTicket(response.data);
-      if (response.data.categoryId) {
-        const catResponse = await getCategoryById(response.data.categoryId);
-
-        if (catResponse.success && catResponse.data) {
-          setCategoryName(catResponse.data.name);
-        }
-      }
-      resolveAuthorNames(response.data);
-    } else {
-      toast.error('Failed to load ticket');
-    }
-    setIsLoading(false);
-  }
-
-  useEffect(() => {
-    if (ticketId) {
-      void fetchTicket();
-    }
-  }, [ticketId]);
-
   async function resolveAuthorNames(t: Ticket) {
     const uniqueIds = [...new Set((t.comments ?? []).map((c) => c.authorId))];
     const names: Record<string, string> = {};
@@ -123,8 +97,41 @@ export default function PortalTicketDetail() {
         }
       }),
     );
+
     setAuthorNames((prev) => ({ ...prev, ...names }));
   }
+
+  async function fetchTicket() {
+    setIsLoading(true);
+    const response = await getTicketById(ticketId);
+
+    if (response.success && response.data) {
+      setTicket(response.data);
+      if (response.data.categoryId) {
+        const catResponse = await getCategoryById(response.data.categoryId);
+
+        if (catResponse.success && catResponse.data) {
+          setCategoryName(catResponse.data.name);
+        }
+      }
+      resolveAuthorNames(response.data);
+    } else {
+      toast.error('Failed to load ticket');
+    }
+    setIsLoading(false);
+  }
+
+  useEffect(() => {
+    if (!ticketId) {
+      return;
+    }
+
+    async function loadTicket() {
+      await fetchTicket();
+    }
+
+    void loadTicket();
+  }, [ticketId]);
 
   async function handleReply(content: string) {
     if (!user?.id || !ticketId) {return;}

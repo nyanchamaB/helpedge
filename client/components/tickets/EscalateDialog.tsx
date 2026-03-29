@@ -49,13 +49,21 @@ export function EscalateDialog({ isOpen, onClose, ticketId, onSuccess }: Escalat
   }
 
   useEffect(() => {
-    if (isOpen) {
-      void loadUsers();
-    } else {
+    if (!isOpen) {
+      return;
+    }
+
+    async function load() {
+      await loadUsers();
+    }
+
+    void load();
+
+    return () => {
       setReason('');
       setTargetUserId('');
       setError(null);
-    }
+    };
   }, [isOpen]);
 
   async function handleSubmit() {

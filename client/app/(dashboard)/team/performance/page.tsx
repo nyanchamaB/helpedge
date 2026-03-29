@@ -38,7 +38,7 @@ import { cn } from '@/lib/utils';
 const PAGE_SIZE = 15;
 
 function fmt(mins: number | null | undefined): string {
-  if (mins == null) {return '—';}
+  if (mins === null || mins === undefined) {return '—';}
   if (mins < 60) {return `${Math.round(mins)}m`;}
   const h = Math.floor(mins / 60);
   const m = Math.round(mins % 60);
@@ -88,10 +88,6 @@ export default function TeamPerformancePage() {
   const [sortCol, setSortCol] = useState<keyof ResolverKpis>('unacknowledgedCount');
   const [sortAsc, setSortAsc] = useState(false);
   const [page, setPage] = useState(0);
-
-  useEffect(() => {
-    fetchAll();
-  }, []);
 
   async function fetchAll() {
     setIsLoading(true);
