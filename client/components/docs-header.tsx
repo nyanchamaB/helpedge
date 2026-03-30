@@ -1,8 +1,9 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname } from 'next/navigation';
-import { Search, ChevronRight, BookOpen } from 'lucide-react';
+import { Search, ChevronRight } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { siteConfig } from '@/config/site';
@@ -50,10 +51,14 @@ export default function DocsHeader() {
           href="/"
           className="flex items-center gap-2 text-sm font-semibold hover:text-blue-600 transition-colors shrink-0"
         >
-          <img
+          <Image
             src={siteConfig.logo}
             alt="HelpEdge Logo"
-            className="h-5 w-auto transition-transform duration-200 hover:scale-110 h-15 w-auto"
+            width={0}
+            height={0}
+            sizes="100vw"
+            style={{ width: 'auto', height: '1.25rem' }}
+            className="transition-transform duration-200 hover:scale-110"
           />
           <span className="ml-2">{siteConfig.name}</span>
         </Link>
