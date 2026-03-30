@@ -1,6 +1,6 @@
 // for site-specific configuration
 
-import { title } from 'process';
+import { title as _title } from 'process';
 
 export const siteConfig = {
   name: 'HelpEdge Ticketing System',
