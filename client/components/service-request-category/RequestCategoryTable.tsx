@@ -45,18 +45,11 @@ import {
   AlertCircle,
   ChevronDown,
   ChevronUp,
-  Download,
-  Upload,
   CheckSquare,
-  Square,
   User,
   Clock,
   Hash,
-  Tag,
-  Palette,
   Type,
-  ToggleLeft,
-  ToggleRight,
 } from 'lucide-react';
 import { Spinner } from '@/components/ui/spinner';
 import { format } from 'date-fns';
@@ -132,8 +125,8 @@ export default function RequestCategoryTable({
   onEdit,
   onDelete,
   onCreate,
-  onExport,
-  onImport,
+  onExport: _onExport,
+  onImport: _onImport,
   onBulkDelete,
   onBulkActivate,
   onBulkDeactivate,
@@ -218,7 +211,7 @@ export default function RequestCategoryTable({
     }
   };
 
-  const getTierBadge = (tier?: SupportTier) => {
+  const _getTierBadge = (tier?: SupportTier) => {
     if (!tier || tier === 'L1') {
       return (
         <Badge variant="outline" className="text-xs bg-muted text-muted-foreground">
