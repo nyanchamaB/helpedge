@@ -55,6 +55,7 @@ export function useBreadcrumbs() {
     }
 
     const paths = pathname.split('/').filter(Boolean);
+
     return paths.map((path, index) => {
       const accumulatedPath = '/' + paths.slice(0, index + 1).join('/');
 
@@ -66,6 +67,7 @@ export function useBreadcrumbs() {
 
       if (path.startsWith('[') && path.endsWith(']')) {
         const paramName = path.slice(1, -1);
+
         label = (params[paramName] as string) || 'Details';
       }
 
