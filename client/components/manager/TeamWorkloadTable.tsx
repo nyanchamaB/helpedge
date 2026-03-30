@@ -40,9 +40,8 @@ interface TeamWorkloadTableProps {
 }
 
 export function TeamWorkloadTable({ tickets, users, isLoading = false }: TeamWorkloadTableProps) {
-  const staffRoles = ['ServiceDeskAgent', 'Technician', 'SystemAdmin', 'SecurityAdmin', 'TeamLead'];
-
   const agentLoads = useMemo<AgentLoad[]>(() => {
+    const staffRoles = ['ServiceDeskAgent', 'Technician', 'SystemAdmin', 'SecurityAdmin', 'TeamLead'];
     const staff = users.filter((u) => staffRoles.includes(u.role));
 
     return staff
