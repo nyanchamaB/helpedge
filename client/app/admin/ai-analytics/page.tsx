@@ -140,7 +140,7 @@ export default function AIAnalyticsDashboard() {
 
       return {
         ...item,
-        accuracyPct: item.accuracy != null ? parseFloat((item.accuracy * 100).toFixed(1)) : 0,
+        accuracyPct: item.accuracy !== null && item.accuracy !== undefined ? parseFloat((item.accuracy * 100).toFixed(1)) : 0,
         category: resolved,
       };
     })
