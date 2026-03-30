@@ -1,7 +1,7 @@
 // mobile navigation link component
 import React from 'react';
 import { cn } from '@/lib/utils';
-import { Icons } from '@/components/icons';
+import { Icons as _Icons } from '@/components/icons';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 
