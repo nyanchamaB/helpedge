@@ -56,7 +56,7 @@ const nextConfig: NextConfig = {
   // Proxy API requests through Next.js so browser code can use one origin.
   // Browser requests to /api-proxy/api/... are forwarded to the backend URL.
   async rewrites() {
-    const backendUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5035';
+    const backendUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://helpedge-api.onrender.com';
 
     return [
       {
