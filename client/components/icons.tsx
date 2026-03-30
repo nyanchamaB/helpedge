@@ -13,7 +13,6 @@ import {
 import { cn } from '@/lib/utils';
 import React from 'react';
 import { siteConfig as _siteConfig } from '@/config/site';
-import logo2 from '../public/logo2.png';
 import Image from 'next/image';
 import { IconType } from 'react-icons';
 import { TbBrandVercel } from 'react-icons/tb';
@@ -51,7 +50,7 @@ export function Icons(props: { icon: Icons; className?: string }) {
 }
 
 export function Logo(props: { className?: string }) {
-  return <Image src={logo2} alt="Logo" className={cn('h-6 w-6', props.className)} />;
+  return <Image src="/logo2.png" width={30} height={30} alt="Logo" className={cn('h-6 w-6', props.className)} />;
 }
 export const IconsList = {
   logo: Logo,
