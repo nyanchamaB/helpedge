@@ -1,10 +1,10 @@
 // for navigation icon in mobile view
 import React, { useState } from 'react';
 import { cn } from '@/lib/utils';
-import { Icons, IconsList } from '@/components/icons';
+import { Icons as _Icons, IconsList } from '@/components/icons';
 import { usePathname } from 'next/navigation';
-import Link from 'next/link';
-import { buttonVariants } from '@/components/ui/button';
+import _Link from 'next/link';
+import { buttonVariants as _buttonVariants } from '@/components/ui/button';
 
 export function MobileNavIcon() {
   const [open, setOpen] = useState(false);
