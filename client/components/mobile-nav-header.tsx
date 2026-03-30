@@ -1,7 +1,7 @@
 // mobile header component
 import React from 'react';
 import { cn } from '@/lib/utils';
-import { Icons, IconsList } from '@/components/icons';
+import { Icons as _Icons, IconsList } from '@/components/icons';
 import { siteConfig } from '@/config/site';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
