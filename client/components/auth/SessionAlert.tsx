@@ -1,6 +1,5 @@
 'use client';
 
-import { useEffect } from 'react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -11,7 +10,6 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { Button } from '@/components/ui/button';
 import { Clock, LogOut, RefreshCw } from 'lucide-react';
 import { useSessionManager } from '@/hooks/useSessionManager';
 
@@ -41,7 +39,7 @@ export function SessionAlert({ onLogout }: SessionAlertProps) {
   };
 
   // Handle logout
-  const handleLogout = async () => {
+  const _handleLogout = async () => {
     await endSession();
     dismissExpiredAlert();
     dismissExpiryWarning();
