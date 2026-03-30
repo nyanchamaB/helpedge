@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { format, formatDistanceToNow } from 'date-fns';
-import { Clock, MessageSquare, ArrowRight, TrendingUp, Tag } from 'lucide-react';
+import { Clock, MessageSquare, ArrowRight, TrendingUp } from 'lucide-react';
 import {
   Ticket,
   TicketPriorityString,
@@ -28,7 +28,7 @@ function getPriorityStyle(priority: TicketPriorityString): string {
   }
 }
 
-function getStatusBorderColor(status: string, assignedToId?: string | null): string {
+function _getStatusBorderColor(status: string, assignedToId?: string | null): string {
   if (!assignedToId && status === 'Open') {return 'border-l-amber-400';}
   switch (status) {
     case 'Open':
@@ -68,6 +68,7 @@ export function TicketCard({ ticket }: TicketCardProps) {
     return () => {
       window.clearTimeout(timer);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ticket.updatedAt]);
 
   const timeLabel = isRecent
