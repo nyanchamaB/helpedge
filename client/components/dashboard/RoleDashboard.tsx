@@ -6,14 +6,13 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigation } from '@/contexts/NavigationContext';
-import { UserRole, ROLE_DESCRIPTIONS } from '@/lib/api/auth';
+import { UserRole } from '@/lib/api/auth';
 import {
   getDashboardStats,
   getTicketStatusCounts,
   getCategoryTicketCounts,
   getTeamStats,
   getMySLA,
-  getMyTicketsDashboard,
   getMyStats,
   getDetailedHealth,
   getResolverKpis,
@@ -23,7 +22,6 @@ import {
   type TeamStats,
   type ResolverKpis,
   type SLAStats,
-  type MyTicketsDashboard,
   type MyStats,
   type DetailedHealthStatus,
 } from '@/lib/api/dashboard';
@@ -50,8 +48,6 @@ import {
   FileText,
   ClipboardList,
   Bot,
-  BarChart2,
-  Timer,
   Zap,
 } from 'lucide-react';
 
@@ -340,16 +336,16 @@ function AdminDashboard() {
 }
 
 // IT Manager Dashboard
-const KPI_PAGE_SIZE = 15;
+const _KPI_PAGE_SIZE = 15;
 
 function ITManagerDashboard() {
-  const { navigateTo } = useNavigation();
+  const { navigateTo: _navigateTo } = useNavigation();
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [teamStats, setTeamStats] = useState<TeamStats | null>(null);
   const [resolverKpis, setResolverKpis] = useState<ResolverKpis[]>([]);
   const [categoryCounts, setCategoryCounts] = useState<CategoryTicketCount[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
-  const [kpiPage, setKpiPage] = useState(0);
+  const [_kpiPage, _setKpiPage] = useState(0);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -373,7 +369,7 @@ function ITManagerDashboard() {
     fetchData();
   }, []);
 
-  const categoryRows = useMemo(() => {
+  const _categoryRows = useMemo(() => {
     const nameMap = new Map(categories.map((c) => [c.id, c.name]));
 
     return categoryCounts
@@ -723,7 +719,7 @@ function ServiceDeskDashboard() {
 // Technician Dashboard
 function TechnicianDashboard() {
   const [myStats, setMyStats] = useState<MyStats | null>(null);
-  const [stats, setStats] = useState<DashboardStats | null>(null);
+  const [_stats, _setStats] = useState<DashboardStats | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -732,7 +728,7 @@ function TechnicianDashboard() {
       const [myRes, statsRes] = await Promise.all([getMyStats(), getDashboardStats()]);
 
       if (myRes.success) {setMyStats(myRes.data!);}
-      if (statsRes.success) {setStats(statsRes.data!);}
+      if (statsRes.success) {_setStats(statsRes.data!);}
       setLoading(false);
     }
     fetchData();
@@ -775,7 +771,7 @@ function TechnicianDashboard() {
 // Security Admin Dashboard
 function SecurityAdminDashboard() {
   const [myStats, setMyStats] = useState<MyStats | null>(null);
-  const [stats, setStats] = useState<DashboardStats | null>(null);
+  const [_stats, _setStats] = useState<DashboardStats | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -784,7 +780,7 @@ function SecurityAdminDashboard() {
       const [myRes, statsRes] = await Promise.all([getMyStats(), getDashboardStats()]);
 
       if (myRes.success) {setMyStats(myRes.data!);}
-      if (statsRes.success) {setStats(statsRes.data!);}
+      if (statsRes.success) {_setStats(statsRes.data!);}
       setLoading(false);
     }
     fetchData();
@@ -888,6 +884,7 @@ function EndUserDashboard() {
       setLoading(false);
     }
     fetchData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user?.id]);
 
   const firstName = user?.name?.split(' ')[0] ?? user?.email?.split('@')[0] ?? 'there';
