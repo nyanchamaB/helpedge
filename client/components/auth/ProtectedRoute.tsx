@@ -33,7 +33,7 @@ export default function ProtectedRoute({ children, onUnauthenticated }: Protecte
 
       if (validation.isValid) {
         // User is authenticated, allow access
-        console.log('ProtectedRoute: User is authenticated');
+        console.warn('ProtectedRoute: User is authenticated');
         setIsAuthenticated(true);
         setIsChecking(false);
 
@@ -41,7 +41,7 @@ export default function ProtectedRoute({ children, onUnauthenticated }: Protecte
       }
 
       // Token is invalid or expired
-      console.log('ProtectedRoute: Token invalid or expired:', validation.error);
+      console.warn('ProtectedRoute: Token invalid or expired:', validation.error);
 
       // Clear invalid token
       clearInvalidToken();
@@ -53,7 +53,7 @@ export default function ProtectedRoute({ children, onUnauthenticated }: Protecte
         // Redirect to login with return URL
         const returnUrl = encodeURIComponent(pathname || '/dashboard');
 
-        console.log('ProtectedRoute: Redirecting to login, return URL:', returnUrl);
+        console.warn('ProtectedRoute: Redirecting to login, return URL:', returnUrl);
         router.replace(`/auth/login?redirect=${returnUrl}`);
       }
     } catch (error) {
@@ -73,6 +73,7 @@ export default function ProtectedRoute({ children, onUnauthenticated }: Protecte
     }
 
     void checkAuth();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pathname]);
 
   // Show loading state during validation to prevent flicker
