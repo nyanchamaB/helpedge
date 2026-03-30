@@ -46,7 +46,7 @@ const colors = {
 };
 
 function log(message, color = 'reset') {
-  console.log(`${colors[color]}${message}${colors.reset}`);
+  console.warn(`${colors[color]}${message}${colors.reset}`);
 }
 
 function logSuccess(message) {
@@ -85,7 +85,7 @@ async function testEndpoint(name, url, options) {
       return { success: true, data: jsonData, status: response.status };
     } else {
       logError(`${name} - Status: ${response.status}`);
-      console.log('Response:', jsonData);
+      console.warn('Response:', jsonData);
 
       return { success: false, data: jsonData, status: response.status };
     }
