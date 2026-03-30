@@ -186,6 +186,7 @@ export function DataTable<T>({
     const validIds = new Set(data.map(getItemId));
 
     setSelectedIds((prev) => prev.filter((id) => validIds.has(id)));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data]);
 
   // Filter and sort data
