@@ -236,7 +236,7 @@ export default function ApprovalWorkflowDetailPage() {
                 <span className="text-muted-foreground">Escalation Timeout</span>
                 <span className="font-medium">{workflow.escalationTimeoutHours}h</span>
               </div>
-              {workflow.autoApproveBelow != null && (
+              {workflow.autoApproveBelow !== null && workflow.autoApproveBelow !== undefined && (
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Auto-approve Below</span>
                   <span className="font-medium">${workflow.autoApproveBelow}</span>
