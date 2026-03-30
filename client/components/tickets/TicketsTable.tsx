@@ -49,9 +49,9 @@ function getPriorityBadgeStyle(priority: TicketPriorityString): string {
 export function TicketsTable({
   tickets,
   isLoading = false,
-  error = null,
-  onRefresh,
-  title = 'Tickets',
+  error: _error = null,
+  onRefresh: _onRefresh,
+  title: _title = 'Tickets',
   showFilters = true,
   emptyMessage = 'No tickets found',
   onDelete,
