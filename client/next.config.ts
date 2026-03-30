@@ -4,13 +4,6 @@ const nextConfig: NextConfig = {
   // Enable React strict mode for better development experience
   reactStrictMode: true,
 
-  // ESLint configuration for builds
-  eslint: {
-    // Warning: This allows production builds to successfully complete even if
-    // your project has ESLint errors.
-    ignoreDuringBuilds: true, // Pre-existing lint errors in lib/ and legacy components
-  },
-
   // TypeScript configuration for builds
   typescript: {
     // Warning: Dangerously allow production builds to successfully complete even if
