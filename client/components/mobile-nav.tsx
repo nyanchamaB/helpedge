@@ -1,22 +1,22 @@
 // for  mobile navigation
 import React, { useState } from 'react';
-import { cn } from '@/lib/utils';
-import { Icons } from '@/components/icons';
-import { MobileNavHeader } from '@/components/mobile-nav-header';
+import { cn as _cn } from '@/lib/utils';
+import { Icons as _Icons } from '@/components/icons';
+import { MobileNavHeader as _MobileNavHeader } from '@/components/mobile-nav-header';
 import { MobileNavLink } from '@/components/mobile-nav-link';
 import { MobileNavFooter } from '@/components/mobile-nav-footer';
 import { siteConfig } from '@/config/site';
-import { usePathname } from 'next/navigation';
+import { usePathname as _usePathname } from 'next/navigation';
 import { LazyMotion, domAnimation, m, AnimatePresence } from 'framer-motion';
-import { buttonVariants } from '@/components/ui/button';
-import Link from 'next/link';
-import { ThemeToggle } from '@/components/theme-toggle';
+import { buttonVariants as _buttonVariants } from '@/components/ui/button';
+import _Link from 'next/link';
+import { ThemeToggle as _ThemeToggle } from '@/components/theme-toggle';
 import { MobileNavIcon } from '@/components/mobile-nav-icon';
 
-export function MobileNav({ links }: { links: { href: string; title: string }[] }) {
-  const pathname = usePathname();
+export function MobileNav({ links: _links }: { links: { href: string; title: string }[] }) {
+  const _pathname = _usePathname();
   const [open, setOpen] = useState(false);
-  const toggleOpen = () => setOpen(!open);
+  const _toggleOpen = () => setOpen(!open);
 
   return (
     <div className="md:hidden">
