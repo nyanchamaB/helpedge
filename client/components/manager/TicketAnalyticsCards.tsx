@@ -8,7 +8,6 @@ import {
   CheckCircle,
   Clock,
   AlertTriangle,
-  XCircle,
 } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useMemo } from 'react';
