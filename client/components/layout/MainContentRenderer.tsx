@@ -194,7 +194,7 @@ const KnowledgeBaseContent = dynamic(() => import('@/app/(dashboard)/knowledge-b
   loading: () => <PageSkeleton />,
 });
 
-const SettingsProfileContent = dynamic(() => import('@/app/(dashboard)/settings/profile/page'), {
+const _SettingsProfileContent = dynamic(() => import('@/app/(dashboard)/settings/profile/page'), {
   loading: () => <PageSkeleton />,
 });
 
@@ -329,7 +329,7 @@ function matchRoute(
 }
 
 export function MainContentRenderer() {
-  const { activePage, pageParams } = useNavigation();
+  const { activePage, pageParams: _pageParams } = useNavigation();
 
   // Route mapping
   const renderContent = () => {
