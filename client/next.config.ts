@@ -53,13 +53,10 @@ const nextConfig: NextConfig = {
   // Configure module transpilation for better compatibility
   transpilePackages: [],
 
-  // Proxy API requests in development to avoid CORS issues with local backend.
-  // Browser requests to /api-proxy/api/Tickets → server forwards to localhost:5035/api/Tickets
+  // Proxy API requests through Next.js so browser code can use one origin.
+  // Browser requests to /api-proxy/api/... are forwarded to the backend URL.
   async rewrites() {
     const backendUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5035';
-
-    // Only proxy when using a localhost backend
-    if (!backendUrl.includes('localhost')) {return [];}
 
     return [
       {
