@@ -44,12 +44,13 @@ export type Icons = LucideIcon | IconType;
 
 export function Icons(props: { icon: Icons; className?: string }) {
   const Icon = props.icon;
+  
 
   return <Icon className={cn('h-6 w-6', props.className)} />;
 }
 
 export function Logo(props: { className?: string }) {
-  return <Image src="/globe.svg" alt="Logo" width={24} height={24} className={cn('h-6 w-6', props.className)} />;
+  return <Image src="/logo2.png" width={30} height={30} alt="Logo" className={cn('h-6 w-6', props.className)} />;
 }
 export const IconsList = {
   logo: Logo,
