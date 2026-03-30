@@ -6,9 +6,6 @@ import {
   SidebarContent,
   SidebarFooter,
   SidebarHeader,
-  SidebarMenu,
-  SidebarMenuItem,
-  SidebarMenuButton,
   useSidebar,
   SidebarTrigger,
 } from '@/components/ui/sidebar';
@@ -16,10 +13,10 @@ import { NavMainSPA } from '@/components/nav-main-spa';
 import { NavUser } from '@/components/nav-user';
 import { navData } from '@/app/constants/nav-data';
 import { useAuth } from '@/contexts/AuthContext';
-import { useNavigation } from '@/contexts/NavigationContext';
 import { siteConfig } from '@/config/site';
 import { UserRole } from '@/lib/api/auth';
-import { Link } from 'lucide-react';
+import Image from 'next/image';
+import Link from 'next/link';
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { user, isLoading } = useAuth();
@@ -42,9 +39,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             className="flex items-center gap-2 min-w-0"
           >
             <div className="size-8 rounded-lg overflow-hidden flex-shrink-0 group-data-[state=collapsed]:hidden">
-              <img
+              <Image
                 src={siteConfig.logo}
                 alt="HelpEdge Logo"
+                width={32}
+                height={32}
                 className="h-full w-full object-contain"
               />
             </div>
