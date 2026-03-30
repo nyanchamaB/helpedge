@@ -14,6 +14,7 @@ import {
   getServiceRequestCategoryById,
   updateServiceRequestCategory,
   UpdateServiceRequestCategoryDto,
+  type ServiceRequestCategory,
 } from '@/lib/api/service-request-category';
 import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
@@ -25,10 +26,11 @@ export default function EditCategoryPage() {
 
   useEffect(() => {
     if (!['Admin', 'ITManager'].includes(user?.role ?? '')) {router.push('/service-categories');}
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
   const id = pageParams?.id ?? activePage.split('/').filter(Boolean).at(-2) ?? '';
 
-  const [category, setCategory] = useState<any>(null);
+  const [category, setCategory] = useState<ServiceRequestCategory | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isFetching, setIsFetching] = useState(true);
 
@@ -46,21 +48,21 @@ export default function EditCategoryPage() {
       .finally(() => setIsFetching(false));
   }, [id, navigateTo]);
 
-  const handleSubmit = async (formData: any) => {
+  const handleSubmit = async (formData: Record<string, unknown>) => {
     setIsLoading(true);
     try {
       // Build UpdateServiceRequestCategoryDto — exclude isActive (use activate/deactivate) and requestType (immutable)
       const dto: UpdateServiceRequestCategoryDto = {
-        name: formData.name,
-        description: formData.description,
-        color: formData.color,
-        icon: formData.icon,
-        requiresApproval: formData.requiresApproval,
-        defaultWorkflowId: formData.defaultWorkflowId || undefined,
-        fulfillmentRoles: formData.fulfillmentRoles,
-        estimatedFulfillmentDays: formData.estimatedFulfillmentDays,
-        requiredFields: formData.requiredFields,
-        keywords: formData.keywords,
+        name: formData.name as string,
+        description: formData.description as string,
+        color: formData.color as string,
+        icon: formData.icon as string,
+        requiresApproval: formData.requiresApproval as boolean,
+        defaultWorkflowId: (formData.defaultWorkflowId as string) || undefined,
+        fulfillmentRoles: formData.fulfillmentRoles as string[],
+        estimatedFulfillmentDays: formData.estimatedFulfillmentDays as number,
+        requiredFields: formData.requiredFields as UpdateServiceRequestCategoryDto['requiredFields'],
+        keywords: formData.keywords as string[],
       };
       const res = await updateServiceRequestCategory(id, dto);
 
@@ -70,8 +72,8 @@ export default function EditCategoryPage() {
       } else {
         toast.error(res.error ?? 'Failed to update category');
       }
-    } catch (error: any) {
-      toast.error(error.message || 'Failed to update category');
+    } catch (error: unknown) {
+      toast.error(error instanceof Error ? error.message : 'Failed to update category');
     } finally {
       setIsLoading(false);
     }
