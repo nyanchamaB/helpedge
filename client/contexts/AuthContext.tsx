@@ -13,7 +13,6 @@ import {
   type LoginRequest,
   type RegisterRequest,
   type User,
-  type UserRole,
 } from '@/lib/api/auth';
 import { getAuthToken } from '@/lib/api/client';
 
@@ -70,7 +69,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const clientValidation = validateTokenClient();
 
       if (!clientValidation.isValid) {
-        console.log('AuthContext: Client-side token validation failed:', clientValidation.error);
+        console.warn('AuthContext: Client-side token validation failed:', clientValidation.error);
         // Clear invalid or expired token
         clearInvalidToken();
         setUser(null);
@@ -84,7 +83,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       if (currentUser) {
         setUser(currentUser);
-        console.log('AuthContext: User authenticated from token:', currentUser.email);
+        console.warn('AuthContext: User authenticated from token:', currentUser.email);
 
         // Optionally validate with backend for signature verification
         // But don't fail if backend is unavailable - trust client-side validation
@@ -97,16 +96,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
               'AuthContext: Backend token validation failed, but trusting client-side validation',
             );
           } else {
-            console.log('AuthContext: Backend token validation successful');
+            console.warn('AuthContext: Backend token validation successful');
           }
-        } catch (backendError) {
+        } catch (_backendError) {
           console.warn(
             'AuthContext: Could not reach backend for token validation, but trusting client-side validation',
           );
         }
       } else {
         // Could not extract user from token
-        console.log('AuthContext: Could not extract user from token');
+        console.warn('AuthContext: Could not extract user from token');
         // Clear the cookie by calling logout
         apiLogout();
         setUser(null);
@@ -129,22 +128,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     redirectTo?: string,
   ): Promise<{ success: boolean; error?: string; redirectUrl?: string }> {
     try {
-      console.log('AuthContext: Calling login API...');
+      console.warn('AuthContext: Calling login API...');
       const response = await apiLogin(credentials);
 
-      console.log('AuthContext: Login API response:', response);
+      console.warn('AuthContext: Login API response:', response);
 
       // Check if cookie was set by the backend (via Set-Cookie header)
       const storedToken = typeof window !== 'undefined' ? getAuthToken() : null;
 
-      console.log('AuthContext: Token in cookie:', storedToken ? 'YES' : 'NO');
+      console.warn('AuthContext: Token in cookie:', storedToken ? 'YES' : 'NO');
 
       if (response.success && storedToken) {
         // Get user from the newly set cookie token
-        console.log('AuthContext: Getting current user from token...');
+        console.warn('AuthContext: Getting current user from token...');
         const currentUser = getCurrentUser();
 
-        console.log('AuthContext: Current user:', currentUser);
+        console.warn('AuthContext: Current user:', currentUser);
 
         setUser(currentUser);
 
@@ -153,8 +152,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           const roleBasedRoute = getDashboardRouteForRole(currentUser.role);
           const redirectUrl = redirectTo || roleBasedRoute;
 
-          console.log('AuthContext: Login successful, user role:', currentUser.role);
-          console.log('AuthContext: Redirecting to:', redirectUrl);
+          console.warn('AuthContext: Login successful, user role:', currentUser.role);
+          console.warn('AuthContext: Redirecting to:', redirectUrl);
 
           return { success: true, redirectUrl };
         } else {
@@ -195,7 +194,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       if (response.success) {
         // Registration successful, now automatically login the user
-        console.log('Registration successful, auto-logging in...');
+        console.warn('Registration successful, auto-logging in...');
         const loginResult = await login({ email: userData.email, password: userData.password });
 
         return loginResult;
@@ -228,14 +227,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
    * Logout user - clears all storage and calls backend
    */
   async function logout(): Promise<void> {
-    console.log('AuthContext: Logging out...');
+    console.warn('AuthContext: Logging out...');
     try {
       await apiLogout();
     } catch (error) {
       console.error('AuthContext: Logout error:', error);
     }
     setUser(null);
-    console.log('AuthContext: User cleared, redirecting to login...');
+    console.warn('AuthContext: User cleared, redirecting to login...');
     // Use Next.js router for client-side navigation
     router.push('/auth/login');
   }
@@ -255,7 +254,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
    */
   async function refreshSession(): Promise<boolean> {
     try {
-      console.log('AuthContext: Refreshing session...');
+      console.warn('AuthContext: Refreshing session...');
       const result = await apiRefreshToken();
 
       if (result.success) {
@@ -263,7 +262,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const currentUser = getCurrentUser();
 
         setUser(currentUser);
-        console.log('AuthContext: Session refreshed successfully');
+        console.warn('AuthContext: Session refreshed successfully');
 
         return true;
       } else {
