@@ -40,7 +40,7 @@ export function EmailTicketForm({ defaultCreatorId, onSuccess, onCancel }: Email
     handleSubmit,
     formState: { errors, isSubmitting },
     reset,
-    setValue,
+    setValue: _setValue,
   } = useForm<EmailTicketFormData>({
     resolver: zodResolver(EmailTicketSchema),
     defaultValues: {
@@ -54,7 +54,7 @@ export function EmailTicketForm({ defaultCreatorId, onSuccess, onCancel }: Email
   });
 
   const onSubmit = async (data: EmailTicketFormData) => {
-    console.log('Form submit triggered', data);
+    console.warn('Form submit triggered', data);
     setValidationError('');
 
     const recipientsArray = recipients
@@ -62,10 +62,10 @@ export function EmailTicketForm({ defaultCreatorId, onSuccess, onCancel }: Email
       .map((email) => email.trim())
       .filter((email) => email.length > 0);
 
-    console.log('Recipients array:', recipientsArray);
+    console.warn('Recipients array:', recipientsArray);
 
     if (recipientsArray.length === 0) {
-      console.log('Validation failed: No recipients');
+      console.warn('Validation failed: No recipients');
       setValidationError('At least one recipient email is required');
 
       return;
@@ -89,14 +89,14 @@ export function EmailTicketForm({ defaultCreatorId, onSuccess, onCancel }: Email
     }
 
     try {
-      console.log('Submitting email ticket payload:', JSON.stringify(payload, null, 2));
+      console.warn('Submitting email ticket payload:', JSON.stringify(payload, null, 2));
       setSuccessMessage('');
       const result = await createTicketMutation.mutateAsync(payload);
 
-      console.log('Mutation result:', result);
+      console.warn('Mutation result:', result);
 
       if (result.success && result.data) {
-        console.log('Ticket created successfully:', result.data);
+        console.warn('Ticket created successfully:', result.data);
         setSuccessMessage(`Ticket ${result.data.ticketNumber} created successfully!`);
         reset();
         setRecipients('');
