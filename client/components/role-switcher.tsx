@@ -7,8 +7,8 @@ import Image from 'next/image';
 
 export function RoleSwitcher({ className }: { className?: string }) {
   const [selectedRole, setSelectedRole] = useState<string | null>(null);
-  const roles = ['end_user', 'agent', 'admin'];
-  const handleRoleChange = (role: string) => {
+  const _roles = ['end_user', 'agent', 'admin'];
+  const _handleRoleChange = (role: string) => {
     setSelectedRole(role);
 
     // Optionally, you can add logic to notify the server of the role change
