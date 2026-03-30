@@ -4,13 +4,12 @@ import { createContext, ReactNode, useContext, useEffect, useState } from 'react
 import { signOut, useSession } from 'next-auth/react';
 import { decodeAndMapToken } from '@/lib/utils';
 import { Session } from 'next-auth';
-import { AccessToken } from '@/lib/types';
 
 type ExtendedSession = Session & { error?: string; accessToken?: string };
 
 type UserData = {
   session: ExtendedSession;
-  decodedToken: AccessToken | null;
+  decodedToken: ReturnType<typeof decodeAndMapToken>;
 };
 
 type UserContextType = {
@@ -41,7 +40,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if (session?.error === 'RefreshAccessTokenExpired') {
-      console.log('Access token expired, signing out...');
+      console.warn('Access token expired, signing out...');
       signOut({ redirect: true, callbackUrl: window.location.pathname + window.location.search });
     }
 
