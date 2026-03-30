@@ -4,7 +4,7 @@
  */
 
 import { apiRequest, ApiResponse } from './client';
-import { UserRole as UserRoleType } from './auth';
+import { UserRole as _UserRoleType } from './auth';
 
 // User Role String Type (matches backend response)
 export type UserRoleString =
