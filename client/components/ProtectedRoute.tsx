@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import { useEffect, useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
@@ -23,42 +23,27 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
   const pathname = usePathname();
   const [tokenValidated, setTokenValidated] = useState(false);
 
-  // First layer: Validate token on mount and route changes
-  useEffect(() => {
-    validateAuthToken();
-  }, [pathname]);
-
-  // Second layer: Monitor AuthContext state
-  useEffect(() => {
-    if (!isLoading && !isAuthenticated && tokenValidated) {
-      // Redirect to login with the current path as redirect parameter
-      const redirectUrl = encodeURIComponent(pathname);
-      console.log('ProtectedRoute: Not authenticated, redirecting to login');
-      router.replace(`/auth/login?redirect=${redirectUrl}`);
-    }
-  }, [isAuthenticated, isLoading, tokenValidated, router, pathname]);
-
   async function validateAuthToken() {
     try {
       // Validate stored token
       const validation = validateStoredToken();
 
       if (!validation.isValid) {
-        console.log('ProtectedRoute: Token validation failed:', validation.error);
+        console.warn('ProtectedRoute: Token validation failed:', validation.error);
 
         // Clear invalid or expired token
         clearInvalidToken();
 
         // If token is invalid and user is authenticated in context, trigger logout
         if (isAuthenticated) {
-          console.log('ProtectedRoute: Logging out due to invalid token');
+          console.warn('ProtectedRoute: Logging out due to invalid token');
           logout();
         }
 
         // Don't redirect here - let the useEffect handle it after AuthContext finishes loading
         // This prevents race conditions on page refresh
       } else {
-        console.log('ProtectedRoute: Token is valid');
+        console.warn('ProtectedRoute: Token is valid');
       }
 
       setTokenValidated(true);
@@ -68,6 +53,27 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
       setTokenValidated(true);
     }
   }
+
+  // First layer: Validate token on mount and route changes
+  useEffect(() => {
+    async function validate() {
+      await validateAuthToken();
+    }
+
+    void validate();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pathname]);
+
+  // Second layer: Monitor AuthContext state
+  useEffect(() => {
+    if (!isLoading && !isAuthenticated && tokenValidated) {
+      // Redirect to login with the current path as redirect parameter
+      const redirectUrl = encodeURIComponent(pathname);
+
+      console.warn('ProtectedRoute: Not authenticated, redirecting to login');
+      router.replace(`/auth/login?redirect=${redirectUrl}`);
+    }
+  }, [isAuthenticated, isLoading, tokenValidated, router, pathname]);
 
   // Show loading state while checking authentication
   if (isLoading || !tokenValidated) {

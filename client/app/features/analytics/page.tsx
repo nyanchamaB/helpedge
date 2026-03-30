@@ -1,8 +1,8 @@
-import NavHeader from "@/app/onboarding/navsection";
+import NavHeader from '@/app/onboarding/navsection';
 export default function Analytics() {
   return (
     <>
-        <NavHeader />
+      <NavHeader />
       <h1 className="text-3xl font-bold text-gray-800 mb-4">Analytics</h1>
       <p className="text-gray-600 mb-6">
         Get insights from your IT service data with real-time analytics dashboards.

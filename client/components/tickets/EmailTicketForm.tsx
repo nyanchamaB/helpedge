@@ -17,6 +17,16 @@ interface EmailTicketFormProps {
   onSuccess?: (ticketId: string) => void;
   onCancel?: () => void;
 }
+interface TicketPayload {
+  subject: string;
+  description: string;
+  createdById: string;
+  emailMessageId: string;
+  emailSender: string;
+  emailRecipients: string[];
+  priority?: number;
+  categoryId?: string;
+}
 
 export function EmailTicketForm({ defaultCreatorId, onSuccess, onCancel }: EmailTicketFormProps) {
   const { navigateTo } = useNavigation();
@@ -30,7 +40,7 @@ export function EmailTicketForm({ defaultCreatorId, onSuccess, onCancel }: Email
     handleSubmit,
     formState: { errors, isSubmitting },
     reset,
-    setValue,
+    setValue: _setValue,
   } = useForm<EmailTicketFormData>({
     resolver: zodResolver(EmailTicketSchema),
     defaultValues: {
@@ -44,7 +54,7 @@ export function EmailTicketForm({ defaultCreatorId, onSuccess, onCancel }: Email
   });
 
   const onSubmit = async (data: EmailTicketFormData) => {
-    console.log('Form submit triggered', data);
+    console.warn('Form submit triggered', data);
     setValidationError('');
 
     const recipientsArray = recipients
@@ -52,16 +62,16 @@ export function EmailTicketForm({ defaultCreatorId, onSuccess, onCancel }: Email
       .map((email) => email.trim())
       .filter((email) => email.length > 0);
 
-    console.log('Recipients array:', recipientsArray);
+    console.warn('Recipients array:', recipientsArray);
 
     if (recipientsArray.length === 0) {
-      console.log('Validation failed: No recipients');
+      console.warn('Validation failed: No recipients');
       setValidationError('At least one recipient email is required');
+
       return;
     }
-
     // Build payload with only defined fields
-    const payload: any = {
+    const payload: TicketPayload = {
       subject: data.subject.trim(),
       description: data.description.trim(),
       createdById: data.createdById.trim(),
@@ -79,13 +89,14 @@ export function EmailTicketForm({ defaultCreatorId, onSuccess, onCancel }: Email
     }
 
     try {
-      console.log('Submitting email ticket payload:', JSON.stringify(payload, null, 2));
+      console.warn('Submitting email ticket payload:', JSON.stringify(payload, null, 2));
       setSuccessMessage('');
       const result = await createTicketMutation.mutateAsync(payload);
-      console.log('Mutation result:', result);
+
+      console.warn('Mutation result:', result);
 
       if (result.success && result.data) {
-        console.log('Ticket created successfully:', result.data);
+        console.warn('Ticket created successfully:', result.data);
         setSuccessMessage(`Ticket ${result.data.ticketNumber} created successfully!`);
         reset();
         setRecipients('');
@@ -105,9 +116,7 @@ export function EmailTicketForm({ defaultCreatorId, onSuccess, onCancel }: Email
       }
     } catch (error) {
       console.error('Failed to create ticket from email:', error);
-      setValidationError(
-        error instanceof Error ? error.message : 'An unexpected error occurred'
-      );
+      setValidationError(error instanceof Error ? error.message : 'An unexpected error occurred');
     }
   };
 
@@ -116,7 +125,8 @@ export function EmailTicketForm({ defaultCreatorId, onSuccess, onCancel }: Email
       <CardHeader>
         <CardTitle>Create Ticket from Email</CardTitle>
         <CardDescription>
-          Manually create a support ticket from email data. AI analysis will be automatically applied.
+          Manually create a support ticket from email data. AI analysis will be automatically
+          applied.
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -152,9 +162,7 @@ export function EmailTicketForm({ defaultCreatorId, onSuccess, onCancel }: Email
               placeholder="e.g., test-msg-001@helpedge.com"
               error={errors.emailMessageId?.message}
             />
-            <p className="text-xs text-muted-foreground">
-              Unique identifier for the email message
-            </p>
+            <p className="text-xs text-muted-foreground">Unique identifier for the email message</p>
           </div>
 
           <div className="space-y-2">
@@ -192,9 +200,7 @@ export function EmailTicketForm({ defaultCreatorId, onSuccess, onCancel }: Email
               placeholder="User ID of the ticket creator"
               error={errors.createdById?.message}
             />
-            <p className="text-xs text-muted-foreground">
-              ID of the user creating this ticket
-            </p>
+            <p className="text-xs text-muted-foreground">ID of the user creating this ticket</p>
           </div>
 
           {successMessage && (
@@ -214,10 +220,7 @@ export function EmailTicketForm({ defaultCreatorId, onSuccess, onCancel }: Email
           )}
 
           <div className="flex gap-3 pt-4">
-            <Button
-              type="submit"
-              disabled={isSubmitting || createTicketMutation.isPending}
-            >
+            <Button type="submit" disabled={isSubmitting || createTicketMutation.isPending}>
               {createTicketMutation.isPending ? 'Creating...' : 'Create Ticket'}
             </Button>
             {onCancel && (

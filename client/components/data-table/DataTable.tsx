@@ -1,6 +1,6 @@
-"use client";
+'use client';
 
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo } from 'react';
 import {
   Table,
   TableBody,
@@ -8,8 +8,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
+} from '@/components/ui/table';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -17,7 +16,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+} from '@/components/ui/dropdown-menu';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -27,10 +26,10 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Card, CardContent } from "@/components/ui/card";
+} from '@/components/ui/alert-dialog';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Card, CardContent } from '@/components/ui/card';
 import {
   Search,
   MoreHorizontal,
@@ -38,27 +37,24 @@ import {
   ChevronDown,
   ChevronUp,
   CheckSquare,
-  Trash2,
-  EyeIcon,
-  Edit,
   ChevronLeft,
   ChevronRight,
   ChevronsLeft,
   ChevronsRight,
-} from "lucide-react";
-import { Spinner } from "@/components/ui/spinner";
-import { Checkbox } from "@/components/ui/checkbox";
+} from 'lucide-react';
+import { Spinner } from '@/components/ui/spinner';
+import { Checkbox } from '@/components/ui/checkbox';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { cn } from "@/lib/utils";
+} from '@/components/ui/select';
+import { cn } from '@/lib/utils';
 
 export interface DataTableColumn<T> {
-  key: string;
+  key: keyof T;
   label: string;
   sortable?: boolean;
   render?: (item: T) => React.ReactNode;
@@ -75,7 +71,7 @@ export interface DataTableAction<T> {
   label: string;
   icon?: React.ReactNode;
   onClick: (item: T) => void;
-  variant?: "default" | "destructive";
+  variant?: 'default' | 'destructive';
   separator?: boolean;
 }
 
@@ -83,7 +79,7 @@ export interface DataTableBulkAction {
   label: string;
   icon?: React.ReactNode;
   onClick: (ids: string[]) => void | Promise<void>;
-  variant?: "default" | "outline" | "destructive";
+  variant?: 'default' | 'outline' | 'destructive';
 }
 
 export interface DataTablePagination {
@@ -102,7 +98,7 @@ export interface DataTableProps<T> {
   filters?: DataTableFilter[];
   sortable?: boolean;
   defaultSortField?: string;
-  defaultSortDirection?: "asc" | "desc";
+  defaultSortDirection?: 'asc' | 'desc';
   selectable?: boolean;
   pagination?: DataTablePagination | boolean;
   actions?: DataTableAction<T>[];
@@ -130,12 +126,12 @@ export function DataTable<T>({
   columns,
   isLoading = false,
   searchable = true,
-  searchPlaceholder = "Search...",
+  searchPlaceholder = 'Search...',
   searchKeys = [],
   filters = [],
   sortable = true,
-  defaultSortField = "",
-  defaultSortDirection = "asc",
+  defaultSortField = '',
+  defaultSortDirection = 'asc',
   selectable = false,
   pagination,
   actions = [],
@@ -146,17 +142,17 @@ export function DataTable<T>({
   deleteConfirmation,
   className,
 }: DataTableProps<T>) {
-  const [searchTerm, setSearchTerm] = useState("");
+  const [searchTerm, setSearchTerm] = useState('');
   const [filterValues, setFilterValues] = useState<Record<string, string>>({});
   const [sortField, setSortField] = useState<string>(defaultSortField);
-  const [sortDirection, setSortDirection] = useState<"asc" | "desc">(defaultSortDirection);
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>(defaultSortDirection);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState<T | null>(null);
 
   // Pagination state
   const paginationConfig = useMemo(() => {
-    if (!pagination) return null;
+    if (!pagination) {return null;}
     if (pagination === true) {
       return {
         pageSize: 10,
@@ -164,6 +160,7 @@ export function DataTable<T>({
         showPageSizeSelector: true,
       };
     }
+
     return {
       pageSize: pagination.pageSize || 10,
       pageSizeOptions: pagination.pageSizeOptions || [10, 20, 50, 100],
@@ -177,8 +174,9 @@ export function DataTable<T>({
   // Initialize filter values
   React.useEffect(() => {
     const initialFilters: Record<string, string> = {};
+
     filters.forEach((filter) => {
-      initialFilters[filter.key] = "all";
+      initialFilters[filter.key] = 'all';
     });
     setFilterValues(initialFilters);
   }, [filters]);
@@ -186,7 +184,9 @@ export function DataTable<T>({
   // When items are removed from data (e.g. after delete), clear their IDs from selection
   React.useEffect(() => {
     const validIds = new Set(data.map(getItemId));
+
     setSelectedIds((prev) => prev.filter((id) => validIds.has(id)));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data]);
 
   // Filter and sort data
@@ -197,38 +197,38 @@ export function DataTable<T>({
     if (searchTerm && searchKeys.length > 0) {
       result = result.filter((item) =>
         searchKeys.some((key) => {
-          const value = (item as any)[key];
-          if (typeof value === "string") {
+          const value = (item as Record<string, unknown>)[key];
+
+          if (typeof value === 'string') {
             return value.toLowerCase().includes(searchTerm.toLowerCase());
           }
           if (Array.isArray(value)) {
-            return value.some((v) =>
-              String(v).toLowerCase().includes(searchTerm.toLowerCase())
-            );
+            return value.some((v) => String(v).toLowerCase().includes(searchTerm.toLowerCase()));
           }
+
           return false;
-        })
+        }),
       );
     }
 
     // Apply filters
     Object.entries(filterValues).forEach(([key, value]) => {
-      if (value !== "all") {
-        result = result.filter((item) => (item as any)[key] === value);
+      if (value !== 'all') {
+        result = result.filter((item) => (item as Record<string, unknown>)[key] === value);
       }
     });
 
     // Apply sorting
     if (sortField) {
       result.sort((a, b) => {
-        const aValue = (a as any)[sortField];
-        const bValue = (b as any)[sortField];
+        const rawA = (a as Record<string, unknown>)[sortField];
+        const rawB = (b as Record<string, unknown>)[sortField];
 
-        let comparison = 0;
-        if (aValue < bValue) comparison = -1;
-        if (aValue > bValue) comparison = 1;
+        const aValue = rawA !== null && rawA !== undefined ? String(rawA) : '';
+        const bValue = rawB !== null && rawB !== undefined ? String(rawB) : '';
+        const comparison = aValue.localeCompare(bValue);
 
-        return sortDirection === "asc" ? comparison : -comparison;
+        return sortDirection === 'asc' ? comparison : -comparison;
       });
     }
 
@@ -236,15 +236,14 @@ export function DataTable<T>({
   }, [data, searchTerm, searchKeys, filterValues, sortField, sortDirection]);
 
   // Pagination calculations
-  const totalPages = paginationConfig
-    ? Math.ceil(filteredAndSortedData.length / pageSize)
-    : 1;
+  const totalPages = paginationConfig ? Math.ceil(filteredAndSortedData.length / pageSize) : 1;
 
   const paginatedData = useMemo(() => {
-    if (!paginationConfig) return filteredAndSortedData;
+    if (!paginationConfig) {return filteredAndSortedData;}
 
     const startIndex = (currentPage - 1) * pageSize;
     const endIndex = startIndex + pageSize;
+
     return filteredAndSortedData.slice(startIndex, endIndex);
   }, [filteredAndSortedData, currentPage, pageSize, paginationConfig]);
 
@@ -262,18 +261,16 @@ export function DataTable<T>({
 
   const handleSort = (field: string) => {
     if (sortField === field) {
-      setSortDirection(sortDirection === "asc" ? "desc" : "asc");
+      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
     } else {
       setSortField(field);
-      setSortDirection("asc");
+      setSortDirection('asc');
     }
   };
 
   const handleSelectAll = () => {
     const currentPageIds = paginatedData.map(getItemId);
-    const allCurrentPageSelected = currentPageIds.every((id) =>
-      selectedIds.includes(id)
-    );
+    const allCurrentPageSelected = currentPageIds.every((id) => selectedIds.includes(id));
 
     if (allCurrentPageSelected) {
       // Deselect all on current page
@@ -285,9 +282,7 @@ export function DataTable<T>({
   };
 
   const handleSelectItem = (id: string) => {
-    setSelectedIds((prev) =>
-      prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]
-    );
+    setSelectedIds((prev) => (prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]));
   };
 
   const handleDeleteClick = (item: T, e: React.MouseEvent) => {
@@ -298,9 +293,8 @@ export function DataTable<T>({
 
   const confirmDelete = () => {
     if (selectedItem) {
-      const deleteAction = actions.find(
-        (action) => action.variant === "destructive"
-      );
+      const deleteAction = actions.find((action) => action.variant === 'destructive');
+
       if (deleteAction) {
         deleteAction.onClick(selectedItem);
       }
@@ -309,27 +303,20 @@ export function DataTable<T>({
     setSelectedItem(null);
   };
 
-  const SortableHeader = ({
-    column,
-  }: {
-    column: DataTableColumn<T>;
-  }) => {
+  const SortableHeader = ({ column }: { column: DataTableColumn<T> }) => {
     if (!column.sortable || !sortable) {
       return <TableHead className={column.className}>{column.label}</TableHead>;
     }
 
     return (
       <TableHead
-        className={cn(
-          "cursor-pointer hover:bg-accent",
-          column.className
-        )}
-        onClick={() => handleSort(column.key)}
+        className={cn('cursor-pointer hover:bg-accent', column.className)}
+        onClick={() => handleSort(column.key as string)}
       >
         <div className="flex items-center space-x-1">
           <span>{column.label}</span>
           {sortField === column.key &&
-            (sortDirection === "asc" ? (
+            (sortDirection === 'asc' ? (
               <ChevronUp className="h-4 w-4" />
             ) : (
               <ChevronDown className="h-4 w-4" />
@@ -363,8 +350,7 @@ export function DataTable<T>({
                 <div className="flex items-center space-x-2">
                   <CheckSquare className="h-5 w-5 text-blue-600" />
                   <span className="font-medium">
-                    {selectedIds.length} item{selectedIds.length !== 1 ? "s" : ""}{" "}
-                    selected
+                    {selectedIds.length} item{selectedIds.length !== 1 ? 's' : ''} selected
                   </span>
                 </div>
 
@@ -372,7 +358,7 @@ export function DataTable<T>({
                   {bulkActions.map((action, index) => (
                     <Button
                       key={index}
-                      variant={action.variant || "outline"}
+                      variant={action.variant || 'outline'}
                       size="sm"
                       onClick={() => action.onClick(selectedIds)}
                     >
@@ -380,11 +366,7 @@ export function DataTable<T>({
                       {action.label}
                     </Button>
                   ))}
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setSelectedIds([])}
-                  >
+                  <Button variant="ghost" size="sm" onClick={() => setSelectedIds([])}>
                     Clear Selection
                   </Button>
                 </div>
@@ -413,7 +395,7 @@ export function DataTable<T>({
                   {filters.map((filter) => (
                     <Select
                       key={filter.key}
-                      value={filterValues[filter.key] || "all"}
+                      value={filterValues[filter.key] || 'all'}
                       onValueChange={(value) =>
                         setFilterValues((prev) => ({ ...prev, [filter.key]: value }))
                       }
@@ -441,8 +423,8 @@ export function DataTable<T>({
             <div>
               {paginationConfig ? (
                 <>
-                  Showing {(currentPage - 1) * pageSize + 1} to{" "}
-                  {Math.min(currentPage * pageSize, filteredAndSortedData.length)} of{" "}
+                  Showing {(currentPage - 1) * pageSize + 1} to{' '}
+                  {Math.min(currentPage * pageSize, filteredAndSortedData.length)} of{' '}
                   {filteredAndSortedData.length} items
                 </>
               ) : (
@@ -452,7 +434,7 @@ export function DataTable<T>({
               )}
               {searchTerm && (
                 <span className="ml-2">
-                  matching "<span className="font-medium">{searchTerm}</span>"
+                  matching &rsquo;<span className="font-medium">{searchTerm}</span>&ldquo;
                 </span>
               )}
             </div>
@@ -461,16 +443,12 @@ export function DataTable<T>({
                 <Checkbox
                   checked={
                     paginatedData.length > 0 &&
-                    paginatedData.every((item) =>
-                      selectedIds.includes(getItemId(item))
-                    )
+                    paginatedData.every((item) => selectedIds.includes(getItemId(item)))
                   }
                   onCheckedChange={handleSelectAll}
                   className="h-4 w-4"
                 />
-                <span className="text-sm">
-                  Select {paginationConfig ? "all on page" : "all"}
-                </span>
+                <span className="text-sm">Select {paginationConfig ? 'all on page' : 'all'}</span>
               </div>
             )}
           </div>
@@ -493,35 +471,25 @@ export function DataTable<T>({
                     </TableHead>
                   )}
                   {columns.map((column) => (
-                    <SortableHeader key={column.key} column={column} />
+                    <SortableHeader key={String(column.key)} column={column} />
                   ))}
-                  {actions.length > 0 && (
-                    <TableHead className="text-right">Actions</TableHead>
-                  )}
+                  {actions.length > 0 && <TableHead className="text-right">Actions</TableHead>}
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {filteredAndSortedData.length === 0 ? (
                   <TableRow>
                     <TableCell
-                      colSpan={
-                        columns.length +
-                        (selectable ? 1 : 0) +
-                        (actions.length > 0 ? 1 : 0)
-                      }
+                      colSpan={columns.length + (selectable ? 1 : 0) + (actions.length > 0 ? 1 : 0)}
                       className="text-center py-12"
                     >
                       {emptyState ? (
                         <div className="flex flex-col items-center justify-center space-y-4">
                           {emptyState.icon && (
-                            <div className="rounded-full bg-muted p-4">
-                              {emptyState.icon}
-                            </div>
+                            <div className="rounded-full bg-muted p-4">{emptyState.icon}</div>
                           )}
                           <div>
-                            <p className="text-muted-foreground font-medium">
-                              {emptyState.title}
-                            </p>
+                            <p className="text-muted-foreground font-medium">{emptyState.title}</p>
                             <p className="text-sm text-muted-foreground/70 mt-1">
                               {emptyState.description}
                             </p>
@@ -540,12 +508,13 @@ export function DataTable<T>({
                 ) : (
                   paginatedData.map((item) => {
                     const itemId = getItemId(item);
+
                     return (
                       <TableRow
                         key={itemId}
                         className={cn(
-                          "transition-colors group",
-                          onRowClick && "hover:bg-accent cursor-pointer"
+                          'transition-colors group',
+                          onRowClick && 'hover:bg-accent cursor-pointer',
                         )}
                         onClick={() => onRowClick?.(item)}
                       >
@@ -560,17 +529,18 @@ export function DataTable<T>({
                           </TableCell>
                         )}
                         {columns.map((column) => (
-                          <TableCell key={column.key} className={column.className}>
-                            {column.render ? column.render(item) : (item as any)[column.key]}
+                          <TableCell key={String(column.key)} className={column.className}>
+                            {column.render
+                              ? column.render(item)
+                              : ((item as Record<string, unknown>)[
+                                  column.key as string
+                                ] as React.ReactNode)}
                           </TableCell>
                         ))}
                         {actions.length > 0 && (
                           <TableCell className="text-right">
                             <DropdownMenu>
-                              <DropdownMenuTrigger
-                                asChild
-                                onClick={(e) => e.stopPropagation()}
-                              >
+                              <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
                                 <Button
                                   variant="ghost"
                                   className="h-8 w-8 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
@@ -586,12 +556,12 @@ export function DataTable<T>({
                                     {action.separator && <DropdownMenuSeparator />}
                                     <DropdownMenuItem
                                       className={cn(
-                                        action.variant === "destructive" && "text-red-600"
+                                        action.variant === 'destructive' && 'text-red-600',
                                       )}
                                       onClick={(e) => {
                                         e.stopPropagation();
                                         if (
-                                          action.variant === "destructive" &&
+                                          action.variant === 'destructive' &&
                                           deleteConfirmation
                                         ) {
                                           handleDeleteClick(item, e);
@@ -709,10 +679,7 @@ export function DataTable<T>({
             </AlertDialogHeader>
             <AlertDialogFooter>
               <AlertDialogCancel>Cancel</AlertDialogCancel>
-              <AlertDialogAction
-                onClick={confirmDelete}
-                className="bg-red-600 hover:bg-red-700"
-              >
+              <AlertDialogAction onClick={confirmDelete} className="bg-red-600 hover:bg-red-700">
                 Delete
               </AlertDialogAction>
             </AlertDialogFooter>

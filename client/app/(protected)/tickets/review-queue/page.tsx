@@ -1,9 +1,9 @@
-"use client";
+'use client';
 
 import { useState, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNavigation } from '@/contexts/NavigationContext';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
@@ -17,7 +17,7 @@ import {
 import { Skeleton } from '@/components/ui/skeleton';
 import { Separator } from '@/components/ui/separator';
 import { ConfidenceBadge } from '@/components/ai/ConfidenceBadge';
-import { ClassificationMethod } from '@/lib/types/ai';
+import { ClassificationMethod, type ReviewQueueTicket, type ReviewQueueStats } from '@/lib/types/ai';
 import {
   AlertCircle,
   CheckCircle2,
@@ -40,73 +40,89 @@ import { getReviewQueue, getReviewQueueStats, approveTicketClassification } from
 import { getAllCategories } from '@/lib/api/categories';
 import { getAssignableStaff } from '@/lib/api/users';
 import { formatDistanceToNow } from 'date-fns';
-import type { ReviewQueueTicket, ReviewQueueStats } from '@/lib/types/ai';
 import { cn } from '@/lib/utils';
 
 // ─── helpers ────────────────────────────────────────────────────────────────
 
 function confidenceBorderClass(confidence?: number) {
-  if (confidence == null) return 'border-l-muted';
-  if (confidence < 0.4) return 'border-l-red-500';
-  if (confidence < 0.6) return 'border-l-orange-400';
+  if (confidence === null || confidence === undefined) {return 'border-l-muted';}
+  if (confidence < 0.4) {return 'border-l-red-500';}
+  if (confidence < 0.6) {return 'border-l-orange-400';}
+
   return 'border-l-yellow-400';
 }
 
 function confidenceBarClass(confidence?: number) {
-  if (confidence == null) return 'bg-muted';
-  if (confidence < 0.4) return 'bg-red-500';
-  if (confidence < 0.6) return 'bg-orange-400';
+  if (confidence === null || confidence === undefined) {return 'bg-muted';}
+  if (confidence < 0.4) {return 'bg-red-500';}
+  if (confidence < 0.6) {return 'bg-orange-400';}
+
   return 'bg-yellow-400';
 }
 
 function priorityBadgeClass(priority?: string) {
   switch (priority?.toLowerCase()) {
-    case 'critical': return 'bg-red-100 text-red-700 border-red-200';
-    case 'high':     return 'bg-orange-100 text-orange-700 border-orange-200';
-    case 'medium':   return 'bg-yellow-100 text-yellow-700 border-yellow-200';
-    case 'low':      return 'bg-green-100 text-green-700 border-green-200';
-    default:         return 'bg-muted text-muted-foreground';
+    case 'critical':
+      return 'bg-red-100 text-red-700 border-red-200';
+    case 'high':
+      return 'bg-orange-100 text-orange-700 border-orange-200';
+    case 'medium':
+      return 'bg-yellow-100 text-yellow-700 border-yellow-200';
+    case 'low':
+      return 'bg-green-100 text-green-700 border-green-200';
+    default:
+      return 'bg-muted text-muted-foreground';
   }
 }
 
 const CONF_FILTER_OPTIONS = [
-  { value: 'all',      label: 'Any confidence' },
+  { value: 'all', label: 'Any confidence' },
   { value: 'critical', label: 'Critical  (<40%)' },
-  { value: 'low',      label: 'Low  (40–60%)' },
-  { value: 'medium',   label: 'Medium  (60–80%)' },
+  { value: 'low', label: 'Low  (40–60%)' },
+  { value: 'medium', label: 'Medium  (60–80%)' },
 ];
 
 const SORT_OPTIONS = [
-  { value: 'oldest',   label: 'Oldest first' },
-  { value: 'newest',   label: 'Newest first' },
+  { value: 'oldest', label: 'Oldest first' },
+  { value: 'newest', label: 'Newest first' },
   { value: 'conf-asc', label: 'Lowest confidence' },
-  { value: 'conf-desc',label: 'Highest confidence' },
+  { value: 'conf-desc', label: 'Highest confidence' },
 ];
 
 function matchesConfFilter(ticket: ReviewQueueTicket, filter: string) {
   const c = ticket.aiCategoryConfidence;
-  if (filter === 'all') return true;
-  if (c == null) return false;
-  if (filter === 'critical') return c < 0.4;
-  if (filter === 'low')      return c >= 0.4 && c < 0.6;
-  if (filter === 'medium')   return c >= 0.6 && c < 0.8;
+
+  if (filter === 'all') {return true;}
+  if (c === null || c === undefined) {return false;}
+  if (filter === 'critical') {return c < 0.4;}
+  if (filter === 'low') {return c >= 0.4 && c < 0.6;}
+  if (filter === 'medium') {return c >= 0.6 && c < 0.8;}
+
   return true;
 }
 
 // ─── page ───────────────────────────────────────────────────────────────────
 
+const PAGE_LOAD_TIME = Date.now();
+
 export default function ReviewQueuePage() {
   const { navigateTo } = useNavigation();
   const queryClient = useQueryClient();
 
-  const [search, setSearch]       = useState('');
+  const [search, setSearch] = useState('');
   const [catFilter, setCatFilter] = useState('all');
   const [priFilter, setPriFilter] = useState('all');
   const [confFilter, setConfFilter] = useState('all');
-  const [sort, setSort]           = useState('oldest');
+  const [sort, setSort] = useState('oldest');
 
   // ── queries ──
-  const { data: queueData, isLoading: loadingQueue, isFetching, error, refetch } = useQuery({
+  const {
+    data: queueData,
+    isLoading: loadingQueue,
+    isFetching,
+    error,
+    refetch,
+  } = useQuery({
     queryKey: ['review-queue'],
     queryFn: getReviewQueue,
     staleTime: 2 * 60 * 1000,
@@ -133,27 +149,34 @@ export default function ReviewQueuePage() {
   // ── lookup maps ──
   const categoryMap = useMemo(() => {
     const m: Record<string, string> = {};
-    (categoriesData?.data ?? []).forEach((c: any) => { m[c.id] = c.name; });
+
+    (categoriesData?.data ?? []).forEach((c: { id: string; name: string }) => {
+      m[c.id] = c.name;
+    });
+
     return m;
   }, [categoriesData]);
 
   const userMap = useMemo(() => {
     const m: Record<string, string> = {};
-    (staffData?.data ?? []).forEach((u: any) => {
-      m[u.id] = u.fullName || `${u.firstName} ${u.lastName}`.trim();
+
+    (staffData?.data ?? []).forEach((u: { id: string; fullName?: string; firstName?: string; lastName?: string }) => {
+      m[u.id] = u.fullName || `${u.firstName ?? ''} ${u.lastName ?? ''}`.trim();
     });
+
     return m;
   }, [staffData]);
 
-  const resolveCat  = (id?: string) => id ? (categoryMap[id] ?? id) : '—';
-  const resolveUser = (id?: string) => id ? (userMap[id] ?? id) : '—';
+  const resolveCat = (id?: string) => (id ? (categoryMap[id] ?? id) : '—');
+  const resolveUser = (id?: string) => (id ? (userMap[id] ?? id) : '—');
 
   // ── approve mutation ──
   const approveMutation = useMutation({
     mutationFn: (ticketId: string) => approveTicketClassification(ticketId),
     onSuccess: (_, ticketId) => {
-      queryClient.setQueryData(['review-queue'], (old: any) => {
-        if (!old?.data) return old;
+      queryClient.setQueryData(['review-queue'], (old: { data?: ReviewQueueTicket[] } | undefined) => {
+        if (!old?.data) {return old;}
+
         return { ...old, data: old.data.filter((t: ReviewQueueTicket) => t.ticketId !== ticketId) };
       });
       queryClient.invalidateQueries({ queryKey: ['review-queue'] });
@@ -168,48 +191,72 @@ export default function ReviewQueuePage() {
   });
 
   // ── raw list ──
-  const tickets: ReviewQueueTicket[] = (Array.isArray(queueData?.data) ? queueData.data : [])
-    .filter((t: ReviewQueueTicket) => t.ticketSummary != null);
+  const tickets: ReviewQueueTicket[] = (
+    Array.isArray(queueData?.data) ? queueData.data : []
+  ).filter((t: ReviewQueueTicket) => t.ticketSummary !== null && t.ticketSummary !== undefined);
 
   const stats: ReviewQueueStats | undefined = statsData?.data;
 
   // ── unique filter values ──
-  const uniqueCategories = Array.from(new Set(tickets.map((t) => t.aiCategory).filter(Boolean))) as string[];
-  const uniquePriorities  = Array.from(new Set(tickets.map((t) => t.aiPriority).filter(Boolean))) as string[];
+  const uniqueCategories = Array.from(
+    new Set(tickets.map((t) => t.aiCategory).filter(Boolean)),
+  ) as string[];
+  const uniquePriorities = Array.from(
+    new Set(tickets.map((t) => t.aiPriority).filter(Boolean)),
+  ) as string[];
 
   // ── active filters ──
   const activeFilters = [
-    catFilter  !== 'all' ? { key: 'cat',  label: `Category: ${catFilter}`,  clear: () => setCatFilter('all')  } : null,
-    priFilter  !== 'all' ? { key: 'pri',  label: `Priority: ${priFilter}`,   clear: () => setPriFilter('all')  } : null,
-    confFilter !== 'all' ? { key: 'conf', label: CONF_FILTER_OPTIONS.find(o => o.value === confFilter)?.label ?? confFilter, clear: () => setConfFilter('all') } : null,
-    search.trim()        ? { key: 'q',    label: `"${search.trim()}"`,       clear: () => setSearch('')        } : null,
+    catFilter !== 'all'
+      ? { key: 'cat', label: `Category: ${catFilter}`, clear: () => setCatFilter('all') }
+      : null,
+    priFilter !== 'all'
+      ? { key: 'pri', label: `Priority: ${priFilter}`, clear: () => setPriFilter('all') }
+      : null,
+    confFilter !== 'all'
+      ? {
+          key: 'conf',
+          label: CONF_FILTER_OPTIONS.find((o) => o.value === confFilter)?.label ?? confFilter,
+          clear: () => setConfFilter('all'),
+        }
+      : null,
+    search.trim() ? { key: 'q', label: `"${search.trim()}"`, clear: () => setSearch('') } : null,
   ].filter(Boolean) as { key: string; label: string; clear: () => void }[];
 
   const clearAll = () => {
-    setCatFilter('all'); setPriFilter('all'); setConfFilter('all'); setSearch('');
+    setCatFilter('all');
+    setPriFilter('all');
+    setConfFilter('all');
+    setSearch('');
   };
 
   // ── filtered + sorted ──
   const filtered = useMemo(() => {
     let result = tickets.filter((t) => {
-      if (catFilter  !== 'all' && t.aiCategory !== catFilter) return false;
-      if (priFilter  !== 'all' && t.aiPriority !== priFilter) return false;
-      if (!matchesConfFilter(t, confFilter)) return false;
+      if (catFilter !== 'all' && t.aiCategory !== catFilter) {return false;}
+      if (priFilter !== 'all' && t.aiPriority !== priFilter) {return false;}
+      if (!matchesConfFilter(t, confFilter)) {return false;}
       if (search.trim()) {
         const q = search.toLowerCase();
+
         if (
           !t.ticketSummary?.subject?.toLowerCase().includes(q) &&
           !t.ticketSummary?.ticketNumber?.toLowerCase().includes(q) &&
           !t.reviewReason?.toLowerCase().includes(q)
-        ) return false;
+        )
+          {return false;}
       }
+
       return true;
     });
 
     result = [...result].sort((a, b) => {
-      if (sort === 'newest')   return new Date(b.addedToQueueAt).getTime() - new Date(a.addedToQueueAt).getTime();
-      if (sort === 'conf-asc') return (a.aiCategoryConfidence ?? 1) - (b.aiCategoryConfidence ?? 1);
-      if (sort === 'conf-desc')return (b.aiCategoryConfidence ?? 0) - (a.aiCategoryConfidence ?? 0);
+      if (sort === 'newest')
+        {return new Date(b.addedToQueueAt).getTime() - new Date(a.addedToQueueAt).getTime();}
+      if (sort === 'conf-asc') {return (a.aiCategoryConfidence ?? 1) - (b.aiCategoryConfidence ?? 1);}
+      if (sort === 'conf-desc')
+        {return (b.aiCategoryConfidence ?? 0) - (a.aiCategoryConfidence ?? 0);}
+
       return new Date(a.addedToQueueAt).getTime() - new Date(b.addedToQueueAt).getTime(); // oldest
     });
 
@@ -217,7 +264,7 @@ export default function ReviewQueuePage() {
   }, [tickets, catFilter, priFilter, confFilter, search, sort]);
 
   const oldestMinutes = stats?.oldestPendingEntryDate
-    ? Math.round((Date.now() - new Date(stats.oldestPendingEntryDate).getTime()) / 60000)
+    ? Math.round((PAGE_LOAD_TIME - new Date(stats.oldestPendingEntryDate).getTime()) / 60000)
     : null;
 
   if (error) {
@@ -238,7 +285,6 @@ export default function ReviewQueuePage() {
 
   return (
     <div className="container mx-auto p-6 space-y-5">
-
       {/* ── Header ── */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
@@ -246,7 +292,10 @@ export default function ReviewQueuePage() {
             <Brain className="h-5 w-5 text-primary" />
             <h1 className="text-2xl font-bold">AI Review Queue</h1>
             {!loadingQueue && tickets.length > 0 && (
-              <Badge variant="secondary" className="bg-amber-100 text-amber-700 border border-amber-200">
+              <Badge
+                variant="secondary"
+                className="bg-amber-100 text-amber-700 border border-amber-200"
+              >
                 {tickets.length} pending
               </Badge>
             )}
@@ -264,7 +313,9 @@ export default function ReviewQueuePage() {
       {/* ── Stats row ── */}
       {loadingStats ? (
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-          {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-24 rounded-xl" />)}
+          {[...Array(4)].map((_, i) => (
+            <Skeleton key={i} className="h-24 rounded-xl" />
+          ))}
         </div>
       ) : stats ? (
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
@@ -272,30 +323,42 @@ export default function ReviewQueuePage() {
             icon={<ShieldAlert className="h-4 w-4 text-amber-600" />}
             label="Pending Review"
             value={stats.pendingCount ?? '—'}
-            sub={stats.totalCount != null ? `${stats.totalCount} total processed` : undefined}
+            sub={stats.totalCount !== null && stats.totalCount !== undefined ? `${stats.totalCount} total processed` : undefined}
             accent="amber"
           />
           <StatCard
             icon={<Clock className="h-4 w-4 text-blue-600" />}
             label="Avg. Review Time"
-            value={stats.averageReviewTimeMinutes != null ? `${Math.round(stats.averageReviewTimeMinutes)}m` : '—'}
+            value={
+              stats.averageReviewTimeMinutes !== null && stats.averageReviewTimeMinutes !== undefined
+                ? `${Math.round(stats.averageReviewTimeMinutes)}m`
+                : '—'
+            }
             sub="per ticket"
             accent="blue"
           />
           <StatCard
             icon={<TrendingDown className="h-4 w-4 text-violet-600" />}
             label="Oldest Waiting"
-            value={oldestMinutes != null ? `${oldestMinutes}m` : '—'}
+            value={oldestMinutes !== null && oldestMinutes !== undefined ? `${oldestMinutes}m` : '—'}
             sub="time in queue"
             accent="violet"
           />
           <StatCard
-            icon={stats.pendingCount === 0
-              ? <CheckCircle2 className="h-4 w-4 text-green-600" />
-              : <AlertCircle className="h-4 w-4 text-red-500" />}
+            icon={
+              stats.pendingCount === 0 ? (
+                <CheckCircle2 className="h-4 w-4 text-green-600" />
+              ) : (
+                <AlertCircle className="h-4 w-4 text-red-500" />
+              )
+            }
             label="Status"
             value={stats.pendingCount === 0 ? 'All clear' : 'Needs attention'}
-            sub={stats.pendingCount === 0 ? 'AI performing well' : `${stats.approvedCount ?? 0} approved today`}
+            sub={
+              stats.pendingCount === 0
+                ? 'AI performing well'
+                : `${stats.approvedCount ?? 0} approved today`
+            }
             accent={stats.pendingCount === 0 ? 'green' : 'red'}
           />
         </div>
@@ -331,7 +394,11 @@ export default function ReviewQueuePage() {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All categories</SelectItem>
-              {uniqueCategories.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}
+              {uniqueCategories.map((c) => (
+                <SelectItem key={c} value={c}>
+                  {c}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
 
@@ -343,7 +410,11 @@ export default function ReviewQueuePage() {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All priorities</SelectItem>
-              {uniquePriorities.map((p) => <SelectItem key={p} value={p}>{p}</SelectItem>)}
+              {uniquePriorities.map((p) => (
+                <SelectItem key={p} value={p}>
+                  {p}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
 
@@ -354,7 +425,11 @@ export default function ReviewQueuePage() {
               <SelectValue placeholder="Confidence" />
             </SelectTrigger>
             <SelectContent>
-              {CONF_FILTER_OPTIONS.map((o) => <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>)}
+              {CONF_FILTER_OPTIONS.map((o) => (
+                <SelectItem key={o.value} value={o.value}>
+                  {o.label}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
 
@@ -365,7 +440,11 @@ export default function ReviewQueuePage() {
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              {SORT_OPTIONS.map((o) => <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>)}
+              {SORT_OPTIONS.map((o) => (
+                <SelectItem key={o.value} value={o.value}>
+                  {o.label}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
         </div>
@@ -398,10 +477,13 @@ export default function ReviewQueuePage() {
       {/* ── Results header ── */}
       <div className="flex items-center justify-between">
         <p className="text-sm text-muted-foreground">
-          {loadingQueue ? 'Loading…' : (
+          {loadingQueue ? (
+            'Loading…'
+          ) : (
             <>
               Showing <span className="font-medium text-foreground">{filtered.length}</span>
-              {filtered.length !== tickets.length && ` of ${tickets.length}`} ticket{filtered.length !== 1 ? 's' : ''}
+              {filtered.length !== tickets.length && ` of ${tickets.length}`} ticket
+              {filtered.length !== 1 ? 's' : ''}
             </>
           )}
         </p>
@@ -410,7 +492,9 @@ export default function ReviewQueuePage() {
       {/* ── Ticket list ── */}
       {loadingQueue ? (
         <div className="space-y-3">
-          {[...Array(3)].map((_, i) => <Skeleton key={i} className="h-40 rounded-xl" />)}
+          {[...Array(3)].map((_, i) => (
+            <Skeleton key={i} className="h-40 rounded-xl" />
+          ))}
         </div>
       ) : filtered.length === 0 ? (
         <Card>
@@ -453,14 +537,20 @@ export default function ReviewQueuePage() {
 // ─── StatCard ───────────────────────────────────────────────────────────────
 
 const accentBg: Record<string, string> = {
-  amber:  'bg-amber-50  dark:bg-amber-950/30',
-  blue:   'bg-blue-50   dark:bg-blue-950/30',
+  amber: 'bg-amber-50  dark:bg-amber-950/30',
+  blue: 'bg-blue-50   dark:bg-blue-950/30',
   violet: 'bg-violet-50 dark:bg-violet-950/30',
-  green:  'bg-green-50  dark:bg-green-950/30',
-  red:    'bg-red-50    dark:bg-red-950/30',
+  green: 'bg-green-50  dark:bg-green-950/30',
+  red: 'bg-red-50    dark:bg-red-950/30',
 };
 
-function StatCard({ icon, label, value, sub, accent = 'blue' }: {
+function StatCard({
+  icon,
+  label,
+  value,
+  sub,
+  accent = 'blue',
+}: {
   icon: React.ReactNode;
   label: string;
   value: string | number;
@@ -490,24 +580,35 @@ interface TicketReviewCardProps {
   resolveUser: (id?: string) => string;
 }
 
-function TicketReviewCard({ ticket, onApprove, onView, isApproving, resolveCat, resolveUser }: TicketReviewCardProps) {
+function TicketReviewCard({
+  ticket,
+  onApprove,
+  onView,
+  isApproving,
+  resolveCat,
+  resolveUser,
+}: TicketReviewCardProps) {
   const ticketNumber = ticket.ticketSummary?.ticketNumber;
-  const displayNumber = ticketNumber && !ticketNumber.match(/^[0-9a-f]{20,}$/i)
-    ? ticketNumber
-    : `#${ticket.ticketId.slice(-6).toUpperCase()}`;
+  const displayNumber =
+    ticketNumber && !ticketNumber.match(/^[0-9a-f]{20,}$/i)
+      ? ticketNumber
+      : `#${ticket.ticketId.slice(-6).toUpperCase()}`;
 
   const conf = ticket.aiCategoryConfidence;
-  const confPct = conf != null ? Math.round(conf * 100) : null;
+  const _confPct = conf !== null && conf !== undefined ? Math.round(conf * 100) : null;
 
-  const queuedAt = ticket.addedToQueueAt && !isNaN(new Date(ticket.addedToQueueAt).getTime())
-    ? formatDistanceToNow(new Date(ticket.addedToQueueAt), { addSuffix: true })
-    : 'recently';
+  const queuedAt =
+    ticket.addedToQueueAt && !isNaN(new Date(ticket.addedToQueueAt).getTime())
+      ? formatDistanceToNow(new Date(ticket.addedToQueueAt), { addSuffix: true })
+      : 'recently';
 
   return (
-    <div className={cn(
-      'rounded-xl border border-l-4 bg-card hover:shadow-sm transition-shadow',
-      confidenceBorderClass(conf)
-    )}>
+    <div
+      className={cn(
+        'rounded-xl border border-l-4 bg-card hover:shadow-sm transition-shadow',
+        confidenceBorderClass(conf),
+      )}
+    >
       <div className="p-4 space-y-3">
         {/* Top row */}
         <div className="flex items-start justify-between gap-3 flex-wrap">
@@ -516,7 +617,7 @@ function TicketReviewCard({ ticket, onApprove, onView, isApproving, resolveCat, 
               <span className="font-mono text-xs text-muted-foreground bg-muted px-1.5 py-0.5 rounded">
                 {displayNumber}
               </span>
-              {conf != null && (
+              {conf !== null && conf !== undefined && (
                 <ConfidenceBadge
                   confidence={conf}
                   method={ClassificationMethod.MachineLearning}
@@ -588,7 +689,12 @@ function TicketReviewCard({ ticket, onApprove, onView, isApproving, resolveCat, 
 
         {/* Actions */}
         <div className="flex items-center justify-end gap-2 pt-1">
-          <Button variant="ghost" size="sm" onClick={() => onView(ticket.ticketId)} className="text-muted-foreground">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => onView(ticket.ticketId)}
+            className="text-muted-foreground"
+          >
             <Eye className="h-3.5 w-3.5 mr-1.5" />
             View ticket
           </Button>
@@ -610,24 +716,36 @@ function TicketReviewCard({ ticket, onApprove, onView, isApproving, resolveCat, 
 
 // ─── AISuggestionCell ────────────────────────────────────────────────────────
 
-function AISuggestionCell({ icon, label, value, confidence, confClass }: {
+function AISuggestionCell({
+  icon,
+  label,
+  value,
+  confidence,
+  confClass,
+}: {
   icon: React.ReactNode;
   label: string;
   value: string;
   confidence?: number;
   confClass: string;
 }) {
-  const pct = confidence != null ? Math.round(confidence * 100) : null;
+  const pct = confidence !== null && confidence !== undefined ? Math.round(confidence * 100) : null;
+
   return (
     <div className="space-y-1">
       <p className="text-xs text-muted-foreground flex items-center gap-1">
         {icon} {label}
       </p>
-      <p className="text-sm font-medium leading-snug line-clamp-1" title={value}>{value}</p>
-      {pct != null && (
+      <p className="text-sm font-medium leading-snug line-clamp-1" title={value}>
+        {value}
+      </p>
+      {pct !== null && pct !== undefined && (
         <div className="flex items-center gap-1.5">
           <div className="flex-1 h-1 rounded-full bg-muted overflow-hidden">
-            <div className={cn('h-full rounded-full transition-all', confClass)} style={{ width: `${pct}%` }} />
+            <div
+              className={cn('h-full rounded-full transition-all', confClass)}
+              style={{ width: `${pct}%` }}
+            />
           </div>
           <span className="text-[10px] text-muted-foreground tabular-nums">{pct}%</span>
         </div>

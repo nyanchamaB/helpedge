@@ -1,16 +1,11 @@
-"use client";
+'use client';
 
 export const dynamic = 'force-dynamic';
 
 import { useState, useEffect, useMemo } from 'react';
 import { useNavigation } from '@/contexts/NavigationContext';
 import { useAuth } from '@/contexts/AuthContext';
-import {
-  getAllUsers,
-  getRoleDisplayString,
-  getRoleBadgeColor,
-  User,
-} from '@/lib/api/users';
+import { getAllUsers, getRoleDisplayString, getRoleBadgeColor, User } from '@/lib/api/users';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -40,46 +35,54 @@ function getInitials(u: User) {
 }
 
 function formatLastLogin(iso?: string) {
-  if (!iso) return 'Never';
+  if (!iso) {return 'Never';}
   try {
     const d = new Date(iso);
     const recent = Date.now() - d.getTime() < 7 * 24 * 60 * 60 * 1000;
+
     return recent ? formatDistanceToNow(d, { addSuffix: true }) : format(d, 'MMM d, yyyy');
-  } catch { return '—'; }
+  } catch {
+    return '—';
+  }
 }
 
 const ROLE_GROUPS = [
-  { label: 'Management',    roles: ['Admin', 'ITManager', 'TeamLead'] },
-  { label: 'Service Desk',  roles: ['ServiceDeskAgent'] },
-  { label: 'Resolvers',     roles: ['Technician', 'SystemAdmin', 'SecurityAdmin'] },
-  { label: 'End Users',     roles: ['EndUser'] },
+  { label: 'Management', roles: ['Admin', 'ITManager', 'TeamLead'] },
+  { label: 'Service Desk', roles: ['ServiceDeskAgent'] },
+  { label: 'Resolvers', roles: ['Technician', 'SystemAdmin', 'SecurityAdmin'] },
+  { label: 'End Users', roles: ['EndUser'] },
 ];
 
 export default function TeamSettingsPage() {
   const { navigateTo } = useNavigation();
   const { user: currentUser } = useAuth();
 
-  const [users, setUsers]       = useState<User[]>([]);
+  const [users, setUsers] = useState<User[]>([]);
   const [isLoading, setLoading] = useState(true);
-  const [search, setSearch]     = useState('');
+  const [search, setSearch] = useState('');
   const [roleFilter, setRoleFilter] = useState<string>('all');
 
-  async function fetchUsers() {
+  const fetchUsers = async () => {
     setLoading(true);
     const res = await getAllUsers();
-    if (res.success && res.data) setUsers(res.data);
-    setLoading(false);
-  }
 
-  useEffect(() => { fetchUsers(); }, []);
+    if (res.success && res.data) {setUsers(res.data);}
+    setLoading(false);
+  };
+
+  useEffect(() => {
+    async function run() { await fetchUsers(); }
+    void run();
+  }, []);
 
   // Stats
   const stats = useMemo(() => {
     const staff = users.filter((u) => u.role !== 'EndUser');
+
     return {
-      total:    users.length,
-      staff:    staff.length,
-      active:   users.filter((u) => u.isActive).length,
+      total: users.length,
+      staff: staff.length,
+      active: users.filter((u) => u.isActive).length,
       inactive: users.filter((u) => !u.isActive).length,
       endUsers: users.filter((u) => u.role === 'EndUser').length,
     };
@@ -88,9 +91,11 @@ export default function TeamSettingsPage() {
   // Role group counts
   const groupCounts = useMemo(() => {
     const map: Record<string, number> = {};
+
     ROLE_GROUPS.forEach((g) => {
       map[g.label] = users.filter((u) => g.roles.includes(u.role)).length;
     });
+
     return map;
   }, [users]);
 
@@ -99,9 +104,10 @@ export default function TeamSettingsPage() {
     return users
       .filter((u) => u.role !== 'EndUser')
       .filter((u) => {
-        if (roleFilter !== 'all' && u.role !== roleFilter) return false;
+        if (roleFilter !== 'all' && u.role !== roleFilter) {return false;}
         if (search.trim()) {
           const q = search.toLowerCase();
+
           return (
             `${u.firstName} ${u.lastName}`.toLowerCase().includes(q) ||
             u.email.toLowerCase().includes(q) ||
@@ -109,23 +115,24 @@ export default function TeamSettingsPage() {
             (u.jobTitle ?? '').toLowerCase().includes(q)
           );
         }
+
         return true;
       })
       .sort((a, b) => {
         // Current user first, then alphabetical
-        if (a.id === currentUser?.id) return -1;
-        if (b.id === currentUser?.id) return 1;
+        if (a.id === currentUser?.id) {return -1;}
+        if (b.id === currentUser?.id) {return 1;}
+
         return `${a.firstName}${a.lastName}`.localeCompare(`${b.firstName}${b.lastName}`);
       });
   }, [users, search, roleFilter, currentUser?.id]);
 
-  const uniqueRoles = Array.from(new Set(
-    users.filter((u) => u.role !== 'EndUser').map((u) => u.role)
-  )).sort();
+  const uniqueRoles = Array.from(
+    new Set(users.filter((u) => u.role !== 'EndUser').map((u) => u.role)),
+  ).sort();
 
   return (
     <div className="container mx-auto py-8 space-y-6">
-
       {/* Header */}
       <div className="flex items-start justify-between gap-4">
         <div className="flex items-center gap-2.5">
@@ -133,7 +140,7 @@ export default function TeamSettingsPage() {
           <div>
             <h1 className="text-2xl font-bold">Team Settings</h1>
             <p className="text-sm text-muted-foreground mt-0.5">
-              Overview of your team's composition and member status
+              Overview of your team&rsquo;s composition and member status
             </p>
           </div>
         </div>
@@ -158,10 +165,30 @@ export default function TeamSettingsPage() {
         </div>
       ) : (
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          <StatCard icon={<Users className="h-4 w-4 text-primary" />}       label="Total Members"  value={stats.total}    accent="primary" />
-          <StatCard icon={<ShieldCheck className="h-4 w-4 text-blue-600" />} label="Staff"          value={stats.staff}    accent="blue" />
-          <StatCard icon={<CheckCircle2 className="h-4 w-4 text-green-600"/>} label="Active"         value={stats.active}   accent="green" />
-          <StatCard icon={<XCircle className="h-4 w-4 text-muted-foreground"/>} label="Inactive"    value={stats.inactive}  accent="gray" />
+          <StatCard
+            icon={<Users className="h-4 w-4 text-primary" />}
+            label="Total Members"
+            value={stats.total}
+            accent="primary"
+          />
+          <StatCard
+            icon={<ShieldCheck className="h-4 w-4 text-blue-600" />}
+            label="Staff"
+            value={stats.staff}
+            accent="blue"
+          />
+          <StatCard
+            icon={<CheckCircle2 className="h-4 w-4 text-green-600" />}
+            label="Active"
+            value={stats.active}
+            accent="green"
+          />
+          <StatCard
+            icon={<XCircle className="h-4 w-4 text-muted-foreground" />}
+            label="Inactive"
+            value={stats.inactive}
+            accent="gray"
+          />
         </div>
       )}
 
@@ -182,9 +209,20 @@ export default function TeamSettingsPage() {
                   <div className="flex flex-wrap gap-1 justify-center">
                     {g.roles.map((r) => {
                       const count = users.filter((u) => u.role === r).length;
-                      if (count === 0) return null;
+
+                      if (count === 0) {return null;}
+
                       return (
-                        <Badge key={r} variant="outline" className={cn('text-[10px] px-1.5 py-0 border', getRoleBadgeColor(r as any))}>
+                        <Badge
+                          key={r}
+                          variant="outline"
+                          className={cn(
+                            'text-[10px] px-1.5 py-0 border',
+                            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                            getRoleBadgeColor(r as any),
+                          )}
+                        >
+                          {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
                           {getRoleDisplayString(r as any)} ({count})
                         </Badge>
                       );
@@ -204,7 +242,9 @@ export default function TeamSettingsPage() {
             <div>
               <CardTitle className="text-base">Staff Members</CardTitle>
               <CardDescription>
-                {isLoading ? 'Loading…' : `${filtered.length} staff member${filtered.length !== 1 ? 's' : ''}`}
+                {isLoading
+                  ? 'Loading…'
+                  : `${filtered.length} staff member${filtered.length !== 1 ? 's' : ''}`}
               </CardDescription>
             </div>
             <Button
@@ -231,7 +271,12 @@ export default function TeamSettingsPage() {
             <div className="flex rounded-lg border overflow-hidden text-sm h-9">
               <button
                 onClick={() => setRoleFilter('all')}
-                className={cn('px-3 transition-colors', roleFilter === 'all' ? 'bg-primary text-primary-foreground font-medium' : 'text-muted-foreground hover:bg-muted')}
+                className={cn(
+                  'px-3 transition-colors',
+                  roleFilter === 'all'
+                    ? 'bg-primary text-primary-foreground font-medium'
+                    : 'text-muted-foreground hover:bg-muted',
+                )}
               >
                 All roles
               </button>
@@ -239,8 +284,14 @@ export default function TeamSettingsPage() {
                 <button
                   key={r}
                   onClick={() => setRoleFilter(r)}
-                  className={cn('px-3 border-l transition-colors', roleFilter === r ? 'bg-primary text-primary-foreground font-medium' : 'text-muted-foreground hover:bg-muted')}
+                  className={cn(
+                    'px-3 border-l transition-colors',
+                    roleFilter === r
+                      ? 'bg-primary text-primary-foreground font-medium'
+                      : 'text-muted-foreground hover:bg-muted',
+                  )}
                 >
+                  {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
                   {getRoleDisplayString(r as any)}
                 </button>
               ))}
@@ -264,6 +315,7 @@ export default function TeamSettingsPage() {
             <div className="divide-y">
               {filtered.map((u) => {
                 const isMe = u.id === currentUser?.id;
+
                 return (
                   <div
                     key={u.id}
@@ -284,10 +336,15 @@ export default function TeamSettingsPage() {
                           {u.firstName} {u.lastName}
                         </span>
                         {isMe && (
-                          <Badge variant="outline" className="text-[10px] px-1.5 py-0">You</Badge>
+                          <Badge variant="outline" className="text-[10px] px-1.5 py-0">
+                            You
+                          </Badge>
                         )}
                         {!u.isActive && (
-                          <Badge variant="outline" className="text-[10px] px-1.5 py-0 bg-muted text-muted-foreground">
+                          <Badge
+                            variant="outline"
+                            className="text-[10px] px-1.5 py-0 bg-muted text-muted-foreground"
+                          >
                             Inactive
                           </Badge>
                         )}
@@ -296,7 +353,13 @@ export default function TeamSettingsPage() {
                     </div>
 
                     {/* Role badge */}
-                    <Badge variant="outline" className={cn('text-xs shrink-0 border hidden sm:inline-flex', getRoleBadgeColor(u.role))}>
+                    <Badge
+                      variant="outline"
+                      className={cn(
+                        'text-xs shrink-0 border hidden sm:inline-flex',
+                        getRoleBadgeColor(u.role),
+                      )}
+                    >
                       {getRoleDisplayString(u.role)}
                     </Badge>
 
@@ -347,11 +410,27 @@ export default function TeamSettingsPage() {
         <Separator />
         <CardContent className="pt-4 grid grid-cols-1 sm:grid-cols-3 gap-3">
           {[
-            { label: 'Team Members',   desc: 'View, edit and manage all team members', path: '/team/members',     icon: Users },
-            { label: 'Team Workload',  desc: 'See ticket distribution across the team',path: '/team/workload',    icon: ShieldCheck },
-            { label: 'Performance',    desc: 'Full KPI breakdown and resolver metrics', path: '/team/performance', icon: ExternalLink },
+            {
+              label: 'Team Members',
+              desc: 'View, edit and manage all team members',
+              path: '/team/members',
+              icon: Users,
+            },
+            {
+              label: 'Team Workload',
+              desc: 'See ticket distribution across the team',
+              path: '/team/workload',
+              icon: ShieldCheck,
+            },
+            {
+              label: 'Performance',
+              desc: 'Full KPI breakdown and resolver metrics',
+              path: '/team/performance',
+              icon: ExternalLink,
+            },
           ].map((item) => {
             const Icon = item.icon;
+
             return (
               <button
                 key={item.path}
@@ -360,7 +439,9 @@ export default function TeamSettingsPage() {
               >
                 <Icon className="h-4 w-4 text-primary mt-0.5 shrink-0" />
                 <div>
-                  <p className="font-medium text-sm group-hover:text-primary transition-colors">{item.label}</p>
+                  <p className="font-medium text-sm group-hover:text-primary transition-colors">
+                    {item.label}
+                  </p>
                   <p className="text-xs text-muted-foreground mt-0.5">{item.desc}</p>
                 </div>
               </button>
@@ -376,16 +457,29 @@ export default function TeamSettingsPage() {
 
 const accentBg: Record<string, string> = {
   primary: 'bg-primary/5 dark:bg-primary/10',
-  blue:    'bg-blue-50 dark:bg-blue-950/30',
-  green:   'bg-green-50 dark:bg-green-950/30',
-  gray:    'bg-muted/60',
+  blue: 'bg-blue-50 dark:bg-blue-950/30',
+  green: 'bg-green-50 dark:bg-green-950/30',
+  gray: 'bg-muted/60',
 };
 
-function StatCard({ icon, label, value, accent }: {
-  icon: React.ReactNode; label: string; value: number; accent: string;
+function StatCard({
+  icon,
+  label,
+  value,
+  accent,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  value: number;
+  accent: string;
 }) {
   return (
-    <div className={cn('flex items-center gap-3 rounded-xl border p-3.5', accentBg[accent] ?? accentBg.gray)}>
+    <div
+      className={cn(
+        'flex items-center gap-3 rounded-xl border p-3.5',
+        accentBg[accent] ?? accentBg.gray,
+      )}
+    >
       <div className="shrink-0">{icon}</div>
       <div>
         <p className="text-2xl font-bold leading-none">{value}</p>

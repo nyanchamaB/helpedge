@@ -1,10 +1,10 @@
-"use client";
+'use client';
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Construction, ArrowLeft } from "lucide-react";
-import Link from "next/link";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Construction, ArrowLeft } from 'lucide-react';
+import Link from 'next/link';
 
 interface PlaceholderPageProps {
   title: string;
@@ -89,8 +89,8 @@ export function PlaceholderPage({
             </CardHeader>
             <CardContent>
               <p className="text-sm text-gray-600">
-                Content for this section will be populated once the feature is implemented.
-                This card is here to show how the layout handles multiple items.
+                Content for this section will be populated once the feature is implemented. This
+                card is here to show how the layout handles multiple items.
               </p>
             </CardContent>
           </Card>

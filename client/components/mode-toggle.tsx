@@ -1,19 +1,19 @@
-"use client"
+'use client';
 
-import * as React from "react"
-import { Moon, Sun, Check } from "lucide-react"
-import { useTheme } from "next-themes"
+import * as React from 'react';
+import { Moon, Sun, Check } from 'lucide-react';
+import { useTheme } from 'next-themes';
 
-import { Button } from "@/components/ui/button"
+import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
+} from '@/components/ui/dropdown-menu';
 
 export function ModeToggle() {
-  const { setTheme, theme } = useTheme()
+  const { setTheme, theme } = useTheme();
 
   return (
     <DropdownMenu>
@@ -25,19 +25,28 @@ export function ModeToggle() {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
-        <DropdownMenuItem onClick={() => setTheme("light")} className="flex items-center justify-between gap-4">
+        <DropdownMenuItem
+          onClick={() => setTheme('light')}
+          className="flex items-center justify-between gap-4"
+        >
           Light
-          {theme === "light" && <Check className="h-4 w-4" />}
+          {theme === 'light' && <Check className="h-4 w-4" />}
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => setTheme("dark")} className="flex items-center justify-between gap-4">
+        <DropdownMenuItem
+          onClick={() => setTheme('dark')}
+          className="flex items-center justify-between gap-4"
+        >
           Dark
-          {theme === "dark" && <Check className="h-4 w-4" />}
+          {theme === 'dark' && <Check className="h-4 w-4" />}
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => setTheme("system")} className="flex items-center justify-between gap-4">
+        <DropdownMenuItem
+          onClick={() => setTheme('system')}
+          className="flex items-center justify-between gap-4"
+        >
           System
-          {theme === "system" && <Check className="h-4 w-4" />}
+          {theme === 'system' && <Check className="h-4 w-4" />}
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
-  )
+  );
 }

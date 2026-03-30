@@ -1,19 +1,13 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-} from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
+import { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 import {
   Form,
   FormControl,
@@ -22,36 +16,32 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
+} from '@/components/ui/form';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { FileUploader } from "./FileUploader";
-import { TicketPriority } from "@/lib/api/tickets";
-import { Category } from "@/lib/api/categories";
-import { Send } from "lucide-react";
+} from '@/components/ui/select';
+import { FileUploader } from './FileUploader';
+import { TicketPriority } from '@/lib/api/tickets';
+import { Category } from '@/lib/api/categories';
+import { Send } from 'lucide-react';
 import { Spinner } from '@/components/ui/spinner';
 
 const UserTicketSchema = z.object({
   subject: z
     .string()
-    .min(5, "Subject must be at least 5 characters")
-    .max(200, "Subject is too long"),
+    .min(5, 'Subject must be at least 5 characters')
+    .max(200, 'Subject is too long'),
   description: z
     .string()
-    .min(20, "Please describe your issue in more detail (at least 20 characters)")
-    .max(5000, "Description is too long"),
+    .min(20, 'Please describe your issue in more detail (at least 20 characters)')
+    .max(5000, 'Description is too long'),
   categoryId: z.string().optional(),
-  priority: z.enum(["Low", "Medium", "High", "Critical"]),
-  contactEmail: z
-    .string()
-    .email("Enter a valid email address")
-    .optional()
-    .or(z.literal("")),
+  priority: z.enum(['Low', 'Medium', 'High', 'Critical']),
+  contactEmail: z.string().email('Enter a valid email address').optional().or(z.literal('')),
 });
 
 type UserTicketFormValues = z.infer<typeof UserTicketSchema>;
@@ -88,11 +78,11 @@ export function UserTicketForm({
   const form = useForm<UserTicketFormValues>({
     resolver: zodResolver(UserTicketSchema),
     defaultValues: {
-      subject: "",
-      description: "",
+      subject: '',
+      description: '',
       categoryId: undefined,
-      priority: "Medium",
-      contactEmail: "",
+      priority: 'Medium',
+      contactEmail: '',
     },
   });
 
@@ -112,16 +102,12 @@ export function UserTicketForm({
       <CardHeader>
         <CardTitle>Submit a Support Ticket</CardTitle>
         <CardDescription>
-          Describe your issue and our team will get back to you as soon as
-          possible.
+          Describe your issue and our team will get back to you as soon as possible.
         </CardDescription>
       </CardHeader>
       <CardContent>
         <Form {...form}>
-          <form
-            onSubmit={form.handleSubmit(handleSubmit)}
-            className="space-y-5"
-          >
+          <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-5">
             {/* Subject */}
             <FormField
               control={form.control}
@@ -132,10 +118,7 @@ export function UserTicketForm({
                     Subject <span className="text-red-500">*</span>
                   </FormLabel>
                   <FormControl>
-                    <Input
-                      placeholder='e.g. "VPN not connecting on Windows 11"'
-                      {...field}
-                    />
+                    <Input placeholder='e.g. "VPN not connecting on Windows 11"' {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -171,10 +154,7 @@ export function UserTicketForm({
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Category</FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      value={field.value}
-                    >
+                    <Select onValueChange={field.onChange} value={field.value}>
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue placeholder="Select a category" />
@@ -199,28 +179,17 @@ export function UserTicketForm({
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Priority</FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      value={field.value}
-                    >
+                    <Select onValueChange={field.onChange} value={field.value}>
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="Low">
-                          Low — General inquiry
-                        </SelectItem>
-                        <SelectItem value="Medium">
-                          Medium — Minor disruption
-                        </SelectItem>
-                        <SelectItem value="High">
-                          High — Significant impact
-                        </SelectItem>
-                        <SelectItem value="Critical">
-                          Critical — System down
-                        </SelectItem>
+                        <SelectItem value="Low">Low — General inquiry</SelectItem>
+                        <SelectItem value="Medium">Medium — Minor disruption</SelectItem>
+                        <SelectItem value="High">High — Significant impact</SelectItem>
+                        <SelectItem value="Critical">Critical — System down</SelectItem>
                       </SelectContent>
                     </Select>
                     <FormMessage />
@@ -244,8 +213,7 @@ export function UserTicketForm({
                     />
                   </FormControl>
                   <FormDescription>
-                    Email replies will be sent here. Defaults to your account
-                    email.
+                    Email replies will be sent here. Defaults to your account email.
                   </FormDescription>
                   <FormMessage />
                 </FormItem>
@@ -265,11 +233,7 @@ export function UserTicketForm({
 
             {/* Submit */}
             <div className="flex justify-end pt-2">
-              <Button
-                type="submit"
-                disabled={isSubmitting}
-                className="min-w-[140px]"
-              >
+              <Button type="submit" disabled={isSubmitting} className="min-w-[140px]">
                 {isSubmitting ? (
                   <>
                     <Spinner size="sm" className="mr-2" />

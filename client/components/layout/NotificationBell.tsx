@@ -1,6 +1,6 @@
-"use client";
+'use client';
 
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNavigation } from '@/contexts/NavigationContext';
 import { useAuth } from '@/contexts/AuthContext';
@@ -40,19 +40,32 @@ import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { formatDistanceToNow } from 'date-fns';
 
-const STAFF_ROLES = ["Admin","ITManager","TeamLead","SystemAdmin","ServiceDeskAgent","Technician","SecurityAdmin"];
+const STAFF_ROLES = [
+  'Admin',
+  'ITManager',
+  'TeamLead',
+  'SystemAdmin',
+  'ServiceDeskAgent',
+  'Technician',
+  'SecurityAdmin',
+];
 const ONE_WEEK_MS = 7 * 24 * 60 * 60 * 1000;
 const READ_STORAGE_KEY = 'helpedge_read_notif_ids';
 
 function getReadIds(): Set<string> {
   try {
     const raw = localStorage.getItem(READ_STORAGE_KEY);
+
     return raw ? new Set(JSON.parse(raw)) : new Set();
-  } catch { return new Set(); }
+  } catch {
+    return new Set();
+  }
 }
 
 function persistReadIds(ids: Set<string>) {
-  try { localStorage.setItem(READ_STORAGE_KEY, JSON.stringify([...ids])); } catch {}
+  try {
+    localStorage.setItem(READ_STORAGE_KEY, JSON.stringify([...ids]));
+  } catch {}
 }
 
 interface TicketNotification {
@@ -68,7 +81,11 @@ interface TicketNotification {
   createdAt: string;
 }
 
-function deriveTicketNotifications(tickets: Ticket[], userId: string, isStaff: boolean): TicketNotification[] {
+function deriveTicketNotifications(
+  tickets: Ticket[],
+  userId: string,
+  isStaff: boolean,
+): TicketNotification[] {
   const notifs: TicketNotification[] = [];
   const cutoff = Date.now() - ONE_WEEK_MS;
 
@@ -77,7 +94,7 @@ function deriveTicketNotifications(tickets: Ticket[], userId: string, isStaff: b
     const url = isStaff ? `/tickets/${ticket.id}` : `/portal/ticket/${ticket.id}`;
 
     for (const comment of ticket.comments ?? []) {
-      if (comment.isInternal || comment.authorId === userId) continue;
+      if (comment.isInternal || comment.authorId === userId) {continue;}
       notifs.push({
         id: `comment-${comment.id}`,
         type: 'reply',
@@ -130,6 +147,9 @@ function deriveTicketNotifications(tickets: Ticket[], userId: string, isStaff: b
 
 const POLL_INTERVAL = 60000; // 60 seconds
 
+type CombinedNotification =
+  | (AINotification & { source: 'ai' })
+  | (TicketNotification & { source: 'ticket' });
 /**
  * Notification Bell Component
  * Displays AI notifications with real-time polling
@@ -140,19 +160,27 @@ export function NotificationBell() {
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const [isOpen, setIsOpen] = useState(false);
-  const [desktopNotificationsEnabled, setDesktopNotificationsEnabled] = useState(false);
+  const [desktopNotificationsEnabled, setDesktopNotificationsEnabled] = useState(
+    () =>
+      typeof window !== 'undefined' &&
+      'Notification' in window &&
+      Notification.permission === 'granted',
+  );
 
   const isStaff = user ? STAFF_ROLES.includes(user.role) : false;
   const [readIds, setReadIds] = useState<Set<string>>(() => {
-    if (typeof window === 'undefined') return new Set();
+    if (typeof window === 'undefined') {return new Set();}
+
     return getReadIds();
   });
 
   const markTicketNotifsRead = useCallback((ids: string[]) => {
-    setReadIds(prev => {
+    setReadIds((prev) => {
       const next = new Set(prev);
-      ids.forEach(id => next.add(id));
+
+      ids.forEach((id) => next.add(id));
       persistReadIds(next);
+
       return next;
     });
   }, []);
@@ -166,10 +194,7 @@ export function NotificationBell() {
   });
 
   // Fetch AI notifications (only when open)
-  const {
-    data: notificationsResponse,
-    isLoading: isLoadingNotifications,
-  } = useQuery({
+  const { data: notificationsResponse, isLoading: isLoadingNotifications } = useQuery({
     queryKey: ['ai-notifications'],
     queryFn: getAINotifications,
     enabled: isOpen,
@@ -179,36 +204,45 @@ export function NotificationBell() {
   // Fetch ticket-derived notifications
   const { data: ticketsResponse } = useQuery({
     queryKey: ['notif-tickets', user?.id],
-    queryFn: (): Promise<any> => user?.id
-      ? (isStaff ? getTicketsByAssignee(user.id) : getTicketsByCreator(user.id))
-      : Promise.resolve({ success: false, data: [] }),
+    queryFn: () =>
+      user?.id
+        ? isStaff
+          ? getTicketsByAssignee(user.id)
+          : getTicketsByCreator(user.id)
+        : Promise.resolve({ success: false, status: 0, data: [] }),
     enabled: !!user?.id,
     refetchInterval: POLL_INTERVAL,
     staleTime: 30 * 1000,
   });
 
   const ticketNotifications = useMemo(() => {
-    const tickets = (ticketsResponse as any)?.data ?? [];
+    const tickets = ticketsResponse?.data ?? [];
+
     return user ? deriveTicketNotifications(tickets, user.id, isStaff) : [];
   }, [ticketsResponse, user, isStaff]);
 
-  const aiNotifications = notificationsResponse?.data || [];
   const aiUnreadCount = countResponse?.data?.count || 0;
-  const ticketUnreadCount = ticketNotifications.filter(n => !n.isRead && !readIds.has(n.id)).length;
+  const ticketUnreadCount = ticketNotifications.filter(
+    (n) => !n.isRead && !readIds.has(n.id),
+  ).length;
   const unreadCount = aiUnreadCount + ticketUnreadCount;
 
   // Combined notifications list sorted by time, with read state applied
   const notifications = useMemo(() => {
+    const aiNotifications = notificationsResponse?.data || [];
     const combined = [
-      ...aiNotifications.map(n => ({ ...n, source: 'ai' as const })),
-      ...ticketNotifications.map(n => ({
+      ...aiNotifications.map((n) => ({ ...n, source: 'ai' as const })),
+      ...ticketNotifications.map((n) => ({
         ...n,
         isRead: n.isRead || readIds.has(n.id),
         source: 'ticket' as const,
       })),
     ];
-    return combined.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()).slice(0, 30);
-  }, [aiNotifications, ticketNotifications, readIds]);
+
+    return combined
+      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+      .slice(0, 30);
+  }, [notificationsResponse?.data, ticketNotifications, readIds]);
 
   // Mark as read mutation
   const markAsReadMutation = useMutation({
@@ -227,7 +261,7 @@ export function NotificationBell() {
       queryClient.invalidateQueries({ queryKey: ['notification-count'] });
       queryClient.invalidateQueries({ queryKey: ['ai-notifications'] });
     },
-    onError: (error: any) => {
+    onError: (error: Error) => {
       toast.error(error.message || 'Failed to mark all as read');
     },
   });
@@ -241,39 +275,36 @@ export function NotificationBell() {
     },
   });
 
-  // Request desktop notification permission
-  useEffect(() => {
-    if ('Notification' in window && Notification.permission === 'granted') {
-      setDesktopNotificationsEnabled(true);
-    }
-  }, []);
-
   // Show desktop notification for new notifications
-  const showDesktopNotification = useCallback((notification: AINotification) => {
-    if (
-      desktopNotificationsEnabled &&
-      'Notification' in window &&
-      Notification.permission === 'granted'
-    ) {
-      const desktopNotif = new Notification(notification.title, {
-        body: notification.message,
-        icon: '/favicon.ico',
-        tag: notification.id,
-      });
+  const _showDesktopNotification = useCallback(
+    (notification: AINotification) => {
+      if (
+        desktopNotificationsEnabled &&
+        'Notification' in window &&
+        Notification.permission === 'granted'
+      ) {
+        const desktopNotif = new Notification(notification.title, {
+          body: notification.message,
+          icon: '/favicon.ico',
+          tag: notification.id,
+        });
 
-      desktopNotif.onclick = () => {
-        if (notification.actionUrl) {
-          navigateTo(notification.actionUrl);
-        }
-        desktopNotif.close();
-      };
-    }
-  }, [desktopNotificationsEnabled, navigateTo]);
+        desktopNotif.onclick = () => {
+          if (notification.actionUrl) {
+            navigateTo(notification.actionUrl);
+          }
+          desktopNotif.close();
+        };
+      }
+    },
+    [desktopNotificationsEnabled, navigateTo],
+  );
 
   // Request notification permission
   const requestNotificationPermission = async () => {
     if ('Notification' in window && Notification.permission === 'default') {
       const permission = await Notification.requestPermission();
+
       if (permission === 'granted') {
         setDesktopNotificationsEnabled(true);
         toast.success('Desktop notifications enabled');
@@ -282,7 +313,7 @@ export function NotificationBell() {
   };
 
   // Handle notification click
-  const handleNotificationClick = (notification: any) => {
+  const handleNotificationClick = (notification: CombinedNotification) => {
     if (!notification.isRead) {
       if (notification.source === 'ai') {
         markAsReadMutation.mutate(notification.id);
@@ -297,10 +328,7 @@ export function NotificationBell() {
   };
 
   // Handle delete notification (AI only)
-  const handleDeleteNotification = (
-    e: React.MouseEvent,
-    notification: any
-  ) => {
+  const handleDeleteNotification = (e: React.MouseEvent, notification: CombinedNotification) => {
     e.stopPropagation();
     if (notification.source === 'ai') {
       deleteMutation.mutate(notification.id);
@@ -312,18 +340,25 @@ export function NotificationBell() {
     // Mark AI notifications via API
     markAllAsReadMutation.mutate();
     // Mark all ticket notifications in localStorage
-    const ticketIds = ticketNotifications.filter(n => !n.isRead && !readIds.has(n.id)).map(n => n.id);
-    if (ticketIds.length > 0) markTicketNotifsRead(ticketIds);
+    const ticketIds = ticketNotifications
+      .filter((n) => !n.isRead && !readIds.has(n.id))
+      .map((n) => n.id);
+
+    if (ticketIds.length > 0) {markTicketNotifsRead(ticketIds);}
   };
 
   // Get icon for any notification type
-  const getNotificationIcon = (notification: any) => {
+  const getNotificationIcon = (notification: CombinedNotification) => {
     if (notification.source === 'ticket') {
       switch (notification.type) {
-        case 'reply': return <MessageSquare className="h-4 w-4 text-blue-500" />;
-        case 'resolved': return <CheckCircle className="h-4 w-4 text-green-500" />;
-        case 'assigned': return <Clock className="h-4 w-4 text-purple-500" />;
-        case 'escalated': return <TrendingUp className="h-4 w-4 text-orange-500" />;
+        case 'reply':
+          return <MessageSquare className="h-4 w-4 text-blue-500" />;
+        case 'resolved':
+          return <CheckCircle className="h-4 w-4 text-green-500" />;
+        case 'assigned':
+          return <Clock className="h-4 w-4 text-purple-500" />;
+        case 'escalated':
+          return <TrendingUp className="h-4 w-4 text-orange-500" />;
       }
     }
     switch (notification.type as AINotificationType) {
@@ -348,11 +383,7 @@ export function NotificationBell() {
           variant="ghost"
           size="icon"
           className="relative"
-          aria-label={
-            unreadCount > 0
-              ? `${unreadCount} unread notifications`
-              : 'Notifications'
-          }
+          aria-label={unreadCount > 0 ? `${unreadCount} unread notifications` : 'Notifications'}
         >
           <Bell className="h-5 w-5" />
           {unreadCount > 0 && (
@@ -413,7 +444,7 @@ export function NotificationBell() {
                   key={notification.id}
                   className={cn(
                     'p-4 hover:bg-muted/50 cursor-pointer transition-colors relative group',
-                    !notification.isRead && 'bg-blue-50/50 dark:bg-blue-950/20'
+                    !notification.isRead && 'bg-blue-50/50 dark:bg-blue-950/20',
                   )}
                   onClick={() => handleNotificationClick(notification)}
                 >
@@ -424,9 +455,7 @@ export function NotificationBell() {
 
                   <div className="flex gap-3 pl-4">
                     {/* Icon */}
-                    <div className="shrink-0 mt-1">
-                      {getNotificationIcon(notification)}
-                    </div>
+                    <div className="shrink-0 mt-1">{getNotificationIcon(notification)}</div>
 
                     {/* Content */}
                     <div className="flex-1 min-w-0">
@@ -434,7 +463,7 @@ export function NotificationBell() {
                         <h4
                           className={cn(
                             'text-sm font-medium line-clamp-1',
-                            !notification.isRead && 'font-semibold'
+                            !notification.isRead && 'font-semibold',
                           )}
                         >
                           {notification.title}
@@ -477,12 +506,8 @@ export function NotificationBell() {
           ) : (
             <div className="flex flex-col items-center justify-center py-12 px-4 text-center">
               <Bell className="h-12 w-12 text-muted-foreground/50 mb-3" />
-              <p className="text-sm font-medium text-muted-foreground">
-                No notifications
-              </p>
-              <p className="text-xs text-muted-foreground mt-1">
-                You're all caught up!
-              </p>
+              <p className="text-sm font-medium text-muted-foreground">No notifications</p>
+              <p className="text-xs text-muted-foreground mt-1">You&rsquo;re all caught up!</p>
             </div>
           )}
         </ScrollArea>

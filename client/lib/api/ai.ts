@@ -32,9 +32,7 @@ import type { ApiResponse } from '@/lib/api/client';
 /**
  * Get full AI classification details for a specific ticket
  */
-export async function getTicketAIDetails(
-  ticketId: string
-): Promise<ApiResponse<TicketAIDetails>> {
+export async function getTicketAIDetails(ticketId: string): Promise<ApiResponse<TicketAIDetails>> {
   return apiRequest<TicketAIDetails>(`/api/Tickets/${ticketId}/ai-details`, {
     method: 'GET',
     includeAuth: true,
@@ -46,7 +44,7 @@ export async function getTicketAIDetails(
  */
 export async function overrideTicketClassification(
   ticketId: string,
-  request: OverrideRequest
+  request: OverrideRequest,
 ): Promise<ApiResponse<void>> {
   return apiRequest<void>(`/api/Tickets/${ticketId}/override`, {
     method: 'POST',
@@ -61,9 +59,7 @@ export async function overrideTicketClassification(
 /**
  * Get override history for a specific ticket
  */
-export async function getTicketOverrides(
-  ticketId: string
-): Promise<ApiResponse<OverrideRecord[]>> {
+export async function getTicketOverrides(ticketId: string): Promise<ApiResponse<OverrideRecord[]>> {
   return apiRequest<OverrideRecord[]>(`/api/Tickets/${ticketId}/overrides`, {
     method: 'GET',
     includeAuth: true,
@@ -99,16 +95,18 @@ export async function getReviewQueueStats(): Promise<ApiResponse<ReviewQueueStat
  */
 export async function approveTicketClassification(
   ticketId: string,
-  notes?: string
+  notes?: string,
 ): Promise<ApiResponse<void>> {
   const response = await apiRequest<void>(`/api/Tickets/${ticketId}/approve`, {
     method: 'POST',
     includeAuth: true,
     body: JSON.stringify({ notes: notes ?? 'Looks correct, approved' }),
   });
+
   if (!response.success) {
     throw new Error(response.error ?? 'Failed to approve ticket');
   }
+
   return response;
 }
 
@@ -120,14 +118,16 @@ export async function approveTicketClassification(
  * Get overall AI performance metrics
  */
 export async function getAIPerformanceMetrics(
-  filter?: AIAnalyticsFilter
+  filter?: AIAnalyticsFilter,
 ): Promise<ApiResponse<AIPerformanceMetrics>> {
   const params = new URLSearchParams();
-  if (filter?.startDate) params.append('startDate', filter.startDate);
-  if (filter?.endDate) params.append('endDate', filter.endDate);
-  if (filter?.method) params.append('method', filter.method);
+
+  if (filter?.startDate) {params.append('startDate', filter.startDate);}
+  if (filter?.endDate) {params.append('endDate', filter.endDate);}
+  if (filter?.method) {params.append('method', filter.method);}
 
   const url = `/api/Analytics/ai-performance${params.toString() ? `?${params.toString()}` : ''}`;
+
   return apiRequest<AIPerformanceMetrics>(url, {
     method: 'GET',
     includeAuth: true,
@@ -138,13 +138,15 @@ export async function getAIPerformanceMetrics(
  * Get AI performance metrics by category
  */
 export async function getAIPerformanceByCategory(
-  filter?: AIAnalyticsFilter
+  filter?: AIAnalyticsFilter,
 ): Promise<ApiResponse<CategoryPerformance[]>> {
   const params = new URLSearchParams();
-  if (filter?.startDate) params.append('startDate', filter.startDate);
-  if (filter?.endDate) params.append('endDate', filter.endDate);
+
+  if (filter?.startDate) {params.append('startDate', filter.startDate);}
+  if (filter?.endDate) {params.append('endDate', filter.endDate);}
 
   const url = `/api/Analytics/ai-performance/by-category${params.toString() ? `?${params.toString()}` : ''}`;
+
   return apiRequest<CategoryPerformance[]>(url, {
     method: 'GET',
     includeAuth: true,
@@ -155,13 +157,15 @@ export async function getAIPerformanceByCategory(
  * Get confusion matrix for category predictions
  */
 export async function getConfusionMatrix(
-  filter?: AIAnalyticsFilter
+  filter?: AIAnalyticsFilter,
 ): Promise<ApiResponse<ConfusionMatrix>> {
   const params = new URLSearchParams();
-  if (filter?.startDate) params.append('startDate', filter.startDate);
-  if (filter?.endDate) params.append('endDate', filter.endDate);
+
+  if (filter?.startDate) {params.append('startDate', filter.startDate);}
+  if (filter?.endDate) {params.append('endDate', filter.endDate);}
 
   const url = `/api/Analytics/ai-performance/confusion-matrix${params.toString() ? `?${params.toString()}` : ''}`;
+
   return apiRequest<ConfusionMatrix>(url, {
     method: 'GET',
     includeAuth: true,
@@ -172,16 +176,18 @@ export async function getConfusionMatrix(
  * Get AI performance logs (individual classification records)
  */
 export async function getAIPerformanceLogs(
-  filter?: AIAnalyticsFilter & { page?: number; pageSize?: number }
+  filter?: AIAnalyticsFilter & { page?: number; pageSize?: number },
 ): Promise<ApiResponse<AIPerformanceLog[]>> {
   const params = new URLSearchParams();
-  if (filter?.startDate) params.append('startDate', filter.startDate);
-  if (filter?.endDate) params.append('endDate', filter.endDate);
-  if (filter?.method) params.append('method', filter.method);
-  if (filter?.page) params.append('page', filter.page.toString());
-  if (filter?.pageSize) params.append('pageSize', filter.pageSize.toString());
+
+  if (filter?.startDate) {params.append('startDate', filter.startDate);}
+  if (filter?.endDate) {params.append('endDate', filter.endDate);}
+  if (filter?.method) {params.append('method', filter.method);}
+  if (filter?.page) {params.append('page', filter.page.toString());}
+  if (filter?.pageSize) {params.append('pageSize', filter.pageSize.toString());}
 
   const url = `/api/Analytics/ai-performance/logs${params.toString() ? `?${params.toString()}` : ''}`;
+
   return apiRequest<AIPerformanceLog[]>(url, {
     method: 'GET',
     includeAuth: true,
@@ -192,13 +198,15 @@ export async function getAIPerformanceLogs(
  * Get overall AI accuracy
  */
 export async function getAIAccuracy(
-  filter?: AIAnalyticsFilter
+  filter?: AIAnalyticsFilter,
 ): Promise<ApiResponse<{ accuracy: number }>> {
   const params = new URLSearchParams();
-  if (filter?.startDate) params.append('startDate', filter.startDate);
-  if (filter?.endDate) params.append('endDate', filter.endDate);
+
+  if (filter?.startDate) {params.append('startDate', filter.startDate);}
+  if (filter?.endDate) {params.append('endDate', filter.endDate);}
 
   const url = `/api/Analytics/ai-performance/accuracy${params.toString() ? `?${params.toString()}` : ''}`;
+
   return apiRequest<{ accuracy: number }>(url, {
     method: 'GET',
     includeAuth: true,
@@ -209,13 +217,15 @@ export async function getAIAccuracy(
  * Get AI automation rate (percentage not needing review)
  */
 export async function getAIAutomationRate(
-  filter?: AIAnalyticsFilter
+  filter?: AIAnalyticsFilter,
 ): Promise<ApiResponse<{ automationRate: number }>> {
   const params = new URLSearchParams();
-  if (filter?.startDate) params.append('startDate', filter.startDate);
-  if (filter?.endDate) params.append('endDate', filter.endDate);
+
+  if (filter?.startDate) {params.append('startDate', filter.startDate);}
+  if (filter?.endDate) {params.append('endDate', filter.endDate);}
 
   const url = `/api/Analytics/ai-performance/automation-rate${params.toString() ? `?${params.toString()}` : ''}`;
+
   return apiRequest<{ automationRate: number }>(url, {
     method: 'GET',
     includeAuth: true,
@@ -277,7 +287,7 @@ export async function checkRetrainingEligibility(): Promise<
     {
       method: 'GET',
       includeAuth: true,
-    }
+    },
   );
 }
 
@@ -285,7 +295,7 @@ export async function checkRetrainingEligibility(): Promise<
  * Trigger manual ML model retraining
  */
 export async function triggerModelRetraining(
-  request?: RetrainingRequest
+  request?: RetrainingRequest,
 ): Promise<ApiResponse<RetrainingResult>> {
   return apiRequest<RetrainingResult>('/api/admin/MLModels/retrain', {
     method: 'POST',
@@ -300,10 +310,7 @@ export async function triggerModelRetraining(
 /**
  * Activate a specific ML model version
  */
-export async function activateMLModel(
-  modelId: string,
-  notes?: string
-): Promise<ApiResponse<void>> {
+export async function activateMLModel(modelId: string, notes?: string): Promise<ApiResponse<void>> {
   return apiRequest<void>(`/api/admin/MLModels/${modelId}/activate`, {
     method: 'POST',
     headers: {
@@ -327,9 +334,7 @@ export async function deleteMLModel(modelId: string): Promise<ApiResponse<void>>
 /**
  * Clean up old ML models (keeps only last 5)
  */
-export async function cleanupOldModels(): Promise<
-  ApiResponse<{ deletedCount: number }>
-> {
+export async function cleanupOldModels(): Promise<ApiResponse<{ deletedCount: number }>> {
   return apiRequest<{ deletedCount: number }>('/api/admin/MLModels/cleanup', {
     method: 'POST',
     includeAuth: true,
@@ -350,13 +355,14 @@ export async function getTrainingData(params?: {
   pageSize?: number;
 }): Promise<ApiResponse<TrainingData[]>> {
   const searchParams = new URLSearchParams();
-  if (params?.category) searchParams.append('category', params.category);
-  if (params?.verified !== undefined)
-    searchParams.append('verified', params.verified.toString());
-  if (params?.page) searchParams.append('page', params.page.toString());
-  if (params?.pageSize) searchParams.append('pageSize', params.pageSize.toString());
+
+  if (params?.category) {searchParams.append('category', params.category);}
+  if (params?.verified !== undefined) {searchParams.append('verified', params.verified.toString());}
+  if (params?.page) {searchParams.append('page', params.page.toString());}
+  if (params?.pageSize) {searchParams.append('pageSize', params.pageSize.toString());}
 
   const url = `/api/admin/TrainingData${searchParams.toString() ? `?${searchParams.toString()}` : ''}`;
+
   return apiRequest<TrainingData[]>(url, {
     method: 'GET',
     includeAuth: true,
@@ -377,7 +383,7 @@ export async function getTrainingDataStats(): Promise<ApiResponse<TrainingDataSt
  * Get training data by category
  */
 export async function getTrainingDataByCategory(
-  category: string
+  category: string,
 ): Promise<ApiResponse<TrainingData[]>> {
   return apiRequest<TrainingData[]>(`/api/admin/TrainingData/by-category/${category}`, {
     method: 'GET',
@@ -389,7 +395,7 @@ export async function getTrainingDataByCategory(
  * Add bulk training data
  */
 export async function addBulkTrainingData(
-  request: BulkTrainingDataRequest
+  request: BulkTrainingDataRequest,
 ): Promise<ApiResponse<{ addedCount: number }>> {
   return apiRequest<{ addedCount: number }>('/api/admin/TrainingData/bulk', {
     method: 'POST',
@@ -464,9 +470,7 @@ export async function getTfIdfStats(): Promise<
 /**
  * Check if TF-IDF index is initialized
  */
-export async function isTfIdfInitialized(): Promise<
-  ApiResponse<{ isInitialized: boolean }>
-> {
+export async function isTfIdfInitialized(): Promise<ApiResponse<{ isInitialized: boolean }>> {
   return apiRequest<{ isInitialized: boolean }>('/api/admin/TfIdf/initialized', {
     method: 'GET',
     includeAuth: true,
@@ -487,23 +491,31 @@ export async function isTfIdfStale(): Promise<ApiResponse<{ isStale: boolean }>>
 // Case-Based Reasoning
 // ============================================
 
-export async function getCBRStats(): Promise<ApiResponse<{
-  totalHistoricalTickets: number;
-  indexedTickets: number;
-  lastIndexed: string;
-  averageSimilarityScore: number;
-  ticketsByCategory: Record<string, number>;
-  averageSearchTimeMs: number;
-}>> {
+export async function getCBRStats(): Promise<
+  ApiResponse<{
+    totalHistoricalTickets: number;
+    indexedTickets: number;
+    lastIndexed: string;
+    averageSimilarityScore: number;
+    ticketsByCategory: Record<string, number>;
+    averageSearchTimeMs: number;
+  }>
+> {
   return apiRequest('/api/admin/CaseBasedReasoning/stats', { method: 'GET', includeAuth: true });
 }
 
 export async function isCBRInitialized(): Promise<ApiResponse<{ isInitialized: boolean }>> {
-  return apiRequest<{ isInitialized: boolean }>('/api/admin/CaseBasedReasoning/initialized', { method: 'GET', includeAuth: true });
+  return apiRequest<{ isInitialized: boolean }>('/api/admin/CaseBasedReasoning/initialized', {
+    method: 'GET',
+    includeAuth: true,
+  });
 }
 
 export async function buildCBRIndex(): Promise<ApiResponse<void>> {
-  return apiRequest<void>('/api/admin/CaseBasedReasoning/build-index', { method: 'POST', includeAuth: true });
+  return apiRequest<void>('/api/admin/CaseBasedReasoning/build-index', {
+    method: 'POST',
+    includeAuth: true,
+  });
 }
 
 // ============================================
@@ -511,21 +523,29 @@ export async function buildCBRIndex(): Promise<ApiResponse<void>> {
 // ============================================
 
 export async function getRulePriorityKeywords(): Promise<ApiResponse<Record<string, string[]>>> {
-  return apiRequest<Record<string, string[]>>('/api/admin/rules/priority-keywords', { method: 'GET', includeAuth: true });
+  return apiRequest<Record<string, string[]>>('/api/admin/rules/priority-keywords', {
+    method: 'GET',
+    includeAuth: true,
+  });
 }
 
 export async function getRuleCategoryKeywords(): Promise<ApiResponse<Record<string, string[]>>> {
-  return apiRequest<Record<string, string[]>>('/api/admin/rules/category-keywords', { method: 'GET', includeAuth: true });
+  return apiRequest<Record<string, string[]>>('/api/admin/rules/category-keywords', {
+    method: 'GET',
+    includeAuth: true,
+  });
 }
 
-export async function getOrchestratorStats(): Promise<ApiResponse<{
-  totalClassifications: number;
-  countByMethod: Record<string, number>;
-  manualReviewRate: number;
-  averageConfidenceByMethod: Record<string, number>;
-  averageProcessingTimeMs: number;
-  agreementRate: number;
-}>> {
+export async function getOrchestratorStats(): Promise<
+  ApiResponse<{
+    totalClassifications: number;
+    countByMethod: Record<string, number>;
+    manualReviewRate: number;
+    averageConfidenceByMethod: Record<string, number>;
+    averageProcessingTimeMs: number;
+    agreementRate: number;
+  }>
+> {
   return apiRequest('/api/admin/rules/orchestrator-stats', { method: 'GET', includeAuth: true });
 }
 
@@ -548,9 +568,7 @@ export async function getAINotifications(): Promise<
 /**
  * Get unread notification count
  */
-export async function getUnreadNotificationCount(): Promise<
-  ApiResponse<{ count: number }>
-> {
+export async function getUnreadNotificationCount(): Promise<ApiResponse<{ count: number }>> {
   return apiRequest<{ count: number }>('/api/Notifications/unread-count', {
     method: 'GET',
     includeAuth: true,
@@ -560,9 +578,7 @@ export async function getUnreadNotificationCount(): Promise<
 /**
  * Mark a notification as read
  */
-export async function markNotificationAsRead(
-  notificationId: string
-): Promise<ApiResponse<void>> {
+export async function markNotificationAsRead(notificationId: string): Promise<ApiResponse<void>> {
   return apiRequest<void>(`/api/Notifications/${notificationId}/read`, {
     method: 'POST',
     includeAuth: true,
@@ -582,9 +598,7 @@ export async function markAllNotificationsAsRead(): Promise<ApiResponse<void>> {
 /**
  * Delete a notification
  */
-export async function deleteNotification(
-  notificationId: string
-): Promise<ApiResponse<void>> {
+export async function deleteNotification(notificationId: string): Promise<ApiResponse<void>> {
   return apiRequest<void>(`/api/Notifications/${notificationId}`, {
     method: 'DELETE',
     includeAuth: true,

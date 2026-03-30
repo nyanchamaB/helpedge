@@ -22,7 +22,7 @@ export interface BreadcrumbItem {
  */
 export function parseBreadcrumbs(
   pathname: string,
-  customLabels?: Record<string, string>
+  customLabels?: Record<string, string>,
 ): BreadcrumbItem[] {
   // Remove query parameters and trailing slashes
   const cleanPath = pathname.split('?')[0].replace(/\/$/, '');
@@ -47,6 +47,7 @@ export function parseBreadcrumbs(
 
   // Build breadcrumbs for each segment
   let currentPath = '';
+
   segments.forEach((segment, index) => {
     // Skip 'dashboard' segment as we already added it
     if (segment === 'dashboard' && index === 0) {
@@ -62,6 +63,7 @@ export function parseBreadcrumbs(
     // Then check config
     if (!label) {
       const config = getBreadcrumbConfig(currentPath);
+
       label = config?.label;
     }
 
@@ -93,7 +95,7 @@ export function parseBreadcrumbs(
  */
 export function generateBreadcrumbs(
   pathname: string,
-  dynamicData?: Record<string, string>
+  dynamicData?: Record<string, string>,
 ): BreadcrumbItem[] {
   return parseBreadcrumbs(pathname, dynamicData);
 }
@@ -103,6 +105,7 @@ export function generateBreadcrumbs(
  */
 export function getPageTitle(breadcrumbs: BreadcrumbItem[]): string {
   const lastItem = breadcrumbs[breadcrumbs.length - 1];
+
   return lastItem?.label || 'Dashboard';
 }
 
@@ -112,6 +115,7 @@ export function getPageTitle(breadcrumbs: BreadcrumbItem[]): string {
  */
 export function shouldShowBreadcrumbs(pathname: string): boolean {
   const hiddenPaths = ['/login', '/register', '/forgot-password', '/reset-password'];
+
   return !hiddenPaths.includes(pathname);
 }
 
@@ -121,7 +125,7 @@ export function shouldShowBreadcrumbs(pathname: string): boolean {
  */
 export function collapseBreadcrumbs(
   breadcrumbs: BreadcrumbItem[],
-  maxItems: number = 3
+  maxItems: number = 3,
 ): {
   items: BreadcrumbItem[];
   hasEllipsis: boolean;

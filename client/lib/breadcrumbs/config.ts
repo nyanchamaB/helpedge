@@ -239,6 +239,7 @@ export function getBreadcrumbConfig(path: string): BreadcrumbConfig | undefined 
       ) {
         return '[id]';
       }
+
       return segment;
     })
     .join('/');
@@ -258,7 +259,7 @@ export function isDynamicSegment(segment: string): boolean {
  * Converts kebab-case and snake_case to Title Case
  */
 export function segmentToLabel(segment: string): string {
-  if (!segment) return '';
+  if (!segment) {return '';}
 
   // Handle dynamic segments
   if (isDynamicSegment(segment)) {

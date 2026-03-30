@@ -31,7 +31,7 @@ export const SimilarTicketsWidget: FC<SimilarTicketsWidgetProps> = ({
   }
 
   const formatResolutionTime = (minutes?: number) => {
-    if (!minutes) return null;
+    if (!minutes) {return null;}
 
     if (minutes < 60) {
       return `${minutes}m`;
@@ -39,6 +39,7 @@ export const SimilarTicketsWidget: FC<SimilarTicketsWidgetProps> = ({
     if (minutes < 1440) {
       return `${Math.round(minutes / 60)}h`;
     }
+
     return `${Math.round(minutes / 1440)}d`;
   };
 
@@ -57,7 +58,7 @@ export const SimilarTicketsWidget: FC<SimilarTicketsWidgetProps> = ({
             className={cn(
               'rounded-lg border p-4 space-y-3 transition-colors',
               'hover:bg-accent/50',
-              onTicketClick && 'cursor-pointer'
+              onTicketClick && 'cursor-pointer',
             )}
             onClick={() => onTicketClick?.(ticket.ticketId)}
             role={onTicketClick ? 'button' : undefined}
@@ -86,7 +87,8 @@ export const SimilarTicketsWidget: FC<SimilarTicketsWidgetProps> = ({
                 {ticket.resolvedAt && (
                   <div className="flex items-center gap-4 text-xs text-muted-foreground">
                     <span>
-                      Resolved {formatDistanceToNow(new Date(ticket.resolvedAt), { addSuffix: true })}
+                      Resolved{' '}
+                      {formatDistanceToNow(new Date(ticket.resolvedAt), { addSuffix: true })}
                     </span>
                     {ticket.resolutionTime && (
                       <div className="flex items-center gap-1">

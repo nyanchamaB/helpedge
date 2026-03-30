@@ -1,26 +1,26 @@
-"use client";
+'use client';
 
 export const dynamic = 'force-dynamic';
 
-import { useEffect, useMemo, useState } from "react";
-import { useNavigation } from "@/contexts/NavigationContext";
-import { getAllTickets, Ticket } from "@/lib/api/tickets";
-import { TicketsTable } from "@/components/tickets/TicketsTable";
-import { TicketAnalyticsCards } from "@/components/manager/TicketAnalyticsCards";
-import { Button } from "@/components/ui/button";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { RefreshCw } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { useEffect, useMemo, useState } from 'react';
+import { useNavigation } from '@/contexts/NavigationContext';
+import { getAllTickets, Ticket } from '@/lib/api/tickets';
+import { TicketsTable } from '@/components/tickets/TicketsTable';
+import { TicketAnalyticsCards } from '@/components/manager/TicketAnalyticsCards';
+import { Button } from '@/components/ui/button';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { RefreshCw } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
-type Filter = "all" | "open" | "inprogress" | "escalated" | "unassigned" | "resolved";
+type Filter = 'all' | 'open' | 'inprogress' | 'escalated' | 'unassigned' | 'resolved';
 
 const FILTER_LABELS: Record<Filter, string> = {
-  all: "All",
-  open: "Open",
-  inprogress: "In Progress",
-  unassigned: "Unassigned",
-  escalated: "Escalated",
-  resolved: "Resolved",
+  all: 'All',
+  open: 'Open',
+  inprogress: 'In Progress',
+  unassigned: 'Unassigned',
+  escalated: 'Escalated',
+  resolved: 'Resolved',
 };
 
 export default function ManagerTickets() {
@@ -28,33 +28,33 @@ export default function ManagerTickets() {
   const [tickets, setTickets] = useState<Ticket[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  const activeFilter = (pageParams.filter as Filter) || "all";
+  const activeFilter = (pageParams.filter as Filter) || 'all';
 
-  useEffect(() => {
-    fetchTickets();
-  }, []);
-
-  async function fetchTickets() {
+  const fetchTickets = async () => {
     setIsLoading(true);
     const res = await getAllTickets();
-    if (res.success && res.data) setTickets(res.data);
+
+    if (res.success && res.data) {setTickets(res.data);}
     setIsLoading(false);
-  }
+  };
+
+  useEffect(() => {
+    async function run() { await fetchTickets(); }
+    void run();
+  }, []);
 
   const filtered = useMemo(() => {
     switch (activeFilter) {
-      case "open":
-        return tickets.filter((t) => t.status === "Open");
-      case "inprogress":
-        return tickets.filter((t) => t.status === "InProgress");
-      case "unassigned":
-        return tickets.filter((t) => t.status === "Open" && !t.assignedToId);
-      case "escalated":
+      case 'open':
+        return tickets.filter((t) => t.status === 'Open');
+      case 'inprogress':
+        return tickets.filter((t) => t.status === 'InProgress');
+      case 'unassigned':
+        return tickets.filter((t) => t.status === 'Open' && !t.assignedToId);
+      case 'escalated':
         return tickets.filter((t) => t.isEscalated);
-      case "resolved":
-        return tickets.filter(
-          (t) => t.status === "Resolved" || t.status === "Closed"
-        );
+      case 'resolved':
+        return tickets.filter((t) => t.status === 'Resolved' || t.status === 'Closed');
       default:
         return tickets;
     }
@@ -63,15 +63,13 @@ export default function ManagerTickets() {
   const counts = useMemo(
     () => ({
       all: tickets.length,
-      open: tickets.filter((t) => t.status === "Open").length,
-      inprogress: tickets.filter((t) => t.status === "InProgress").length,
-      unassigned: tickets.filter((t) => t.status === "Open" && !t.assignedToId).length,
+      open: tickets.filter((t) => t.status === 'Open').length,
+      inprogress: tickets.filter((t) => t.status === 'InProgress').length,
+      unassigned: tickets.filter((t) => t.status === 'Open' && !t.assignedToId).length,
       escalated: tickets.filter((t) => t.isEscalated).length,
-      resolved: tickets.filter(
-        (t) => t.status === "Resolved" || t.status === "Closed"
-      ).length,
+      resolved: tickets.filter((t) => t.status === 'Resolved' || t.status === 'Closed').length,
     }),
-    [tickets]
+    [tickets],
   );
 
   return (
@@ -79,27 +77,14 @@ export default function ManagerTickets() {
       <div className="flex items-start justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold">All Tickets</h1>
-          <p className="text-muted-foreground mt-1">
-            Full ticket visibility across all agents
-          </p>
+          <p className="text-muted-foreground mt-1">Full ticket visibility across all agents</p>
         </div>
         <div className="flex gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => navigateTo("/manager/dashboard")}
-          >
+          <Button variant="outline" size="sm" onClick={() => navigateTo('/manager/dashboard')}>
             Dashboard
           </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={fetchTickets}
-            disabled={isLoading}
-          >
-            <RefreshCw
-              className={cn("h-4 w-4 mr-1.5", isLoading && "animate-spin")}
-            />
+          <Button variant="outline" size="sm" onClick={fetchTickets} disabled={isLoading}>
+            <RefreshCw className={cn('h-4 w-4 mr-1.5', isLoading && 'animate-spin')} />
             Refresh
           </Button>
         </div>
@@ -111,9 +96,7 @@ export default function ManagerTickets() {
       {/* Filter tabs */}
       <Tabs
         value={activeFilter}
-        onValueChange={(v) =>
-          navigateTo("/manager/tickets", { filter: v as Filter })
-        }
+        onValueChange={(v) => navigateTo('/manager/tickets', { filter: v as Filter })}
       >
         <TabsList className="h-9 flex-wrap">
           {(Object.keys(FILTER_LABELS) as Filter[]).map((f) => (

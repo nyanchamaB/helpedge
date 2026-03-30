@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import { useEffect, useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
@@ -20,18 +20,11 @@ interface ProtectedRouteProps {
   onUnauthenticated?: () => void;
 }
 
-export default function ProtectedRoute({
-  children,
-  onUnauthenticated
-}: ProtectedRouteProps) {
+export default function ProtectedRoute({ children, onUnauthenticated }: ProtectedRouteProps) {
   const router = useRouter();
   const pathname = usePathname();
   const [isChecking, setIsChecking] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-
-  useEffect(() => {
-    checkAuthAndRedirect();
-  }, [pathname]);
 
   async function checkAuthAndRedirect() {
     try {
@@ -40,14 +33,15 @@ export default function ProtectedRoute({
 
       if (validation.isValid) {
         // User is authenticated, allow access
-        console.log('ProtectedRoute: User is authenticated');
+        console.warn('ProtectedRoute: User is authenticated');
         setIsAuthenticated(true);
         setIsChecking(false);
+
         return;
       }
 
       // Token is invalid or expired
-      console.log('ProtectedRoute: Token invalid or expired:', validation.error);
+      console.warn('ProtectedRoute: Token invalid or expired:', validation.error);
 
       // Clear invalid token
       clearInvalidToken();
@@ -58,7 +52,8 @@ export default function ProtectedRoute({
       } else {
         // Redirect to login with return URL
         const returnUrl = encodeURIComponent(pathname || '/dashboard');
-        console.log('ProtectedRoute: Redirecting to login, return URL:', returnUrl);
+
+        console.warn('ProtectedRoute: Redirecting to login, return URL:', returnUrl);
         router.replace(`/auth/login?redirect=${returnUrl}`);
       }
     } catch (error) {
@@ -67,9 +62,19 @@ export default function ProtectedRoute({
       // On error, assume not authenticated and redirect to login
       clearInvalidToken();
       const returnUrl = encodeURIComponent(pathname || '/dashboard');
+
       router.replace(`/auth/login?redirect=${returnUrl}`);
     }
   }
+
+  useEffect(() => {
+    async function checkAuth() {
+      await checkAuthAndRedirect();
+    }
+
+    void checkAuth();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pathname]);
 
   // Show loading state during validation to prevent flicker
   if (isChecking) {

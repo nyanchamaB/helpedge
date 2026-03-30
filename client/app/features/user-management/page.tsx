@@ -1,3 +1,8 @@
-export default function UserManagementFeaturePage() {
-  return <div><h1>User Management</h1><p>Content coming soon...</p></div>;
+export default function UserManagementPage() {
+  return (
+    <div>
+      <h1>User Management</h1>
+      {/* User management content goes here */}
+    </div>
+  );
 }

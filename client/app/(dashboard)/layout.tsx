@@ -1,4 +1,4 @@
-"use client";
+'use client';
 import React from 'react';
 import dynamic from 'next/dynamic';
 import { SidebarProvider, SidebarTrigger, SidebarInset } from '@/components/ui/sidebar';
@@ -9,58 +9,67 @@ import { Button } from '@/components/ui/button';
 import { Search } from 'lucide-react';
 import { NavigationProvider } from '@/contexts/NavigationContext';
 // modetoggle and session timer are client components, so we need to dynamically import them to avoid hydration issues
-const ModeToggle = dynamic(() => import('@/components/mode-toggle').then(mod => ({ default: mod.ModeToggle })));
-const AppSidebar = dynamic(() => import('@/components/app-sidebar').then(mod => ({ default: mod.AppSidebar })));
-const SessionAlert = dynamic(() => import('@/components/auth/SessionAlert').then(mod => ({ default: mod.SessionAlert })));
-const SessionTimer = dynamic(() => import('@/components/auth/SessionAlert').then(mod => ({ default: mod.SessionTimer })));
-const NotificationBell = dynamic(() => import('@/components/layout/NotificationBell').then(mod => ({ default: mod.NotificationBell })));
+const ModeToggle = dynamic(() =>
+  import('@/components/mode-toggle').then((mod) => ({ default: mod.ModeToggle })),
+);
+const AppSidebar = dynamic(() =>
+  import('@/components/app-sidebar').then((mod) => ({ default: mod.AppSidebar })),
+);
+const SessionAlert = dynamic(() =>
+  import('@/components/auth/SessionAlert').then((mod) => ({ default: mod.SessionAlert })),
+);
+const SessionTimer = dynamic(() =>
+  import('@/components/auth/SessionAlert').then((mod) => ({ default: mod.SessionTimer })),
+);
+const NotificationBell = dynamic(() =>
+  import('@/components/layout/NotificationBell').then((mod) => ({ default: mod.NotificationBell })),
+);
+
 interface DashboardLayoutProps {
-    children: React.ReactNode;
+  children: React.ReactNode;
 }
 
 export default function DashboardLayout({ children }: DashboardLayoutProps) {
-    return (
-        <NavigationProvider>
-        <ProtectedRoute>
-            <SidebarProvider>
-                <AppSidebar />
-                
-                <SidebarInset>
-                    {/* Header */}
-                    <header className="flex h-16 shrink-0 items-center gap-2 border-b bg-background px-4">
-                        {/* Mobile sidebar trigger — only visible on small screens */}
-                        <SidebarTrigger className="-ml-1 md:hidden" />
-                        <Separator orientation="vertical" className="mr-2 h-4 md:hidden" />
+  return (
+    <NavigationProvider>
+      <ProtectedRoute>
+        <SidebarProvider>
+          <AppSidebar />
 
-                        {/* Breadcrumbs */}
-                        <div className="flex-1">
-                            <Breadcrumb />
-                        </div>
+          <SidebarInset>
+            {/* Header */}
+            <header className="flex h-16 shrink-0 items-center gap-2 border-b bg-background px-4">
+              {/* Mobile sidebar trigger — only visible on small screens */}
+              <SidebarTrigger className="-ml-1 md:hidden" />
+              <Separator orientation="vertical" className="mr-2 h-4 md:hidden" />
 
-                        {/* Right side actions */}
-                        <div className="flex items-center gap-2">
-                            <Button variant="ghost" size="icon" className="h-9 w-9">
-                                <Search className="h-4 w-4" />
-                            </Button>
+              {/* Breadcrumbs */}
+              <div className="flex-1">
+                <Breadcrumb />
+              </div>
 
-                            <NotificationBell />
+              {/* Right side actions */}
+              <div className="flex items-center gap-2">
+                <Button variant="ghost" size="icon" className="h-9 w-9">
+                  <Search className="h-4 w-4" />
+                </Button>
 
-                            <SessionTimer />
-                            <ModeToggle />
-                        </div>
-                    </header>
+                <NotificationBell />
 
-                    {/* Main content */}
-                    <main className="flex flex-1 flex-col gap-4 p-4 md:p-6">
-                        <div className="min-h-[calc(100vh-4rem)]">
-                            {children}
-                        </div>
-                    </main>
-                </SidebarInset>
+                <SessionTimer />
+                <ModeToggle />
+              </div>
+            </header>
 
-                <SessionAlert />
-            </SidebarProvider>
-        </ProtectedRoute>
-        </NavigationProvider>
-    );
+            {/* Main content */}
+            <main className="flex flex-1 flex-col gap-4 p-4 md:p-6">
+              <div className="min-h-[calc(100vh-4rem)]">{children}</div>
+            </main>
+          </SidebarInset>
+
+          <SessionAlert />
+        </SidebarProvider>
+      </ProtectedRoute>
+    </NavigationProvider>
+  );
 }

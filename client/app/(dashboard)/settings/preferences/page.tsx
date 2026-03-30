@@ -1,9 +1,15 @@
-"use client";
+'use client';
 
 export const dynamic = 'force-dynamic';
 
-import { useState, useEffect, useRef } from 'react';
-import { getCurrentUserProfile, updateUser, getRoleDisplayString, getRoleBadgeColor, UserProfile } from "@/lib/api/users";
+import { useState, useEffect } from 'react';
+import {
+  getCurrentUserProfile,
+  updateUser,
+  getRoleDisplayString,
+  getRoleBadgeColor,
+  UserProfile,
+} from '@/lib/api/users';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -36,13 +42,17 @@ import { Spinner } from '@/components/ui/spinner';
 function getInitials(firstName?: string, lastName?: string): string {
   const f = firstName?.[0] ?? '';
   const l = lastName?.[0] ?? '';
+
   return (f + l).toUpperCase() || 'U';
 }
 
 function formatDate(iso?: string, withTime = false) {
-  if (!iso) return '—';
+  if (!iso) {return '—';}
+
   return new Date(iso).toLocaleDateString('en-US', {
-    year: 'numeric', month: 'long', day: 'numeric',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
     ...(withTime ? { hour: '2-digit', minute: '2-digit' } : {}),
   });
 }
@@ -86,8 +96,13 @@ export default function PreferencesPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [form, setForm] = useState<EditForm>({
-    firstName: '', lastName: '', department: '',
-    jobTitle: '', phoneNumber: '', mobileNumber: '', officeLocation: '',
+    firstName: '',
+    lastName: '',
+    department: '',
+    jobTitle: '',
+    phoneNumber: '',
+    mobileNumber: '',
+    officeLocation: '',
   });
 
   useEffect(() => {
@@ -106,11 +121,11 @@ export default function PreferencesPage() {
     setForm((prev) => ({ ...prev, [key]: e.target.value }));
 
   const handleReset = () => {
-    if (profile) setForm(profileToForm(profile));
+    if (profile) {setForm(profileToForm(profile));}
   };
 
   const handleSave = async () => {
-    if (!profile) return;
+    if (!profile) {return;}
     setIsSaving(true);
     try {
       const res = await updateUser(profile.id, {
@@ -122,6 +137,7 @@ export default function PreferencesPage() {
         mobileNumber: form.mobileNumber || undefined,
         officeLocation: form.officeLocation || undefined,
       });
+
       if (res.success && res.data) {
         setProfile(res.data);
         setForm(profileToForm(res.data));
@@ -156,7 +172,6 @@ export default function PreferencesPage() {
 
   return (
     <div className="container max-w-3xl mx-auto py-8 space-y-6">
-
       {/* Page header */}
       <div>
         <h1 className="text-2xl font-bold">Profile &amp; Preferences</h1>
@@ -185,16 +200,25 @@ export default function PreferencesPage() {
                 <h2 className="text-xl font-semibold">
                   {profile.firstName} {profile.lastName}
                 </h2>
-                <Badge className={`text-xs self-center sm:self-auto border ${getRoleBadgeColor(profile.role)}`} variant="outline">
+                <Badge
+                  className={`text-xs self-center sm:self-auto border ${getRoleBadgeColor(profile.role)}`}
+                  variant="outline"
+                >
                   <ShieldCheck className="h-3 w-3 mr-1" />
                   {getRoleDisplayString(profile.role)}
                 </Badge>
                 {profile.isActive ? (
-                  <Badge variant="outline" className="text-xs self-center sm:self-auto bg-green-50 text-green-700 border-green-200">
+                  <Badge
+                    variant="outline"
+                    className="text-xs self-center sm:self-auto bg-green-50 text-green-700 border-green-200"
+                  >
                     <CheckCircle2 className="h-3 w-3 mr-1" /> Active
                   </Badge>
                 ) : (
-                  <Badge variant="outline" className="text-xs self-center sm:self-auto bg-red-50 text-red-700 border-red-200">
+                  <Badge
+                    variant="outline"
+                    className="text-xs self-center sm:self-auto bg-red-50 text-red-700 border-red-200"
+                  >
                     <XCircle className="h-3 w-3 mr-1" /> Inactive
                   </Badge>
                 )}
@@ -242,19 +266,39 @@ export default function PreferencesPage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-1.5">
               <Label htmlFor="firstName">First Name</Label>
-              <Input id="firstName" value={form.firstName} onChange={set('firstName')} placeholder="First name" />
+              <Input
+                id="firstName"
+                value={form.firstName}
+                onChange={set('firstName')}
+                placeholder="First name"
+              />
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="lastName">Last Name</Label>
-              <Input id="lastName" value={form.lastName} onChange={set('lastName')} placeholder="Last name" />
+              <Input
+                id="lastName"
+                value={form.lastName}
+                onChange={set('lastName')}
+                placeholder="Last name"
+              />
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="jobTitle">Job Title</Label>
-              <Input id="jobTitle" value={form.jobTitle} onChange={set('jobTitle')} placeholder="e.g. IT Support Analyst" />
+              <Input
+                id="jobTitle"
+                value={form.jobTitle}
+                onChange={set('jobTitle')}
+                placeholder="e.g. IT Support Analyst"
+              />
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="department">Department</Label>
-              <Input id="department" value={form.department} onChange={set('department')} placeholder="e.g. IT Operations" />
+              <Input
+                id="department"
+                value={form.department}
+                onChange={set('department')}
+                placeholder="e.g. IT Operations"
+              />
             </div>
           </div>
         </CardContent>
@@ -276,19 +320,36 @@ export default function PreferencesPage() {
               <Label htmlFor="phoneNumber" className="flex items-center gap-1.5">
                 <Phone className="h-3.5 w-3.5 text-muted-foreground" /> Phone Number
               </Label>
-              <Input id="phoneNumber" type="tel" value={form.phoneNumber} onChange={set('phoneNumber')} placeholder="+1 (555) 000-0000" />
+              <Input
+                id="phoneNumber"
+                type="tel"
+                value={form.phoneNumber}
+                onChange={set('phoneNumber')}
+                placeholder="+1 (555) 000-0000"
+              />
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="mobileNumber" className="flex items-center gap-1.5">
                 <Smartphone className="h-3.5 w-3.5 text-muted-foreground" /> Mobile Number
               </Label>
-              <Input id="mobileNumber" type="tel" value={form.mobileNumber} onChange={set('mobileNumber')} placeholder="+1 (555) 000-0000" />
+              <Input
+                id="mobileNumber"
+                type="tel"
+                value={form.mobileNumber}
+                onChange={set('mobileNumber')}
+                placeholder="+1 (555) 000-0000"
+              />
             </div>
             <div className="space-y-1.5 sm:col-span-2">
               <Label htmlFor="officeLocation" className="flex items-center gap-1.5">
                 <MapPin className="h-3.5 w-3.5 text-muted-foreground" /> Office Location
               </Label>
-              <Input id="officeLocation" value={form.officeLocation} onChange={set('officeLocation')} placeholder="e.g. Building A, Floor 3, Desk 42" />
+              <Input
+                id="officeLocation"
+                value={form.officeLocation}
+                onChange={set('officeLocation')}
+                placeholder="e.g. Building A, Floor 3, Desk 42"
+              />
             </div>
           </div>
         </CardContent>
@@ -301,29 +362,67 @@ export default function PreferencesPage() {
             <ShieldCheck className="h-4 w-4 text-muted-foreground" />
             <CardTitle className="text-base">Account</CardTitle>
           </div>
-          <CardDescription>Managed by your administrator. Contact IT to change these.</CardDescription>
+          <CardDescription>
+            Managed by your administrator. Contact IT to change these.
+          </CardDescription>
         </CardHeader>
         <Separator />
         <CardContent className="pt-6">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
-            <ReadOnlyRow icon={<Mail className="h-3.5 w-3.5" />} label="Email" value={profile.email} />
-            <ReadOnlyRow icon={<ShieldCheck className="h-3.5 w-3.5" />} label="Role" value={getRoleDisplayString(profile.role)} />
+            <ReadOnlyRow
+              icon={<Mail className="h-3.5 w-3.5" />}
+              label="Email"
+              value={profile.email}
+            />
+            <ReadOnlyRow
+              icon={<ShieldCheck className="h-3.5 w-3.5" />}
+              label="Role"
+              value={getRoleDisplayString(profile.role)}
+            />
             {profile.employeeId && (
-              <ReadOnlyRow icon={<IdCard className="h-3.5 w-3.5" />} label="Employee ID" value={profile.employeeId} />
+              <ReadOnlyRow
+                icon={<IdCard className="h-3.5 w-3.5" />}
+                label="Employee ID"
+                value={profile.employeeId}
+              />
             )}
             {profile.timeZone && (
-              <ReadOnlyRow icon={<Clock className="h-3.5 w-3.5" />} label="Time Zone" value={profile.timeZone} />
+              <ReadOnlyRow
+                icon={<Clock className="h-3.5 w-3.5" />}
+                label="Time Zone"
+                value={profile.timeZone}
+              />
             )}
             {profile.preferredLanguage && (
-              <ReadOnlyRow icon={<Languages className="h-3.5 w-3.5" />} label="Preferred Language" value={profile.preferredLanguage} />
+              <ReadOnlyRow
+                icon={<Languages className="h-3.5 w-3.5" />}
+                label="Preferred Language"
+                value={profile.preferredLanguage}
+              />
             )}
             {profile.externalSource && (
-              <ReadOnlyRow icon={<Globe className="h-3.5 w-3.5" />} label="External Source" value={profile.externalSource} />
+              <ReadOnlyRow
+                icon={<Globe className="h-3.5 w-3.5" />}
+                label="External Source"
+                value={profile.externalSource}
+              />
             )}
-            <ReadOnlyRow icon={<CalendarDays className="h-3.5 w-3.5" />} label="Member Since" value={formatDate(profile.createdAt)} />
-            <ReadOnlyRow icon={<Clock className="h-3.5 w-3.5" />} label="Last Updated" value={formatDate(profile.updatedAt, true)} />
+            <ReadOnlyRow
+              icon={<CalendarDays className="h-3.5 w-3.5" />}
+              label="Member Since"
+              value={formatDate(profile.createdAt)}
+            />
+            <ReadOnlyRow
+              icon={<Clock className="h-3.5 w-3.5" />}
+              label="Last Updated"
+              value={formatDate(profile.updatedAt, true)}
+            />
             {profile.lastLoginAt && (
-              <ReadOnlyRow icon={<Clock className="h-3.5 w-3.5" />} label="Last Login" value={formatDate(profile.lastLoginAt, true)} />
+              <ReadOnlyRow
+                icon={<Clock className="h-3.5 w-3.5" />}
+                label="Last Login"
+                value={formatDate(profile.lastLoginAt, true)}
+              />
             )}
           </div>
         </CardContent>

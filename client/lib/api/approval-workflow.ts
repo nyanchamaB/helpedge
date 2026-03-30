@@ -61,13 +61,22 @@ export async function getApprovalWorkflowById(id: string): Promise<ApiResponse<A
   return apiRequest<ApprovalWorkflow>(`/api/approval-workflows/${id}`, { includeAuth: true });
 }
 
-export async function getWorkflowForRequest(type: ServiceRequestType, categoryId?: string): Promise<ApiResponse<ApprovalWorkflow>> {
+export async function getWorkflowForRequest(
+  type: ServiceRequestType,
+  categoryId?: string,
+): Promise<ApiResponse<ApprovalWorkflow>> {
   const params = new URLSearchParams({ type });
-  if (categoryId) params.append('categoryId', categoryId);
-  return apiRequest<ApprovalWorkflow>(`/api/approval-workflows/for-request?${params}`, { includeAuth: true });
+
+  if (categoryId) {params.append('categoryId', categoryId);}
+
+  return apiRequest<ApprovalWorkflow>(`/api/approval-workflows/for-request?${params}`, {
+    includeAuth: true,
+  });
 }
 
-export async function createApprovalWorkflow(data: CreateApprovalWorkflowDto): Promise<ApiResponse<ApprovalWorkflow>> {
+export async function createApprovalWorkflow(
+  data: CreateApprovalWorkflowDto,
+): Promise<ApiResponse<ApprovalWorkflow>> {
   return apiRequest<ApprovalWorkflow>('/api/approval-workflows', {
     method: 'POST',
     includeAuth: true,
@@ -75,7 +84,10 @@ export async function createApprovalWorkflow(data: CreateApprovalWorkflowDto): P
   });
 }
 
-export async function updateApprovalWorkflow(id: string, data: UpdateApprovalWorkflowDto): Promise<ApiResponse<ApprovalWorkflow>> {
+export async function updateApprovalWorkflow(
+  id: string,
+  data: UpdateApprovalWorkflowDto,
+): Promise<ApiResponse<ApprovalWorkflow>> {
   return apiRequest<ApprovalWorkflow>(`/api/approval-workflows/${id}`, {
     method: 'PUT',
     includeAuth: true,

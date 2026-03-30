@@ -1,18 +1,18 @@
-"use client";
+'use client';
 
-import * as React from "react";
-import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
-import { ChevronLeft, ChevronRight, Check } from "lucide-react";
+import * as React from 'react';
+import { Card } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Separator } from '@/components/ui/separator';
+import { ChevronLeft, ChevronRight, Check } from 'lucide-react';
 
-import UserDetails from "../userInfo/page";
-import AddressDetails from "../addressInfo/page";
-import PaymentInfo from "../paymentInfo/payment";
-import NavHeader from "../../onboarding/navsection";
+import UserDetails from '../userInfo/page';
+import AddressDetails from '../addressInfo/page';
+import PaymentInfo from '../paymentInfo/payment';
+import NavHeader from '../../onboarding/navsection';
 
-const steps = ["User Information", "Address Information", "Payment Information"];
+const steps = ['User Information', 'Address Information', 'Payment Information'];
 
 export default function StepperComponent() {
   const [activeStep, setActiveStep] = React.useState(0);
@@ -23,6 +23,7 @@ export default function StepperComponent() {
 
   const handleNext = () => {
     let newSkipped = skipped;
+
     if (isStepSkipped(activeStep)) {
       newSkipped = new Set(newSkipped.values());
       newSkipped.delete(activeStep);
@@ -66,15 +67,16 @@ export default function StepperComponent() {
             {steps.map((label, index) => {
               const isCompleted = activeStep > index && !isStepSkipped(index);
               const isActive = activeStep === index;
+
               return (
                 <div key={label} className="flex-1 text-center">
                   <Badge
-                    variant={isActive ? "secondary" : isCompleted ? "outline" : "default"}
+                    variant={isActive ? 'secondary' : isCompleted ? 'outline' : 'default'}
                     className="w-8 h-8 mx-auto mb-2 flex items-center justify-center"
                   >
                     {isCompleted ? <Check size={16} /> : index + 1}
                   </Badge>
-                  <div className={`text-sm ${isActive ? "font-semibold" : ""}`}>
+                  <div className={`text-sm ${isActive ? 'font-semibold' : ''}`}>
                     {label}
                     {isStepOptional(index) && (
                       <span className="block text-xs text-muted-foreground">Optional</span>
@@ -110,7 +112,9 @@ export default function StepperComponent() {
               {activeStep === steps.length - 1 ? (
                 <Button onClick={handleNext}>Finish</Button>
               ) : (
-                <Button onClick={handleNext}>Next <ChevronRight size={16} /></Button>
+                <Button onClick={handleNext}>
+                  Next <ChevronRight size={16} />
+                </Button>
               )}
             </div>
           </div>

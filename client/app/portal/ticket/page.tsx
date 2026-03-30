@@ -1,10 +1,10 @@
-"use client";
+'use client';
 
 export const dynamic = 'force-dynamic';
 
-import { useEffect, useState } from "react";
-import { useNavigation } from "@/contexts/NavigationContext";
-import { useAuth } from "@/contexts/AuthContext";
+import { useEffect, useState } from 'react';
+import { useNavigation } from '@/contexts/NavigationContext';
+import { useAuth } from '@/contexts/AuthContext';
 import {
   getTicketById,
   addTicketComment,
@@ -12,48 +12,35 @@ import {
   getPriorityString,
   getEffectiveStatusLabel,
   getEffectiveStatusStyle,
-} from "@/lib/api/tickets";
-import { getCategoryById } from "@/lib/api/categories";
-import { getUserById } from "@/lib/api/users";
-import { TicketStatusTracker } from "@/components/portal/TicketStatusTracker";
-import { TicketConversationThread } from "@/components/portal/TicketConversationThread";
-import { NotificationBanner } from "@/components/portal/NotificationBanner";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
-import { Skeleton } from "@/components/ui/skeleton";
-import { format } from "date-fns";
-import {
-  ArrowLeft,
-  Calendar,
-  RefreshCw,
-  Tag,
-  TrendingUp,
-  User,
-} from "lucide-react";
-import { toast } from "sonner";
-import { cn } from "@/lib/utils";
-import type { TicketPriorityString } from "@/lib/api/tickets";
-
+  type TicketPriorityString,
+} from '@/lib/api/tickets';
+import { getCategoryById } from '@/lib/api/categories';
+import { getUserById } from '@/lib/api/users';
+import { TicketStatusTracker } from '@/components/portal/TicketStatusTracker';
+import { TicketConversationThread } from '@/components/portal/TicketConversationThread';
+import { NotificationBanner } from '@/components/portal/NotificationBanner';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Separator } from '@/components/ui/separator';
+import { Skeleton } from '@/components/ui/skeleton';
+import { format } from 'date-fns';
+import { ArrowLeft, Calendar, RefreshCw, Tag, TrendingUp, User } from 'lucide-react';
+import { toast } from 'sonner';
+import { cn } from '@/lib/utils';
 
 function getPriorityBadgeStyle(priority: TicketPriorityString): string {
   switch (priority) {
-    case "Low":
-      return "bg-gray-50 text-gray-600 border-gray-200";
-    case "Medium":
-      return "bg-blue-50 text-blue-600 border-blue-200";
-    case "High":
-      return "bg-orange-50 text-orange-600 border-orange-200";
-    case "Critical":
-      return "bg-red-50 text-red-600 border-red-200";
+    case 'Low':
+      return 'bg-gray-50 text-gray-600 border-gray-200';
+    case 'Medium':
+      return 'bg-blue-50 text-blue-600 border-blue-200';
+    case 'High':
+      return 'bg-orange-50 text-orange-600 border-orange-200';
+    case 'Critical':
+      return 'bg-red-50 text-red-600 border-red-200';
     default:
-      return "bg-gray-50 text-gray-600 border-gray-200";
+      return 'bg-gray-50 text-gray-600 border-gray-200';
   }
 }
 
@@ -88,66 +75,79 @@ export default function PortalTicketDetail() {
   const [isReplying, setIsReplying] = useState(false);
   const [authorNames, setAuthorNames] = useState<Record<string, string>>({});
 
-  useEffect(() => {
-    if (ticketId) {
-      fetchTicket();
-    }
-  }, [ticketId]);
+  async function resolveAuthorNames(t: Ticket) {
+    const uniqueIds = [...new Set((t.comments ?? []).map((c) => c.authorId))];
+    const names: Record<string, string> = {};
+
+    await Promise.all(
+      uniqueIds.map(async (id) => {
+        if (id === user?.id) {
+          names[id] = user.name || user.email || 'You';
+        } else {
+          const res = await getUserById(id);
+
+          if (res.success && res.data) {
+            names[id] =
+              res.data.fullName ||
+              [res.data.firstName, res.data.lastName].filter(Boolean).join(' ') ||
+              'Support Agent';
+          } else {
+            names[id] = 'Support Agent';
+          }
+        }
+      }),
+    );
+
+    setAuthorNames((prev) => ({ ...prev, ...names }));
+  }
 
   async function fetchTicket() {
     setIsLoading(true);
     const response = await getTicketById(ticketId);
+
     if (response.success && response.data) {
       setTicket(response.data);
       if (response.data.categoryId) {
         const catResponse = await getCategoryById(response.data.categoryId);
+
         if (catResponse.success && catResponse.data) {
           setCategoryName(catResponse.data.name);
         }
       }
       resolveAuthorNames(response.data);
     } else {
-      toast.error("Failed to load ticket");
+      toast.error('Failed to load ticket');
     }
     setIsLoading(false);
   }
 
-  async function resolveAuthorNames(t: Ticket) {
-    const uniqueIds = [...new Set((t.comments ?? []).map((c) => c.authorId))];
-    const names: Record<string, string> = {};
-    await Promise.all(
-      uniqueIds.map(async (id) => {
-        if (id === user?.id) {
-          names[id] = user.name || user.email || "You";
-        } else {
-          const res = await getUserById(id);
-          if (res.success && res.data) {
-            names[id] =
-              res.data.fullName ||
-              [res.data.firstName, res.data.lastName].filter(Boolean).join(" ") ||
-              "Support Agent";
-          } else {
-            names[id] = "Support Agent";
-          }
-        }
-      })
-    );
-    setAuthorNames((prev) => ({ ...prev, ...names }));
-  }
+  useEffect(() => {
+    if (!ticketId) {
+      return;
+    }
+
+    async function loadTicket() {
+      await fetchTicket();
+    }
+
+    void loadTicket();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [ticketId]);
 
   async function handleReply(content: string) {
-    if (!user?.id || !ticketId) return;
+    if (!user?.id || !ticketId) {return;}
     setIsReplying(true);
     const response = await addTicketComment(ticketId, {
       content,
       authorId: user.id,
       isInternal: false,
     });
+
     if (response.success) {
       await fetchTicket();
-      toast.success("Reply sent");
+      toast.success('Reply sent');
     } else {
-      toast.error("Failed to send reply. Please try again.");
+      toast.error('Failed to send reply. Please try again.');
     }
     setIsReplying(false);
   }
@@ -174,7 +174,7 @@ export default function PortalTicketDetail() {
         <Button
           variant="ghost"
           size="sm"
-          onClick={() => navigateTo(pageParams?.from ?? "/portal/my-tickets")}
+          onClick={() => navigateTo(pageParams?.from ?? '/portal/my-tickets')}
           className="-ml-2 mb-4"
         >
           <ArrowLeft className="h-4 w-4 mr-1.5" />
@@ -191,10 +191,10 @@ export default function PortalTicketDetail() {
   }
 
   const agentComments = (ticket.comments ?? []).filter(
-    (c) => !c.isInternal && c.authorId !== user?.id
+    (c) => !c.isInternal && c.authorId !== user?.id,
   );
   const hasNewResponse = agentComments.length > 0;
-  const isClosed = ticket.status === "Closed";
+  const isClosed = ticket.status === 'Closed';
 
   return (
     <div className="container max-w-4xl mx-auto py-6 space-y-6">
@@ -203,19 +203,14 @@ export default function PortalTicketDetail() {
         <Button
           variant="ghost"
           size="sm"
-          onClick={() => navigateTo(pageParams?.from ?? "/portal/my-tickets")}
+          onClick={() => navigateTo(pageParams?.from ?? '/portal/my-tickets')}
           className="-ml-2"
         >
           <ArrowLeft className="h-4 w-4 mr-1.5" />
           Back to My Tickets
         </Button>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={fetchTicket}
-          disabled={isLoading}
-        >
-          <RefreshCw className={cn("h-3.5 w-3.5 mr-1.5", isLoading && "animate-spin")} />
+        <Button variant="outline" size="sm" onClick={fetchTicket} disabled={isLoading}>
+          <RefreshCw className={cn('h-3.5 w-3.5 mr-1.5', isLoading && 'animate-spin')} />
           Refresh
         </Button>
       </div>
@@ -274,9 +269,7 @@ export default function PortalTicketDetail() {
                   <p className="text-xs font-mono text-gray-400 mb-1">
                     {ticket.ticketNumber ?? ticket.id.slice(0, 8)}
                   </p>
-                  <CardTitle className="text-xl leading-snug">
-                    {ticket.subject}
-                  </CardTitle>
+                  <CardTitle className="text-xl leading-snug">{ticket.subject}</CardTitle>
                 </div>
                 <div className="flex gap-1.5 flex-wrap justify-end shrink-0">
                   <Badge
@@ -285,10 +278,7 @@ export default function PortalTicketDetail() {
                   >
                     {getEffectiveStatusLabel(ticket.status, ticket.assignedToId)}
                   </Badge>
-                  <Badge
-                    variant="outline"
-                    className={getPriorityBadgeStyle(ticket.priority)}
-                  >
+                  <Badge variant="outline" className={getPriorityBadgeStyle(ticket.priority)}>
                     {getPriorityString(ticket.priority)}
                   </Badge>
                   {ticket.isEscalated && (
@@ -319,7 +309,7 @@ export default function PortalTicketDetail() {
             <CardContent>
               <TicketConversationThread
                 comments={ticket.comments ?? []}
-                currentUserId={user?.id ?? ""}
+                currentUserId={user?.id ?? ''}
                 onReply={handleReply}
                 isReplying={isReplying}
                 disabled={isClosed}
@@ -350,25 +340,16 @@ export default function PortalTicketDetail() {
                 <InfoRow
                   icon={Calendar}
                   label="Resolved"
-                  value={format(
-                    new Date(ticket.resolvedAt),
-                    "MMM d, yyyy 'at' h:mm a"
-                  )}
+                  value={format(new Date(ticket.resolvedAt), "MMM d, yyyy 'at' h:mm a")}
                 />
               )}
               <Separator />
               <InfoRow
                 icon={User}
                 label="Assigned To"
-                value={ticket.assignedToId ? "Support Agent" : "Awaiting assignment"}
+                value={ticket.assignedToId ? 'Support Agent' : 'Awaiting assignment'}
               />
-              {categoryName && (
-                <InfoRow
-                  icon={Tag}
-                  label="Category"
-                  value={categoryName}
-                />
-              )}
+              {categoryName && <InfoRow icon={Tag} label="Category" value={categoryName} />}
             </CardContent>
           </Card>
 
@@ -380,9 +361,7 @@ export default function PortalTicketDetail() {
               </CardHeader>
               <CardContent className="space-y-2">
                 <p className="text-xs text-gray-400">From</p>
-                <p className="text-sm font-medium text-gray-700 break-all">
-                  {ticket.emailSender}
-                </p>
+                <p className="text-sm font-medium text-gray-700 break-all">{ticket.emailSender}</p>
               </CardContent>
             </Card>
           )}

@@ -10,11 +10,7 @@ interface HighlightedTextProps {
 /**
  * Highlights keywords within text
  */
-export const HighlightedText: FC<HighlightedTextProps> = ({
-  text,
-  keywords,
-  className,
-}) => {
+export const HighlightedText: FC<HighlightedTextProps> = ({ text, keywords, className }) => {
   if (!keywords || keywords.length === 0) {
     return <p className={className}>{text}</p>;
   }
@@ -33,9 +29,7 @@ export const HighlightedText: FC<HighlightedTextProps> = ({
     <p className={className}>
       {parts.map((part, index) => {
         // Check if this part matches any keyword (case-insensitive)
-        const isKeyword = keywords.some(
-          (keyword) => keyword.toLowerCase() === part.toLowerCase()
-        );
+        const isKeyword = keywords.some((keyword) => keyword.toLowerCase() === part.toLowerCase());
 
         if (isKeyword) {
           return (
@@ -44,7 +38,7 @@ export const HighlightedText: FC<HighlightedTextProps> = ({
               className={cn(
                 'bg-blue-200 text-blue-900 px-1 rounded',
                 'dark:bg-blue-900 dark:text-blue-100',
-                'font-medium'
+                'font-medium',
               )}
             >
               {part}

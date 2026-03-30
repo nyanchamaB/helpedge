@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
@@ -24,20 +24,6 @@ export default function PublicRoute({ children }: PublicRouteProps) {
   const { isAuthenticated, isLoading } = useAuth();
   const [tokenValidated, setTokenValidated] = useState(false);
 
-  // First layer: Validate token on mount
-  useEffect(() => {
-    validateAuthToken();
-  }, []);
-
-  // Second layer: Monitor AuthContext state
-  useEffect(() => {
-    if (!isLoading && isAuthenticated && tokenValidated) {
-      // User is authenticated, redirect to dashboard
-      console.log('PublicRoute: User is authenticated (via context), redirecting to dashboard');
-      router.replace('/dashboard');
-    }
-  }, [isAuthenticated, isLoading, tokenValidated, router]);
-
   async function validateAuthToken() {
     try {
       // Validate stored token
@@ -45,10 +31,10 @@ export default function PublicRoute({ children }: PublicRouteProps) {
 
       if (validation.isValid) {
         // Token is valid, but let AuthContext confirm authentication
-        console.log('PublicRoute: Token is valid, checking auth context...');
+        console.warn('PublicRoute: Token is valid, checking auth context...');
       } else {
         // Token is invalid or expired, clear it
-        console.log('PublicRoute: Token invalid or expired, clearing');
+        console.warn('PublicRoute: Token invalid or expired, clearing');
         clearInvalidToken();
       }
 
@@ -58,6 +44,24 @@ export default function PublicRoute({ children }: PublicRouteProps) {
       setTokenValidated(true);
     }
   }
+
+  // First layer: Validate token on mount
+  useEffect(() => {
+    async function validate() {
+      await validateAuthToken();
+    }
+
+    void validate();
+  }, []);
+
+  // Second layer: Monitor AuthContext state
+  useEffect(() => {
+    if (!isLoading && isAuthenticated && tokenValidated) {
+      // User is authenticated, redirect to dashboard
+      console.warn('PublicRoute: User is authenticated (via context), redirecting to dashboard');
+      router.replace('/dashboard');
+    }
+  }, [isAuthenticated, isLoading, tokenValidated, router]);
 
   // Show loading state during validation to prevent flicker
   if (isLoading || !tokenValidated) {

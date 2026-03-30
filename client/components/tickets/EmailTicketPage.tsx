@@ -17,6 +17,7 @@ export default function EmailTicketPage() {
   useEffect(() => {
     if (!isLoading && user) {
       const allowedRoles = ['Admin', 'ITManager', 'ServiceDeskAgent'];
+
       if (!allowedRoles.includes(user.role)) {
         navigateTo('/tickets');
       }
@@ -38,6 +39,7 @@ export default function EmailTicketPage() {
   }
 
   const allowedRoles = ['Admin', 'ITManager', 'ServiceDeskAgent'];
+
   if (!allowedRoles.includes(user.role)) {
     return (
       <div className="flex min-h-screen items-center justify-center">
@@ -56,8 +58,8 @@ export default function EmailTicketPage() {
       <div className="mb-6">
         <h1 className="text-3xl font-bold text-foreground">Create Ticket from Email</h1>
         <p className="mt-2 text-muted-foreground">
-          Manually create a support ticket from email data. The system will automatically apply
-          AI analysis to classify and suggest assignments.
+          Manually create a support ticket from email data. The system will automatically apply AI
+          analysis to classify and suggest assignments.
         </p>
       </div>
 

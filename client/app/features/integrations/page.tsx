@@ -1,10 +1,10 @@
-"use client";
-import NavHeader from "@/app/onboarding/navsection";
+'use client';
+import NavHeader from '@/app/onboarding/navsection';
 
 export default function Integrations() {
   return (
     <>
-        <NavHeader />
+      <NavHeader />
       <h1 className="text-3xl font-bold text-gray-800 mb-4">Integrations</h1>
       <p className="text-gray-600 mb-6">
         Connect HelpEdge seamlessly with your existing tools and services.

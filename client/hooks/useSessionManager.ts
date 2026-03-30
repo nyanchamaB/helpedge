@@ -1,17 +1,17 @@
-"use client";
+'use client';
 
-import { useEffect, useState, useCallback, useRef } from "react";
+import { useEffect, useState, useCallback, useRef } from 'react';
 import {
   getTokenExpirationTime,
   isTokenExpiringSoon,
   isTokenExpired,
   refreshToken,
   logout as apiLogout,
-} from "@/lib/api/auth";
-import { getAuthToken } from "@/lib/api/client";
+} from '@/lib/api/auth';
+import { getAuthToken } from '@/lib/api/client';
 
 // Session timeout in minutes (30 minutes as requested)
-const SESSION_TIMEOUT_MINUTES = 30;
+const _SESSION_TIMEOUT_MINUTES = 30;
 // Warning time before expiration (5 minutes as requested)
 const WARNING_BEFORE_EXPIRY_MINUTES = 5;
 // Check interval in seconds
@@ -41,7 +41,7 @@ export function useSessionManager(): UseSessionManagerReturn {
     isExpiringSoon: false,
     isExpired: false,
     remainingTime: null,
-    remainingTimeFormatted: "",
+    remainingTimeFormatted: '',
   });
 
   const [showExpiryWarning, setShowExpiryWarning] = useState(false);
@@ -51,10 +51,11 @@ export function useSessionManager(): UseSessionManagerReturn {
 
   // Format remaining time as MM:SS
   const formatRemainingTime = useCallback((seconds: number | null): string => {
-    if (seconds === null || seconds <= 0) return "00:00";
+    if (seconds === null || seconds <= 0) {return '00:00';}
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
-    return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
+
+    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   }, []);
 
   // Check session status
@@ -70,11 +71,13 @@ export function useSessionManager(): UseSessionManagerReturn {
             isExpiringSoon: false,
             isExpired: true,
             remainingTime: null,
-            remainingTimeFormatted: "00:00",
+            remainingTimeFormatted: '00:00',
           };
         }
+
         return prev;
       });
+
       return;
     }
 
@@ -100,6 +103,7 @@ export function useSessionManager(): UseSessionManagerReturn {
       ) {
         return newState;
       }
+
       return prev;
     });
 
@@ -118,11 +122,11 @@ export function useSessionManager(): UseSessionManagerReturn {
   // Refresh session
   const refreshSession = useCallback(async (): Promise<boolean> => {
     try {
-      console.log("Attempting to refresh session...");
+      console.warn('Attempting to refresh session...');
       const result = await refreshToken();
 
       if (result.success) {
-        console.log("Session refreshed successfully");
+        console.warn('Session refreshed successfully');
         warningDismissedRef.current = false;
         setShowExpiryWarning(false);
 
@@ -133,11 +137,13 @@ export function useSessionManager(): UseSessionManagerReturn {
 
         return true;
       } else {
-        console.error("Failed to refresh session:", result.error);
+        console.error('Failed to refresh session:', result.error);
+
         return false;
       }
     } catch (error) {
-      console.error("Error refreshing session:", error);
+      console.error('Error refreshing session:', error);
+
       return false;
     }
   }, [checkSession]);
@@ -151,12 +157,12 @@ export function useSessionManager(): UseSessionManagerReturn {
         isExpiringSoon: false,
         isExpired: true,
         remainingTime: null,
-        remainingTimeFormatted: "00:00",
+        remainingTimeFormatted: '00:00',
       });
       setShowExpiryWarning(false);
       setShowExpiredAlert(false);
     } catch (error) {
-      console.error("Error ending session:", error);
+      console.error('Error ending session:', error);
     }
   }, []);
 
@@ -174,7 +180,9 @@ export function useSessionManager(): UseSessionManagerReturn {
   // Set up interval to check session status
   useEffect(() => {
     // Initial check
-    checkSession();
+    const initTimeout = setTimeout(() => {
+      checkSession();
+    }, 0);
 
     // Set up interval
     checkIntervalRef.current = setInterval(() => {
@@ -182,6 +190,7 @@ export function useSessionManager(): UseSessionManagerReturn {
     }, CHECK_INTERVAL_SECONDS * 1000);
 
     return () => {
+      clearTimeout(initTimeout);
       if (checkIntervalRef.current) {
         clearInterval(checkIntervalRef.current);
       }
@@ -194,8 +203,9 @@ export function useSessionManager(): UseSessionManagerReturn {
       warningDismissedRef.current = false;
     };
 
-    window.addEventListener("storage", handleStorageChange);
-    return () => window.removeEventListener("storage", handleStorageChange);
+    window.addEventListener('storage', handleStorageChange);
+
+    return () => window.removeEventListener('storage', handleStorageChange);
   }, []);
 
   return {

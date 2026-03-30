@@ -1,26 +1,19 @@
-"use client";
+'use client';
 
 export const dynamic = 'force-dynamic';
 
-import { useEffect, useMemo, useState } from "react";
-import { useAuth } from "@/contexts/AuthContext";
-import { useNavigation } from "@/contexts/NavigationContext";
-import { getTicketsByCreator, Ticket } from "@/lib/api/tickets";
-import { formatDistanceToNow } from "date-fns";
-import {
-  Bell,
-  MessageSquare,
-  CheckCircle,
-  Clock,
-  ArrowRight,
-  RefreshCw,
-} from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Skeleton } from "@/components/ui/skeleton";
-import { cn } from "@/lib/utils";
+import { useEffect, useMemo, useState } from 'react';
+import { useAuth } from '@/contexts/AuthContext';
+import { useNavigation } from '@/contexts/NavigationContext';
+import { getTicketsByCreator, Ticket } from '@/lib/api/tickets';
+import { formatDistanceToNow } from 'date-fns';
+import { Bell, MessageSquare, CheckCircle, Clock, ArrowRight, RefreshCw } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Skeleton } from '@/components/ui/skeleton';
+import { cn } from '@/lib/utils';
 
-type NotifType = "reply" | "resolved" | "assigned";
+type NotifType = 'reply' | 'resolved' | 'assigned';
 
 interface DerivedNotification {
   id: string;
@@ -33,10 +26,7 @@ interface DerivedNotification {
   isNew: boolean;
 }
 
-function deriveNotifications(
-  tickets: Ticket[],
-  currentUserId: string
-): DerivedNotification[] {
+function deriveNotifications(tickets: Ticket[], currentUserId: string): DerivedNotification[] {
   const notifications: DerivedNotification[] = [];
   const oneWeekAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
 
@@ -45,12 +35,12 @@ function deriveNotifications(
 
     // Agent replies (comments not by current user)
     for (const comment of ticket.comments ?? []) {
-      if (comment.isInternal || comment.authorId === currentUserId) continue;
+      if (comment.isInternal || comment.authorId === currentUserId) {continue;}
       notifications.push({
         id: `comment-${comment.id}`,
-        type: "reply",
-        title: "Support agent replied",
-        message: `Re: ${ticket.subject} — "${comment.content.slice(0, 100)}${comment.content.length > 100 ? "…" : ""}"`,
+        type: 'reply',
+        title: 'Support agent replied',
+        message: `Re: ${ticket.subject} — "${comment.content.slice(0, 100)}${comment.content.length > 100 ? '…' : ''}"`,
         ticketId: ticket.id,
         ticketNumber: num,
         timestamp: comment.createdAt,
@@ -59,11 +49,11 @@ function deriveNotifications(
     }
 
     // Resolved notification
-    if (ticket.status === "Resolved" && ticket.resolvedAt) {
+    if (ticket.status === 'Resolved' && ticket.resolvedAt) {
       notifications.push({
         id: `resolved-${ticket.id}`,
-        type: "resolved",
-        title: "Ticket resolved",
+        type: 'resolved',
+        title: 'Ticket resolved',
         message: `Your ticket "${ticket.subject}" has been marked as resolved.`,
         ticketId: ticket.id,
         ticketNumber: num,
@@ -76,8 +66,8 @@ function deriveNotifications(
     if (ticket.assignedToId) {
       notifications.push({
         id: `assigned-${ticket.id}`,
-        type: "assigned",
-        title: "Ticket assigned to agent",
+        type: 'assigned',
+        title: 'Ticket assigned to agent',
         message: `"${ticket.subject}" has been assigned to a support agent.`,
         ticketId: ticket.id,
         ticketNumber: num,
@@ -88,10 +78,7 @@ function deriveNotifications(
   }
 
   return notifications
-    .sort(
-      (a, b) =>
-        new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
-    )
+    .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
     .slice(0, 40);
 }
 
@@ -101,18 +88,18 @@ const typeConfig: Record<
 > = {
   reply: {
     icon: MessageSquare,
-    iconBg: "bg-blue-50",
-    iconColor: "text-blue-500",
+    iconBg: 'bg-blue-50',
+    iconColor: 'text-blue-500',
   },
   resolved: {
     icon: CheckCircle,
-    iconBg: "bg-green-50",
-    iconColor: "text-green-500",
+    iconBg: 'bg-green-50',
+    iconColor: 'text-green-500',
   },
   assigned: {
     icon: Clock,
-    iconBg: "bg-purple-50",
-    iconColor: "text-purple-500",
+    iconBg: 'bg-purple-50',
+    iconColor: 'text-purple-500',
   },
 };
 
@@ -122,25 +109,31 @@ export default function PortalNotifications() {
   const [tickets, setTickets] = useState<Ticket[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    if (!authLoading && user) {
-      fetchData();
-    }
-  }, [authLoading, user]);
-
   async function fetchData() {
-    if (!user?.id) return;
+    if (!user?.id) {return;}
     setIsLoading(true);
     const response = await getTicketsByCreator(user.id);
+
     if (response.success && response.data) {
       setTickets(response.data);
     }
     setIsLoading(false);
   }
 
+  useEffect(() => {
+    if (!authLoading && user) {
+      async function loadData() {
+        await fetchData();
+      }
+
+      void loadData();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [authLoading, user]);
+
   const notifications = useMemo(
     () => (user ? deriveNotifications(tickets, user.id) : []),
-    [tickets, user]
+    [tickets, user],
   );
 
   const newCount = notifications.filter((n) => n.isNew).length;
@@ -151,14 +144,10 @@ export default function PortalNotifications() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold">Notifications</h1>
-          <p className="text-muted-foreground mt-1">
-            Updates and activity on your support tickets
-          </p>
+          <p className="text-muted-foreground mt-1">Updates and activity on your support tickets</p>
         </div>
         <div className="flex items-center gap-2">
-          {newCount > 0 && (
-            <Badge className="bg-blue-500 text-white">{newCount} new</Badge>
-          )}
+          {newCount > 0 && <Badge className="bg-blue-500 text-white">{newCount} new</Badge>}
           <Button
             variant="outline"
             size="icon"
@@ -166,9 +155,7 @@ export default function PortalNotifications() {
             disabled={isLoading}
             title="Refresh"
           >
-            <RefreshCw
-              className={cn("h-4 w-4", isLoading && "animate-spin")}
-            />
+            <RefreshCw className={cn('h-4 w-4', isLoading && 'animate-spin')} />
           </Button>
         </div>
       </div>
@@ -183,17 +170,14 @@ export default function PortalNotifications() {
       ) : notifications.length === 0 ? (
         <div className="flex flex-col items-center py-16 text-center">
           <Bell className="h-12 w-12 text-gray-200 mb-4" />
-          <h3 className="text-lg font-medium text-gray-600">
-            No notifications yet
-          </h3>
+          <h3 className="text-lg font-medium text-gray-600">No notifications yet</h3>
           <p className="text-sm text-gray-400 mt-1">
-            You&apos;ll see updates here when agents respond to your tickets or
-            statuses change.
+            You&apos;ll see updates here when agents respond to your tickets or statuses change.
           </p>
           <Button
             variant="outline"
             className="mt-4"
-            onClick={() => navigateTo("/portal/my-tickets")}
+            onClick={() => navigateTo('/portal/my-tickets')}
           >
             View My Tickets
           </Button>
@@ -208,32 +192,27 @@ export default function PortalNotifications() {
               <button
                 key={notification.id}
                 onClick={() =>
-                  navigateTo(`/portal/ticket/${notification.ticketId}`, { from: '/portal/notifications' })
+                  navigateTo(`/portal/ticket/${notification.ticketId}`, {
+                    from: '/portal/notifications',
+                  })
                 }
                 className={cn(
-                  "w-full flex items-start gap-3 p-4 rounded-xl border text-left transition-colors",
+                  'w-full flex items-start gap-3 p-4 rounded-xl border text-left transition-colors',
                   notification.isNew
-                    ? "bg-blue-50 border-blue-100 hover:bg-blue-100/70"
-                    : "bg-white hover:bg-gray-50 border-gray-100"
+                    ? 'bg-blue-50 border-blue-100 hover:bg-blue-100/70'
+                    : 'bg-white hover:bg-gray-50 border-gray-100',
                 )}
               >
-                <div
-                  className={cn(
-                    "p-2 rounded-lg shrink-0",
-                    config.iconBg
-                  )}
-                >
-                  <Icon className={cn("h-4 w-4", config.iconColor)} />
+                <div className={cn('p-2 rounded-lg shrink-0', config.iconBg)}>
+                  <Icon className={cn('h-4 w-4', config.iconColor)} />
                 </div>
 
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center justify-between gap-2 mb-0.5">
                     <p
                       className={cn(
-                        "text-sm font-medium",
-                        notification.isNew
-                          ? "text-blue-900"
-                          : "text-gray-800"
+                        'text-sm font-medium',
+                        notification.isNew ? 'text-blue-900' : 'text-gray-800',
                       )}
                     >
                       {notification.title}
@@ -244,12 +223,8 @@ export default function PortalNotifications() {
                       })}
                     </span>
                   </div>
-                  <p className="text-xs text-gray-500 line-clamp-2">
-                    {notification.message}
-                  </p>
-                  <p className="text-xs text-gray-400 mt-1">
-                    #{notification.ticketNumber}
-                  </p>
+                  <p className="text-xs text-gray-500 line-clamp-2">{notification.message}</p>
+                  <p className="text-xs text-gray-400 mt-1">#{notification.ticketNumber}</p>
                 </div>
 
                 <ArrowRight className="h-4 w-4 text-gray-300 shrink-0 mt-1" />

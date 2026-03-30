@@ -1,45 +1,44 @@
-"use client";
+'use client';
 
 export const dynamic = 'force-dynamic';
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
-import { useNavigation } from "@/contexts/NavigationContext";
-import { ArrowLeft, CheckCircle, Copy, Info, Mail, Ticket } from "lucide-react";
-import { toast } from "sonner";
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Separator } from '@/components/ui/separator';
+import { useNavigation } from '@/contexts/NavigationContext';
+import { ArrowLeft, CheckCircle, Copy, Info, Mail, Ticket } from 'lucide-react';
+import { toast } from 'sonner';
 
-const SUPPORT_EMAIL =
-  process.env.NEXT_PUBLIC_SUPPORT_EMAIL ?? "helpedge.itsm@google.com";
+const SUPPORT_EMAIL = process.env.NEXT_PUBLIC_SUPPORT_EMAIL ?? 'helpedge.itsm@google.com';
 
 const HOW_IT_WORKS = [
-  "Send an email to the support address below from your registered email",
-  "Our system automatically converts your email into a support ticket",
-  "The AI analyses your request and routes it to the right team",
-  "You receive a confirmation email with your ticket number",
-  "Track your ticket progress right here on the portal",
+  'Send an email to the support address below from your registered email',
+  'Our system automatically converts your email into a support ticket',
+  'The AI analyses your request and routes it to the right team',
+  'You receive a confirmation email with your ticket number',
+  'Track your ticket progress right here on the portal',
 ];
 
 const TIPS = [
   {
-    tip: "Use a clear, descriptive subject line",
+    tip: 'Use a clear, descriptive subject line',
     detail: 'e.g. "Excel crashes when opening large files on Windows 11"',
   },
   {
-    tip: "Include any error messages",
-    detail: "Copy and paste the full error text — it helps us diagnose faster",
+    tip: 'Include any error messages',
+    detail: 'Copy and paste the full error text — it helps us diagnose faster',
   },
   {
-    tip: "Describe the steps to reproduce",
-    detail: "What were you doing when the problem occurred?",
+    tip: 'Describe the steps to reproduce',
+    detail: 'What were you doing when the problem occurred?',
   },
   {
-    tip: "Mention the business impact",
-    detail: "Are you blocked? Are other team members affected?",
+    tip: 'Mention the business impact',
+    detail: 'Are you blocked? Are other team members affected?',
   },
   {
-    tip: "Attach screenshots or logs",
-    detail: "Attach relevant files directly to your email",
+    tip: 'Attach screenshots or logs',
+    detail: 'Attach relevant files directly to your email',
   },
 ];
 
@@ -48,7 +47,7 @@ export default function PortalEmailTicket() {
 
   const handleCopy = () => {
     navigator.clipboard.writeText(SUPPORT_EMAIL).then(() => {
-      toast.success("Email address copied to clipboard");
+      toast.success('Email address copied to clipboard');
     });
   };
 
@@ -57,7 +56,7 @@ export default function PortalEmailTicket() {
       <Button
         variant="ghost"
         size="sm"
-        onClick={() => navigateTo(pageParams?.from ?? "/portal/my-tickets")}
+        onClick={() => navigateTo(pageParams?.from ?? '/portal/my-tickets')}
         className="-ml-2"
       >
         <ArrowLeft className="h-4 w-4 mr-1.5" />
@@ -85,9 +84,7 @@ export default function PortalEmailTicket() {
             <Mail className="h-4 w-4 text-muted-foreground shrink-0" />
             <div className="flex-1">
               <p className="text-xs text-muted-foreground mb-0.5">Support Email</p>
-              <p className="font-mono font-semibold text-foreground">
-                {SUPPORT_EMAIL}
-              </p>
+              <p className="font-mono font-semibold text-foreground">{SUPPORT_EMAIL}</p>
             </div>
             <Button variant="outline" size="sm" onClick={handleCopy}>
               <Copy className="h-3.5 w-3.5 mr-1.5" />
@@ -106,9 +103,7 @@ export default function PortalEmailTicket() {
                   <span className="shrink-0 w-6 h-6 rounded-full bg-blue-500/10 text-blue-600 dark:text-blue-400 text-xs font-semibold flex items-center justify-center mt-0.5">
                     {i + 1}
                   </span>
-                  <span className="text-sm text-muted-foreground leading-relaxed">
-                    {step}
-                  </span>
+                  <span className="text-sm text-muted-foreground leading-relaxed">{step}</span>
                 </li>
               ))}
             </ol>
@@ -118,9 +113,7 @@ export default function PortalEmailTicket() {
 
           {/* Tips */}
           <div>
-            <h3 className="font-semibold mb-3">
-              Tips for faster support
-            </h3>
+            <h3 className="font-semibold mb-3">Tips for faster support</h3>
             <div className="space-y-3">
               {TIPS.map(({ tip, detail }, i) => (
                 <div key={i} className="flex items-start gap-2.5">
@@ -145,9 +138,9 @@ export default function PortalEmailTicket() {
               </p>
             </div>
             <p className="text-xs text-amber-700 dark:text-amber-400/80 leading-relaxed">
-              Tickets created via email are linked to your account using your
-              registered email address. Make sure you send from the email you
-              used to sign up, so the ticket appears in your portal.
+              Tickets created via email are linked to your account using your registered email
+              address. Make sure you send from the email you used to sign up, so the ticket appears
+              in your portal.
             </p>
           </div>
 
@@ -157,9 +150,7 @@ export default function PortalEmailTicket() {
               <Ticket className="h-4 w-4" />
               <span>Prefer filling out a form?</span>
             </div>
-            <Button onClick={() => navigateTo("/portal/create-ticket")}>
-              Submit via Web Form
-            </Button>
+            <Button onClick={() => navigateTo('/portal/create-ticket')}>Submit via Web Form</Button>
           </div>
         </CardContent>
       </Card>

@@ -4,7 +4,7 @@
  */
 
 import { apiRequest, ApiResponse } from './client';
-import { UserRole as UserRoleType } from './auth';
+import { UserRole as _UserRoleType } from './auth';
 
 // User Role String Type (matches backend response)
 export type UserRoleString =
@@ -151,7 +151,7 @@ export async function createUser(user: CreateUserRequest): Promise<ApiResponse<U
  */
 export async function updateUser(
   userId: string,
-  updates: UpdateUserRequest
+  updates: UpdateUserRequest,
 ): Promise<ApiResponse<User>> {
   return apiRequest<User>(`/api/Users/${userId}`, {
     method: 'PUT',
@@ -168,7 +168,7 @@ export async function updateUser(
  */
 export async function updateUserPassword(
   userId: string,
-  password: string
+  password: string,
 ): Promise<ApiResponse<void>> {
   return apiRequest<void>(`/api/Users/${userId}/password`, {
     method: 'PATCH',
@@ -224,7 +224,9 @@ export interface SystemAdminAvailability {
  * Get availability status of all SystemAdmin users
  * Available to: Admin, SystemAdmin
  */
-export async function getSystemAdminAvailability(): Promise<ApiResponse<SystemAdminAvailability[]>> {
+export async function getSystemAdminAvailability(): Promise<
+  ApiResponse<SystemAdminAvailability[]>
+> {
   return apiRequest<SystemAdminAvailability[]>('/api/Users/system-admins/availability', {
     method: 'GET',
     includeAuth: true,
@@ -238,15 +240,24 @@ export async function getSystemAdminAvailability(): Promise<ApiResponse<SystemAd
  */
 export function getRoleDisplayString(role: UserRoleString): string {
   switch (role) {
-    case 'Admin': return 'Administrator';
-    case 'ITManager': return 'IT Manager';
-    case 'TeamLead': return 'Team Lead';
-    case 'SystemAdmin': return 'System Administrator';
-    case 'ServiceDeskAgent': return 'Service Desk Agent';
-    case 'Technician': return 'Technician';
-    case 'SecurityAdmin': return 'Security Administrator';
-    case 'EndUser': return 'End User';
-    default: return role;
+    case 'Admin':
+      return 'Administrator';
+    case 'ITManager':
+      return 'IT Manager';
+    case 'TeamLead':
+      return 'Team Lead';
+    case 'SystemAdmin':
+      return 'System Administrator';
+    case 'ServiceDeskAgent':
+      return 'Service Desk Agent';
+    case 'Technician':
+      return 'Technician';
+    case 'SecurityAdmin':
+      return 'Security Administrator';
+    case 'EndUser':
+      return 'End User';
+    default:
+      return role;
   }
 }
 
@@ -307,20 +318,17 @@ export function canViewAllUsers(role: UserRoleString): boolean {
 export async function getUserAIPreferences(): Promise<
   ApiResponse<import('@/lib/types/ai').AIUserPreferences>
 > {
-  return apiRequest<import('@/lib/types/ai').AIUserPreferences>(
-    '/api/Users/me/preferences/ai',
-    {
-      method: 'GET',
-      includeAuth: true,
-    }
-  );
+  return apiRequest<import('@/lib/types/ai').AIUserPreferences>('/api/Users/me/preferences/ai', {
+    method: 'GET',
+    includeAuth: true,
+  });
 }
 
 /**
  * Update current user's AI preferences
  */
 export async function updateUserAIPreferences(
-  preferences: import('@/lib/types/ai').AIUserPreferences
+  preferences: import('@/lib/types/ai').AIUserPreferences,
 ): Promise<ApiResponse<void>> {
   return apiRequest<void>('/api/Users/me/preferences/ai', {
     method: 'PUT',

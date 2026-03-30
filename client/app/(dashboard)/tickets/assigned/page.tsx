@@ -1,13 +1,13 @@
-"use client";
+'use client';
 
 export const dynamic = 'force-dynamic';
 
-import { useEffect, useState } from "react";
-import { TicketsTable } from "@/components/tickets/TicketsTable";
-import { getTicketsByAssignee, Ticket } from "@/lib/api/tickets";
-import { useAuth } from "@/contexts/AuthContext";
-import { useNavigation } from "@/contexts/NavigationContext";
-import { Spinner } from "@/components/ui/spinner";
+import { useEffect, useState } from 'react';
+import { TicketsTable } from '@/components/tickets/TicketsTable';
+import { getTicketsByAssignee, Ticket } from '@/lib/api/tickets';
+import { useAuth } from '@/contexts/AuthContext';
+import { useNavigation } from '@/contexts/NavigationContext';
+import { Spinner } from '@/components/ui/spinner';
 
 /**
  * Assigned Tickets Page
@@ -27,31 +27,20 @@ export default function AssignedTicketsPage() {
 
   // Roles that can access assigned tickets
   const allowedRoles = [
-    "ServiceDeskAgent",
-    "Technician",
-    "SecurityAdmin",
-    "SystemAdmin",
-    "TeamLead",
-    "Admin",
-    "ITManager",
+    'ServiceDeskAgent',
+    'Technician',
+    'SecurityAdmin',
+    'SystemAdmin',
+    'TeamLead',
+    'Admin',
+    'ITManager',
   ];
 
-  useEffect(() => {
-    // Check authorization after auth loading completes
-    if (!authLoading && user) {
-      if (!allowedRoles.includes(user.role)) {
-        // Redirect unauthorized users to their tickets
-        navigateTo("/tickets/my-tickets");
-        return;
-      }
-      fetchAssignedTickets();
-    }
-  }, [authLoading, user, navigateTo]);
-
-  async function fetchAssignedTickets() {
+  const fetchAssignedTickets = async () => {
     if (!user?.id) {
-      setError("User ID not found");
+      setError('User ID not found');
       setIsLoading(false);
+
       return;
     }
 
@@ -63,11 +52,26 @@ export default function AssignedTicketsPage() {
     if (response.success && response.data) {
       setTickets(response.data);
     } else {
-      setError(response.error || "Failed to load assigned tickets");
+      setError(response.error || 'Failed to load assigned tickets');
     }
 
     setIsLoading(false);
-  }
+  };
+
+  useEffect(() => {
+    // Check authorization after auth loading completes
+    if (!authLoading && user) {
+      if (!allowedRoles.includes(user.role)) {
+        // Redirect unauthorized users to their tickets
+        navigateTo('/tickets/my-tickets');
+
+        return;
+      }
+      async function run() { await fetchAssignedTickets(); }
+      void run();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [authLoading, user, navigateTo]);
 
   // Show loading while auth is checking
   if (authLoading) {
@@ -88,9 +92,7 @@ export default function AssignedTicketsPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold">Assigned to Me</h1>
-          <p className="text-muted-foreground">
-            Tickets assigned to you for resolution
-          </p>
+          <p className="text-muted-foreground">Tickets assigned to you for resolution</p>
         </div>
       </div>
 

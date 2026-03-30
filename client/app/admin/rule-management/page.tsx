@@ -1,13 +1,7 @@
-"use client";
+'use client';
 
 import { useQuery } from '@tanstack/react-query';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -20,24 +14,22 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import { AlertCircle, RefreshCw, Tag, BarChart2, Percent, Handshake, List } from 'lucide-react';
 import {
-  AlertCircle,
-  RefreshCw,
-  Tag,
-  BarChart2,
-  Percent,
-  Handshake,
-  List,
-} from 'lucide-react';
-import { getRulePriorityKeywords, getRuleCategoryKeywords, getOrchestratorStats } from '@/lib/api/ai';
+  getRulePriorityKeywords,
+  getRuleCategoryKeywords,
+  getOrchestratorStats,
+} from '@/lib/api/ai';
 import { cn } from '@/lib/utils';
 
 export const dynamic = 'force-dynamic';
 
 /** Safely convert anything to a renderable string */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function toStr(v: any): string {
-  if (typeof v === 'string') return v;
-  if (typeof v === 'number' || typeof v === 'boolean') return String(v);
+  if (typeof v === 'string') {return v;}
+  if (typeof v === 'number' || typeof v === 'boolean') {return String(v);}
+
   return '';
 }
 
@@ -45,17 +37,25 @@ function toStr(v: any): string {
  * Extract priority rows from rules API response.
  * Response: { rules: { critical: [{keyword, weight}], high: [...], low: [...] }, thresholds, totalKeywords }
  */
-function extractPriorityRows(raw: any): { priority: string; keywords: { keyword: string; weight: number }[] }[] {
-  if (!raw || typeof raw !== 'object') return [];
+function extractPriorityRows(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  raw: any,
+): { priority: string; keywords: { keyword: string; weight: number }[] }[] {
+  if (!raw || typeof raw !== 'object') {return [];}
   const source = raw.rules && typeof raw.rules === 'object' ? raw.rules : raw;
+
   return Object.entries(source)
     .filter(([, val]) => Array.isArray(val))
     .map(([key, val]) => ({
       priority: key,
-      keywords: (val as any[]).map((kw: any) => ({
-        keyword: typeof kw === 'string' ? kw : (kw.keyword ?? kw.name ?? ''),
-        weight: typeof kw === 'object' ? (kw.weight ?? 1) : 1,
-      })).filter((k) => k.keyword),
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      keywords: (val as any[])
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        .map((kw: any) => ({
+          keyword: typeof kw === 'string' ? kw : (kw.keyword ?? kw.name ?? ''),
+          weight: typeof kw === 'object' ? (kw.weight ?? 1) : 1,
+        }))
+        .filter((k) => k.keyword),
     }));
 }
 
@@ -63,10 +63,14 @@ function extractPriorityRows(raw: any): { priority: string; keywords: { keyword:
  * Extract category rows from category keywords API response.
  * Response: { totalCategories, totalKeywords, categories: [{id, name, keywords: string[], assignableRoles}] }
  */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function extractCategoryRows(raw: any): { id: string; name: string; keywords: string[] }[] {
-  if (!raw || typeof raw !== 'object') return [];
+  if (!raw || typeof raw !== 'object') {return [];}
   const cats = raw.categories;
-  if (!Array.isArray(cats)) return [];
+
+  if (!Array.isArray(cats)) {return [];}
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   return cats.map((c: any) => ({
     id: c.id ?? c.name,
     name: c.name ?? '—',
@@ -111,6 +115,7 @@ export default function RuleManagementPage() {
 
   const priorityRows = extractPriorityRows(priorityResponse?.data);
   const categoryRows = extractCategoryRows(categoryResponse?.data);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const categoryMeta = categoryResponse?.data as any;
   const stats = statsResponse?.data;
 
@@ -120,7 +125,7 @@ export default function RuleManagementPage() {
     refetchStats();
   };
 
-  const isLoading = isLoadingPriority || isLoadingCategory || isLoadingStats;
+  const _isLoading = isLoadingPriority || isLoadingCategory || isLoadingStats;
   const isFetching = isFetchingPriority || isFetchingCategory || isFetchingStats;
 
   if (priorityError) {
@@ -130,7 +135,9 @@ export default function RuleManagementPage() {
           <AlertCircle className="h-4 w-4" />
           <AlertDescription>
             Failed to load rule data.
-            <Button variant="link" className="px-2" onClick={handleRefresh}>Retry</Button>
+            <Button variant="link" className="px-2" onClick={handleRefresh}>
+              Retry
+            </Button>
           </AlertDescription>
         </Alert>
       </div>
@@ -157,7 +164,8 @@ export default function RuleManagementPage() {
       <Alert>
         <AlertCircle className="h-4 w-4" />
         <AlertDescription>
-          Orchestrator stats are persisted to the database and survive API restarts. Counts reflect all classifications across sessions.
+          Orchestrator stats are persisted to the database and survive API restarts. Counts reflect
+          all classifications across sessions.
         </AlertDescription>
       </Alert>
 
@@ -165,41 +173,55 @@ export default function RuleManagementPage() {
       {isLoadingStats ? (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {[...Array(3)].map((_, i) => (
-            <Card key={i}><CardContent className="p-6"><Skeleton className="h-20 w-full" /></CardContent></Card>
+            <Card key={i}>
+              <CardContent className="p-6">
+                <Skeleton className="h-20 w-full" />
+              </CardContent>
+            </Card>
           ))}
         </div>
       ) : stats ? (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <Card>
             <CardHeader className="pb-3">
-              <CardDescription className="text-xs font-medium uppercase">Total Classifications</CardDescription>
+              <CardDescription className="text-xs font-medium uppercase">
+                Total Classifications
+              </CardDescription>
               <BarChart2 className="h-4 w-4 text-blue-600 absolute top-4 right-4" />
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold">{stats.totalClassifications?.toLocaleString() ?? '—'}</div>
+              <div className="text-3xl font-bold">
+                {stats.totalClassifications?.toLocaleString() ?? '—'}
+              </div>
               <p className="text-xs text-muted-foreground mt-2">Since last restart</p>
             </CardContent>
           </Card>
           <Card>
             <CardHeader className="pb-3">
-              <CardDescription className="text-xs font-medium uppercase">Manual Review Rate</CardDescription>
+              <CardDescription className="text-xs font-medium uppercase">
+                Manual Review Rate
+              </CardDescription>
               <Percent className="h-4 w-4 text-yellow-500 absolute top-4 right-4" />
             </CardHeader>
             <CardContent>
               <div className="text-3xl font-bold">
-                {stats.manualReviewRate != null ? `${(stats.manualReviewRate * 100).toFixed(1)}%` : '—'}
+                {stats.manualReviewRate !== null && stats.manualReviewRate !== undefined
+                  ? `${(stats.manualReviewRate * 100).toFixed(1)}%`
+                  : '—'}
               </div>
               <p className="text-xs text-muted-foreground mt-2">Sent to human review</p>
             </CardContent>
           </Card>
           <Card>
             <CardHeader className="pb-3">
-              <CardDescription className="text-xs font-medium uppercase">Agreement Rate</CardDescription>
+              <CardDescription className="text-xs font-medium uppercase">
+                Agreement Rate
+              </CardDescription>
               <Handshake className="h-4 w-4 text-green-600 absolute top-4 right-4" />
             </CardHeader>
             <CardContent>
               <div className="text-3xl font-bold">
-                {stats.agreementRate != null ? `${(stats.agreementRate * 100).toFixed(1)}%` : '—'}
+                {stats.agreementRate !== null && stats.agreementRate !== undefined ? `${(stats.agreementRate * 100).toFixed(1)}%` : '—'}
               </div>
               <p className="text-xs text-muted-foreground mt-2">Methods in agreement</p>
             </CardContent>
@@ -222,7 +244,9 @@ export default function RuleManagementPage() {
                   {Object.entries(stats.countByMethod).map(([method, count]) => (
                     <div key={method} className="flex items-center justify-between">
                       <Badge variant="outline">{method}</Badge>
-                      <span className="text-sm font-medium">{(count as number).toLocaleString()}</span>
+                      <span className="text-sm font-medium">
+                        {(count as number).toLocaleString()}
+                      </span>
                     </div>
                   ))}
                 </div>
@@ -241,14 +265,17 @@ export default function RuleManagementPage() {
                   {Object.entries(stats.averageConfidenceByMethod).map(([method, conf]) => (
                     <div key={method} className="flex items-center justify-between">
                       <Badge variant="outline">{method}</Badge>
-                      <span className="text-sm font-medium">{((conf as number) * 100).toFixed(1)}%</span>
+                      <span className="text-sm font-medium">
+                        {((conf as number) * 100).toFixed(1)}%
+                      </span>
                     </div>
                   ))}
                 </div>
               )}
-              {stats.averageProcessingTimeMs != null && (
+              {stats.averageProcessingTimeMs !== null && stats.averageProcessingTimeMs !== undefined && (
                 <p className="text-xs text-muted-foreground mt-4">
-                  Avg. processing time: <strong>{stats.averageProcessingTimeMs.toFixed(1)}ms</strong>
+                  Avg. processing time:{' '}
+                  <strong>{stats.averageProcessingTimeMs.toFixed(1)}ms</strong>
                 </p>
               )}
             </CardContent>
@@ -265,7 +292,7 @@ export default function RuleManagementPage() {
           </CardTitle>
           <CardDescription>
             Keyword rules used to determine ticket priority
-            {priorityResponse?.data?.totalKeywords != null && (
+            {priorityResponse?.data?.totalKeywords !== null && priorityResponse?.data?.totalKeywords !== undefined && (
               <span className="ml-2 text-foreground font-medium">
                 ({priorityResponse.data.totalKeywords} total keywords)
               </span>
@@ -285,8 +312,10 @@ export default function RuleManagementPage() {
                   <TableHead>Keywords</TableHead>
                   <TableHead className="w-36 text-right">
                     <span>Threshold</span>
+                    {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
                     {(priorityResponse?.data as any)?.thresholdUnit && (
                       <span className="block text-xs font-normal text-muted-foreground normal-case">
+                        {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
                         {(priorityResponse?.data as any).thresholdUnit}
                       </span>
                     )}
@@ -296,21 +325,25 @@ export default function RuleManagementPage() {
               <TableBody>
                 {priorityRows.map((row) => (
                   <TableRow key={row.priority}>
-                    <TableCell><Badge>{row.priority}</Badge></TableCell>
+                    <TableCell>
+                      <Badge>{row.priority}</Badge>
+                    </TableCell>
                     <TableCell>
                       <div className="flex flex-wrap gap-1">
-                        {row.keywords.length > 0
-                          ? row.keywords.map((kw, i) => (
-                              <Badge key={`${kw.keyword}-${i}`} variant="outline" className="text-xs">
-                                {kw.keyword}
-                                <span className="ml-1 opacity-50">{kw.weight.toFixed(2)}</span>
-                              </Badge>
-                            ))
-                          : <span className="text-xs text-muted-foreground">No keywords</span>
-                        }
+                        {row.keywords.length > 0 ? (
+                          row.keywords.map((kw, i) => (
+                            <Badge key={`${kw.keyword}-${i}`} variant="outline" className="text-xs">
+                              {kw.keyword}
+                              <span className="ml-1 opacity-50">{kw.weight.toFixed(2)}</span>
+                            </Badge>
+                          ))
+                        ) : (
+                          <span className="text-xs text-muted-foreground">No keywords</span>
+                        )}
                       </div>
                     </TableCell>
                     <TableCell className="text-right text-sm text-muted-foreground">
+                      {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
                       {(priorityResponse?.data as any)?.thresholds?.[row.priority] ?? '—'}
                     </TableCell>
                   </TableRow>
@@ -318,8 +351,10 @@ export default function RuleManagementPage() {
               </TableBody>
             </Table>
           )}
+          {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
           {(priorityResponse?.data as any)?.thresholdExplanation && (
             <p className="text-xs text-muted-foreground mt-3">
+              {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
               <strong>Threshold:</strong> {(priorityResponse?.data as any).thresholdExplanation}
             </p>
           )}
@@ -343,8 +378,14 @@ export default function RuleManagementPage() {
           ) : (
             <div className="space-y-4">
               <div className="flex gap-6 text-sm text-muted-foreground">
-                <span><strong className="text-foreground">{categoryMeta.totalCategories ?? 0}</strong> categories</span>
-                <span><strong className="text-foreground">{categoryMeta.totalKeywords ?? 0}</strong> total keywords</span>
+                <span>
+                  <strong className="text-foreground">{categoryMeta.totalCategories ?? 0}</strong>{' '}
+                  categories
+                </span>
+                <span>
+                  <strong className="text-foreground">{categoryMeta.totalKeywords ?? 0}</strong>{' '}
+                  total keywords
+                </span>
               </div>
               {categoryRows.length === 0 ? (
                 <p className="text-sm text-muted-foreground">
@@ -365,12 +406,15 @@ export default function RuleManagementPage() {
                         <TableCell className="font-medium">{row.name}</TableCell>
                         <TableCell>
                           <div className="flex flex-wrap gap-1">
-                            {row.keywords.length > 0
-                              ? row.keywords.map((kw, i) => (
-                                  <Badge key={`${kw}-${i}`} variant="outline" className="text-xs">{kw}</Badge>
-                                ))
-                              : <span className="text-xs text-muted-foreground">No keywords</span>
-                            }
+                            {row.keywords.length > 0 ? (
+                              row.keywords.map((kw, i) => (
+                                <Badge key={`${kw}-${i}`} variant="outline" className="text-xs">
+                                  {kw}
+                                </Badge>
+                              ))
+                            ) : (
+                              <span className="text-xs text-muted-foreground">No keywords</span>
+                            )}
                           </div>
                         </TableCell>
                         <TableCell className="text-right text-sm text-muted-foreground">

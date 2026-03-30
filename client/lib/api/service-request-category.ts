@@ -76,35 +76,45 @@ export interface UpdateServiceRequestCategoryDto {
   keywords?: string[];
 }
 
-export async function getServiceRequestsCategories(): Promise<ApiResponse<ServiceRequestCategory[]>> {
+export async function getServiceRequestsCategories(): Promise<
+  ApiResponse<ServiceRequestCategory[]>
+> {
   return apiRequest<ServiceRequestCategory[]>('/api/service-request-categories', {
     method: 'GET',
     includeAuth: true,
   });
 }
 
-export async function getActiveServiceRequestCategories(): Promise<ApiResponse<ServiceRequestCategory[]>> {
+export async function getActiveServiceRequestCategories(): Promise<
+  ApiResponse<ServiceRequestCategory[]>
+> {
   return apiRequest<ServiceRequestCategory[]>('/api/service-request-categories/active', {
     method: 'GET',
     includeAuth: true,
   });
 }
 
-export async function getServiceRequestCategoryById(id: string): Promise<ApiResponse<ServiceRequestCategory>> {
+export async function getServiceRequestCategoryById(
+  id: string,
+): Promise<ApiResponse<ServiceRequestCategory>> {
   return apiRequest<ServiceRequestCategory>(`/api/service-request-categories/${id}`, {
     method: 'GET',
     includeAuth: true,
   });
 }
 
-export async function getCategoriesByType(type: ServiceRequestType): Promise<ApiResponse<ServiceRequestCategory[]>> {
+export async function getCategoriesByType(
+  type: ServiceRequestType,
+): Promise<ApiResponse<ServiceRequestCategory[]>> {
   return apiRequest<ServiceRequestCategory[]>(`/api/service-request-categories/by-type/${type}`, {
     method: 'GET',
     includeAuth: true,
   });
 }
 
-export async function createServiceRequestCategory(data: CreateServiceRequestCategoryDto): Promise<ApiResponse<ServiceRequestCategory>> {
+export async function createServiceRequestCategory(
+  data: CreateServiceRequestCategoryDto,
+): Promise<ApiResponse<ServiceRequestCategory>> {
   return apiRequest<ServiceRequestCategory>('/api/service-request-categories', {
     method: 'POST',
     body: data,
@@ -112,7 +122,10 @@ export async function createServiceRequestCategory(data: CreateServiceRequestCat
   });
 }
 
-export async function updateServiceRequestCategory(id: string, data: UpdateServiceRequestCategoryDto): Promise<ApiResponse<ServiceRequestCategory>> {
+export async function updateServiceRequestCategory(
+  id: string,
+  data: UpdateServiceRequestCategoryDto,
+): Promise<ApiResponse<ServiceRequestCategory>> {
   return apiRequest<ServiceRequestCategory>(`/api/service-request-categories/${id}`, {
     method: 'PUT',
     body: data,
@@ -127,14 +140,18 @@ export async function deleteServiceRequestCategory(id: string): Promise<ApiRespo
   });
 }
 
-export async function activateServiceRequestCategory(id: string): Promise<ApiResponse<ServiceRequestCategory>> {
+export async function activateServiceRequestCategory(
+  id: string,
+): Promise<ApiResponse<ServiceRequestCategory>> {
   return apiRequest<ServiceRequestCategory>(`/api/service-request-categories/${id}/activate`, {
     method: 'PATCH',
     includeAuth: true,
   });
 }
 
-export async function deactivateServiceRequestCategory(id: string): Promise<ApiResponse<ServiceRequestCategory>> {
+export async function deactivateServiceRequestCategory(
+  id: string,
+): Promise<ApiResponse<ServiceRequestCategory>> {
   return apiRequest<ServiceRequestCategory>(`/api/service-request-categories/${id}/deactivate`, {
     method: 'PATCH',
     includeAuth: true,

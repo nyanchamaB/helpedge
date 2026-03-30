@@ -33,7 +33,7 @@ export async function getCronSettings(): Promise<ApiResponse<CronSettings>> {
  * PUT /api/CronSettings
  */
 export async function updateCronSettings(
-  settings: UpdateCronSettingsDto
+  settings: UpdateCronSettingsDto,
 ): Promise<ApiResponse<CronSettings>> {
   return apiRequest<CronSettings>('/api/CronSettings', {
     method: 'PUT',
@@ -68,9 +68,7 @@ export async function disableAutoFetch(): Promise<ApiResponse<CronSettings>> {
  * Update interval only
  * PATCH /api/CronSettings/interval
  */
-export async function updateInterval(
-  intervalMinutes: number
-): Promise<ApiResponse<CronSettings>> {
+export async function updateInterval(intervalMinutes: number): Promise<ApiResponse<CronSettings>> {
   return apiRequest<CronSettings>('/api/CronSettings/interval', {
     method: 'PATCH',
     body: { intervalMinutes },

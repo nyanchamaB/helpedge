@@ -1,4 +1,4 @@
-import { apiRequest, ApiResponse } from "./client";
+import { apiRequest, ApiResponse } from './client';
 
 // ─── Enums ────────────────────────────────────────────────────────────────────
 
@@ -218,7 +218,9 @@ export async function getServiceRequestById(id: string): Promise<ApiResponse<Ser
   });
 }
 
-export async function getServiceRequestByNumber(requestNumber: string): Promise<ApiResponse<ServiceRequest>> {
+export async function getServiceRequestByNumber(
+  requestNumber: string,
+): Promise<ApiResponse<ServiceRequest>> {
   return apiRequest<ServiceRequest>(`/api/service-requests/number/${requestNumber}`, {
     method: 'GET',
     includeAuth: true,
@@ -246,7 +248,9 @@ export async function getAssignedServiceRequests(): Promise<ApiResponse<ServiceR
   });
 }
 
-export async function getServiceRequestsPendingApprovalForMe(): Promise<ApiResponse<ServiceRequest[]>> {
+export async function getServiceRequestsPendingApprovalForMe(): Promise<
+  ApiResponse<ServiceRequest[]>
+> {
   return apiRequest<ServiceRequest[]>('/api/service-requests/pending-approval/me', {
     method: 'GET',
     includeAuth: true,
@@ -260,32 +264,43 @@ export async function getOverdueServiceRequests(): Promise<ApiResponse<ServiceRe
   });
 }
 
-export async function getServiceRequestsByStatus(status: ServiceRequestStatus): Promise<ApiResponse<ServiceRequest[]>> {
+export async function getServiceRequestsByStatus(
+  status: ServiceRequestStatus,
+): Promise<ApiResponse<ServiceRequest[]>> {
   return apiRequest<ServiceRequest[]>(`/api/service-requests/by-status/${status}`, {
     method: 'GET',
     includeAuth: true,
   });
 }
 
-export async function getServiceRequestsByType(type: ServiceRequestType): Promise<ApiResponse<ServiceRequest[]>> {
+export async function getServiceRequestsByType(
+  type: ServiceRequestType,
+): Promise<ApiResponse<ServiceRequest[]>> {
   return apiRequest<ServiceRequest[]>(`/api/service-requests/by-type/${type}`, {
     method: 'GET',
     includeAuth: true,
   });
 }
 
-export async function getServiceRequestsByCategory(categoryId: string): Promise<ApiResponse<ServiceRequest[]>> {
+export async function getServiceRequestsByCategory(
+  categoryId: string,
+): Promise<ApiResponse<ServiceRequest[]>> {
   return apiRequest<ServiceRequest[]>(`/api/service-requests/by-category/${categoryId}`, {
     method: 'GET',
     includeAuth: true,
   });
 }
 
-export async function getServiceRequestApprovalStatus(id: string): Promise<ApiResponse<ServiceRequestApprovalHistory[]>> {
-  return apiRequest<ServiceRequestApprovalHistory[]>(`/api/service-requests/${id}/approval-status`, {
-    method: 'GET',
-    includeAuth: true,
-  });
+export async function getServiceRequestApprovalStatus(
+  id: string,
+): Promise<ApiResponse<ServiceRequestApprovalHistory[]>> {
+  return apiRequest<ServiceRequestApprovalHistory[]>(
+    `/api/service-requests/${id}/approval-status`,
+    {
+      method: 'GET',
+      includeAuth: true,
+    },
+  );
 }
 
 export async function getApprovalStatus(id: string): Promise<ApiResponse<ApprovalStatusDto>> {
@@ -295,10 +310,13 @@ export async function getApprovalStatus(id: string): Promise<ApiResponse<Approva
   });
 }
 
-export async function getServiceRequestComments(id: string, includeInternal = false): Promise<ApiResponse<ServiceRequestComment[]>> {
+export async function getServiceRequestComments(
+  id: string,
+  includeInternal = false,
+): Promise<ApiResponse<ServiceRequestComment[]>> {
   return apiRequest<ServiceRequestComment[]>(
     `/api/service-requests/${id}/comments${includeInternal ? '?includeInternal=true' : ''}`,
-    { method: 'GET', includeAuth: true }
+    { method: 'GET', includeAuth: true },
   );
 }
 
@@ -318,7 +336,9 @@ export async function getMyServiceRequestStats(): Promise<ApiResponse<ServiceReq
 
 // ─── STAGE 1 — Create & Edit (Draft) ─────────────────────────────────────────
 
-export async function createServiceRequest(data: CreateServiceRequestDto): Promise<ApiResponse<ServiceRequest>> {
+export async function createServiceRequest(
+  data: CreateServiceRequestDto,
+): Promise<ApiResponse<ServiceRequest>> {
   return apiRequest<ServiceRequest>('/api/service-requests', {
     method: 'POST',
     body: data,
@@ -326,7 +346,10 @@ export async function createServiceRequest(data: CreateServiceRequestDto): Promi
   });
 }
 
-export async function updateServiceRequest(id: string, data: UpdateServiceRequestDto): Promise<ApiResponse<ServiceRequest>> {
+export async function updateServiceRequest(
+  id: string,
+  data: UpdateServiceRequestDto,
+): Promise<ApiResponse<ServiceRequest>> {
   return apiRequest<ServiceRequest>(`/api/service-requests/${id}`, {
     method: 'PUT',
     body: data,
@@ -352,7 +375,10 @@ export async function submitServiceRequest(id: string): Promise<ApiResponse<Serv
 
 // ─── STAGE 3 — Approval Decision ─────────────────────────────────────────────
 
-export async function approveServiceRequest(id: string, data?: ApproveRequestDto): Promise<ApiResponse<ServiceRequest>> {
+export async function approveServiceRequest(
+  id: string,
+  data?: ApproveRequestDto,
+): Promise<ApiResponse<ServiceRequest>> {
   return apiRequest<ServiceRequest>(`/api/service-requests/${id}/approve`, {
     method: 'PATCH',
     body: data ?? {},
@@ -360,7 +386,10 @@ export async function approveServiceRequest(id: string, data?: ApproveRequestDto
   });
 }
 
-export async function rejectServiceRequest(id: string, data: RejectRequestDto): Promise<ApiResponse<ServiceRequest>> {
+export async function rejectServiceRequest(
+  id: string,
+  data: RejectRequestDto,
+): Promise<ApiResponse<ServiceRequest>> {
   return apiRequest<ServiceRequest>(`/api/service-requests/${id}/reject`, {
     method: 'PATCH',
     body: data,
@@ -368,7 +397,10 @@ export async function rejectServiceRequest(id: string, data: RejectRequestDto): 
   });
 }
 
-export async function delegateServiceRequestApproval(id: string, data: DelegateApprovalDto): Promise<ApiResponse<ServiceRequest>> {
+export async function delegateServiceRequestApproval(
+  id: string,
+  data: DelegateApprovalDto,
+): Promise<ApiResponse<ServiceRequest>> {
   return apiRequest<ServiceRequest>(`/api/service-requests/${id}/delegate`, {
     method: 'PATCH',
     body: data,
@@ -378,7 +410,10 @@ export async function delegateServiceRequestApproval(id: string, data: DelegateA
 
 // ─── STAGE 4 — Assignment ─────────────────────────────────────────────────────
 
-export async function assignServiceRequest(id: string, data: AssignServiceRequestDto): Promise<ApiResponse<ServiceRequest>> {
+export async function assignServiceRequest(
+  id: string,
+  data: AssignServiceRequestDto,
+): Promise<ApiResponse<ServiceRequest>> {
   return apiRequest<ServiceRequest>(`/api/service-requests/${id}/assign`, {
     method: 'PATCH',
     body: data,
@@ -395,7 +430,10 @@ export async function startServiceRequest(id: string): Promise<ApiResponse<Servi
   });
 }
 
-export async function fulfillServiceRequest(id: string, data?: FulfillServiceRequestDto): Promise<ApiResponse<ServiceRequest>> {
+export async function fulfillServiceRequest(
+  id: string,
+  data?: FulfillServiceRequestDto,
+): Promise<ApiResponse<ServiceRequest>> {
   return apiRequest<ServiceRequest>(`/api/service-requests/${id}/fulfill`, {
     method: 'PATCH',
     body: data,
@@ -412,7 +450,10 @@ export async function closeServiceRequest(id: string): Promise<ApiResponse<Servi
   });
 }
 
-export async function cancelServiceRequest(id: string, data: CancelServiceRequestDto): Promise<ApiResponse<ServiceRequest>> {
+export async function cancelServiceRequest(
+  id: string,
+  data: CancelServiceRequestDto,
+): Promise<ApiResponse<ServiceRequest>> {
   return apiRequest<ServiceRequest>(`/api/service-requests/${id}/cancel`, {
     method: 'PATCH',
     body: data,
@@ -422,7 +463,10 @@ export async function cancelServiceRequest(id: string, data: CancelServiceReques
 
 // ─── Comments ─────────────────────────────────────────────────────────────────
 
-export async function addServiceRequestComment(id: string, data: AddSRCommentDto): Promise<ApiResponse<ServiceRequestComment>> {
+export async function addServiceRequestComment(
+  id: string,
+  data: AddSRCommentDto,
+): Promise<ApiResponse<ServiceRequestComment>> {
   return apiRequest<ServiceRequestComment>(`/api/service-requests/${id}/comments`, {
     method: 'POST',
     body: data,
@@ -434,72 +478,125 @@ export async function addServiceRequestComment(id: string, data: AddSRCommentDto
 
 export function getSRStatusLabel(status: ServiceRequestStatus): string {
   switch (status) {
-    case 'Draft': return 'Draft';
-    case 'PendingApproval': return 'Pending Approval';
-    case 'Approved': return 'Approved';
-    case 'InProgress': return 'In Progress';
-    case 'Fulfilled': return 'Fulfilled';
-    case 'OnHold': return 'On Hold';
-    case 'Closed': return 'Closed';
-    case 'Rejected': return 'Rejected';
-    case 'Cancelled': return 'Cancelled';
-    default: return status;
+    case 'Draft':
+      return 'Draft';
+    case 'PendingApproval':
+      return 'Pending Approval';
+    case 'Approved':
+      return 'Approved';
+    case 'InProgress':
+      return 'In Progress';
+    case 'Fulfilled':
+      return 'Fulfilled';
+    case 'OnHold':
+      return 'On Hold';
+    case 'Closed':
+      return 'Closed';
+    case 'Rejected':
+      return 'Rejected';
+    case 'Cancelled':
+      return 'Cancelled';
+    default:
+      return status;
   }
 }
 
 export function getSRStatusStyle(status: ServiceRequestStatus): string {
   switch (status) {
-    case 'Draft': return 'bg-gray-100 text-gray-700 border-gray-200';
-    case 'PendingApproval': return 'bg-amber-100 text-amber-800 border-amber-200';
-    case 'Approved': return 'bg-blue-100 text-blue-800 border-blue-200';
-    case 'InProgress': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
-    case 'Fulfilled': return 'bg-green-100 text-green-800 border-green-200';
-    case 'OnHold': return 'bg-purple-100 text-purple-800 border-purple-200';
-    case 'Closed': return 'bg-gray-100 text-gray-600 border-gray-200';
-    case 'Rejected': return 'bg-red-100 text-red-800 border-red-200';
-    case 'Cancelled': return 'bg-slate-100 text-slate-600 border-slate-200';
-    default: return 'bg-gray-100 text-gray-700 border-gray-200';
+    case 'Draft':
+      return 'bg-gray-100 text-gray-700 border-gray-200';
+    case 'PendingApproval':
+      return 'bg-amber-100 text-amber-800 border-amber-200';
+    case 'Approved':
+      return 'bg-blue-100 text-blue-800 border-blue-200';
+    case 'InProgress':
+      return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+    case 'Fulfilled':
+      return 'bg-green-100 text-green-800 border-green-200';
+    case 'OnHold':
+      return 'bg-purple-100 text-purple-800 border-purple-200';
+    case 'Closed':
+      return 'bg-gray-100 text-gray-600 border-gray-200';
+    case 'Rejected':
+      return 'bg-red-100 text-red-800 border-red-200';
+    case 'Cancelled':
+      return 'bg-slate-100 text-slate-600 border-slate-200';
+    default:
+      return 'bg-gray-100 text-gray-700 border-gray-200';
   }
 }
 
 export function getSRPriorityStyle(priority: ServiceRequestPriority): string {
   switch (priority) {
-    case 'Critical': return 'bg-red-100 text-red-800 border-red-200';
-    case 'High': return 'bg-orange-100 text-orange-800 border-orange-200';
-    case 'Normal': return 'bg-blue-100 text-blue-800 border-blue-200';
-    case 'Low': return 'bg-gray-100 text-gray-600 border-gray-200';
-    default: return 'bg-gray-100 text-gray-600 border-gray-200';
+    case 'Critical':
+      return 'bg-red-100 text-red-800 border-red-200';
+    case 'High':
+      return 'bg-orange-100 text-orange-800 border-orange-200';
+    case 'Normal':
+      return 'bg-blue-100 text-blue-800 border-blue-200';
+    case 'Low':
+      return 'bg-gray-100 text-gray-600 border-gray-200';
+    default:
+      return 'bg-gray-100 text-gray-600 border-gray-200';
   }
 }
 
 export function getSRTypeLabel(type: ServiceRequestType): string {
   switch (type) {
-    case 'Access': return 'Access';
-    case 'Equipment': return 'Equipment';
-    case 'Software': return 'Software';
-    case 'DataChange': return 'Data Change';
-    case 'Workspace': return 'Workspace';
-    case 'Account': return 'Account';
-    case 'PermissionChange': return 'Permission Change';
-    default: return type;
+    case 'Access':
+      return 'Access';
+    case 'Equipment':
+      return 'Equipment';
+    case 'Software':
+      return 'Software';
+    case 'DataChange':
+      return 'Data Change';
+    case 'Workspace':
+      return 'Workspace';
+    case 'Account':
+      return 'Account';
+    case 'PermissionChange':
+      return 'Permission Change';
+    default:
+      return type;
   }
 }
 
 export const SERVICE_REQUEST_STATUSES: ServiceRequestStatus[] = [
-  'Draft', 'PendingApproval', 'Approved', 'InProgress',
-  'Fulfilled', 'OnHold', 'Closed', 'Rejected', 'Cancelled',
+  'Draft',
+  'PendingApproval',
+  'Approved',
+  'InProgress',
+  'Fulfilled',
+  'OnHold',
+  'Closed',
+  'Rejected',
+  'Cancelled',
 ];
 
 export const SERVICE_REQUEST_TYPES: ServiceRequestType[] = [
-  'Access', 'Equipment', 'Software', 'DataChange',
-  'Workspace', 'Account', 'PermissionChange',
+  'Access',
+  'Equipment',
+  'Software',
+  'DataChange',
+  'Workspace',
+  'Account',
+  'PermissionChange',
 ];
 
 export const SERVICE_REQUEST_PRIORITIES: ServiceRequestPriority[] = [
-  'Critical', 'High', 'Normal', 'Low',
+  'Critical',
+  'High',
+  'Normal',
+  'Low',
 ];
 
 // Status flow order for progress tracker
 export const SR_STATUS_FLOW: ServiceRequestStatus[] = [
-  'Draft', 'PendingApproval', 'Approved', 'InProgress', 'Fulfilled', 'Closed',
+  'Draft',
+  'PendingApproval',
+  'Approved',
+  'InProgress',
+  'Fulfilled',
+  'Closed',
 ];

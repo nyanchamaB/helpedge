@@ -67,18 +67,25 @@ export async function createCategory(data: CreateCategoryRequest): Promise<ApiRe
     body: data,
     includeAuth: true,
   });
-  if (!response.success) throw new Error(response.error ?? 'Failed to create category');
+
+  if (!response.success) {throw new Error(response.error ?? 'Failed to create category');}
+
   return response;
 }
 
 /** Update an existing category (Admin, ITManager) */
-export async function updateCategory(id: string, data: UpdateCategoryRequest): Promise<ApiResponse<Category>> {
+export async function updateCategory(
+  id: string,
+  data: UpdateCategoryRequest,
+): Promise<ApiResponse<Category>> {
   const response = await apiRequest<Category>(`/api/Categories/${id}`, {
     method: 'PUT',
     body: data,
     includeAuth: true,
   });
-  if (!response.success) throw new Error(response.error ?? 'Failed to update category');
+
+  if (!response.success) {throw new Error(response.error ?? 'Failed to update category');}
+
   return response;
 }
 
@@ -88,7 +95,9 @@ export async function deleteCategory(id: string): Promise<ApiResponse<void>> {
     method: 'DELETE',
     includeAuth: true,
   });
-  if (!response.success) throw new Error(response.error ?? 'Failed to delete category');
+
+  if (!response.success) {throw new Error(response.error ?? 'Failed to delete category');}
+
   return response;
 }
 
@@ -98,7 +107,9 @@ export async function activateCategory(id: string): Promise<ApiResponse<void>> {
     method: 'PATCH',
     includeAuth: true,
   });
-  if (!response.success) throw new Error(response.error ?? 'Failed to activate category');
+
+  if (!response.success) {throw new Error(response.error ?? 'Failed to activate category');}
+
   return response;
 }
 
@@ -108,7 +119,9 @@ export async function deactivateCategory(id: string): Promise<ApiResponse<void>>
     method: 'PATCH',
     includeAuth: true,
   });
-  if (!response.success) throw new Error(response.error ?? 'Failed to deactivate category');
+
+  if (!response.success) {throw new Error(response.error ?? 'Failed to deactivate category');}
+
   return response;
 }
 
@@ -119,6 +132,8 @@ export async function matchTextToCategory(text: string): Promise<ApiResponse<Cat
     body: { text } as CategoryMatchRequest,
     includeAuth: true,
   });
-  if (!response.success) throw new Error(response.error ?? 'Failed to match category');
+
+  if (!response.success) {throw new Error(response.error ?? 'Failed to match category');}
+
   return response;
 }

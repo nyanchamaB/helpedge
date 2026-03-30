@@ -56,7 +56,7 @@ export interface MyStats {
     total: number;
     open: number;
     inProgress: number;
-    onHold: number;   // backend has onHold, not closed
+    onHold: number; // backend has onHold, not closed
     resolved: number;
   };
 }
@@ -78,7 +78,7 @@ export interface TeamStats {
 // GET /api/Dashboard/my-sla
 // Roles: Admin, ITManager, TeamLead, ServiceDeskAgent, Technician, SystemAdmin
 export interface SLAStats {
-  totalAssigned: number;    // was "assignedTickets" in old interface — fixed
+  totalAssigned: number; // was "assignedTickets" in old interface — fixed
   openCount: number;
   resolvedTotal: number;
   byPriority: {
@@ -172,24 +172,48 @@ export async function getDashboardStats(): Promise<ApiResponse<DashboardStats>> 
 export async function getTicketStatusCounts(): Promise<ApiResponse<TicketStatusCounts>> {
   const res = await apiRequest<Array<{ status: string; count: number }>>(
     '/api/Dashboard/ticket-status-counts',
-    { method: 'GET', includeAuth: true }
+    { method: 'GET', includeAuth: true },
   );
+
   if (!res.success || !res.data) {
-    return { success: false, error: res.error, status: res.status } as ApiResponse<TicketStatusCounts>;
+    return {
+      success: false,
+      error: res.error,
+      status: res.status,
+    } as ApiResponse<TicketStatusCounts>;
   }
   const counts: TicketStatusCounts = {
-    open: 0, inProgress: 0, onHold: 0, awaitingInfo: 0, resolved: 0, closed: 0,
+    open: 0,
+    inProgress: 0,
+    onHold: 0,
+    awaitingInfo: 0,
+    resolved: 0,
+    closed: 0,
   };
+
   for (const item of res.data) {
     switch (item.status) {
-      case 'Open':         counts.open         = item.count; break;
-      case 'InProgress':   counts.inProgress   = item.count; break;
-      case 'OnHold':       counts.onHold       = item.count; break;
-      case 'AwaitingInfo': counts.awaitingInfo = item.count; break;
-      case 'Resolved':     counts.resolved     = item.count; break;
-      case 'Closed':       counts.closed       = item.count; break;
+      case 'Open':
+        counts.open = item.count;
+        break;
+      case 'InProgress':
+        counts.inProgress = item.count;
+        break;
+      case 'OnHold':
+        counts.onHold = item.count;
+        break;
+      case 'AwaitingInfo':
+        counts.awaitingInfo = item.count;
+        break;
+      case 'Resolved':
+        counts.resolved = item.count;
+        break;
+      case 'Closed':
+        counts.closed = item.count;
+        break;
     }
   }
+
   return { success: true, data: counts, status: res.status };
 }
 

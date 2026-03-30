@@ -1,11 +1,11 @@
 // components/layout/breadcrumb.tsx
-"use client";
+'use client';
 
-import { ChevronRight, Home } from "lucide-react";
-import { Fragment } from "react";
-import { cn } from "@/lib/utils";
-import { useNavigation } from "@/contexts/NavigationContext";
-import { getBreadcrumbConfig, segmentToLabel } from "@/lib/breadcrumbs/config";
+import { ChevronRight, Home } from 'lucide-react';
+import { Fragment } from 'react';
+import { cn } from '@/lib/utils';
+import { useNavigation } from '@/contexts/NavigationContext';
+import { getBreadcrumbConfig, segmentToLabel } from '@/lib/breadcrumbs/config';
 
 interface BreadcrumbItem {
   label: string;
@@ -15,21 +15,22 @@ interface BreadcrumbItem {
 
 function buildBreadcrumbs(activePage: string): BreadcrumbItem[] {
   // Normalise: strip trailing slash, ensure leading slash
-  const clean = ("/" + activePage.replace(/^\/+|\/+$/g, "")).replace(/\/+/g, "/");
+  const clean = ('/' + activePage.replace(/^\/+|\/+$/g, '')).replace(/\/+/g, '/');
 
-  if (clean === "/" || clean === "/dashboard") return [];
+  if (clean === '/' || clean === '/dashboard') {return [];}
 
-  const segments = clean.split("/").filter(Boolean);
+  const segments = clean.split('/').filter(Boolean);
   const items: BreadcrumbItem[] = [];
 
   segments.forEach((_, i) => {
-    const path = "/" + segments.slice(0, i + 1).join("/");
+    const path = '/' + segments.slice(0, i + 1).join('/');
     const config = getBreadcrumbConfig(path);
 
     // Skip segments marked as hidden
-    if (config?.hideInBreadcrumb) return;
+    if (config?.hideInBreadcrumb) {return;}
 
     const label = config?.label ?? segmentToLabel(segments[i]);
+
     items.push({ label, path, isLast: false });
   });
 
@@ -52,16 +53,16 @@ export function Breadcrumb({ className }: BreadcrumbProps) {
   return (
     <nav
       aria-label="Breadcrumb"
-      className={cn("flex items-center gap-1 text-sm text-muted-foreground", className)}
+      className={cn('flex items-center gap-1 text-sm text-muted-foreground', className)}
     >
       {/* Root — always shown */}
       <button
-        onClick={() => navigateTo("/dashboard")}
+        onClick={() => navigateTo('/dashboard')}
         className="flex items-center gap-1 hover:text-foreground transition-colors"
         aria-label="Dashboard"
       >
         <Home className="h-3.5 w-3.5 shrink-0" />
-        <span className={cn(items.length === 0 ? "text-foreground font-medium" : "")}>
+        <span className={cn(items.length === 0 ? 'text-foreground font-medium' : '')}>
           Dashboard
         </span>
       </button>

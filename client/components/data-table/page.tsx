@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import {
   flexRender,
@@ -7,7 +7,7 @@ import {
   getPaginationRowModel,
   useReactTable,
   type ColumnDef,
-} from "@tanstack/react-table";
+} from '@tanstack/react-table';
 import {
   Table,
   TableBody,
@@ -15,18 +15,16 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
-import { Button } from "@/components/ui/button";
+} from '@/components/ui/table';
+import { Button } from '@/components/ui/button';
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
 }
 
-export function DataTable<TData, TValue>({
-  columns,
-  data,
-}: DataTableProps<TData, TValue>) {
+export function DataTable<TData, TValue>({ columns, data }: DataTableProps<TData, TValue>) {
+  // eslint-disable-next-line react-hooks/incompatible-library
   const table = useReactTable({
     data,
     columns,
@@ -73,7 +71,6 @@ export function DataTable<TData, TValue>({
             )}
           </TableBody>
         </Table>
-
       </div>
 
       {/* Pagination */}

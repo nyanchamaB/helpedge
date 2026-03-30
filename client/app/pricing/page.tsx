@@ -1,49 +1,49 @@
-"use client";
-import NavHeader from "../onboarding/navsection";
-import Link from "next/link";
+'use client';
+import NavHeader from '../onboarding/navsection';
+import Link from 'next/link';
+import Image from 'next/image';
 
 export default function Pricing() {
   const plans = [
     {
-      name: "Trial",
-      price: "Free",
-      description: "Start exploring with full access for small teams.",
+      name: 'Trial',
+      price: 'Free',
+      description: 'Start exploring with full access for small teams.',
       features: [
-        "Up to 10 active users",
-        "1:1 and group messaging",
-        "Basic integrations (e.g., Google Drive)",
-        "Community support",
+        'Up to 10 active users',
+        '1:1 and group messaging',
+        'Basic integrations (e.g., Google Drive)',
+        'Community support',
       ],
-      buttonText: "Get Started",
+      buttonText: 'Get Started',
       highlight: false,
     },
     {
-      name: "Business",
-      price: "$29/mo",
-      description: "Built for growing teams that need collaboration and scale.",
+      name: 'Business',
+      price: '$29/mo',
+      description: 'Built for growing teams that need collaboration and scale.',
       features: [
-        "Unlimited users & channels",
-        "Threaded discussions & shared workspaces",
-        "Advanced integrations (Zapier, Slack APIs)",
-        "Priority email & chat support",
-        "Real-time analytics & reporting",
+        'Unlimited users & channels',
+        'Threaded discussions & shared workspaces',
+        'Advanced integrations (Zapier, Slack APIs)',
+        'Priority email & chat support',
+        'Real-time analytics & reporting',
       ],
-      buttonText: "Start Free Trial",
+      buttonText: 'Start Free Trial',
       highlight: true,
     },
     {
-      name: "Enterprise",
-      price: "Custom",
-      description:
-        "Enterprise-grade security, customization, and dedicated onboarding.",
+      name: 'Enterprise',
+      price: 'Custom',
+      description: 'Enterprise-grade security, customization, and dedicated onboarding.',
       features: [
-        "Everything in Business",
-        "Single sign-on (SSO/SAML)",
-        "Custom data residency & compliance",
-        "Dedicated account manager",
-        "24/7 priority support",
+        'Everything in Business',
+        'Single sign-on (SSO/SAML)',
+        'Custom data residency & compliance',
+        'Dedicated account manager',
+        '24/7 priority support',
       ],
-      buttonText: "Contact Sales",
+      buttonText: 'Contact Sales',
       highlight: false,
     },
   ];
@@ -61,8 +61,8 @@ export default function Pricing() {
               Plans for Every Team
             </h2>
             <p className="mt-6 text-xl text-gray-600 max-w-3xl mx-auto">
-              Choose the plan that matches your workflow and scale confidently
-              as your business grows.
+              Choose the plan that matches your workflow and scale confidently as your business
+              grows.
             </p>
           </div>
 
@@ -75,8 +75,8 @@ export default function Pricing() {
                   index !== plans.length - 1 ? 'md:border-r border-gray-300' : ''
                 } ${
                   plan.highlight
-                    ? "md:-mt-4 md:mb-4 md:py-12 shadow-xl z-10 border-2 border-blue-600 rounded-lg"
-                    : ""
+                    ? 'md:-mt-4 md:mb-4 md:py-12 shadow-xl z-10 border-2 border-blue-600 rounded-lg'
+                    : ''
                 }`}
               >
                 {plan.highlight && (
@@ -84,15 +84,11 @@ export default function Pricing() {
                     Most Popular
                   </div>
                 )}
-                
+
                 <div className="flex-1">
-                  <h3 className="text-2xl font-bold text-gray-900 mb-2">
-                    {plan.name}
-                  </h3>
+                  <h3 className="text-2xl font-bold text-gray-900 mb-2">{plan.name}</h3>
                   <div className="mb-4">
-                    <span className="text-5xl font-bold text-gray-900">
-                      {plan.price}
-                    </span>
+                    <span className="text-5xl font-bold text-gray-900">{plan.price}</span>
                   </div>
                   <p className="text-gray-600 mb-8 min-h-12">{plan.description}</p>
 
@@ -100,8 +96,8 @@ export default function Pricing() {
                     href="/stepper"
                     className={`block w-full py-3.5 rounded-md font-semibold text-center transition-all mb-8 ${
                       plan.highlight
-                        ? "bg-blue-600 text-white hover:bg-blue-700 shadow-md"
-                        : "border-2 border-blue-600 text-blue-600 hover:bg-blue-50"
+                        ? 'bg-blue-600 text-white hover:bg-blue-700 shadow-md'
+                        : 'border-2 border-blue-600 text-blue-600 hover:bg-blue-50'
                     }`}
                   >
                     {plan.buttonText}
@@ -143,7 +139,10 @@ export default function Pricing() {
                       Feature
                     </th>
                     {plans.map((plan) => (
-                      <th key={plan.name} className="py-5 px-6 text-center text-sm font-bold text-gray-900 uppercase tracking-wider">
+                      <th
+                        key={plan.name}
+                        className="py-5 px-6 text-center text-sm font-bold text-gray-900 uppercase tracking-wider"
+                      >
                         {plan.name}
                       </th>
                     ))}
@@ -151,20 +150,18 @@ export default function Pricing() {
                 </thead>
                 <tbody className="divide-y divide-gray-200">
                   {[
-                    "Users included",
-                    "Messaging & channels",
-                    "Integrations",
-                    "Analytics & reporting",
-                    "Support",
+                    'Users included',
+                    'Messaging & channels',
+                    'Integrations',
+                    'Analytics & reporting',
+                    'Support',
                   ].map((feature) => (
                     <tr key={feature} className="hover:bg-gray-50">
-                      <td className="py-5 px-6 text-sm font-medium text-gray-900">
-                        {feature}
-                      </td>
+                      <td className="py-5 px-6 text-sm font-medium text-gray-900">{feature}</td>
                       {plans.map((plan) => (
                         <td key={plan.name} className="py-5 px-6 text-center">
                           {plan.features.some((f) =>
-                            f.toLowerCase().includes(feature.toLowerCase())
+                            f.toLowerCase().includes(feature.toLowerCase()),
                           ) ? (
                             <svg
                               className="w-6 h-6 mx-auto text-green-600"
@@ -199,22 +196,41 @@ export default function Pricing() {
                     Infrastructure Efficiency & Security Guaranteed
                   </h3>
                   <p className="text-lg text-gray-700 mb-10">
-                    We&lsquo;ve engineered our infrastructure for reliability,
-                    scalability, and enterprise-grade protection—so you can build and
-                    grow with confidence.
+                    We&lsquo;ve engineered our infrastructure for reliability, scalability, and
+                    enterprise-grade protection—so you can build and grow with confidence.
                   </p>
 
                   <div className="grid gap-6">
                     {[
-                      { title: "Multi-Region Resilience", desc: "Redundant deployments with automated failover for minimal downtime." },
-                      { title: "Zero-Trust Security", desc: "Encrypted traffic (TLS 1.3), RBAC, and SSO/SAML integration." },
-                      { title: "Continuous Observability", desc: "24/7 performance tracking and proactive incident detection." },
-                      { title: "Compliance Ready", desc: "SOC 2 Type II, GDPR, and custom data residency options." }
+                      {
+                        title: 'Multi-Region Resilience',
+                        desc: 'Redundant deployments with automated failover for minimal downtime.',
+                      },
+                      {
+                        title: 'Zero-Trust Security',
+                        desc: 'Encrypted traffic (TLS 1.3), RBAC, and SSO/SAML integration.',
+                      },
+                      {
+                        title: 'Continuous Observability',
+                        desc: '24/7 performance tracking and proactive incident detection.',
+                      },
+                      {
+                        title: 'Compliance Ready',
+                        desc: 'SOC 2 Type II, GDPR, and custom data residency options.',
+                      },
                     ].map((item) => (
                       <div key={item.title} className="flex items-start">
                         <div className="shrink-0 w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center mr-4">
-                          <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
-                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                          <svg
+                            className="w-5 h-5 text-white"
+                            fill="currentColor"
+                            viewBox="0 0 20 20"
+                          >
+                            <path
+                              fillRule="evenodd"
+                              d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                              clipRule="evenodd"
+                            />
                           </svg>
                         </div>
                         <div>
@@ -229,9 +245,11 @@ export default function Pricing() {
                 {/* Image Right */}
                 <div className="order-first md:order-last">
                   <div className="bg-white rounded-xl shadow-lg p-8 aspect-square flex items-center justify-center">
-                    <img
+                    <Image
                       src="/images/infrastructure-illustration.png"
                       alt="Infrastructure illustration"
+                      width={400}
+                      height={400}
                       className="w-full h-full object-contain"
                     />
                   </div>
@@ -247,9 +265,8 @@ export default function Pricing() {
                 Modern Infrastructure. Future-Proof Performance.
               </h4>
               <p className="text-xl text-blue-100 max-w-3xl mx-auto mb-10">
-                With container orchestration, autoscaling, and intelligent
-                routing, your operations stay fast, efficient, and secure—no
-                matter your team size.
+                With container orchestration, autoscaling, and intelligent routing, your operations
+                stay fast, efficient, and secure—no matter your team size.
               </p>
 
               <div className="flex flex-wrap justify-center gap-4">

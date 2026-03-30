@@ -1,6 +1,6 @@
-"use client";
+'use client';
 
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   getServiceRequests,
   getServiceRequestById,
@@ -19,16 +19,18 @@ import {
   getMyServiceRequestStats,
   ServiceRequestStatus,
   ServiceRequestType,
-} from "@/lib/api/service-request";
+} from '@/lib/api/service-request';
 
 const STALE_TIME = 30_000; // 30 s
 
 export function useAllServiceRequests() {
   return useQuery({
-    queryKey: ["service-requests"],
+    queryKey: ['service-requests'],
     queryFn: async () => {
       const res = await getServiceRequests();
-      if (!res.success || !res.data) throw new Error(res.error ?? "Failed to load requests");
+
+      if (!res.success || !res.data) {throw new Error(res.error ?? 'Failed to load requests');}
+
       return res.data;
     },
     staleTime: STALE_TIME,
@@ -37,10 +39,12 @@ export function useAllServiceRequests() {
 
 export function useServiceRequest(id: string | undefined) {
   return useQuery({
-    queryKey: ["service-requests", id],
+    queryKey: ['service-requests', id],
     queryFn: async () => {
       const res = await getServiceRequestById(id!);
-      if (!res.success || !res.data) throw new Error(res.error ?? "Failed to load request");
+
+      if (!res.success || !res.data) {throw new Error(res.error ?? 'Failed to load request');}
+
       return res.data;
     },
     enabled: !!id,
@@ -50,10 +54,12 @@ export function useServiceRequest(id: string | undefined) {
 
 export function useMyServiceRequests() {
   return useQuery({
-    queryKey: ["service-requests", "my"],
+    queryKey: ['service-requests', 'my'],
     queryFn: async () => {
       const res = await getMyServiceRequests();
-      if (!res.success || !res.data) throw new Error(res.error ?? "Failed to load requests");
+
+      if (!res.success || !res.data) {throw new Error(res.error ?? 'Failed to load requests');}
+
       return res.data;
     },
     staleTime: STALE_TIME,
@@ -62,10 +68,12 @@ export function useMyServiceRequests() {
 
 export function useServiceRequestsForMe() {
   return useQuery({
-    queryKey: ["service-requests", "for-me"],
+    queryKey: ['service-requests', 'for-me'],
     queryFn: async () => {
       const res = await getServiceRequestsForMe();
-      if (!res.success || !res.data) throw new Error(res.error ?? "Failed to load requests");
+
+      if (!res.success || !res.data) {throw new Error(res.error ?? 'Failed to load requests');}
+
       return res.data;
     },
     staleTime: STALE_TIME,
@@ -74,10 +82,13 @@ export function useServiceRequestsForMe() {
 
 export function useAssignedServiceRequests() {
   return useQuery({
-    queryKey: ["service-requests", "assigned"],
+    queryKey: ['service-requests', 'assigned'],
     queryFn: async () => {
       const res = await getAssignedServiceRequests();
-      if (!res.success || !res.data) throw new Error(res.error ?? "Failed to load assigned requests");
+
+      if (!res.success || !res.data)
+        {throw new Error(res.error ?? 'Failed to load assigned requests');}
+
       return res.data;
     },
     staleTime: STALE_TIME,
@@ -86,10 +97,12 @@ export function useAssignedServiceRequests() {
 
 export function usePendingApprovalForMe() {
   return useQuery({
-    queryKey: ["service-requests", "pending-approval"],
+    queryKey: ['service-requests', 'pending-approval'],
     queryFn: async () => {
       const res = await getServiceRequestsPendingApprovalForMe();
-      if (!res.success || !res.data) throw new Error(res.error ?? "Failed to load requests");
+
+      if (!res.success || !res.data) {throw new Error(res.error ?? 'Failed to load requests');}
+
       return res.data;
     },
     staleTime: STALE_TIME,
@@ -98,10 +111,13 @@ export function usePendingApprovalForMe() {
 
 export function useOverdueServiceRequests() {
   return useQuery({
-    queryKey: ["service-requests", "overdue"],
+    queryKey: ['service-requests', 'overdue'],
     queryFn: async () => {
       const res = await getOverdueServiceRequests();
-      if (!res.success || !res.data) throw new Error(res.error ?? "Failed to load overdue requests");
+
+      if (!res.success || !res.data)
+        {throw new Error(res.error ?? 'Failed to load overdue requests');}
+
       return res.data;
     },
     staleTime: STALE_TIME,
@@ -110,10 +126,12 @@ export function useOverdueServiceRequests() {
 
 export function useServiceRequestsByStatus(status: ServiceRequestStatus | undefined) {
   return useQuery({
-    queryKey: ["service-requests", "by-status", status],
+    queryKey: ['service-requests', 'by-status', status],
     queryFn: async () => {
       const res = await getServiceRequestsByStatus(status!);
-      if (!res.success || !res.data) throw new Error(res.error ?? "Failed to load requests");
+
+      if (!res.success || !res.data) {throw new Error(res.error ?? 'Failed to load requests');}
+
       return res.data;
     },
     enabled: !!status,
@@ -123,10 +141,12 @@ export function useServiceRequestsByStatus(status: ServiceRequestStatus | undefi
 
 export function useServiceRequestsByType(type: ServiceRequestType | undefined) {
   return useQuery({
-    queryKey: ["service-requests", "by-type", type],
+    queryKey: ['service-requests', 'by-type', type],
     queryFn: async () => {
       const res = await getServiceRequestsByType(type!);
-      if (!res.success || !res.data) throw new Error(res.error ?? "Failed to load requests");
+
+      if (!res.success || !res.data) {throw new Error(res.error ?? 'Failed to load requests');}
+
       return res.data;
     },
     enabled: !!type,
@@ -136,10 +156,12 @@ export function useServiceRequestsByType(type: ServiceRequestType | undefined) {
 
 export function useServiceRequestsByCategory(categoryId: string | undefined) {
   return useQuery({
-    queryKey: ["service-requests", "by-category", categoryId],
+    queryKey: ['service-requests', 'by-category', categoryId],
     queryFn: async () => {
       const res = await getServiceRequestsByCategory(categoryId!);
-      if (!res.success || !res.data) throw new Error(res.error ?? "Failed to load requests");
+
+      if (!res.success || !res.data) {throw new Error(res.error ?? 'Failed to load requests');}
+
       return res.data;
     },
     enabled: !!categoryId,
@@ -149,10 +171,12 @@ export function useServiceRequestsByCategory(categoryId: string | undefined) {
 
 export function useServiceRequestApprovalHistory(id: string | undefined) {
   return useQuery({
-    queryKey: ["service-requests", id, "approval-history"],
+    queryKey: ['service-requests', id, 'approval-history'],
     queryFn: async () => {
       const res = await getServiceRequestApprovalStatus(id!);
-      if (!res.success) throw new Error(res.error ?? "Failed to load approval history");
+
+      if (!res.success) {throw new Error(res.error ?? 'Failed to load approval history');}
+
       return Array.isArray(res.data) ? res.data : [];
     },
     enabled: !!id,
@@ -162,10 +186,12 @@ export function useServiceRequestApprovalHistory(id: string | undefined) {
 
 export function useApprovalStatus(id: string | undefined) {
   return useQuery({
-    queryKey: ["service-requests", id, "approval-status"],
+    queryKey: ['service-requests', id, 'approval-status'],
     queryFn: async () => {
       const res = await getApprovalStatus(id!);
-      if (!res.success || !res.data) throw new Error(res.error ?? "Failed to load approval status");
+
+      if (!res.success || !res.data) {throw new Error(res.error ?? 'Failed to load approval status');}
+
       return res.data;
     },
     enabled: !!id,
@@ -175,10 +201,12 @@ export function useApprovalStatus(id: string | undefined) {
 
 export function useServiceRequestComments(id: string | undefined, includeInternal = false) {
   return useQuery({
-    queryKey: ["service-requests", id, "comments", includeInternal],
+    queryKey: ['service-requests', id, 'comments', includeInternal],
     queryFn: async () => {
       const res = await getServiceRequestComments(id!, includeInternal);
-      if (!res.success || !res.data) throw new Error(res.error ?? "Failed to load comments");
+
+      if (!res.success || !res.data) {throw new Error(res.error ?? 'Failed to load comments');}
+
       return res.data;
     },
     enabled: !!id,
@@ -188,10 +216,12 @@ export function useServiceRequestComments(id: string | undefined, includeInterna
 
 export function useServiceRequestStats() {
   return useQuery({
-    queryKey: ["service-requests", "stats"],
+    queryKey: ['service-requests', 'stats'],
     queryFn: async () => {
       const res = await getServiceRequestStats();
-      if (!res.success || !res.data) throw new Error(res.error ?? "Failed to load stats");
+
+      if (!res.success || !res.data) {throw new Error(res.error ?? 'Failed to load stats');}
+
       return res.data;
     },
     staleTime: 60_000,
@@ -200,10 +230,12 @@ export function useServiceRequestStats() {
 
 export function useMyServiceRequestStats() {
   return useQuery({
-    queryKey: ["service-requests", "stats", "my"],
+    queryKey: ['service-requests', 'stats', 'my'],
     queryFn: async () => {
       const res = await getMyServiceRequestStats();
-      if (!res.success || !res.data) throw new Error(res.error ?? "Failed to load stats");
+
+      if (!res.success || !res.data) {throw new Error(res.error ?? 'Failed to load stats');}
+
       return res.data;
     },
     staleTime: 60_000,
@@ -212,5 +244,6 @@ export function useMyServiceRequestStats() {
 
 export function useInvalidateServiceRequests() {
   const qc = useQueryClient();
-  return () => qc.invalidateQueries({ queryKey: ["service-requests"] });
+
+  return () => qc.invalidateQueries({ queryKey: ['service-requests'] });
 }

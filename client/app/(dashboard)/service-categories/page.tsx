@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 export const dynamic = 'force-dynamic';
 
@@ -6,28 +6,38 @@ import { useState, useEffect } from 'react';
 import { useNavigation } from '@/contexts/NavigationContext';
 import { useAuth } from '@/contexts/AuthContext';
 import RequestCategoryTable from '@/components/service-request-category/RequestCategoryTable';
-import { ServiceRequestCategory } from '@/lib/api/service-request-category';
 import {
+  ServiceRequestCategory,
   getServiceRequestsCategories,
   deleteServiceRequestCategory,
   activateServiceRequestCategory,
-  deactivateServiceRequestCategory
+  deactivateServiceRequestCategory,
 } from '@/lib/api/service-request-category';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Plus, RefreshCw, Download, Upload } from 'lucide-react';
 
-const STAFF_ROLES = ["Admin","ITManager","TeamLead","SystemAdmin","ServiceDeskAgent","Technician","SecurityAdmin"];
+const STAFF_ROLES = [
+  'Admin',
+  'ITManager',
+  'TeamLead',
+  'SystemAdmin',
+  'ServiceDeskAgent',
+  'Technician',
+  'SecurityAdmin',
+];
+
 export default function ServiceRequestCategoriesPage() {
   const { navigateTo } = useNavigation();
   const { user, isLoading: authLoading } = useAuth();
-  const canWrite  = ["Admin", "ITManager"].includes(user?.role ?? ""); // edit + create
-  const canDelete = user?.role === "Admin";                             // delete + multiselect
+  const canWrite = ['Admin', 'ITManager'].includes(user?.role ?? ''); // edit + create
+  const canDelete = user?.role === 'Admin'; // delete + multiselect
 
   useEffect(() => {
     if (!authLoading && user && !STAFF_ROLES.includes(user.role)) {
-      navigateTo("/portal/my-tickets");
+      navigateTo('/portal/my-tickets');
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [authLoading, user]);
   const [categories, setCategories] = useState<ServiceRequestCategory[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -37,6 +47,7 @@ export default function ServiceRequestCategoriesPage() {
     setIsLoading(true);
     try {
       const response = await getServiceRequestsCategories();
+
       setCategories(response.data || []);
     } catch (error) {
       toast.error('Failed to fetch categories');
@@ -97,7 +108,8 @@ export default function ServiceRequestCategoriesPage() {
       try {
         // Note: You might want to create a bulk delete API endpoint
         // For now, we'll delete sequentially
-        const promises = ids.map(id => deleteServiceRequestCategory(id));
+        const promises = ids.map((id) => deleteServiceRequestCategory(id));
+
         await Promise.all(promises);
         toast.success(`${ids.length} categories deleted successfully`);
         fetchCategories(); // Refresh the list
@@ -110,7 +122,8 @@ export default function ServiceRequestCategoriesPage() {
 
   const handleBulkActivate = async (ids: string[]) => {
     try {
-      const promises = ids.map(id => activateServiceRequestCategory(id));
+      const promises = ids.map((id) => activateServiceRequestCategory(id));
+
       await Promise.all(promises);
       toast.success(`${ids.length} categories activated successfully`);
       fetchCategories(); // Refresh the list
@@ -122,7 +135,8 @@ export default function ServiceRequestCategoriesPage() {
 
   const handleBulkDeactivate = async (ids: string[]) => {
     try {
-      const promises = ids.map(id => deactivateServiceRequestCategory(id));
+      const promises = ids.map((id) => deactivateServiceRequestCategory(id));
+
       await Promise.all(promises);
       toast.success(`${ids.length} categories deactivated successfully`);
       fetchCategories(); // Refresh the list
@@ -142,7 +156,7 @@ export default function ServiceRequestCategoriesPage() {
             Manage and organize different types of service requests
           </p>
         </div>
-        
+
         <div className="flex flex-wrap gap-2">
           <Button
             variant="outline"

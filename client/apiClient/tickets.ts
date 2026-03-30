@@ -1,4 +1,4 @@
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
 // Status enum
 export enum TicketStatus {
@@ -36,16 +36,18 @@ export interface Ticket {
   resolvedAt?: string;
 }
 
-
 // Fetch tickets
 export const fetchTickets = async (): Promise<Ticket[]> => {
   const response = await fetch(`https://helpedge-api.onrender.com/api/Tickets`, {
     credentials: 'include',
   });
+
   if (!response.ok) {
     const error = await response.json().catch(() => ({ message: 'An error occurred' }));
+
     throw new Error(error.message || `HTTP error! status: ${response.status}`);
   }
+
   return response.json();
 };
 
@@ -54,22 +56,31 @@ export const fetchTicketById = async (id: string): Promise<Ticket> => {
   const response = await fetch(`https://helpedge-api.onrender.com/api/Tickets/${id}`, {
     credentials: 'include',
   });
+
   if (!response.ok) {
     const error = await response.json().catch(() => ({ message: 'An error occurred' }));
+
     throw new Error(error.message || `HTTP error! status: ${response.status}`);
   }
+
   return response.json();
 };
 
 // Fetch by ticket number
 export const fetchTicketByNumber = async (ticketNumber: string): Promise<Ticket> => {
-  const response = await fetch(`https://helpedge-api.onrender.com/api/Tickets/number/${ticketNumber}`, {
-    credentials: 'include',
-  });
+  const response = await fetch(
+    `https://helpedge-api.onrender.com/api/Tickets/number/${ticketNumber}`,
+    {
+      credentials: 'include',
+    },
+  );
+
   if (!response.ok) {
     const error = await response.json().catch(() => ({ message: 'An error occurred' }));
+
     throw new Error(error.message || `HTTP error! status: ${response.status}`);
   }
+
   return response.json();
 };
 
@@ -78,10 +89,13 @@ export const fetchTicketsByAssignedTo = async (userId: string): Promise<Ticket[]
   const response = await fetch(`https://helpedge-api.onrender.com/api/Tickets/assigned/${userId}`, {
     credentials: 'include',
   });
+
   if (!response.ok) {
     const error = await response.json().catch(() => ({ message: 'An error occurred' }));
+
     throw new Error(error.message || `HTTP error! status: ${response.status}`);
   }
+
   return response.json();
 };
 
@@ -90,16 +104,19 @@ export const fetchTicketsByCreator = async (userId: string): Promise<Ticket[]> =
   const response = await fetch(`https://helpedge-api.onrender.com/api/Tickets/created/${userId}`, {
     credentials: 'include',
   });
+
   if (!response.ok) {
     const error = await response.json().catch(() => ({ message: 'An error occurred' }));
+
     throw new Error(error.message || `HTTP error! status: ${response.status}`);
   }
+
   return response.json();
 };
 
 // Create ticket
 export const createTicket = async (
-  ticket: Omit<Ticket, 'id' | 'createdAt' | 'updatedAt' | 'resolvedAt' | 'ticketNumber'>
+  ticket: Omit<Ticket, 'id' | 'createdAt' | 'updatedAt' | 'resolvedAt' | 'ticketNumber'>,
 ): Promise<Ticket> => {
   const response = await fetch(`https://helpedge-api.onrender.com/api/Tickets`, {
     method: 'POST',
@@ -109,17 +126,20 @@ export const createTicket = async (
     credentials: 'include',
     body: JSON.stringify(ticket),
   });
+
   if (!response.ok) {
     const error = await response.json().catch(() => ({ message: 'An error occurred' }));
+
     throw new Error(error.message || `HTTP error! status: ${response.status}`);
   }
+
   return response.json();
 };
 
 // Create ticket with email
 export const createTicketWithEmail = async (
   ticket: Omit<Ticket, 'id' | 'createdAt' | 'updatedAt' | 'resolvedAt' | 'ticketNumber'>,
-  emailContent: string
+  emailContent: string,
 ): Promise<Ticket> => {
   const response = await fetch(`https://helpedge-api.onrender.com/api/Tickets/from-email`, {
     method: 'POST',
@@ -129,10 +149,13 @@ export const createTicketWithEmail = async (
     credentials: 'include',
     body: JSON.stringify({ ...ticket, emailContent }),
   });
+
   if (!response.ok) {
     const error = await response.json().catch(() => ({ message: 'An error occurred' }));
+
     throw new Error(error.message || `HTTP error! status: ${response.status}`);
   }
+
   return response.json();
 };
 
@@ -140,18 +163,23 @@ export const createTicketWithEmail = async (
 export const createTicketComment = async (
   ticketId: string,
   comment: string,
-  createdById: string
+  createdById: string,
 ): Promise<void> => {
-  const response = await fetch(`https://helpedge-api.onrender.com/api/Tickets/${ticketId}/comments`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
+  const response = await fetch(
+    `https://helpedge-api.onrender.com/api/Tickets/${ticketId}/comments`,
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include',
+      body: JSON.stringify({ comment, createdById }),
     },
-    credentials: 'include',
-    body: JSON.stringify({ comment, createdById }),
-  });
+  );
+
   if (!response.ok) {
     const error = await response.json().catch(() => ({ message: 'An error occurred' }));
+
     throw new Error(error.message || `HTTP error! status: ${response.status}`);
   }
 };
@@ -159,7 +187,7 @@ export const createTicketComment = async (
 // Update ticket
 export const updateTicket = async (
   id: string,
-  ticket: Partial<Omit<Ticket, 'id' | 'createdAt' | 'updatedAt' | 'resolvedAt' | 'ticketNumber'>>
+  ticket: Partial<Omit<Ticket, 'id' | 'createdAt' | 'updatedAt' | 'resolvedAt' | 'ticketNumber'>>,
 ): Promise<Ticket> => {
   const response = await fetch(`https://helpedge-api.onrender.com/api/Tickets/${id}`, {
     method: 'PUT',
@@ -169,10 +197,13 @@ export const updateTicket = async (
     credentials: 'include',
     body: JSON.stringify(ticket),
   });
+
   if (!response.ok) {
     const error = await response.json().catch(() => ({ message: 'An error occurred' }));
+
     throw new Error(error.message || `HTTP error! status: ${response.status}`);
   }
+
   return response.json();
 };
 
@@ -182,8 +213,10 @@ export const deleteTicket = async (id: string): Promise<void> => {
     method: 'DELETE',
     credentials: 'include',
   });
+
   if (!response.ok) {
     const error = await response.json().catch(() => ({ message: 'An error occurred' }));
+
     throw new Error(error.message || `HTTP error! status: ${response.status}`);
   }
 };
@@ -191,20 +224,26 @@ export const deleteTicket = async (id: string): Promise<void> => {
 // Update ticket assignment
 export const updateTicketAssignment = async (
   id: string,
-  assignedToId: string | null
+  assignedToId: string | null,
 ): Promise<Ticket> => {
-  const response = await fetch(`https://helpedge-api.onrender.com/api/Tickets/${id}/assign/${assignedToId}`, {
-    method: 'PATCH', //check if its assigneeId or assignedToId
-    headers: {
-      'Content-Type': 'application/json',
+  const response = await fetch(
+    `https://helpedge-api.onrender.com/api/Tickets/${id}/assign/${assignedToId}`,
+    {
+      method: 'PATCH', //check if its assigneeId or assignedToId
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include',
+      body: JSON.stringify({ assignedToId }),
     },
-    credentials: 'include',
-    body: JSON.stringify({ assignedToId }),
-  });
+  );
+
   if (!response.ok) {
     const error = await response.json().catch(() => ({ message: 'An error occurred' }));
+
     throw new Error(error.message || `HTTP error! status: ${response.status}`);
   }
+
   return response.json();
 };
 
@@ -214,10 +253,13 @@ export const unassignTicket = async (id: string): Promise<Ticket> => {
     method: 'PATCH',
     credentials: 'include',
   });
+
   if (!response.ok) {
     const error = await response.json().catch(() => ({ message: 'An error occurred' }));
+
     throw new Error(error.message || `HTTP error! status: ${response.status}`);
   }
+
   return response.json();
 };
 
@@ -231,10 +273,13 @@ export const updateTicketPriority = async (id: string, priority: number): Promis
     credentials: 'include',
     body: JSON.stringify({ priority }),
   });
+
   if (!response.ok) {
     const error = await response.json().catch(() => ({ message: 'An error occurred' }));
+
     throw new Error(error.message || `HTTP error! status: ${response.status}`);
   }
+
   return response.json();
 };
 
@@ -244,10 +289,13 @@ export const resolveTicket = async (id: string): Promise<Ticket> => {
     method: 'PATCH',
     credentials: 'include',
   });
+
   if (!response.ok) {
     const error = await response.json().catch(() => ({ message: 'An error occurred' }));
+
     throw new Error(error.message || `HTTP error! status: ${response.status}`);
   }
+
   return response.json();
 };
 
@@ -257,10 +305,13 @@ export const reopenTicket = async (id: string): Promise<Ticket> => {
     method: 'PATCH',
     credentials: 'include',
   });
+
   if (!response.ok) {
     const error = await response.json().catch(() => ({ message: 'An error occurred' }));
+
     throw new Error(error.message || `HTTP error! status: ${response.status}`);
   }
+
   return response.json();
 };
 
@@ -270,10 +321,13 @@ export const closeTicket = async (id: string): Promise<Ticket> => {
     method: 'PATCH',
     credentials: 'include',
   });
+
   if (!response.ok) {
     const error = await response.json().catch(() => ({ message: 'An error occurred' }));
+
     throw new Error(error.message || `HTTP error! status: ${response.status}`);
   }
+
   return response.json();
 };
 // Fetch all tickets
@@ -323,6 +377,7 @@ export const useTicketsByCreator = (userId: string) => {
 // Create ticket mutation
 export const useCreateTicket = () => {
   const queryClient = useQueryClient();
+
   return useMutation<
     Ticket,
     Error,
@@ -338,12 +393,15 @@ export const useCreateTicket = () => {
 // Update ticket mutation
 export const useUpdateTicket = () => {
   const queryClient = useQueryClient();
+
   return useMutation<
     Ticket,
     Error,
     {
       id: string;
-      ticket: Partial<Omit<Ticket, 'id' | 'createdAt' | 'updatedAt' | 'resolvedAt' | 'ticketNumber'>>;
+      ticket: Partial<
+        Omit<Ticket, 'id' | 'createdAt' | 'updatedAt' | 'resolvedAt' | 'ticketNumber'>
+      >;
     }
   >({
     mutationFn: ({ id, ticket }) => updateTicket(id, ticket),
@@ -356,6 +414,7 @@ export const useUpdateTicket = () => {
 // Delete ticket mutation
 export const useDeleteTicket = () => {
   const queryClient = useQueryClient();
+
   return useMutation<void, Error, string>({
     mutationFn: deleteTicket,
     onSuccess: () => {
@@ -367,6 +426,7 @@ export const useDeleteTicket = () => {
 // Update ticket assignment mutation
 export const useUpdateTicketAssignment = () => {
   const queryClient = useQueryClient();
+
   return useMutation<Ticket, Error, { id: string; assignedToId: string | null }>({
     mutationFn: ({ id, assignedToId }) => updateTicketAssignment(id, assignedToId),
     onSuccess: () => {
@@ -378,6 +438,7 @@ export const useUpdateTicketAssignment = () => {
 // Unassign ticket mutation
 export const useUnassignTicket = () => {
   const queryClient = useQueryClient();
+
   return useMutation<Ticket, Error, string>({
     mutationFn: unassignTicket,
     onSuccess: () => {
@@ -389,6 +450,7 @@ export const useUnassignTicket = () => {
 // Resolve ticket mutation
 export const useResolveTicket = () => {
   const queryClient = useQueryClient();
+
   return useMutation<Ticket, Error, string>({
     mutationFn: resolveTicket,
     onSuccess: () => {
@@ -400,6 +462,7 @@ export const useResolveTicket = () => {
 // Reopen ticket mutation
 export const useReopenTicket = () => {
   const queryClient = useQueryClient();
+
   return useMutation<Ticket, Error, string>({
     mutationFn: reopenTicket,
     onSuccess: () => {
@@ -411,6 +474,7 @@ export const useReopenTicket = () => {
 // Close ticket mutation
 export const useCloseTicket = () => {
   const queryClient = useQueryClient();
+
   return useMutation<Ticket, Error, string>({
     mutationFn: closeTicket,
     onSuccess: () => {
@@ -422,6 +486,7 @@ export const useCloseTicket = () => {
 // Update ticket priority mutation
 export const useUpdateTicketPriority = () => {
   const queryClient = useQueryClient();
+
   return useMutation<Ticket, Error, { id: string; priority: number }>({
     mutationFn: ({ id, priority }) => updateTicketPriority(id, priority),
     onSuccess: () => {
@@ -433,6 +498,7 @@ export const useUpdateTicketPriority = () => {
 // Create ticket comment mutation
 export const useCreateTicketComment = () => {
   const queryClient = useQueryClient();
+
   return useMutation<void, Error, { ticketId: string; comment: string; createdById: string }>({
     mutationFn: ({ ticketId, comment, createdById }) =>
       createTicketComment(ticketId, comment, createdById),

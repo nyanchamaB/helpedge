@@ -28,12 +28,12 @@ const TEST_USER = {
   password: 'Test123!',
   name: 'Test User',
   role: 2, // end_user
-  department: 'Testing'
+  department: 'Testing',
 };
 
 const ADMIN_USER = {
   email: 'admin@helpedge.com',
-  password: 'Admin123!'
+  password: 'Admin123!',
 };
 
 // Colors for console output
@@ -42,11 +42,11 @@ const colors = {
   green: '\x1b[32m',
   red: '\x1b[31m',
   yellow: '\x1b[33m',
-  blue: '\x1b[34m'
+  blue: '\x1b[34m',
 };
 
 function log(message, color = 'reset') {
-  console.log(`${colors[color]}${message}${colors.reset}`);
+  console.warn(`${colors[color]}${message}${colors.reset}`);
 }
 
 function logSuccess(message) {
@@ -72,6 +72,7 @@ async function testEndpoint(name, url, options) {
     const data = await response.text();
 
     let jsonData;
+
     try {
       jsonData = JSON.parse(data);
     } catch {
@@ -80,14 +81,17 @@ async function testEndpoint(name, url, options) {
 
     if (response.ok) {
       logSuccess(`${name} - Status: ${response.status}`);
+
       return { success: true, data: jsonData, status: response.status };
     } else {
       logError(`${name} - Status: ${response.status}`);
-      console.log('Response:', jsonData);
+      console.warn('Response:', jsonData);
+
       return { success: false, data: jsonData, status: response.status };
     }
   } catch (error) {
     logError(`${name} - Error: ${error.message}`);
+
     return { success: false, error: error.message };
   }
 }
@@ -95,23 +99,21 @@ async function testEndpoint(name, url, options) {
 async function testRegister() {
   log('\n--- Testing User Registration ---', 'yellow');
 
-  const result = await testEndpoint(
-    'Register New User',
-    `${API_BASE_URL}/api/Auth/register`,
-    {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(TEST_USER)
-    }
-  );
+  const result = await testEndpoint('Register New User', `${API_BASE_URL}/api/Auth/register`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(TEST_USER),
+  });
 
   if (result.success && result.data.token) {
     logSuccess('Registration successful - Token received');
+
     return result.data.token;
   } else {
     logWarning('Registration may have failed or returned unexpected format');
+
     return null;
   }
 }
@@ -125,17 +127,19 @@ async function testLogin() {
     {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
       },
-      body: JSON.stringify(ADMIN_USER)
-    }
+      body: JSON.stringify(ADMIN_USER),
+    },
   );
 
   if (result.success && result.data.token) {
     logSuccess('Login successful - Token received');
+
     return result.data.token;
   } else {
     logWarning('Login may have failed or returned unexpected format');
+
     return null;
   }
 }
@@ -145,26 +149,25 @@ async function testValidateToken(token) {
 
   if (!token) {
     logWarning('No token provided, skipping validation test');
+
     return false;
   }
 
-  const result = await testEndpoint(
-    'Validate Token',
-    `${API_BASE_URL}/api/Auth/validate`,
-    {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ token })
-    }
-  );
+  const result = await testEndpoint('Validate Token', `${API_BASE_URL}/api/Auth/validate`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ token }),
+  });
 
   if (result.success) {
     logSuccess('Token validation successful');
+
     return true;
   } else {
     logError('Token validation failed');
+
     return false;
   }
 }
@@ -174,6 +177,7 @@ async function testAuthenticatedRequest(token) {
 
   if (!token) {
     logWarning('No token provided, skipping authenticated request test');
+
     return false;
   }
 
@@ -183,17 +187,21 @@ async function testAuthenticatedRequest(token) {
     {
       method: 'GET',
       headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      }
-    }
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+    },
   );
 
   if (result.success) {
     logSuccess('Authenticated request successful');
+
     return true;
   } else {
-    logWarning('Authenticated request may have failed (this could be expected if endpoint requires specific permissions)');
+    logWarning(
+      'Authenticated request may have failed (this could be expected if endpoint requires specific permissions)',
+    );
+
     return false;
   }
 }
@@ -210,6 +218,7 @@ async function runTests() {
 
   // Test 1: Register
   const registerToken = await testRegister();
+
   if (!registerToken) {
     logWarning('Note: Registration test did not return a token (user may already exist)');
   }
@@ -222,10 +231,12 @@ async function runTests() {
   } else {
     // Test 3: Validate Token
     const validationPassed = await testValidateToken(token);
-    if (!validationPassed) allPassed = false;
+
+    if (!validationPassed) {allPassed = false;}
 
     // Test 4: Authenticated Request
     const authRequestPassed = await testAuthenticatedRequest(token);
+
     if (!authRequestPassed) {
       logWarning('Note: This might be expected if the endpoint requires specific role permissions');
     }
@@ -257,7 +268,7 @@ async function runTests() {
 }
 
 // Run the tests
-runTests().catch(error => {
+runTests().catch((error) => {
   logError(`Unexpected error: ${error.message}`);
   process.exit(1);
 });

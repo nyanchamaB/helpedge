@@ -4,7 +4,7 @@
  * Get redirect URL from query parameters
  */
 export function getRedirectUrl(searchParams?: URLSearchParams): string {
-  if (!searchParams) return '/dashboard';
+  if (!searchParams) {return '/dashboard';}
 
   const redirect = searchParams.get('redirect');
 

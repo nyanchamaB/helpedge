@@ -14,8 +14,8 @@ export interface TokenPayload {
   username?: string;
   Name?: string;
   unique_name?: string;
-  role?: any;
-  Role?: any;
+  role?: unknown;
+  Role?: unknown;
   department?: string;
   Department?: string;
   exp?: number; // Expiration timestamp (Unix epoch)
@@ -36,6 +36,7 @@ export interface TokenValidationResult {
 function isValidJWTStructure(token: string): boolean {
   // JWT should have 3 parts separated by dots
   const parts = token.split('.');
+
   if (parts.length !== 3) {
     return false;
   }
@@ -44,6 +45,7 @@ function isValidJWTStructure(token: string): boolean {
   try {
     atob(parts[0]); // Header
     atob(parts[1]); // Payload
+
     // Signature doesn't need to be checked for structure validation
     return true;
   } catch {
@@ -57,14 +59,17 @@ function isValidJWTStructure(token: string): boolean {
 function decodeTokenPayload(token: string): TokenPayload | null {
   try {
     const parts = token.split('.');
+
     if (parts.length !== 3) {
       return null;
     }
 
     const payload = JSON.parse(atob(parts[1]));
+
     return payload;
   } catch (error) {
     console.error('Error decoding token payload:', error);
+
     return null;
   }
 }
@@ -85,7 +90,7 @@ function isTokenExpired(payload: TokenPayload, bufferSeconds: number = 30): bool
   const expirationTimestamp = payload.exp;
 
   // Add buffer to prevent using tokens that are about to expire
-  return currentTimestamp >= (expirationTimestamp - bufferSeconds);
+  return currentTimestamp >= expirationTimestamp - bufferSeconds;
 }
 
 /**
@@ -97,6 +102,7 @@ function isTokenNotYetValid(payload: TokenPayload): boolean {
   }
 
   const currentTimestamp = Math.floor(Date.now() / 1000);
+
   return currentTimestamp < payload.nbf;
 }
 
@@ -127,6 +133,7 @@ export function validateToken(token: string | null): TokenValidationResult {
 
   // Decode payload
   const payload = decodeTokenPayload(token);
+
   if (!payload) {
     return {
       isValid: false,
@@ -173,12 +180,15 @@ export function getStoredToken(): string | null {
   }
 
   const cookies = document.cookie.split(';');
+
   for (const cookie of cookies) {
     const [name, value] = cookie.trim().split('=');
+
     if (name === 'authToken') {
       return value;
     }
   }
+
   return null;
 }
 
@@ -187,6 +197,7 @@ export function getStoredToken(): string | null {
  */
 export function validateStoredToken(): TokenValidationResult {
   const token = getStoredToken();
+
   return validateToken(token);
 }
 

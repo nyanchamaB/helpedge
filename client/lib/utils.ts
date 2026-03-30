@@ -1,15 +1,25 @@
-import { clsx, type ClassValue } from "clsx"
-import { twMerge } from "tailwind-merge"
+import { clsx, type ClassValue } from 'clsx';
+import { twMerge } from 'tailwind-merge';
 
 export function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs))
+  return twMerge(clsx(inputs));
 }
 
 /**
  * Decode and map JWT token to user data
  * This function decodes a JWT token and extracts user information
  */
-export function decodeAndMapToken(token: string): any {
+
+interface DecodedToken {
+  id?: string;
+  email?: string;
+  name?: string;
+  role?: string;
+  department?: string;
+  exp?: number;
+  iat?: number;
+}
+export function decodeAndMapToken(token: string): DecodedToken | null {
   try {
     // Decode JWT token (simple base64 decode of payload)
     const payload = JSON.parse(atob(token.split('.')[1]));
@@ -26,6 +36,7 @@ export function decodeAndMapToken(token: string): any {
     };
   } catch (error) {
     console.error('Error decoding token:', error);
+
     return null;
   }
 }
