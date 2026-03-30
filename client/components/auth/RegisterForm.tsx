@@ -127,6 +127,7 @@ export default function RegisterForm() {
       return;
     }
     setFormData((prev) => ({ ...prev, email: savedEmail }));
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
