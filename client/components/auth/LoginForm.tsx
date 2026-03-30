@@ -140,7 +140,7 @@ export default function LoginForm() {
           <div className="flex items-center justify-center bg-card px-8 py-12">
             <div className="w-full max-w-sm space-y-6">
               <div className="text-center space-y-2">
-                <img src={siteConfig.logo} alt="HelpEdge" className="h-12 mx-auto" />
+                <Image src={siteConfig.logo} alt="HelpEdge" width={48} height={48} style={{ width: 'auto', height: '3rem' }} className="mx-auto" />
                 <h1 className="text-2xl font-semibold text-foreground">Welcome back</h1>
                 <p className="text-sm text-muted-foreground">Sign in to continue</p>
               </div>
