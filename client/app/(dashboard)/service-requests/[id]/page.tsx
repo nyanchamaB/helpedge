@@ -635,10 +635,10 @@ function ISRAIPanel({ req }: { req: ServiceRequest }) {
   }, [req.aiSuggestedAssigneeId, req.assignedToId]);
 
   const hasAI =
-    req.aiConfidenceScore != null ||
-    req.aiSuggestedPriority != null ||
-    req.aiSuggestedCategoryId != null ||
-    req.aiAssignmentReason != null;
+    req.aiConfidenceScore !== null && req.aiConfidenceScore !== undefined ||
+    req.aiSuggestedPriority !== null && req.aiSuggestedPriority !== undefined ||
+    req.aiSuggestedCategoryId !== null && req.aiSuggestedCategoryId !== undefined ||
+    req.aiAssignmentReason !== null && req.aiAssignmentReason !== undefined;
 
   const score = req.aiConfidenceScore ?? 0;
   const pct = Math.round(score * 100);
@@ -666,7 +666,7 @@ function ISRAIPanel({ req }: { req: ServiceRequest }) {
             Rule-Based
           </Badge>
           {hasAI ? (
-            req.aiConfidenceScore != null && (
+            req.aiConfidenceScore !== null && req.aiConfidenceScore !== undefined && (
               <span className={`text-xs font-semibold ${scoreColor}`}>{pct}% confidence</span>
             )
           ) : (
@@ -691,7 +691,7 @@ function ISRAIPanel({ req }: { req: ServiceRequest }) {
           )}
 
           {/* Confidence bar */}
-          {req.aiConfidenceScore != null && (
+          {req.aiConfidenceScore !== null && req.aiConfidenceScore !== undefined && (
             <div className="space-y-1.5 pt-3">
               <div className="flex justify-between text-xs">
                 <span className="text-muted-foreground">Confidence Score</span>
@@ -765,7 +765,7 @@ function ISRAIPanel({ req }: { req: ServiceRequest }) {
           )}
 
           {!autoAssigned &&
-            req.aiConfidenceScore != null &&
+            req.aiConfidenceScore !== null && req.aiConfidenceScore !== undefined &&
             req.aiConfidenceScore < 0.7 &&
             !req.assignedToId &&
             ['Approved', 'InProgress'].includes(req.status) && (
@@ -1294,13 +1294,13 @@ export default function ServiceRequestDetailPage() {
             <InfoRow icon={CalendarDays} label="Fulfilled At" value={formatDate(req.fulfilledAt)} />
             <InfoRow icon={CalendarDays} label="Closed At" value={formatDate(req.closedAt)} />
             <InfoRow icon={CalendarDays} label="Cancelled At" value={formatDate(req.cancelledAt)} />
-            {(req.estimatedCost != null || req.actualCost != null) && (
+            {(req.estimatedCost !== null && req.estimatedCost !== undefined || req.actualCost !== null && req.actualCost !== undefined) && (
               <div className="flex items-start gap-2 text-sm">
                 <Clock className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0" />
                 <span className="text-muted-foreground w-28 shrink-0">Cost</span>
                 <span>
-                  {req.estimatedCost != null ? `$${req.estimatedCost.toFixed(2)} est.` : ''}
-                  {req.actualCost != null ? ` / $${req.actualCost.toFixed(2)} actual` : ''}
+                  {req.estimatedCost !== null && req.estimatedCost !== undefined ? `$${req.estimatedCost.toFixed(2)} est.` : ''}
+                  {req.actualCost !== null && req.actualCost !== undefined ? ` / $${req.actualCost.toFixed(2)} actual` : ''}
                 </span>
               </div>
             )}
