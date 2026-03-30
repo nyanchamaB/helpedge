@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
+import React, { createContext, useContext, useState, useCallback } from 'react';
 
 interface NavigationContextType {
   activePage: string;
@@ -49,6 +49,7 @@ function getInitialNavigationState(): { page: string; params: Record<string, str
   }
 
   const hash = window.location.hash.slice(1);
+
   if (!hash) {
     return { page: '/dashboard', params: {} };
   }
@@ -67,6 +68,7 @@ function getInitialNavigationState(): { page: string; params: Record<string, str
   }
 
   const extractedParams = extractParamsFromPath(route);
+
   return {
     page: route || '/dashboard',
     params: { ...extractedParams, ...params },
