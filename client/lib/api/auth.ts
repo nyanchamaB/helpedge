@@ -163,14 +163,14 @@ export async function login(credentials: LoginRequest): Promise<ApiResponse<Logi
     credentials: 'omit', // Avoid CORS issues with credentials
   });
 
-  console.log('Login API response:', response);
+  console.warn('Login API response:', response);
 
   // If login successful, manually set the cookie from the token in the response
   if (response.success && response.data) {
     const token = response.data.token; //|| response.data.Token;
 
     if (token) {
-      console.log('Setting auth token cookie manually');
+      console.warn('Setting auth token cookie manually');
       setAuthToken(token);
     }
   }
@@ -199,7 +199,7 @@ export async function register(userData: RegisterRequest): Promise<ApiResponse<R
     credentials: 'omit', // Avoid CORS issues with credentials
   });
 
-  console.log('Register API response:', response);
+  console.warn('Register API response:', response);
 
   // Backend only returns UserDto, no token
   // Token will be obtained through subsequent login
@@ -228,7 +228,7 @@ export async function refreshToken(): Promise<ApiResponse<LoginResponse>> {
   const currentToken = getAuthToken();
 
   if (!currentToken) {
-    console.log('Refresh token: No current token found');
+    console.warn('Refresh token: No current token found');
 
     return {
       success: false,
@@ -245,14 +245,14 @@ export async function refreshToken(): Promise<ApiResponse<LoginResponse>> {
     credentials: 'omit',
   });
 
-  console.log('Refresh token API response:', response);
+  console.warn('Refresh token API response:', response);
 
   // If refresh successful, update the cookie with the new token
   if (response.success && response.data) {
     const token = response.data.token; // || response.data.Token;
 
     if (token) {
-      console.log('Updating auth token cookie with refreshed token');
+      console.warn('Updating auth token cookie with refreshed token');
       setAuthToken(token);
     }
   }
@@ -270,7 +270,7 @@ export async function logout(): Promise<void> {
       method: 'POST',
       credentials: 'omit',
     });
-    console.log('Backend logout successful');
+    console.warn('Backend logout successful');
   } catch (error) {
     console.error('Backend logout failed:', error);
   }
@@ -292,7 +292,7 @@ export async function logout(): Promise<void> {
     sessionStorage.clear();
   }
 
-  console.log('All local auth data cleared');
+  console.warn('All local auth data cleared');
 }
 
 /**
@@ -351,7 +351,7 @@ export function getCurrentUser(): User | null {
   const token = getAuthToken();
 
   if (!token) {
-    console.log('getCurrentUser: No token in cookie');
+    console.warn('getCurrentUser: No token in cookie');
 
     return null;
   }
@@ -360,7 +360,7 @@ export function getCurrentUser(): User | null {
     // Decode JWT token (simple base64 decode of payload)
     const payload = JSON.parse(atob(token.split('.')[1]));
 
-    console.log('JWT Payload:', payload);
+    console.warn('JWT Payload:', payload);
 
     // Map role to UserRole format
     let userRole: UserRole = 'EndUser';
@@ -382,7 +382,7 @@ export function getCurrentUser(): User | null {
       avatarUrl: payload.avatarUrl || payload.AvatarUrl,
     };
 
-    console.log('Extracted user:', user);
+    console.warn('Extracted user:', user);
 
     return user;
   } catch (error) {
