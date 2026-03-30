@@ -53,8 +53,7 @@ import {
   deleteTrainingData,
 } from '@/lib/api/ai';
 import { getServiceRequestsCategories } from '@/lib/api/service-request-category';
-import type { TrainingData } from '@/lib/types/ai';
-import { TrainingDataSource } from '@/lib/types/ai';
+import { TrainingDataSource, type TrainingData } from '@/lib/types/ai';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
@@ -116,15 +115,16 @@ export default function TrainingDataManagerPage() {
   });
 
   const stats = statsResponse?.data;
-  const trainingData = trainingDataResponse?.data || [];
   const categories = categoriesResponse?.data || [];
 
   // Filter by source (client-side filter for source)
   const filteredData = useMemo(() => {
+    const trainingData = trainingDataResponse?.data || [];
+
     if (sourceFilter === 'all') {return trainingData;}
 
     return trainingData.filter((item) => item.source === sourceFilter);
-  }, [trainingData, sourceFilter]);
+  }, [trainingDataResponse?.data, sourceFilter]);
 
   // Delete mutation
   const deleteMutation = useMutation({
@@ -211,7 +211,7 @@ export default function TrainingDataManagerPage() {
         examples,
         source: TrainingDataSource.Import,
       });
-    } catch (error) {
+    } catch (_error) {
       toast.error('Failed to parse CSV. Please check format.');
     }
   };
