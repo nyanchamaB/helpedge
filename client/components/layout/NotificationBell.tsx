@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNavigation } from '@/contexts/NavigationContext';
 import { useAuth } from '@/contexts/AuthContext';
@@ -221,7 +221,6 @@ export function NotificationBell() {
     return user ? deriveTicketNotifications(tickets, user.id, isStaff) : [];
   }, [ticketsResponse, user, isStaff]);
 
-  const aiNotifications = notificationsResponse?.data || [];
   const aiUnreadCount = countResponse?.data?.count || 0;
   const ticketUnreadCount = ticketNotifications.filter(
     (n) => !n.isRead && !readIds.has(n.id),
@@ -230,6 +229,7 @@ export function NotificationBell() {
 
   // Combined notifications list sorted by time, with read state applied
   const notifications = useMemo(() => {
+    const aiNotifications = notificationsResponse?.data || [];
     const combined = [
       ...aiNotifications.map((n) => ({ ...n, source: 'ai' as const })),
       ...ticketNotifications.map((n) => ({
@@ -242,7 +242,7 @@ export function NotificationBell() {
     return combined
       .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
       .slice(0, 30);
-  }, [aiNotifications, ticketNotifications, readIds]);
+  }, [notificationsResponse?.data, ticketNotifications, readIds]);
 
   // Mark as read mutation
   const markAsReadMutation = useMutation({
@@ -276,7 +276,7 @@ export function NotificationBell() {
   });
 
   // Show desktop notification for new notifications
-  const showDesktopNotification = useCallback(
+  const _showDesktopNotification = useCallback(
     (notification: AINotification) => {
       if (
         desktopNotificationsEnabled &&
