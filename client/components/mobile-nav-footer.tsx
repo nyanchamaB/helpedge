@@ -1,7 +1,7 @@
 // footer component for mobile navigation
 import React from 'react';
 import { cn } from '@/lib/utils';
-import { siteConfig } from '@/config/site';
+import { siteConfig as _siteConfig } from '@/config/site';
 import Link from 'next/link';
 import { buttonVariants } from '@/components/ui/button';
 import { ThemeToggle } from '@/components/theme-toggle';
