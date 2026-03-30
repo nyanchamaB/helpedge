@@ -13,7 +13,7 @@ import {
 import { cn } from '@/lib/utils';
 import React from 'react';
 import { siteConfig as _siteConfig } from '@/config/site';
-import LogoImage from './public/globe.svg'; //LogoImage from "@/public/globe.svg";
+import logo2 from '../public/logo2.png';
 import Image from 'next/image';
 import { IconType } from 'react-icons';
 import { TbBrandVercel } from 'react-icons/tb';
@@ -45,12 +45,13 @@ export type Icons = LucideIcon | IconType;
 
 export function Icons(props: { icon: Icons; className?: string }) {
   const Icon = props.icon;
+  
 
   return <Icon className={cn('h-6 w-6', props.className)} />;
 }
 
 export function Logo(props: { className?: string }) {
-  return <Image src={LogoImage} alt="Logo" className={cn('h-6 w-6', props.className)} />;
+  return <Image src={logo2} alt="Logo" className={cn('h-6 w-6', props.className)} />;
 }
 export const IconsList = {
   logo: Logo,
