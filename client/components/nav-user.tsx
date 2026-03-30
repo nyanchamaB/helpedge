@@ -23,13 +23,13 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback, AvatarImage as _AvatarImage } from '@/components/ui/avatar';
 
 export function NavUser() {
   const { user, isLoading, logout } = useAuth();
   const pathname = usePathname();
-  const router = useRouter();
-  const [selectedKey, setSelectedKey] = useState(pathname);
+  const _router = useRouter();
+  const [_selectedKey, _setSelectedKey] = useState(pathname);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
