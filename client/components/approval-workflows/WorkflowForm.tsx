@@ -23,7 +23,6 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
-import { Badge } from '@/components/ui/badge';
 import {
   Select,
   SelectContent,
@@ -387,6 +386,7 @@ export function WorkflowForm({
                   <FormLabel>Request Types *</FormLabel>
                   <div className="flex flex-wrap gap-2 mt-1">
                     {SERVICE_REQUEST_TYPES.map((type) => {
+                      // eslint-disable-next-line react-hooks/incompatible-library
                       const selected = form.watch('requestTypes').includes(type);
 
                       return (
