@@ -12,7 +12,7 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import React from 'react';
-import { siteConfig } from '@/config/site';
+import { siteConfig as _siteConfig } from '@/config/site';
 import LogoImage from './public/globe.svg'; //LogoImage from "@/public/globe.svg";
 import Image from 'next/image';
 import { IconType } from 'react-icons';
