@@ -6,7 +6,6 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import {
   ServiceRequestCategory,
-  FormFieldDto,
   FieldType,
 } from '@/lib/api/service-request-category';
 import { SERVICE_REQUEST_TYPES, getSRTypeLabel } from '@/lib/api/service-request';
@@ -48,13 +47,11 @@ import {
   Tag,
   AlignLeft,
   Clock,
-  ToggleLeft,
   Files,
   User,
   Building2,
   AppWindow,
   CheckSquare,
-  ChevronDown,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Spinner } from '@/components/ui/spinner';
@@ -275,7 +272,7 @@ export function CategoryForm({
         },
   });
 
-  const { fields, append, remove, move } = useFieldArray({
+  const { fields, append, remove, move: _move } = useFieldArray({
     control: form.control,
     name: 'requiredFields',
   });
@@ -451,6 +448,7 @@ export function CategoryForm({
                                 )}
                                 style={{
                                   backgroundColor:
+                                    // eslint-disable-next-line react-hooks/incompatible-library
                                     field.value === icon ? `${form.watch('color')}20` : undefined,
                                 }}
                               >
