@@ -51,7 +51,7 @@ function validateToken(token: string): { isValid: boolean; isExpired: boolean } 
   }
 }
 
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // Add security headers
