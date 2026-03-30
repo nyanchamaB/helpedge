@@ -73,7 +73,7 @@ export async function apiRequest<T = unknown>(
     const requestBody =
       body === undefined ? undefined : typeof body === 'string' ? body : JSON.stringify(body);
 
-    console.log('API Request:', { url, method, headers: requestHeaders, body, credentials });
+    console.warn('API Request:', { url, method, headers: requestHeaders, body, credentials });
 
     const response = await fetch(url, {
       method,
@@ -83,7 +83,7 @@ export async function apiRequest<T = unknown>(
       credentials: effectiveCredentials, // Use provided credentials mode
     });
 
-    console.log('API Response:', {
+    console.warn('API Response:', {
       status: response.status,
       ok: response.ok,
       statusText: response.statusText,
@@ -100,7 +100,7 @@ export async function apiRequest<T = unknown>(
       data = await response.text();
     }
 
-    console.log('API Response Data:', data);
+    console.warn('API Response Data:', data);
 
     if (!response.ok) {
       // Parse error message from different response formats
