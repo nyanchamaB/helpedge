@@ -8,7 +8,6 @@ import { format } from 'date-fns';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Separator } from '@/components/ui/separator';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
@@ -53,7 +52,6 @@ import {
   confirmTriageSuggestions,
   modifyTriageSuggestions,
   Ticket,
-  getStatusString,
   getPriorityString,
   getTriageStatusString,
   getEffectiveStatusLabel,
@@ -123,6 +121,7 @@ function getInitials(name: string): string {
 }
 
 // Status badge styling
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function getStatusBadgeStyle(status: TicketStatusString): string {
   switch (status) {
     case 'Open':
@@ -264,7 +263,7 @@ const CLOSE_REOPEN_ROLES = ['Admin', 'ITManager', 'TeamLead', 'ServiceDeskAgent'
 const MANAGER_ROLES = ['Admin', 'ITManager', 'TeamLead'];
 
 export default function TicketDetailPage() {
-  const { pageParams, navigateTo, activePage } = useNavigation();
+  const { pageParams, navigateTo, activePage: _activePage } = useNavigation();
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const ticketId = pageParams.id as string;
@@ -398,19 +397,7 @@ export default function TicketDetailPage() {
     Boolean(isAssignee) ||
     Boolean(user && MANAGER_ROLES.includes(user.role));
 
-  useEffect(() => {
-    if (ticketId) {
-      fetchTicket();
-    }
-  }, [ticketId]);
-
-  // Fetch categories and users on component mount for AI suggestions display
-  useEffect(() => {
-    fetchCategories();
-    fetchUsers();
-  }, []);
-
-  async function fetchTicket() {
+  const fetchTicket = async () => {
     setIsLoading(true);
     setError(null);
 
@@ -428,7 +415,7 @@ export default function TicketDetailPage() {
     }
 
     setIsLoading(false);
-  }
+  };
 
   async function resolveCommentAuthors(
     comments: import('@/lib/api/tickets').TicketComment[],
@@ -454,7 +441,7 @@ export default function TicketDetailPage() {
   }
 
   // Fetch users when dialog opens — Admin/Manager get full list, others get staff-only endpoint
-  async function fetchUsers() {
+  const fetchUsers = async () => {
     if (users.length > 0) {return;} // Already loaded
 
     setIsLoadingUsers(true);
@@ -472,10 +459,10 @@ export default function TicketDetailPage() {
     }
 
     setIsLoadingUsers(false);
-  }
+  };
 
   // Fetch categories when dialog opens
-  async function fetchCategories() {
+  const fetchCategories = async () => {
     if (categories.length > 0) {return;} // Already loaded
 
     setIsLoadingCategories(true);
@@ -489,7 +476,22 @@ export default function TicketDetailPage() {
     }
 
     setIsLoadingCategories(false);
-  }
+  };
+
+  useEffect(() => {
+    if (ticketId) {
+      async function run() { await fetchTicket(); }
+      void run();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [ticketId]);
+
+  // Fetch categories and users on component mount for AI suggestions display
+  useEffect(() => {
+    async function run() { await fetchCategories(); await fetchUsers(); }
+    void run();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Helper function to get category name by ID
   function getCategoryName(categoryId: string | undefined): string {
@@ -1628,7 +1630,7 @@ export default function TicketDetailPage() {
                 This ticket was automatically assigned by the AI system with high confidence. No
                 manual review required.
               </p>
-              {ticket.aiConfidenceScore != null && (
+              {ticket.aiConfidenceScore !== null && ticket.aiConfidenceScore !== undefined && (
                 <p className="text-sm text-green-700">
                   Confidence:{' '}
                   <span className="font-medium">
@@ -1660,7 +1662,7 @@ export default function TicketDetailPage() {
                 The AI assigned this ticket but flagged it for human review. Please verify the
                 assignment is correct.
               </p>
-              {ticket.aiConfidenceScore != null && (
+              {ticket.aiConfidenceScore !== null && ticket.aiConfidenceScore !== undefined && (
                 <p className="text-sm text-amber-700">
                   Confidence:{' '}
                   <span className="font-medium">
@@ -1910,6 +1912,7 @@ export default function TicketDetailPage() {
           aiDetails={
             {
               ticketId,
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
               method: 'Hybrid' as any, // Will be populated from actual AI details
               finalCategory: ticket.categoryId,
               finalPriority: ticket.priority,
