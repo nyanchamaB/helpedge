@@ -2,8 +2,9 @@
 // Base configuration and utilities for making API requests
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://helpedge-api.onrender.com';
-// When set, browser requests are routed through the Next.js proxy to avoid CORS
-const API_PROXY_BASE = process.env.NEXT_PUBLIC_API_PROXY_BASE_URL || '';
+// Browser requests are routed through the Next.js proxy path to avoid CORS.
+// Defaults to /api-proxy when no env override is provided.
+const API_PROXY_BASE = process.env.NEXT_PUBLIC_API_PROXY_BASE_URL || '/api-proxy';
 
 function getBaseUrl(): string {
   // In the browser, use the proxy path to avoid CORS with local backend
