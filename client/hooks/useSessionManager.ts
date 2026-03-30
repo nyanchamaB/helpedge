@@ -11,7 +11,7 @@ import {
 import { getAuthToken } from '@/lib/api/client';
 
 // Session timeout in minutes (30 minutes as requested)
-const SESSION_TIMEOUT_MINUTES = 30;
+const _SESSION_TIMEOUT_MINUTES = 30;
 // Warning time before expiration (5 minutes as requested)
 const WARNING_BEFORE_EXPIRY_MINUTES = 5;
 // Check interval in seconds
@@ -122,11 +122,11 @@ export function useSessionManager(): UseSessionManagerReturn {
   // Refresh session
   const refreshSession = useCallback(async (): Promise<boolean> => {
     try {
-      console.log('Attempting to refresh session...');
+      console.warn('Attempting to refresh session...');
       const result = await refreshToken();
 
       if (result.success) {
-        console.log('Session refreshed successfully');
+        console.warn('Session refreshed successfully');
         warningDismissedRef.current = false;
         setShowExpiryWarning(false);
 
