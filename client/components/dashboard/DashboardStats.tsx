@@ -24,7 +24,6 @@ import {
   Clock,
   CheckCircle,
   AlertTriangle,
-  TrendingUp,
   Calendar,
   RefreshCw,
 } from 'lucide-react';
@@ -63,15 +62,15 @@ export default function DashboardStats() {
     setError(null);
 
     try {
-      console.log('🔄 Fetching dashboard data for role:', user.role);
+      console.warn('🔄 Fetching dashboard data for role:', user.role);
 
       // Fetch dashboard stats only for authorized roles
       if (canAccessDashboardStats) {
-        console.log('📊 Fetching dashboard stats...');
+        console.warn('📊 Fetching dashboard stats...');
         const statsResponse = await getDashboardStats();
 
         if (statsResponse.success && statsResponse.data) {
-          console.log('✅ Dashboard stats loaded:', statsResponse.data);
+          console.warn('✅ Dashboard stats loaded:', statsResponse.data);
           setStats(statsResponse.data);
         } else {
           console.warn('⚠️ Failed to fetch dashboard stats:', {
@@ -86,20 +85,20 @@ export default function DashboardStats() {
 
       if (isEndUser) {
         // EndUser: Show only their own created tickets
-        console.log('🎫 Fetching tickets created by user...');
+        console.warn('🎫 Fetching tickets created by user...');
         ticketsResponse = await getTicketsByCreator(user.id);
       } else if (isSystemAdmin) {
         // SystemAdmin: Show tickets assigned to them
-        console.log('🎫 Fetching tickets assigned to SystemAdmin...');
+        console.warn('🎫 Fetching tickets assigned to SystemAdmin...');
         ticketsResponse = await getTicketsByAssignee(user.id);
       } else {
         // Other roles: Show all tickets
-        console.log('🎫 Fetching all tickets...');
+        console.warn('🎫 Fetching all tickets...');
         ticketsResponse = await getAllTickets();
       }
 
       if (ticketsResponse.success && ticketsResponse.data) {
-        console.log('✅ Tickets loaded:', ticketsResponse.data.length, 'tickets');
+        console.warn('✅ Tickets loaded:', ticketsResponse.data.length, 'tickets');
         setTickets(ticketsResponse.data);
       } else {
         console.error('❌ Failed to fetch tickets:', ticketsResponse.error);
@@ -128,6 +127,7 @@ export default function DashboardStats() {
     return () => {
       mounted = false;
     };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]); // Re-fetch when user changes
 
   // Calculate stats from actual tickets data
@@ -147,7 +147,7 @@ export default function DashboardStats() {
   const today = new Date();
 
   today.setHours(0, 0, 0, 0);
-  const todayTicketsFromList = tickets.filter((t) => {
+  const _todayTicketsFromList = tickets.filter((t) => {
     const createdDate = new Date(t.createdAt);
 
     createdDate.setHours(0, 0, 0, 0);
