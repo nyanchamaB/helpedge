@@ -1,3 +1,4 @@
+"use client";
 import { DocsSidebarLink } from '@/components/docs-sidebar-links';
 import DocsHeader from '@/components/docs-header';
 const sidebarSections = [

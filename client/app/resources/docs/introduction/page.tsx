@@ -1,4 +1,5 @@
-//introduvtion/page.tsx
+"use client";
+
 export default function IntroductionPage() {
   return (
     <>
