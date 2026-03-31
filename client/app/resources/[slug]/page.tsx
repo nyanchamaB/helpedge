@@ -180,12 +180,14 @@ const docsContent: Record<
   },
 };
 
-export default async function DocSlugPage({ params }: { params: Promise<{ slug: string }> }) {
-  const { slug } = await params;
+export default function DocSlugPage({ params }: { params: { slug: string } }) {
+  const { slug } = params;
   const doc = docsContent[slug];
 
-  if (!doc) {return notFound();}
-
+  if (!doc) {
+    return notFound();
+  }
+  
   return (
     <article className="prose prose-neutral dark:prose-invert max-w-none">
       {/* Breadcrumb */}
