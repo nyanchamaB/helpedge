@@ -80,6 +80,7 @@ export function proxy(request: NextRequest) {
       
       url.pathname = '/auth/login';
       url.searchParams.set('redirect', pathname);
+
       return NextResponse.redirect(url);
     }
 
@@ -91,12 +92,15 @@ export function proxy(request: NextRequest) {
 
   if (!validation.isValid) {
     const response = NextResponse.next();
+
     response.cookies.delete('authToken');
 
     if (isProtectedRoute) {
       const url = request.nextUrl.clone();
+
       url.pathname = '/auth/login';
       url.searchParams.set('redirect', pathname);
+
       return NextResponse.redirect(url);
     }
 
@@ -106,18 +110,23 @@ export function proxy(request: NextRequest) {
   // ✅ Token expired
   if (validation.isExpired) {
     const url = request.nextUrl.clone();
+
     url.pathname = '/auth/login';
     url.searchParams.set('redirect', pathname);
 
     const response = NextResponse.redirect(url);
+
     response.cookies.delete('authToken');
+
     return response;
   }
 
   // ✅ Authenticated user hitting login/register → redirect to dashboard
   if (isAuthRoute) {
     const url = request.nextUrl.clone();
+
     url.pathname = '/dashboard';
+
     return NextResponse.redirect(url);
   }
 
