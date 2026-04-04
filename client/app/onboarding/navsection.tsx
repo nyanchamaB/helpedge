@@ -35,8 +35,8 @@ export default function NavHeader() {
           <Image
             src={siteConfig.logo}
             alt="HelpEdge Logo"
-            width={32}
-            height={32}
+            width={40}
+            height={40}
             style={{ width: 'auto', height: '2rem' }}
             className="transition-transform duration-200 hover:scale-105"
           />

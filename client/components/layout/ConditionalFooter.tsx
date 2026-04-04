@@ -7,8 +7,16 @@ const Footer = dynamic(() => import('@/app/onboarding/footer').then((mod) => mod
   ssr: false,
 });
 
-// Only show footer on the landing page
-const SHOW_FOOTER_ROUTES = ['/'];
+// Only show footer on the pages listed in SHOW_FOOTER_ROUTES
+const SHOW_FOOTER_ROUTES = [
+  '/',
+  '/pricing',
+  '/GetStarted',
+  '/ContactTeam',
+  '/resources',
+  '/services',
+  '/features',
+];
 
 export default function ConditionalFooter() {
   const pathname = usePathname();
