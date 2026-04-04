@@ -7,7 +7,7 @@ const Footer = dynamic(() => import('@/app/onboarding/footer').then((mod) => mod
   ssr: false,
 });
 
-// Only show footer on these routes (mostly landing page and public pages)
+// Only show footer on the pages listed in SHOW_FOOTER_ROUTES
 const SHOW_FOOTER_ROUTES = [
   '/',
   '/pricing',
